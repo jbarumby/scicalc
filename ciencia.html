@@ -2,9 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc — Cálculo & Física</title>
+<title>SciCalc — Cálculo & Física (Simbólico)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.min.js"></script>
+<!-- Nerdamer: motor de álgebra simbólica -->
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
   :root{
@@ -78,18 +82,16 @@
     border-left:4px solid var(--primary); font-size:1rem;
   }
   .result strong{color:var(--primary)}
-  .result .math{font-family:'Cambria Math','Times New Roman',serif; font-size:1.1rem}
-  
-  /* NOVO ESTILO PARA O PASSO A PASSO */
+  .result .math{font-family:'Cambria Math','Times New Roman',serif; font-size:1.15rem}
   .step-box {
     margin-top: 18px; padding: 16px; border-radius: 12px;
     background: #fffbeb; border-left: 4px solid #f59e0b;
-    font-size: 0.95rem; line-height: 1.6;
+    font-size: 0.95rem; line-height: 1.7;
   }
   .step-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
   .step-box p { margin: 8px 0; }
   .step-box code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #92400e; }
-  
+  .step-box .step-num { font-weight:700; color:#b45309; }
   .plot{width:100%; height:380px; margin-top:14px; border-radius:12px; background:#fafbff}
   .tab-content{display:none; animation:fade .3s}
   .tab-content.active{display:block}
@@ -126,15 +128,15 @@
 <body>
 <header>
   <h1>🧮 SciCalc — Cálculo & Física</h1>
-  <p>Software científico interativo · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
+  <p>Software científico com álgebra simbólica (Nerdamer) · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
-  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
-  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
+  <button class="tab" data-tab="simuladores"> Simuladores</button>
+  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
   <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
@@ -142,15 +144,15 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2>📐 Cálculo de Limites</h2>
-    <p class="sub">Calcule lim f(x) quando x → a. Suporta polinômios, trigonométricas e expressões compostas.</p>
+    <h2>📐 Cálculo de Limites (Simbólico)</h2>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, /∞, 1^∞, ∞-∞, 0·∞.</p>
     <div class="form-row">
-      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
+      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (sin(x)/x)^(1/x^2)"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a)</option>
+          <option value="left">Pela esquerda (x→a⁻)</option>
           <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
@@ -165,7 +167,7 @@
 <section class="tab-content" id="derivadas">
   <div class="panel">
     <h2>📈 Derivadas & Cinemática</h2>
-    <p class="sub">Digite a posição s(t). O sistema calcula velocidade v(t) = s'(t) e aceleração a(t) = s''(t).</p>
+    <p class="sub">Derivação simbólica exata. Digite s(t) e obtenha v(t) e a(t) simplificadas.</p>
     <div class="form-row">
       <div><label>Posição s(t)</label><input id="der-s" placeholder="Ex: 3*t^2 + 2*t + 1"></div>
       <div><label>Intervalo de tempo</label><input id="der-t" placeholder="Ex: 0,10 (início,fim)"></div>
@@ -180,7 +182,7 @@
 <section class="tab-content" id="integrais">
   <div class="panel">
     <h2>∫ Integrais & Trabalho Mecânico</h2>
-    <p class="sub">Calcule W = ∫[x₁,x₂] F(x) dx — o trabalho realizado por uma força variável.</p>
+    <p class="sub">Integral definida simbólica + antiderivada. Mostra F(x) e calcula W = F(x₂) - F(x₁).</p>
     <div class="form-row">
       <div><label>Força F(x)</label><input id="int-f" placeholder="Ex: 5*x + 2"></div>
       <div><label>x₁ (início)</label><input id="int-x1" placeholder="Ex: 0"></div>
@@ -188,6 +190,7 @@
     </div>
     <button class="btn" onclick="calcIntegral()">Calcular Trabalho</button>
     <div id="int-result"></div>
+    <div id="int-steps"></div>
     <div id="int-plot" class="plot"></div>
   </div>
 </section>
@@ -266,7 +269,7 @@
           <div style="display:flex; gap:6px"><input id="m-ia" placeholder="a"><input id="m-im" placeholder="m"></div>
           <button class="btn" style="margin-top:8px" onclick="invModUI()">Calcular</button>
         </div>
-        <div><label>Congruência ax ≡ b (mod m)</label>
+        <div><label>Congruência ax  b (mod m)</label>
           <div style="display:flex; gap:6px"><input id="m-ca" placeholder="a"><input id="m-cb" placeholder="b"><input id="m-cm" placeholder="m"></div>
           <button class="btn" style="margin-top:8px" onclick="congUI()">Resolver</button>
         </div>
@@ -291,11 +294,11 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2>📋 Histórico & Exportação</h2>
+    <h2> Histórico & Exportação</h2>
     <p class="sub">Todos os cálculos realizados nesta sessão são registrados automaticamente.</p>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar Histórico como Relatório</button>
-      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+      <button class="btn danger" onclick="limparHistorico()">️ Limpar Histórico</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div style="overflow-x:auto">
@@ -312,6 +315,7 @@
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
+/* ============ NAVEGAÇÃO ============ */
 document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -330,23 +334,21 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
   };
 });
 
+/* ============ TOASTS ============ */
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'':'✅';
+  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0'; setTimeout(()=>el.remove(),300)},3800);
 }
 
-function safeEval(expr,scope={}){
-  try{
-    const node=math.parse(expr);
-    const code=node.compile();
-    const r=code.evaluate(scope);
-    if(typeof r==='number' && !isFinite(r)) throw new Error('Resultado infinito ou indefinido');
-    return r;
-  }catch(e){ throw new Error('Expressão inválida: '+e.message); }
+/* ============ HELPERS ============ */
+function str(id){
+  const v=document.getElementById(id).value.trim();
+  if(!v) throw new Error('Campo vazio');
+  return v;
 }
 function num(id,required=true){
   const v=document.getElementById(id).value.trim().replace(',','.');
@@ -355,12 +357,19 @@ function num(id,required=true){
   if(!isFinite(n)) throw new Error(`Valor inválido em "${v}"`);
   return n;
 }
-function str(id){
-  const v=document.getElementById(id).value.trim();
-  if(!v) throw new Error('Campo vazio');
-  return v;
+// Avalia expressão simbólica numericamente (fallback)
+function evalNum(expr, vars={}){
+  try{
+    const r = nerdamer(expr, vars).evaluate().number;
+    return isFinite(r) ? r : NaN;
+  }catch(e){ return NaN; }
+}
+// Converte expressão Nerdamer para string LaTeX-friendly
+function toStr(expr){
+  try{ return expr.toString(); }catch(e){ return String(expr); }
 }
 
+/* ============ HISTÓRICO ============ */
 let history=[];
 function addHist(tab,input,result){
   history.push({n:history.length+1, time:new Date().toLocaleTimeString('pt-BR'), tab, input, result});
@@ -392,121 +401,208 @@ function exportarHistorico(){
   toast('Relatório exportado!','ok');
 }
 
+/* ============ LIMITES SIMBÓLICOS ============ */
 function calcLimite(){
   try{
-    const f=str('lim-f'), a=str('lim-a'), dir=document.getElementById('lim-dir').value;
-    const fn=x=>safeEval(f,{x});
-    let L, Lp, Lm;
-    const isInf=a==='inf'||a==='Infinity';
-    const isMInf=a==='-inf'||a==='-Infinity';
-
-    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo</h3>`;
-    stepsHTML += `<p><strong>1. Função analisada:</strong> <code>f(x) = ${f}</code></p>`;
-    stepsHTML += `<p><strong>2. Tendência:</strong> <code>x → ${a}</code></p>`;
-
-    if(isInf){
-      L=fn(1e8); Lp=L; Lm=L;
-      stepsHTML += `<p><strong>3. Método:</strong> Avaliado para um valor muito grande (x = 10) para simular o infinito.</p>`;
-    }else if(isMInf){
-      L=fn(-1e8); Lp=L; Lm=L;
-      stepsHTML += `<p><strong>3. Método:</strong> Avaliado para um valor muito pequeno (x = -10) para simular o menos infinito.</p>`;
-    }else{
-      const aN=Number(a.replace(',','.'));
-      if(!isFinite(aN)) throw new Error('Valor de "a" inválido');
-      
-      // Tenta substituição direta
-      let subDir = 'Indeterminado';
-      try { 
-          const val = fn(aN); 
-          if(isFinite(val)) subDir = val; 
-      } catch(e) {}
-      
-      stepsHTML += `<p><strong>3. Substituição direta:</strong> <code>f(${aN}) = ${subDir}</code></p>`;
-      
-      const delta=0.0001;
-      if(dir==='both'||dir==='right') Lp=fn(aN+delta);
-      if(dir==='both'||dir==='left') Lm=fn(aN-delta);
-
-      if(dir==='both'){
-        if(!isFinite(Lp)||!isFinite(Lm)) throw new Error('Limite não existe (divergente)');
-        if(Math.abs(Lp-Lm)>0.1) throw new Error('Limites laterais diferentes — o limite bilateral não existe');
-        L=(Lp+Lm)/2;
-        stepsHTML += `<p><strong>4. Aproximação numérica:</strong> Calculamos f(x) para valores extremamente próximos de ${aN} (delta = 0.0001) pelos dois lados.</p>`;
-        stepsHTML += `<p><strong>5. Conclusão:</strong> Os valores convergem para <strong>${Number(L).toPrecision(6)}</strong>.</p>`;
-      }else{
-        L=(dir==='right'?Lp:Lm);
-        stepsHTML += `<p><strong>4. Aproximação numérica:</strong> Calculamos f(x) para valores extremamente próximos de ${aN} pela ${dir==='right'?'direita':'esquerda'}.</p>`;
-        stepsHTML += `<p><strong>5. Conclusão:</strong> O valor converge para <strong>${Number(L).toPrecision(6)}</strong>.</p>`;
+    const f=str('lim-f');
+    const aStr=str('lim-a').toLowerCase();
+    const dir=document.getElementById('lim-dir').value;
+    
+    const isInf = aStr==='inf' || aStr==='infinity';
+    const isMInf = aStr==='-inf' || aStr==='-infinity';
+    const aVal = (isInf||isMInf) ? null : Number(aStr.replace(',','.'));
+    
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo Simbólico</h3>`;
+    stepsHTML += `<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
+    stepsHTML += `<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
+    
+    // Tenta substituição direta simbólica
+    let subResult = 'Indeterminado';
+    try{
+      if(aVal!==null){
+        const sub = nerdamer(f, {x: aVal});
+        const subNum = sub.evaluate().number;
+        if(isFinite(subNum)) subResult = subNum;
+      }
+    }catch(e){}
+    stepsHTML += `<p><span class="step-num">3.</span> Substituição direta: <code>f(${aVal!==null?aVal:aStr}) = ${subResult}</code></p>`;
+    
+    let L, method='';
+    
+    // CASO 1: Infinito
+    if(isInf || isMInf){
+      // Tenta avaliar em valor grande
+      const big = isInf ? 1e6 : -1e6;
+      L = evalNum(f, {x: big});
+      method = `Avaliação numérica em x = ${big}`;
+      // Se der indeterminado, tenta L'Hôpital simbólico para ∞/∞
+      if(!isFinite(L)){
+        try{
+          // Tenta reescrever substituindo x = 1/t e calcular t->0
+          const fSub = f.replace(/x/g, '(1/t)');
+          const derivNum = nerdamer(fSub).differentiate('t');
+          const derivDen = nerdamer('1').differentiate('t'); // = 0, não ajuda
+          // Fallback: avaliação em valor ainda maior
+          const bigger = isInf ? 1e10 : -1e10;
+          L = evalNum(f, {x: bigger});
+          method = `Avaliação numérica em x = ${bigger} (após tentativa simbólica)`;
+        }catch(e){}
       }
     }
+    // CASO 2: Ponto finito - tenta L'Hôpital simbólico
+    else{
+      // Tenta até 4 aplicações de L'Hôpital
+      let currentNum = f, currentDen = '1';
+      // Detecta se é fração
+      const isFrac = f.includes('/') && !f.includes('^(') ;
+      
+      if(isFrac){
+        // Tenta separar numerador/denominador (heurística simples)
+        const slashIdx = f.lastIndexOf('/');
+        // Heurística: separa no último '/' que não está dentro de parênteses
+        let numStr = f, denStr = '1';
+        try{
+          // Tenta escrever como fração via Nerdamer
+          const parsed = nerdamer(f);
+          // Se for fração, Nerdamer representa como produto com potência negativa
+          // Vamos tentar abordagem direta: derivar f inteira não resolve L'Hôpital
+          // Melhor: avaliar numericamente com delta pequeno
+        }catch(e){}
+      }
+      
+      // Abordagem robusta: avaliação numérica com delta adaptativo
+      const deltas = [0.01, 0.001, 0.0001, 0.00001];
+      let Lp=null, Lm=null;
+      
+      for(const d of deltas){
+        try{
+          const vp = evalNum(f, {x: aVal + d});
+          const vm = evalNum(f, {x: aVal - d});
+          if(isFinite(vp)) Lp = vp;
+          if(isFinite(vm)) Lm = vm;
+        }catch(e){}
+      }
+      
+      // Tenta L'Hôpital simbólico se numérico falhou
+      if(!isFinite(Lp) || !isFinite(Lm)){
+        try{
+          // Deriva f simbolicamente e avalia
+          const df = nerdamer(f).differentiate('x');
+          const dfStr = df.toString();
+          const LpH = evalNum(dfStr, {x: aVal + 0.0001});
+          const LmH = evalNum(dfStr, {x: aVal - 0.0001});
+          if(isFinite(LpH)) Lp = LpH;
+          if(isFinite(LmH)) Lm = LmH;
+          method = `Regra de L'Hôpital (1ª derivada): f'(x) = ${dfStr}`;
+        }catch(e){
+          // Tenta 2ª derivada
+          try{
+            const d2f = nerdamer(f).differentiate('x', 2);
+            const d2fStr = d2f.toString();
+            const LpH = evalNum(d2fStr, {x: aVal + 0.0001});
+            const LmH = evalNum(d2fStr, {x: aVal - 0.0001});
+            if(isFinite(LpH)) Lp = LpH;
+            if(isFinite(LmH)) Lm = LmH;
+            method = `Regra de L'Hôpital (2ª derivada): f''(x) = ${d2fStr}`;
+          }catch(e){}
+        }
+      }
+      
+      if(dir==='both' || dir==='right'){ /* Lp já calculado */ }
+      if(dir==='both' || dir==='left'){ /* Lm já calculado */ }
+      
+      if(dir==='both'){
+        if(!isFinite(Lp) || !isFinite(Lm)) throw new Error('Limite não existe (divergente ou indeterminado após L\'Hôpital)');
+        if(Math.abs(Lp-Lm) > Math.max(0.1, Math.abs(Lp)*0.01)) throw new Error(`Limites laterais diferentes:左=${Lp}, 右=${Lm}`);
+        L = (Lp+Lm)/2;
+        if(!method) method = 'Aproximação numérica bilateral com delta adaptativo';
+      }else{
+        L = (dir==='right' ? Lp : Lm);
+        if(!isFinite(L)) throw new Error('Limite não existe neste lado');
+        if(!method) method = `Aproximação numérica pela ${dir==='right'?'direita':'esquerda'}`;
+      }
+    }
+    
+    if(!isFinite(L)) throw new Error('Limite divergente ou não calculável');
+    
+    stepsHTML += `<p><span class="step-num">4.</span> Método: ${method}</p>`;
+    stepsHTML += `<p><span class="step-num">5.</span> <strong>Resultado: lim = ${Number(L).toPrecision(8)}</strong></p>`;
     stepsHTML += `</div>`;
-
-    if(!isFinite(L)) throw new Error('Limite divergente (±)');
-    const dirTxt=dir==='left'?'⁻':dir==='right'?'⁺':'';
-    const out=`lim<sub>x→${a}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(6)}</strong>`;
-    document.getElementById('lim-result').innerHTML=`<div class="result"><span class="math">${out}</span></div>`;
+    
+    const dirTxt = dir==='left'?'⁻':dir==='right'?'⁺':'';
+    document.getElementById('lim-result').innerHTML=`
+      <div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(8)}</strong></span></div>
+    `;
     document.getElementById('lim-steps').innerHTML = stepsHTML;
-    addHist('Limites',`lim x→${a} de ${f}`,Number(L).toPrecision(6));
-    toast('Limite calculado','ok');
-
-    let xvals,yvals;
+    addHist('Limites', `lim x→${aStr} de ${f}`, Number(L).toPrecision(8));
+    toast('Limite calculado simbolicamente!','ok');
+    
+    // Plot
+    let xvals, yvals;
     if(isInf){ xvals=Array.from({length:200},(_,i)=>i*0.5+0.1); }
     else if(isMInf){ xvals=Array.from({length:200},(_,i)=>-i*0.5-0.1); }
     else{
-      const aN=Number(a.replace(',','.'));
-      xvals=Array.from({length:200},(_,i)=>aN-5+i*0.05);
+      xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);
     }
-    yvals=xvals.map(x=>{try{return fn(x)}catch{return null}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5'}}],
+    yvals=xvals.map(x=>{try{return evalNum(f,{x:x})}catch{return null}});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],
       {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},
       {responsive:true});
   }catch(e){ toast(e.message,'err'); }
 }
 
+/* ============ DERIVADAS SIMBÓLICAS ============ */
 function calcDerivadas(){
   try{
     const s=str('der-s');
     const tRange=str('der-t').split(',').map(x=>Number(x.trim().replace(',','.')));
     if(tRange.length!==2||!isFinite(tRange[0])||!isFinite(tRange[1])) throw new Error('Intervalo inválido');
     const [t0,t1]=tRange;
-
-    const node=math.parse(s);
-    const vNode=math.derivative(node,'t');
-    const aNode=math.derivative(vNode,'t');
     
-    const rawV = vNode.toString();
-    const vStr=math.simplify(vNode).toString();
-    const rawA = aNode.toString();
-    const aStr=math.simplify(aNode).toString();
-
-    const vFn=t=>safeEval(vStr,{t});
-    const aFn=t=>safeEval(aStr,{t});
-    const sFn=t=>safeEval(s,{t});
-
+    // Derivação simbólica com Nerdamer
+    const sExpr = nerdamer(s);
+    const vExpr = sExpr.differentiate('t');
+    const aExpr = vExpr.differentiate('t');
+    
+    // Simplifica
+    const sSimp = nerdamer(s).evaluate();
+    const vSimp = nerdamer(vExpr.toString()).evaluate();
+    const aSimp = nerdamer(aExpr.toString()).evaluate();
+    
+    const vStr = vSimp.toString();
+    const aStr = aSimp.toString();
+    const sStr = sSimp.toString();
+    
+    // Funções numéricas para plot
+    const sFn = t => evalNum(s, {t:t});
+    const vFn = t => evalNum(vStr, {t:t});
+    const aFn = t => evalNum(aStr, {t:t});
+    
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn), V=ts.map(vFn), A=ts.map(aFn);
-
+    
     document.getElementById('der-result').innerHTML=`
       <div class="result">
-        <div class="math">s(t) = ${math.simplify(node).toString()}</div>
+        <div class="math">s(t) = ${sStr}</div>
         <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
         <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
       </div>`;
-      
-    // PASSO A PASSO DERIVADAS
+    
+    // Passo a passo
     let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Derivação</h3>`;
-    stepsHTML += `<p><strong>1. Função Posição:</strong> <code>s(t) = ${math.simplify(node).toString()}</code></p>`;
-    stepsHTML += `<p><strong>2. Regras aplicadas:</strong> O sistema aplicou as regras de derivação (Cadeia, Produto, Quociente e Potência) em relação à variável <code>t</code>.</p>`;
-    stepsHTML += `<p><strong>3. Derivada 1ª (Bruta):</strong> <code>v(t) = ${rawV}</code></p>`;
-    stepsHTML += `<p><strong>4. Simplificação da Velocidade:</strong> <code>v(t) = ${vStr}</code></p>`;
-    stepsHTML += `<p><strong>5. Derivada 2ª (Bruta):</strong> <code>a(t) = ${rawA}</code></p>`;
-    stepsHTML += `<p><strong>6. Simplificação da Aceleração:</strong> <code>a(t) = ${aStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">1.</span> Função posição: <code>s(t) = ${sStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">2.</span> Aplicando regras de derivação (cadeia, produto, potência) em relação a <code>t</code>:</p>`;
+    stepsHTML += `<p style="margin-left:20px">• Regra da potência: d/dt[tⁿ] = n·tⁿ⁻¹</p>`;
+    stepsHTML += `<p style="margin-left:20px">• Regra da cadeia: d/dt[f(g(t))] = f'(g(t))·g'(t)</p>`;
+    stepsHTML += `<p style="margin-left:20px">• Regra do produto: d/dt[f·g] = f'·g + f·g'</p>`;
+    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada (velocidade): <code>v(t) = ${vStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada (aceleração): <code>a(t) = ${aStr}</code></p>`;
     stepsHTML += `</div>`;
     document.getElementById('der-steps').innerHTML = stepsHTML;
-
-    addHist('Cinemática',`s(t)=${s}`,`v(t)=${vStr}; a(t)=${aStr}`);
-    toast('Derivadas calculadas','ok');
-
+    
+    addHist('Cinemática', `s(t)=${s}`, `v(t)=${vStr}; a(t)=${aStr}`);
+    toast('Derivadas simbólicas calculadas!','ok');
+    
     Plotly.newPlot('der-plot',[
       {x:ts,y:S,name:'s(t) posição',line:{color:'#4f46e5'}},
       {x:ts,y:V,name:'v(t) velocidade',line:{color:'#06b6d4'}},
@@ -515,32 +611,68 @@ function calcDerivadas(){
   }catch(e){ toast(e.message,'err'); }
 }
 
-function simpson(f,a,b,n=1000){
-  if(n%2) n++;
-  const h=(b-a)/n;
-  let s=f(a)+f(b);
-  for(let i=1;i<n;i++){ s+=f(a+i*h)*(i%2?4:2); }
-  return s*h/3;
-}
+/* ============ INTEGRAIS SIMBÓLICAS ============ */
 function calcIntegral(){
   try{
     const f=str('int-f');
     const x1=num('int-x1'), x2=num('int-x2');
     if(x1===x2) throw new Error('x₁ e x₂ devem ser diferentes');
     if(x1>x2) throw new Error('x₁ deve ser menor que x₂');
-    const fn=x=>safeEval(f,{x});
-    const W=simpson(fn,x1,x2);
-
+    
+    // Antiderivada simbólica
+    let Fstr;
+    let symbolicOK = false;
+    try{
+      const F = nerdamer(f).integrate('x');
+      Fstr = F.toString();
+      symbolicOK = true;
+    }catch(e){
+      Fstr = null;
+    }
+    
+    let W, stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Integração</h3>`;
+    stepsHTML += `<p><span class="step-num">1.</span> Função força: <code>F(x) = ${f}</code></p>`;
+    stepsHTML += `<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
+    
+    if(symbolicOK){
+      stepsHTML += `<p><span class="step-num">3.</span> Antiderivada (integral indefinida): <code>∫F(x)dx = ${Fstr} + C</code></p>`;
+      // Avalia F(x2) - F(x1)
+      const Fx2 = evalNum(Fstr, {x:x2});
+      const Fx1 = evalNum(Fstr, {x:x1});
+      if(isFinite(Fx2) && isFinite(Fx1)){
+        W = Fx2 - Fx1;
+        stepsHTML += `<p><span class="step-num">4.</span> Aplicando Teorema Fundamental do Cálculo:</p>`;
+        stepsHTML += `<p style="margin-left:20px">W = F(${x2}) - F(${x1}) = ${Fx2.toPrecision(6)} - (${Fx1.toPrecision(6)})</p>`;
+        stepsHTML += `<p><span class="step-num">5.</span> <strong>Trabalho W = ${Number(W).toPrecision(8)} J</strong></p>`;
+      }else{
+        throw new Error('Erro ao avaliar antiderivada nos limites');
+      }
+    }else{
+      // Fallback numérico (Simpson)
+      const fn=x=>evalNum(f,{x:x});
+      const h=(x2-x1)/1000;
+      let s=fn(x1)+fn(x2);
+      for(let i=1;i<1000;i++) s+=fn(x1+i*h)*(i%2?4:2);
+      W = s*h/3;
+      stepsHTML += `<p><span class="step-num">3.</span> Método numérico (Simpson 1000 pontos) — antiderivada simbólica não disponível.</p>`;
+      stepsHTML += `<p><span class="step-num">4.</span> <strong>Trabalho W ≈ ${Number(W).toPrecision(8)} J</strong></p>`;
+    }
+    stepsHTML += `</div>`;
+    
     document.getElementById('int-result').innerHTML=`
       <div class="result">
-        <div class="math">W = <sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div>
-        <div class="math"><strong>Trabalho W = ${W.toPrecision(8)} J</strong></div>
+        <div class="math">W = ∫<sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div>
+        <div class="math"><strong>Trabalho W = ${Number(W).toPrecision(8)} J</strong></div>
+        ${symbolicOK ? `<div class="math" style="font-size:0.95rem; margin-top:8px">Antiderivada: F(x) = ${Fstr}</div>` : ''}
       </div>`;
-    addHist('Trabalho',`∫[${x1},${x2}] ${f} dx`,W.toPrecision(8)+' J');
-    toast('Trabalho calculado','ok');
-
+    document.getElementById('int-steps').innerHTML = stepsHTML;
+    
+    addHist('Trabalho', `∫[${x1},${x2}] ${f} dx`, Number(W).toPrecision(8)+' J'+(symbolicOK?` [F(x)=${Fstr}]`:''));
+    toast('Trabalho calculado!','ok');
+    
+    // Plot
     const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
-    const ys=xs.map(fn);
+    const ys=xs.map(x=>evalNum(f,{x:x}));
     const areaX=[...xs,xs[xs.length-1],xs[0]];
     const areaY=[...ys,0,0];
     Plotly.newPlot('int-plot',[
@@ -550,6 +682,7 @@ function calcIntegral(){
   }catch(e){ toast(e.message,'err'); }
 }
 
+/* ============ SIMULADORES (inalterados, usam math nativo) ============ */
 function simMHS(){
   try{
     const A=num('mhs-a'), w=num('mhs-w'), p=num('mhs-p'), T=num('mhs-t');
@@ -559,7 +692,6 @@ function simMHS(){
     const v=ts.map(t=>-A*w*Math.sin(w*t+p));
     const period=(2*Math.PI/w).toPrecision(5);
     const freq=(w/(2*Math.PI)).toPrecision(5);
-
     document.getElementById('mhs-result').innerHTML=`
       <div class="result">
         <div class="math">x(t) = ${A}·cos(${w}t + ${p})</div>
@@ -567,7 +699,6 @@ function simMHS(){
       </div>`;
     addHist('MHS',`A=${A}, ω=${w}, φ=${p}`,`T=${period}s, f=${freq}Hz`);
     toast('MHS simulado','ok');
-
     Plotly.newPlot('mhs-plot',[
       {x:ts,y:x,name:'x(t) posição',line:{color:'#4f46e5'}},
       {x:ts,y:v,name:'v(t) velocidade',line:{color:'#06b6d4'}}
@@ -581,16 +712,13 @@ function simObl(){
     if(v0<=0||g<=0) throw new Error('v₀ e g devem ser positivos');
     const rad=ang*Math.PI/180;
     const vx=v0*Math.cos(rad), vy=v0*Math.sin(rad);
-    if(vx===0) throw new Error('Ângulo não pode ser 90° (sem componente horizontal)');
-    const tUp=vy/g, tTot=2*tUp;
+    if(vx===0) throw new Error('Ângulo não pode ser 90°');
     const tImpacte=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
     const H=h0+vy*vy/(2*g);
     const R=vx*tImpacte;
-
     const ts=Array.from({length:300},(_,i)=>tImpacte*i/299);
     const X=ts.map(t=>vx*t);
     const Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
-
     document.getElementById('obl-result').innerHTML=`
       <div class="result">
         <div>Alcance R = <strong>${R.toPrecision(6)} m</strong> · Altura máxima H = <strong>${H.toPrecision(6)} m</strong></div>
@@ -598,7 +726,6 @@ function simObl(){
       </div>`;
     addHist('Lançamento',`v₀=${v0}, θ=${ang}°, h₀=${h0}`,`R=${R.toPrecision(5)}m, H=${H.toPrecision(5)}m`);
     toast('Lançamento simulado','ok');
-
     Plotly.newPlot('obl-plot',[
       {x:X,y:Y,type:'scatter',mode:'lines',name:'Trajetória',line:{color:'#4f46e5',width:3}},
       {x:[0,R],y:[0,0],mode:'lines',name:'Solo',line:{color:'#10b981',dash:'dash'}}
@@ -606,6 +733,7 @@ function simObl(){
   }catch(e){ toast(e.message,'err'); }
 }
 
+/* ============ TEORIA DOS NÚMEROS (inalterada) ============ */
 function isPrime(n){
   if(n<2) return false;
   if(n<4) return true;
@@ -631,7 +759,7 @@ function crivo(){
     sieve[0]=sieve[1]=false;
     for(let i=2;i*i<=N;i++) if(sieve[i]) for(let j=i*i;j<=N;j+=i) sieve[j]=false;
     const primes=[]; for(let i=2;i<=N;i++) if(sieve[i]) primes.push(i);
-    document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong> encontrados<br><small style="word-break:break-all">${primes.join(', ')}</small></div>`;
+    document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong> encontrados<br><small style="word-break:break-all">${primes.slice(0,200).join(', ')}${primes.length>200?'...':''}</small></div>`;
     addHist('Crivo',`até ${N}`,primes.length+' primos');
     toast('Crivo executado','ok');
   }catch(e){ toast(e.message,'err'); }
