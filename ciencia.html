@@ -76,7 +76,7 @@
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
   <button class="tab" data-tab="simuladores"> Simuladores</button>
   <button class="tab" data-tab="numeros"> Teoria dos Números</button>
-  <button class="tab" data-tab="historico"> Histórico & Exportação</button>
+  <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
 <main>
@@ -171,7 +171,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2> Teoria dos Números</h2>
+    <h2>🔢 Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -260,24 +260,22 @@ function toast(msg,type='err'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id,required=true){const v=document.getElementById(id).value.trim().replace(',','.');if(!v){if(required)throw new Error('Campo vazio');return NaN;}const n=Number(v);if(!isFinite(n))throw new Error(`Valor inválido em "${v}"`);return n;}
 
-// 🚀 DERIVADA SIMBÓLICA - USANDO MÉTODO .differentiate() DO OBJETO
+// 🚀 DERIVADA SIMBÓLICA - USANDO FUNÇÃO derivative() CORRETAMENTE
 function derivadaSimbolica(expr, varName){
   try{
-    // Cria expressão Nerdamer e usa método .differentiate()
-    const derivExpr = nerdamer(expr);
-    const derivResult = derivExpr.diff(varName); // método diff()
-    return derivResult.text();
+    // Nerdamer v1.1.13: usar derivative() como função, não como método
+    const result = nerdamer('derivative(' + expr + ', ' + varName + ')');
+    return result.text();
   }catch(e){
     throw new Error('Erro ao derivar: ' + e.message);
   }
 }
 
-// 🚀 INTEGRAL SIMBÓLICA - USANDO MÉTODO .integrate() DO OBJETO
+//  INTEGRAL SIMBÓLICA - USANDO FUNÇÃO integrate() CORRETAMENTE
 function integralSimbolica(expr, varName){
   try{
-    const intExpr = nerdamer(expr);
-    const intResult = intExpr.integrate(varName);
-    return intResult.text();
+    const result = nerdamer('integrate(' + expr + ', ' + varName + ')');
+    return result.text();
   }catch(e){
     throw new Error('Erro ao integrar: ' + e.message);
   }
@@ -389,7 +387,7 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=(isInf||isMInf)?null:Number(aStr.replace(',','.'));
     
-    let stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo Simbólico</h3>`;
+    let stepsHTML=`<div class="step-box"><h3> Passo a Passo Simbólico</h3>`;
     stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML+=`<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
@@ -421,9 +419,9 @@ function calcLimite(){
           const denZero=!isFinite(denVal)||Math.abs(denVal)<1e-9;
           if(numZero&&denZero){
             try{
-              // 🚀 Usa método .diff() do objeto Nerdamer
-              const newNum = nerdamer(curNum).diff('x').text();
-              const newDen = nerdamer(curDen).diff('x').text();
+              // 🚀 Usa função derivative() corretamente
+              const newNum = nerdamer('derivative('+curNum+', x)').text();
+              const newDen = nerdamer('derivative('+curDen+', x)').text();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
               curNum=newNum;curDen=newDen;lhopitalApplied=iter;
             }catch(e){lhLog.push(`  → Erro: ${e.message}`);break;}
@@ -485,7 +483,7 @@ function calcDerivadas(){
     const s=str('der-s');
     const [t0,t1]=parseIntervalo(str('der-t'));
     
-    // 🚀 Usa método .diff() do objeto Nerdamer
+    // 🚀 Usa função derivative() corretamente
     const vStr=derivadaSimbolica(s,'t');
     const aStr=derivadaSimbolica(vStr,'t');
     
@@ -544,7 +542,7 @@ function calcIntegral(){
       symbolicOK=true;
     }catch(e){Fstr=null;}
     
-    let W,stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo</h3>`;
+    let W,stepsHTML=`<div class="step-box"><h3> Passo a Passo</h3>`;
     stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>F(x) = ${f}</code></p>`;
     stepsHTML+=`<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
     
