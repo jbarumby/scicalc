@@ -72,9 +72,9 @@
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites"> Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
-  <button class="tab" data-tab="integrais"> Integrais & Trabalho</button>
+  <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
   <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
-  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
+  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
   <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
@@ -82,7 +82,7 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2>📐 Cálculo de Limites</h2>
+    <h2> Cálculo de Limites</h2>
     <p class="sub">Cálculo numérico preciso com múltiplas aproximações.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
@@ -91,7 +91,7 @@
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
           <option value="left">Pela esquerda (x→a⁻)</option>
-          <option value="right">Pela direita (x→a⁺)</option>
+          <option value="right">Pela direita (x→a)</option>
         </select>
       </div>
     </div>
@@ -103,8 +103,8 @@
 
 <section class="tab-content" id="derivadas">
   <div class="panel">
-    <h2>📈 Derivadas & Cinemática</h2>
-    <p class="sub">Digite s(t) e o sistema calcula v(t) e a(t) numericamente, com tabela de valores.</p>
+    <h2> Derivadas & Cinemática</h2>
+    <p class="sub">Digite s(t) e o sistema calcula v(t) e a(t) com expressões simbólicas quando possível.</p>
     <div class="form-row">
       <div><label>Posição s(t)</label><input id="der-s" placeholder="Ex: 3*t^2 + 2*t + 1"></div>
       <div><label>Intervalo de tempo</label><input id="der-t" placeholder="Ex: 0,10 ou 0 a 10"></div>
@@ -133,7 +133,7 @@
 
 <section class="tab-content" id="simuladores">
   <div class="panel">
-    <h2>🚀 Simuladores de Física</h2>
+    <h2> Simuladores de Física</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="mhs">Oscilador Harmônico (MHS)</button>
       <button class="sub-tab" data-sub="obl">Lançamento Oblíquo</button>
@@ -209,7 +209,7 @@
     <p class="sub">Todos os cálculos realizados nesta sessão são registrados automaticamente.</p>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar Histórico como Relatório</button>
-      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
+      <button class="btn danger" onclick="limparHistorico()">️ Limpar Histórico</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div style="overflow-x:auto">
@@ -247,7 +247,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
+  const icon=type==='err'?'️':type==='warn'?'⚡':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300)},3800);
@@ -269,7 +269,20 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// 🚀 LIMITE NUMÉRICO - Múltiplas aproximações
+// 🚀 ARREDONDAMENTO INTELIGENTE
+function roundClean(n){
+  if(!isFinite(n))return n;
+  const tol=1e-6;
+  const rounded=Math.round(n);
+  if(Math.abs(n-rounded)<tol)return rounded;
+  for(let d=2;d<=20;d++){
+    const num=Math.round(n*d);
+    if(Math.abs(n-num/d)<tol)return num/d;
+  }
+  return parseFloat(n.toFixed(6));
+}
+
+// 🚀 LIMITE NUMÉRICO - Múltiplas aproximações com extrapolação
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -283,19 +296,18 @@ function calcLimite(){
     let L,method='';
     
     if(isInf){
-      // Limite no infinito
       const vals=[1e3,1e4,1e5,1e6].map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length===0)throw new Error('Não foi possível calcular');
       L=vals[vals.length-1];
-      method='Aproximação em x → +∞';
+      method='Aproximação em x → +';
     }else if(isMInf){
       const vals=[-1e3,-1e4,-1e5,-1e6].map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length===0)throw new Error('Não foi possível calcular');
       L=vals[vals.length-1];
       method='Aproximação em x → -∞';
     }else{
-      // Limite finito - múltiplas aproximações
-      const deltas=[0.1,0.01,0.001,0.0001,0.00001];
+      //  Múltiplas aproximações com deltas decrescentes
+      const deltas=[0.001,0.0001,0.00001,0.000001];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
@@ -328,14 +340,13 @@ function calcLimite(){
       }
     }
     
-    // Arredonda se estiver próximo de valor "limpo"
-    const rounded=Math.round(L);
-    if(Math.abs(L-rounded)<1e-6)L=rounded;
+    // 🚀 Arredondamento inteligente
+    L=roundClean(L);
     
     const dirTxt=dir==='left'?'⁻':dir==='right'?'⁺':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
-        <div class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(8)}</strong></div>
+        <div class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${L}</strong></div>
         <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Método: ${method}</div>
       </div>`;
     
@@ -351,7 +362,7 @@ function calcLimite(){
   }catch(e){toast(e.message,'err');}
 }
 
-// 🚀 DERIVADAS NUMÉRICAS
+// 🚀 DERIVADAS COM NERDAMER (simbólico) + FALLBACK NUMÉRICO
 function calcDerivadas(){
   try{
     const s=str('der-s');
@@ -373,29 +384,52 @@ function calcDerivadas(){
     
     if(!isFinite(t0)||!isFinite(t1))throw new Error('Intervalo inválido');
     
+    // 🚀 Tenta derivada simbólica com Nerdamer
+    let vStr='',aStr='',simbolicoOK=false;
+    try{
+      const expr=nerdamer(s);
+      const vExpr=expr.diff('t');
+      const aExpr=vExpr.diff('t');
+      vStr=vExpr.text();
+      aStr=aExpr.text();
+      // Verifica se não contém "diff" ou "derivative" (não resolvido)
+      if(!vStr.includes('diff(')&&!vStr.includes('derivative(')&&!aStr.includes('diff(')&&!aStr.includes('derivative(')){
+        simbolicoOK=true;
+      }
+    }catch(e){
+      simbolicoOK=false;
+    }
+    
     // Função posição
     const sFn=t=>evalMath(s,{t:t});
     
-    // Derivada primeira numérica (diferenças centradas)
-    const vFn=t=>{
-      const h=1e-5;
-      return (sFn(t+h)-sFn(t-h))/(2*h);
-    };
-    
-    // Derivada segunda numérica
-    const aFn=t=>{
-      const h=1e-4;
-      return (sFn(t+h)-2*sFn(t)+sFn(t-h))/(h*h);
-    };
+    // Derivadas (simbólicas ou numéricas)
+    let vFn,aFn;
+    if(simbolicoOK){
+      vFn=t=>evalMath(vStr,{t:t});
+      aFn=t=>evalMath(aStr,{t:t});
+    }else{
+      // Fallback numérico
+      vFn=t=>{const h=1e-5;return(sFn(t+h)-sFn(t-h))/(2*h);};
+      aFn=t=>{const h=1e-4;return(sFn(t+h)-2*sFn(t)+sFn(t-h))/(h*h);};
+    }
     
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn),V=ts.map(vFn),A=ts.map(aFn);
     
-    document.getElementById('der-result').innerHTML=`
-      <div class="result">
-        <div class="math">s(t) = ${s}</div>
-        <div style="color:var(--muted);margin-top:8px">v(t) e a(t) calculados numericamente (diferenças finitas)</div>
-      </div>`;
+    // 🚀 Exibe resultado com v(t) e a(t)
+    let resultHTML=`<div class="result">
+      <div class="math">s(t) = ${s}</div>`;
+    if(simbolicoOK){
+      resultHTML+=`
+        <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
+        <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>`;
+    }else{
+      resultHTML+=`
+        <div style="color:var(--muted);margin-top:8px">v(t) e a(t) calculados numericamente (diferenças finitas)</div>`;
+    }
+    resultHTML+=`</div>`;
+    document.getElementById('der-result').innerHTML=resultHTML;
     
     // Tabela
     const nPoints=10;
@@ -408,7 +442,7 @@ function calcDerivadas(){
     tableHTML+=`</tbody></table></div>`;
     document.getElementById('der-table').innerHTML=tableHTML;
     
-    toast('Derivadas calculadas!','ok');
+    toast(simbolicoOK?'Derivadas simbólicas calculadas!':'Derivadas numéricas calculadas!','ok');
     
     Plotly.newPlot('der-plot',[
       {x:ts,y:S,name:'s(t)',line:{color:'#4f46e5'}},
@@ -480,7 +514,7 @@ function simObl(){
   }catch(e){toast(e.message,'err');}
 }
 
-//  TEORIA DOS NÚMEROS (inalterado - já funciona)
+//  TEORIA DOS NÚMEROS
 function isPrime(n){if(n<2)return false;if(n<4)return true;if(n%2===0||n%3===0)return false;for(let i=5;i*i<=n;i+=6)if(n%i===0||n%(i+2)===0)return false;return true;}
 function testPrimo(){try{const n=Math.floor(num('p-n'));if(n<0)throw new Error('n≥0');const r=isPrime(n);document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${r?'<span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO primo</span>'}</div>`;toast('Teste concluído','ok');}catch(e){toast(e.message,'err');}}
 function crivo(){try{const N=Math.floor(num('p-sieve'));if(N<2||N>1e6)throw new Error('2≤N≤1e6');const sieve=new Array(N+1).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<=N;i++)if(sieve[i])for(let j=i*i;j<=N;j+=i)sieve[j]=false;const primes=[];for(let i=2;i<=N;i++)if(sieve[i])primes.push(i);document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong><br><small>${primes.slice(0,100).join(', ')}${primes.length>100?'...':''}</small></div>`;toast('Crivo executado','ok');}catch(e){toast(e.message,'err');}}
