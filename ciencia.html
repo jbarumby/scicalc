@@ -10,56 +10,32 @@
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
-  :root{
-    --bg:#f4f6fb; --panel:#ffffff; --ink:#1a2238; --muted:#6b7390;
-    --primary:#4f46e5; --primary-2:#7c3aed; --accent:#06b6d4;
-    --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
-    --border:#e5e7eb; --shadow:0 8px 24px rgba(30,41,80,.08);
-    --radius:14px;
-  }
+  :root{--bg:#f4f6fb;--panel:#ffffff;--ink:#1a2238;--muted:#6b7390;--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px;}
   *{box-sizing:border-box}
-  body{margin:0; font-family:'Segoe UI',system-ui,sans-serif;
-    background:linear-gradient(135deg,#eef2ff 0%,#f4f6fb 50%,#ecfeff 100%);
-    color:var(--ink); min-height:100vh;}
-  header{background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff; padding:22px 32px; box-shadow:var(--shadow);}
+  body{margin:0; font-family:'Segoe UI',system-ui,sans-serif; background:linear-gradient(135deg,#eef2ff 0%,#f4f6fb 50%,#ecfeff 100%); color:var(--ink); min-height:100vh;}
+  header{background:linear-gradient(120deg,var(--primary),var(--primary-2)); color:#fff; padding:22px 32px; box-shadow:var(--shadow);}
   header h1{margin:0; font-size:1.7rem;}
   header p{margin:4px 0 0; opacity:.9; font-size:.95rem}
-  .tabs{display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px;
-    background:#fff; border-bottom:1px solid var(--border);
-    position:sticky; top:0; z-index:10;}
-  .tab{padding:10px 18px; border:none; background:transparent; cursor:pointer;
-    border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem; transition:all .2s;}
+  .tabs{display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px; background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10;}
+  .tab{padding:10px 18px; border:none; background:transparent; cursor:pointer; border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem; transition:all .2s;}
   .tab:hover{background:#eef2ff; color:var(--primary)}
-  .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.3);}
+  .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2)); color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.3);}
   main{padding:28px; max-width:1200px; margin:0 auto}
-  .panel{background:var(--panel); border-radius:var(--radius);
-    padding:24px; box-shadow:var(--shadow); margin-bottom:20px;}
-  .panel h2{margin:0 0 6px; font-size:1.3rem;
-    background:linear-gradient(90deg,var(--primary),var(--primary-2));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
+  .panel{background:var(--panel); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-bottom:20px;}
+  .panel h2{margin:0 0 6px; font-size:1.3rem; background:linear-gradient(90deg,var(--primary),var(--primary-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
   .panel .sub{color:var(--muted); font-size:.9rem; margin-bottom:18px}
   .form-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:14px}
   label{display:block; font-size:.85rem; font-weight:600; margin-bottom:6px; color:var(--ink)}
-  input, select{width:100%; padding:10px 12px; border:1.5px solid var(--border);
-    border-radius:10px; font-size:.95rem; font-family:inherit; transition:all .2s; background:#fafbff;}
-  input:focus, select:focus{outline:none; border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(79,70,229,.15); background:#fff;}
-  .btn{padding:11px 22px; border:none; border-radius:10px; cursor:pointer;
-    font-weight:600; font-size:.95rem; transition:all .2s;
-    background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25);}
+  input, select{width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:.95rem; font-family:inherit; transition:all .2s; background:#fafbff;}
+  input:focus, select:focus{outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,70,229,.15); background:#fff;}
+  .btn{padding:11px 22px; border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:.95rem; transition:all .2s; background:linear-gradient(120deg,var(--primary),var(--primary-2)); color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25);}
   .btn:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(79,70,229,.35)}
   .btn.accent{background:linear-gradient(120deg,var(--accent),#0891b2)}
   .btn.danger{background:linear-gradient(120deg,var(--err),#dc2626)}
-  .result{margin-top:18px; padding:16px; border-radius:12px;
-    background:linear-gradient(135deg,#eef2ff,#ecfeff);
-    border-left:4px solid var(--primary); font-size:1rem;}
+  .result{margin-top:18px; padding:16px; border-radius:12px; background:linear-gradient(135deg,#eef2ff,#ecfeff); border-left:4px solid var(--primary); font-size:1rem;}
   .result strong{color:var(--primary)}
   .result .math{font-family:'Cambria Math','Times New Roman',serif; font-size:1.15rem}
-  .step-box{margin-top:18px; padding:16px; border-radius:12px;
-    background:#fffbeb; border-left:4px solid #f59e0b; font-size:.95rem; line-height:1.7;}
+  .step-box{margin-top:18px; padding:16px; border-radius:12px; background:#fffbeb; border-left:4px solid #f59e0b; font-size:.95rem; line-height:1.7;}
   .step-box h3{margin-top:0; color:#b45309; font-size:1.1rem;}
   .step-box p{margin:8px 0;}
   .step-box code{background:#fef3c7; padding:2px 6px; border-radius:4px; font-family:monospace; color:#92400e;}
@@ -69,17 +45,13 @@
   .tab-content.active{display:block}
   @keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
   .toast-wrap{position:fixed; top:20px; right:20px; z-index:1000; display:flex; flex-direction:column; gap:10px}
-  .toast{padding:12px 18px; border-radius:10px; color:#fff; font-weight:500;
-    box-shadow:0 8px 20px rgba(0,0,0,.15); min-width:260px;
-    animation:slide .3s; display:flex; align-items:center; gap:10px;}
+  .toast{padding:12px 18px; border-radius:10px; color:#fff; font-weight:500; box-shadow:0 8px 20px rgba(0,0,0,.15); min-width:260px; animation:slide .3s; display:flex; align-items:center; gap:10px;}
   .toast.err{background:linear-gradient(120deg,var(--err),#dc2626)}
   .toast.warn{background:linear-gradient(120deg,var(--warn),#d97706)}
   .toast.ok{background:linear-gradient(120deg,var(--ok),#059669)}
   @keyframes slide{from{transform:translateX(120%)}to{transform:none}}
   .sub-tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap}
-  .sub-tab{padding:8px 14px; border:1.5px solid var(--border); background:#fff;
-    border-radius:8px; cursor:pointer; font-size:.88rem; font-weight:600;
-    color:var(--muted); transition:all .2s;}
+  .sub-tab{padding:8px 14px; border:1.5px solid var(--border); background:#fff; border-radius:8px; cursor:pointer; font-size:.88rem; font-weight:600; color:var(--muted); transition:all .2s;}
   .sub-tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
   .sub-panel{display:none}
   .sub-panel.active{display:block}
@@ -113,14 +85,14 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites (Simbólico)</h2>
-    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^∞, ∞-∞, 0·∞.</p>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, /∞, 1^∞, -∞, 0·∞.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a)</option>
+          <option value="left">Pela esquerda (x→a⁻)</option>
           <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
@@ -138,7 +110,7 @@
     <p class="sub">Derivação simbólica exata. Digite s(t) e obtenha v(t) e a(t) simplificadas.</p>
     <div class="form-row">
       <div><label>Posição s(t)</label><input id="der-s" placeholder="Ex: 3*t^2 + 2*t + 1"></div>
-      <div><label>Intervalo de tempo</label><input id="der-t" placeholder="Ex: 0,10 (início,fim)"></div>
+      <div><label>Intervalo de tempo</label><input id="der-t" placeholder="Ex: 0,10 ou 0 a 10"></div>
     </div>
     <button class="btn" onclick="calcDerivadas()">Calcular & Plotar</button>
     <div id="der-result"></div>
@@ -199,7 +171,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2>🔢 Teoria dos Números</h2>
+    <h2> Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -321,20 +293,93 @@ function num(id,required=true){
   return n;
 }
 
-// 🚀 Arredonda valores muito próximos de números "limpos"
+// 🚀 Parser robusto de intervalo: aceita "0,10", "0 a 10", "0;10", "0 10", "0 até 10"
+function parseIntervalo(str){
+  // Remove espaços extras
+  str = str.trim();
+  
+  // Tenta separar por "a", "até", ";", ",", espaço
+  let parts = null;
+  
+  // Padrão: número (a|até) número
+  const matchA = str.match(/^(-?\d+\.?\d*)\s*(a|até)\s*(-?\d+\.?\d*)$/i);
+  if(matchA){
+    parts = [matchA[1], matchA[3]];
+  }
+  
+  // Padrão: número; número
+  if(!parts && str.includes(';')){
+    parts = str.split(';');
+  }
+  
+  // Padrão: número, número (mas cuidado com vírgula decimal)
+  if(!parts && str.includes(',')){
+    // Se tem apenas uma vírgula e parece ser separador (não decimal)
+    const commaCount = (str.match(/,/g) || []).length;
+    if(commaCount === 1){
+      // Verifica se não é decimal (ex: "0,5" seria 0.5)
+      const testNum = Number(str.replace(',','.'));
+      if(!isFinite(testNum)){
+        // Não é número válido com vírgula decimal, então é separador
+        parts = str.split(',');
+      }else{
+        // É um número com vírgula decimal, não é intervalo
+        throw new Error('Formato de intervalo inválido. Use: "0,10" ou "0 a 10"');
+      }
+    }else{
+      // Múltiplas vírgulas - assume separador
+      parts = str.split(',');
+    }
+  }
+  
+  // Padrão: número espaço número
+  if(!parts){
+    const matchSpace = str.match(/^(-?\d+\.?\d*)\s+(-?\d+\.?\d*)$/);
+    if(matchSpace){
+      parts = [matchSpace[1], matchSpace[2]];
+    }
+  }
+  
+  if(!parts){
+    throw new Error('Formato de intervalo inválido. Exemplos: "0,10", "0 a 10", "0;10"');
+  }
+  
+  // Converte para números
+  const n1 = Number(parts[0].trim().replace(',','.'));
+  const n2 = Number(parts[1].trim().replace(',','.'));
+  
+  if(!isFinite(n1) || !isFinite(n2)){
+    throw new Error('Valores do intervalo inválidos');
+  }
+  
+  return [n1, n2];
+}
+
+// 🚀 Arredondamento inteligente para valores "limpos"
 function roundClean(n){
   if(!isFinite(n)) return n;
-  // Tenta inteiros próximos
-  if(Math.abs(n - Math.round(n)) < 1e-6) return Math.round(n);
-  // Tenta frações simples (denominador até 12)
-  for(let d=2; d<=12; d++){
+  
+  // Tolerância mais agressiva: 1e-5
+  const tol = 1e-5;
+  
+  // Inteiros próximos
+  const rounded = Math.round(n);
+  if(Math.abs(n - rounded) < tol) return rounded;
+  
+  // Frações simples (denominador até 20)
+  for(let d=2; d<=20; d++){
     const num = Math.round(n*d);
-    if(Math.abs(n - num/d) < 1e-6) return num/d;
+    if(Math.abs(n - num/d) < tol) return num/d;
   }
+  
+  // Valores com poucas casas decimais
+  const fixed2 = parseFloat(n.toFixed(2));
+  if(Math.abs(n - fixed2) < tol) return fixed2;
+  
   return n;
 }
 
-// 🚀 Parser robusto: converte expressão matemática (formato Nerdamer) para JavaScript
+// 🚀 Parser robusto: converte expressão matemática para JavaScript
 function mathToJS(expr, vars={}){
   let js = expr;
   
@@ -351,7 +396,7 @@ function mathToJS(expr, vars={}){
     js = js.replace(new RegExp('\\b'+func+'\\b','g'), ph);
   }
   
-  // 2. Substitui variáveis (ex: t -> (2.5))
+  // 2. Substitui variáveis
   for(const [key, val] of Object.entries(vars)){
     js = js.replace(new RegExp('\\b'+key+'\\b','g'), '('+val+')');
   }
@@ -373,7 +418,7 @@ function mathToJS(expr, vars={}){
   js = js.replace(/\bpi\b/gi, 'Math.PI');
   js = js.replace(/\be\b/g, 'Math.E');
   
-  // 5. ^ para ** (potência)
+  // 5. ^ para **
   js = js.replace(/\^/g, '**');
   
   return js;
@@ -524,7 +569,6 @@ function calcLimite(){
         stepsHTML += `<div style="margin-left:20px; font-size:0.85rem; background:#fef3c7; padding:10px; border-radius:6px">${lhLog.join('<br>')}</div>`;
         stepsHTML += `<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
         
-        // 🚀 Avaliação com múltiplos deltas para maior precisão
         const finalNum = evalMath(curNum, {x: aVal});
         const finalDen = evalMath(curDen, {x: aVal});
         
@@ -532,7 +576,6 @@ function calcLimite(){
           L = finalNum / finalDen;
           method = `L'Hôpital simbólico (${lhopitalApplied}x) + avaliação direta`;
         }else{
-          // Fallback: média de múltiplos deltas
           const deltas = [0.01, 0.001, 0.0001, 0.00001];
           const vals = [];
           for(const d of deltas){
@@ -541,8 +584,8 @@ function calcLimite(){
             if(isFinite(vp) && isFinite(vm)) vals.push((vp+vm)/2);
           }
           if(vals.length>0){
-            L = vals[vals.length-1]; // Usa o delta menor
-            method = `Média de aproximações numéricas (deltas: ${deltas.join(', ')})`;
+            L = vals[vals.length-1];
+            method = `Média de aproximações numéricas`;
           }
         }
       }else{
@@ -560,7 +603,7 @@ function calcLimite(){
     
     if(!isFinite(L)) throw new Error('Limite divergente ou não calculável');
     
-    // 🚀 Arredonda para valor limpo se estiver muito próximo
+    // 🚀 Arredonda para valor limpo
     L = roundClean(L);
     
     const stepNum = fracDetected ? 7 : 4;
@@ -591,11 +634,12 @@ function calcLimite(){
 function calcDerivadas(){
   try{
     const s=str('der-s');
-    const tRange=str('der-t').split(',').map(x=>Number(x.trim().replace(',','.')));
-    if(tRange.length!==2||!isFinite(tRange[0])||!isFinite(tRange[1])) throw new Error('Intervalo inválido');
-    const [t0,t1]=tRange;
+    const tRangeStr=str('der-t');
     
-    // 🚀 Derivação simbólica com Nerdamer (sem .evaluate() que bagunça)
+    // 🚀 Parser robusto de intervalo
+    const [t0,t1] = parseIntervalo(tRangeStr);
+    
+    // Derivação simbólica com Nerdamer
     const vExpr = nerdamer(s).differentiate('t');
     const aExpr = vExpr.differentiate('t');
     
