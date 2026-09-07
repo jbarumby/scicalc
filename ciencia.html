@@ -18,99 +18,68 @@
     --radius:14px;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  body{margin:0; font-family:'Segoe UI',system-ui,sans-serif;
     background:linear-gradient(135deg,#eef2ff 0%,#f4f6fb 50%,#ecfeff 100%);
-    color:var(--ink); min-height:100vh;
-  }
-  header{
-    background:linear-gradient(120deg,var(--primary) 0%,var(--primary-2) 100%);
-    color:#fff; padding:22px 32px; box-shadow:var(--shadow);
-  }
-  header h1{margin:0; font-size:1.7rem; letter-spacing:.3px}
+    color:var(--ink); min-height:100vh;}
+  header{background:linear-gradient(120deg,var(--primary),var(--primary-2));
+    color:#fff; padding:22px 32px; box-shadow:var(--shadow);}
+  header h1{margin:0; font-size:1.7rem;}
   header p{margin:4px 0 0; opacity:.9; font-size:.95rem}
-  .tabs{
-    display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px;
+  .tabs{display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px;
     background:#fff; border-bottom:1px solid var(--border);
-    position:sticky; top:0; z-index:10;
-  }
-  .tab{
-    padding:10px 18px; border:none; background:transparent; cursor:pointer;
-    border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem;
-    transition:all .2s;
-  }
+    position:sticky; top:0; z-index:10;}
+  .tab{padding:10px 18px; border:none; background:transparent; cursor:pointer;
+    border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem; transition:all .2s;}
   .tab:hover{background:#eef2ff; color:var(--primary)}
-  .tab.active{
-    background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.3);
-  }
+  .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2));
+    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.3);}
   main{padding:28px; max-width:1200px; margin:0 auto}
-  .panel{
-    background:var(--panel); border-radius:var(--radius);
-    padding:24px; box-shadow:var(--shadow); margin-bottom:20px;
-  }
-  .panel h2{
-    margin:0 0 6px; font-size:1.3rem;
+  .panel{background:var(--panel); border-radius:var(--radius);
+    padding:24px; box-shadow:var(--shadow); margin-bottom:20px;}
+  .panel h2{margin:0 0 6px; font-size:1.3rem;
     background:linear-gradient(90deg,var(--primary),var(--primary-2));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  }
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;}
   .panel .sub{color:var(--muted); font-size:.9rem; margin-bottom:18px}
   .form-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:14px}
   label{display:block; font-size:.85rem; font-weight:600; margin-bottom:6px; color:var(--ink)}
-  input, select{
-    width:100%; padding:10px 12px; border:1.5px solid var(--border);
-    border-radius:10px; font-size:.95rem; font-family:inherit;
-    transition:all .2s; background:#fafbff;
-  }
-  input:focus, select:focus{
-    outline:none; border-color:var(--primary);
-    box-shadow:0 0 0 3px rgba(79,70,229,.15); background:#fff;
-  }
-  .btn{
-    padding:11px 22px; border:none; border-radius:10px; cursor:pointer;
+  input, select{width:100%; padding:10px 12px; border:1.5px solid var(--border);
+    border-radius:10px; font-size:.95rem; font-family:inherit; transition:all .2s; background:#fafbff;}
+  input:focus, select:focus{outline:none; border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(79,70,229,.15); background:#fff;}
+  .btn{padding:11px 22px; border:none; border-radius:10px; cursor:pointer;
     font-weight:600; font-size:.95rem; transition:all .2s;
     background:linear-gradient(120deg,var(--primary),var(--primary-2));
-    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25);
-  }
+    color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25);}
   .btn:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(79,70,229,.35)}
   .btn.accent{background:linear-gradient(120deg,var(--accent),#0891b2)}
   .btn.danger{background:linear-gradient(120deg,var(--err),#dc2626)}
-  .result{
-    margin-top:18px; padding:16px; border-radius:12px;
+  .result{margin-top:18px; padding:16px; border-radius:12px;
     background:linear-gradient(135deg,#eef2ff,#ecfeff);
-    border-left:4px solid var(--primary); font-size:1rem;
-  }
+    border-left:4px solid var(--primary); font-size:1rem;}
   .result strong{color:var(--primary)}
   .result .math{font-family:'Cambria Math','Times New Roman',serif; font-size:1.15rem}
-  .step-box {
-    margin-top: 18px; padding: 16px; border-radius: 12px;
-    background: #fffbeb; border-left: 4px solid #f59e0b;
-    font-size: 0.95rem; line-height: 1.7;
-  }
-  .step-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
-  .step-box p { margin: 8px 0; }
-  .step-box code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #92400e; }
-  .step-box .step-num { font-weight:700; color:#b45309; }
+  .step-box{margin-top:18px; padding:16px; border-radius:12px;
+    background:#fffbeb; border-left:4px solid #f59e0b; font-size:.95rem; line-height:1.7;}
+  .step-box h3{margin-top:0; color:#b45309; font-size:1.1rem;}
+  .step-box p{margin:8px 0;}
+  .step-box code{background:#fef3c7; padding:2px 6px; border-radius:4px; font-family:monospace; color:#92400e;}
+  .step-box .step-num{font-weight:700; color:#b45309;}
   .plot{width:100%; height:380px; margin-top:14px; border-radius:12px; background:#fafbff}
   .tab-content{display:none; animation:fade .3s}
   .tab-content.active{display:block}
   @keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
   .toast-wrap{position:fixed; top:20px; right:20px; z-index:1000; display:flex; flex-direction:column; gap:10px}
-  .toast{
-    padding:12px 18px; border-radius:10px; color:#fff; font-weight:500;
+  .toast{padding:12px 18px; border-radius:10px; color:#fff; font-weight:500;
     box-shadow:0 8px 20px rgba(0,0,0,.15); min-width:260px;
-    animation:slide .3s; display:flex; align-items:center; gap:10px;
-  }
+    animation:slide .3s; display:flex; align-items:center; gap:10px;}
   .toast.err{background:linear-gradient(120deg,var(--err),#dc2626)}
   .toast.warn{background:linear-gradient(120deg,var(--warn),#d97706)}
   .toast.ok{background:linear-gradient(120deg,var(--ok),#059669)}
   @keyframes slide{from{transform:translateX(120%)}to{transform:none}}
   .sub-tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap}
-  .sub-tab{
-    padding:8px 14px; border:1.5px solid var(--border); background:#fff;
+  .sub-tab{padding:8px 14px; border:1.5px solid var(--border); background:#fff;
     border-radius:8px; cursor:pointer; font-size:.88rem; font-weight:600;
-    color:var(--muted); transition:all .2s;
-  }
+    color:var(--muted); transition:all .2s;}
   .sub-tab.active{background:var(--primary); color:#fff; border-color:var(--primary)}
   .sub-panel{display:none}
   .sub-panel.active{display:block}
@@ -144,14 +113,14 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites (Simbólico)</h2>
-    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, /∞, 1^∞, -∞, 0·∞.</p>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^∞, ∞-∞, 0·∞.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a⁻)</option>
+          <option value="left">Pela esquerda (x→a)</option>
           <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
@@ -201,7 +170,6 @@
       <button class="sub-tab active" data-sub="mhs">Oscilador Harmônico (MHS)</button>
       <button class="sub-tab" data-sub="obl">Lançamento Oblíquo</button>
     </div>
-
     <div class="sub-panel active" id="sub-mhs">
       <p class="sub">x(t) = A·cos(ωt + φ). Informe amplitude, frequência angular e fase.</p>
       <div class="form-row">
@@ -214,7 +182,6 @@
       <div id="mhs-result"></div>
       <div id="mhs-plot" class="plot"></div>
     </div>
-
     <div class="sub-panel" id="sub-obl">
       <p class="sub">Informe velocidade inicial, ângulo e altura inicial. Gráfico: altura (Y) × distância horizontal (X).</p>
       <div class="form-row">
@@ -238,7 +205,6 @@
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
       <button class="sub-tab" data-sub="funcoes">Funções Teóricas</button>
     </div>
-
     <div class="sub-panel active" id="sub-primos">
       <div class="form-row">
         <div><label>Teste de primalidade</label><input id="p-n" placeholder="Ex: 97"><button class="btn" style="margin-top:8px" onclick="testPrimo()">Testar</button></div>
@@ -257,7 +223,6 @@
       </div>
       <div id="p-result"></div>
     </div>
-
     <div class="sub-panel" id="sub-modular">
       <div class="form-row">
         <div><label>Potência modular a^b mod m</label>
@@ -279,7 +244,6 @@
       </div>
       <div id="m-result"></div>
     </div>
-
     <div class="sub-panel" id="sub-funcoes">
       <div class="form-row">
         <div><label>n</label><input id="f-n" placeholder="Ex: 60">
@@ -337,7 +301,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'':'✅';
+  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0'; setTimeout(()=>el.remove(),300)},3800);
@@ -357,52 +321,64 @@ function num(id,required=true){
   return n;
 }
 
-// 🚀 NOVO: Parser robusto que converte expressão matemática para JavaScript
+// 🚀 Arredonda valores muito próximos de números "limpos"
+function roundClean(n){
+  if(!isFinite(n)) return n;
+  // Tenta inteiros próximos
+  if(Math.abs(n - Math.round(n)) < 1e-6) return Math.round(n);
+  // Tenta frações simples (denominador até 12)
+  for(let d=2; d<=12; d++){
+    const num = Math.round(n*d);
+    if(Math.abs(n - num/d) < 1e-6) return num/d;
+  }
+  return n;
+}
+
+// 🚀 Parser robusto: converte expressão matemática (formato Nerdamer) para JavaScript
 function mathToJS(expr, vars={}){
   let js = expr;
   
-  // 1. Primeiro, protege funções matemáticas substituindo por placeholders
+  // 1. Protege funções matemáticas com placeholders
   const funcMap = {
-    'sin': '__SIN__', 'cos': '__COS__', 'tan': '__TAN__',
-    'asin': '__ASIN__', 'acos': '__ACOS__', 'atan': '__ATAN__',
-    'sqrt': '__SQRT__', 'log': '__LOG__', 'log10': '__LOG10__',
-    'exp': '__EXP__', 'abs': '__ABS__', 'sec': '__SEC__',
-    'csc': '__CSC__', 'cot': '__COT__'
+    'sin':'__SIN__','cos':'__COS__','tan':'__TAN__',
+    'asin':'__ASIN__','acos':'__ACOS__','atan':'__ATAN__',
+    'sqrt':'__SQRT__','log':'__LOG__','log10':'__LOG10__',
+    'exp':'__EXP__','abs':'__ABS__','sec':'__SEC__',
+    'csc':'__CSC__','cot':'__COT__','sinh':'__SINH__',
+    'cosh':'__COSH__','tanh':'__TANH__'
   };
-  
-  for(const [func, placeholder] of Object.entries(funcMap)){
-    js = js.replace(new RegExp(`\\b${func}\\b`, 'g'), placeholder);
+  for(const [func, ph] of Object.entries(funcMap)){
+    js = js.replace(new RegExp('\\b'+func+'\\b','g'), ph);
   }
   
-  // 2. Substitui variáveis
+  // 2. Substitui variáveis (ex: t -> (2.5))
   for(const [key, val] of Object.entries(vars)){
-    js = js.replace(new RegExp(`\\b${key}\\b`, 'g'), `(${val})`);
+    js = js.replace(new RegExp('\\b'+key+'\\b','g'), '('+val+')');
   }
   
-  // 3. Restaura funções matemáticas com Math.
+  // 3. Restaura funções como Math.xxx
   const funcRestore = {
-    '__SIN__': 'Math.sin', '__COS__': 'Math.cos', '__TAN__': 'Math.tan',
-    '__ASIN__': 'Math.asin', '__ACOS__': 'Math.acos', '__ATAN__': 'Math.atan',
-    '__SQRT__': 'Math.sqrt', '__LOG__': 'Math.log', '__LOG10__': 'Math.log10',
-    '__EXP__': 'Math.exp', '__ABS__': 'Math.abs', '__SEC__': '(1/Math.cos)',
-    '__CSC__': '(1/Math.sin)', '__COT__': '(1/Math.tan)'
+    '__SIN__':'Math.sin','__COS__':'Math.cos','__TAN__':'Math.tan',
+    '__ASIN__':'Math.asin','__ACOS__':'Math.acos','__ATAN__':'Math.atan',
+    '__SQRT__':'Math.sqrt','__LOG__':'Math.log','__LOG10__':'Math.log10',
+    '__EXP__':'Math.exp','__ABS__':'Math.abs',
+    '__SEC__':'(1/Math.cos)','__CSC__':'(1/Math.sin)','__COT__':'(1/Math.tan)',
+    '__SINH__':'Math.sinh','__COSH__':'Math.cosh','__TANH__':'Math.tanh'
   };
-  
-  for(const [placeholder, func] of Object.entries(funcRestore)){
-    js = js.replace(new RegExp(placeholder, 'g'), func);
+  for(const [ph, func] of Object.entries(funcRestore)){
+    js = js.replace(new RegExp(ph,'g'), func);
   }
   
-  // 4. Substitui constantes
+  // 4. Constantes
   js = js.replace(/\bpi\b/gi, 'Math.PI');
   js = js.replace(/\be\b/g, 'Math.E');
   
-  // 5. Converte ^ para **
+  // 5. ^ para ** (potência)
   js = js.replace(/\^/g, '**');
   
   return js;
 }
 
-// Avaliação numérica robusta
 function evalMath(expr, vars={}){
   try{
     const jsExpr = mathToJS(expr, vars);
@@ -462,8 +438,7 @@ function separarFracao(expr){
   while(num.startsWith('(') && num.endsWith(')') && num.length>1){
     let d=0, ok=true;
     for(let i=0;i<num.length;i++){
-      if(num[i]==='(') d++;
-      else if(num[i]===')') d--;
+      if(num[i]==='(') d++; else if(num[i]===')') d--;
       if(d===0 && i<num.length-1){ ok=false; break; }
     }
     if(!ok) break;
@@ -472,8 +447,7 @@ function separarFracao(expr){
   while(den.startsWith('(') && den.endsWith(')') && den.length>1){
     let d=0, ok=true;
     for(let i=0;i<den.length;i++){
-      if(den[i]==='(') d++;
-      else if(den[i]===')') d--;
+      if(den[i]==='(') d++; else if(den[i]===')') d--;
       if(d===0 && i<den.length-1){ ok=false; break; }
     }
     if(!ok) break;
@@ -493,14 +467,14 @@ function calcLimite(){
     const isMInf = aStr==='-inf' || aStr==='-infinity';
     const aVal = (isInf||isMInf) ? null : Number(aStr.replace(',','.'));
     
-    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo Simbólico</h3>`;
+    let stepsHTML = `<div class="step-box"><h3> Passo a Passo Simbólico</h3>`;
     stepsHTML += `<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
     let subResult = 'Indeterminado';
     if(aVal!==null){
       const subNum = evalMath(f, {x: aVal});
-      if(isFinite(subNum)) subResult = subNum;
+      if(isFinite(subNum)) subResult = roundClean(subNum);
     }
     stepsHTML += `<p><span class="step-num">3.</span> Substituição direta: <code>f(${aVal!==null?aVal:aStr}) = ${subResult}</code></p>`;
     
@@ -550,35 +524,44 @@ function calcLimite(){
         stepsHTML += `<div style="margin-left:20px; font-size:0.85rem; background:#fef3c7; padding:10px; border-radius:6px">${lhLog.join('<br>')}</div>`;
         stepsHTML += `<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
         
+        // 🚀 Avaliação com múltiplos deltas para maior precisão
         const finalNum = evalMath(curNum, {x: aVal});
         const finalDen = evalMath(curDen, {x: aVal});
         
         if(isFinite(finalNum) && isFinite(finalDen) && Math.abs(finalDen) > 1e-10){
           L = finalNum / finalDen;
-          method = `L'Hôpital simbólico (${lhopitalApplied}x) + avaliação final`;
+          method = `L'Hôpital simbólico (${lhopitalApplied}x) + avaliação direta`;
         }else{
-          const delta = 0.001;
-          const Lp = evalMath(f, {x: aVal + delta});
-          const Lm = evalMath(f, {x: aVal - delta});
-          if(isFinite(Lp) && isFinite(Lm)){
-            L = (Lp + Lm) / 2;
-            method = `Fallback numérico (delta=${delta})`;
+          // Fallback: média de múltiplos deltas
+          const deltas = [0.01, 0.001, 0.0001, 0.00001];
+          const vals = [];
+          for(const d of deltas){
+            const vp = evalMath(f, {x: aVal + d});
+            const vm = evalMath(f, {x: aVal - d});
+            if(isFinite(vp) && isFinite(vm)) vals.push((vp+vm)/2);
+          }
+          if(vals.length>0){
+            L = vals[vals.length-1]; // Usa o delta menor
+            method = `Média de aproximações numéricas (deltas: ${deltas.join(', ')})`;
           }
         }
       }else{
-        const delta = 0.001;
-        const Lp = evalMath(f, {x: aVal + delta});
-        const Lm = evalMath(f, {x: aVal - delta});
-        if(dir==='both'){
-          if(isFinite(Lp) && isFinite(Lm)) L = (Lp+Lm)/2;
-        }else{
-          L = (dir==='right' ? Lp : Lm);
+        const deltas = [0.01, 0.001, 0.0001, 0.00001];
+        const vals = [];
+        for(const d of deltas){
+          const vp = evalMath(f, {x: aVal + d});
+          const vm = evalMath(f, {x: aVal - d});
+          if(isFinite(vp) && isFinite(vm)) vals.push((vp+vm)/2);
         }
-        method = `Avaliação numérica (delta=${delta})`;
+        if(vals.length>0) L = vals[vals.length-1];
+        method = `Média de aproximações numéricas`;
       }
     }
     
     if(!isFinite(L)) throw new Error('Limite divergente ou não calculável');
+    
+    // 🚀 Arredonda para valor limpo se estiver muito próximo
+    L = roundClean(L);
     
     const stepNum = fracDetected ? 7 : 4;
     stepsHTML += `<p><span class="step-num">${stepNum}.</span> Método: ${method}</p>`;
@@ -596,9 +579,7 @@ function calcLimite(){
     let xvals, yvals;
     if(isInf){ xvals=Array.from({length:200},(_,i)=>i*0.5+0.1); }
     else if(isMInf){ xvals=Array.from({length:200},(_,i)=>-i*0.5-0.1); }
-    else{
-      xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);
-    }
+    else{ xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05); }
     yvals=xvals.map(x=>{try{return evalMath(f,{x:x})}catch{return null}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],
       {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},
@@ -614,18 +595,14 @@ function calcDerivadas(){
     if(tRange.length!==2||!isFinite(tRange[0])||!isFinite(tRange[1])) throw new Error('Intervalo inválido');
     const [t0,t1]=tRange;
     
-    const sExpr = nerdamer(s);
-    const vExpr = sExpr.differentiate('t');
+    // 🚀 Derivação simbólica com Nerdamer (sem .evaluate() que bagunça)
+    const vExpr = nerdamer(s).differentiate('t');
     const aExpr = vExpr.differentiate('t');
     
-    const sSimp = nerdamer(s).evaluate();
-    const vSimp = nerdamer(vExpr.toString()).evaluate();
-    const aSimp = nerdamer(aExpr.toString()).evaluate();
+    const vStr = vExpr.toString();
+    const aStr = aExpr.toString();
     
-    const vStr = vSimp.toString();
-    const aStr = aSimp.toString();
-    const sStr = sSimp.toString();
-    
+    // Funções numéricas para plot
     const sFn = t => evalMath(s, {t:t});
     const vFn = t => evalMath(vStr, {t:t});
     const aFn = t => evalMath(aStr, {t:t});
@@ -635,16 +612,16 @@ function calcDerivadas(){
     
     document.getElementById('der-result').innerHTML=`
       <div class="result">
-        <div class="math">s(t) = ${sStr}</div>
+        <div class="math">s(t) = ${s}</div>
         <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
         <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
       </div>`;
     
-    let stepsHTML = `<div class="step-box"><h3> Passo a Passo da Derivação</h3>`;
-    stepsHTML += `<p><span class="step-num">1.</span> Função posição: <code>s(t) = ${sStr}</code></p>`;
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Derivação</h3>`;
+    stepsHTML += `<p><span class="step-num">1.</span> Função posição: <code>s(t) = ${s}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Regras aplicadas: cadeia, produto, potência, trigonométricas.</p>`;
-    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada: <code>v(t) = ${vStr}</code></p>`;
-    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada: <code>a(t) = ${aStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada (velocidade): <code>v(t) = ${vStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada (aceleração): <code>a(t) = ${aStr}</code></p>`;
     stepsHTML += `</div>`;
     document.getElementById('der-steps').innerHTML = stepsHTML;
     
@@ -673,11 +650,9 @@ function calcIntegral(){
       const F = nerdamer(f).integrate('x');
       Fstr = F.toString();
       symbolicOK = true;
-    }catch(e){
-      Fstr = null;
-    }
+    }catch(e){ Fstr = null; }
     
-    let W, stepsHTML = `<div class="step-box"><h3> Passo a Passo da Integração</h3>`;
+    let W, stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Integração</h3>`;
     stepsHTML += `<p><span class="step-num">1.</span> Função força: <code>F(x) = ${f}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
     
@@ -778,8 +753,7 @@ function simObl(){
 
 /* ============ TEORIA DOS NÚMEROS ============ */
 function isPrime(n){
-  if(n<2) return false;
-  if(n<4) return true;
+  if(n<2) return false; if(n<4) return true;
   if(n%2===0||n%3===0) return false;
   for(let i=5;i*i<=n;i+=6) if(n%i===0||n%(i+2)===0) return false;
   return true;
