@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>SciCalc — Cálculo & Física (Simbólico)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Nerdamer: motor de álgebra simbólica -->
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
@@ -127,16 +126,16 @@
 </head>
 <body>
 <header>
-  <h1>🧮 SciCalc — Cálculo & Física</h1>
+  <h1> SciCalc — Cálculo & Física</h1>
   <p>Software científico com álgebra simbólica (Nerdamer) · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
 </header>
 
 <nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="limites">📐 Limites</button>
+  <button class="tab active" data-tab="limites"> Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
-  <button class="tab" data-tab="simuladores"> Simuladores</button>
-  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
+  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
+  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
   <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
@@ -145,9 +144,9 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites (Simbólico)</h2>
-    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, /∞, 1^∞, ∞-∞, 0·∞.</p>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^∞, ∞-∞, 0·∞.</p>
     <div class="form-row">
-      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (sin(x)/x)^(1/x^2)"></div>
+      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
@@ -233,7 +232,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2> Teoria dos Números</h2>
+    <h2>🔢 Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -269,7 +268,7 @@
           <div style="display:flex; gap:6px"><input id="m-ia" placeholder="a"><input id="m-im" placeholder="m"></div>
           <button class="btn" style="margin-top:8px" onclick="invModUI()">Calcular</button>
         </div>
-        <div><label>Congruência ax  b (mod m)</label>
+        <div><label>Congruência ax ≡ b (mod m)</label>
           <div style="display:flex; gap:6px"><input id="m-ca" placeholder="a"><input id="m-cb" placeholder="b"><input id="m-cm" placeholder="m"></div>
           <button class="btn" style="margin-top:8px" onclick="congUI()">Resolver</button>
         </div>
@@ -294,7 +293,7 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2> Histórico & Exportação</h2>
+    <h2>📋 Histórico & Exportação</h2>
     <p class="sub">Todos os cálculos realizados nesta sessão são registrados automaticamente.</p>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar Histórico como Relatório</button>
@@ -357,16 +356,11 @@ function num(id,required=true){
   if(!isFinite(n)) throw new Error(`Valor inválido em "${v}"`);
   return n;
 }
-// Avalia expressão simbólica numericamente (fallback)
 function evalNum(expr, vars={}){
   try{
     const r = nerdamer(expr, vars).evaluate().number;
     return isFinite(r) ? r : NaN;
   }catch(e){ return NaN; }
-}
-// Converte expressão Nerdamer para string LaTeX-friendly
-function toStr(expr){
-  try{ return expr.toString(); }catch(e){ return String(expr); }
 }
 
 /* ============ HISTÓRICO ============ */
@@ -401,6 +395,49 @@ function exportarHistorico(){
   toast('Relatório exportado!','ok');
 }
 
+/* ============ DETECTOR DE FRAÇÃO ============ */
+function separarFracao(expr){
+  // Encontra o '/' principal (fora de parênteses e não precedido por ^)
+  let depth=0, mainSlash=-1;
+  for(let i=0;i<expr.length;i++){
+    const c=expr[i];
+    if(c==='('||c==='['||c==='{') depth++;
+    else if(c===')'||c===']'||c==='}') depth--;
+    else if(c==='/' && depth===0){
+      // Evita capturar '/' em '^/' ou dentro de '//'
+      if(i>0 && expr[i-1]==='^') continue;
+      mainSlash=i;
+      break;
+    }
+  }
+  if(mainSlash<0) return null;
+  let num=expr.substring(0,mainSlash).trim();
+  let den=expr.substring(mainSlash+1).trim();
+  // Remove parênteses externos balanceados
+  while(num.startsWith('(') && num.endsWith(')') && num.length>1){
+    // Verifica se os parênteses são balanceados
+    let d=0, ok=true;
+    for(let i=0;i<num.length;i++){
+      if(num[i]==='(') d++;
+      else if(num[i]===')') d--;
+      if(d===0 && i<num.length-1){ ok=false; break; }
+    }
+    if(!ok) break;
+    num=num.slice(1,-1);
+  }
+  while(den.startsWith('(') && den.endsWith(')') && den.length>1){
+    let d=0, ok=true;
+    for(let i=0;i<den.length;i++){
+      if(den[i]==='(') d++;
+      else if(den[i]===')') d--;
+      if(d===0 && i<den.length-1){ ok=false; break; }
+    }
+    if(!ok) break;
+    den=den.slice(1,-1);
+  }
+  return {num, den};
+}
+
 /* ============ LIMITES SIMBÓLICOS ============ */
 function calcLimite(){
   try{
@@ -416,126 +453,107 @@ function calcLimite(){
     stepsHTML += `<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
-    // Tenta substituição direta simbólica
+    // Substituição direta
     let subResult = 'Indeterminado';
     try{
       if(aVal!==null){
-        const sub = nerdamer(f, {x: aVal});
-        const subNum = sub.evaluate().number;
+        const subNum = evalNum(f, {x: aVal});
         if(isFinite(subNum)) subResult = subNum;
       }
     }catch(e){}
     stepsHTML += `<p><span class="step-num">3.</span> Substituição direta: <code>f(${aVal!==null?aVal:aStr}) = ${subResult}</code></p>`;
     
-    let L, method='';
+    let L, method='', lhopitalApplied=0, fracDetected=false;
     
-    // CASO 1: Infinito
     if(isInf || isMInf){
-      // Tenta avaliar em valor grande
       const big = isInf ? 1e6 : -1e6;
       L = evalNum(f, {x: big});
       method = `Avaliação numérica em x = ${big}`;
-      // Se der indeterminado, tenta L'Hôpital simbólico para ∞/∞
-      if(!isFinite(L)){
-        try{
-          // Tenta reescrever substituindo x = 1/t e calcular t->0
-          const fSub = f.replace(/x/g, '(1/t)');
-          const derivNum = nerdamer(fSub).differentiate('t');
-          const derivDen = nerdamer('1').differentiate('t'); // = 0, não ajuda
-          // Fallback: avaliação em valor ainda maior
-          const bigger = isInf ? 1e10 : -1e10;
-          L = evalNum(f, {x: bigger});
-          method = `Avaliação numérica em x = ${bigger} (após tentativa simbólica)`;
-        }catch(e){}
-      }
-    }
-    // CASO 2: Ponto finito - tenta L'Hôpital simbólico
-    else{
-      // Tenta até 4 aplicações de L'Hôpital
-      let currentNum = f, currentDen = '1';
-      // Detecta se é fração
-      const isFrac = f.includes('/') && !f.includes('^(') ;
+    }else{
+      // Tenta separar em fração
+      const frac = separarFracao(f);
       
-      if(isFrac){
-        // Tenta separar numerador/denominador (heurística simples)
-        const slashIdx = f.lastIndexOf('/');
-        // Heurística: separa no último '/' que não está dentro de parênteses
-        let numStr = f, denStr = '1';
-        try{
-          // Tenta escrever como fração via Nerdamer
-          const parsed = nerdamer(f);
-          // Se for fração, Nerdamer representa como produto com potência negativa
-          // Vamos tentar abordagem direta: derivar f inteira não resolve L'Hôpital
-          // Melhor: avaliar numericamente com delta pequeno
-        }catch(e){}
-      }
-      
-      // Abordagem robusta: avaliação numérica com delta adaptativo
-      const deltas = [0.01, 0.001, 0.0001, 0.00001];
-      let Lp=null, Lm=null;
-      
-      for(const d of deltas){
-        try{
-          const vp = evalNum(f, {x: aVal + d});
-          const vm = evalNum(f, {x: aVal - d});
-          if(isFinite(vp)) Lp = vp;
-          if(isFinite(vm)) Lm = vm;
-        }catch(e){}
-      }
-      
-      // Tenta L'Hôpital simbólico se numérico falhou
-      if(!isFinite(Lp) || !isFinite(Lm)){
-        try{
-          // Deriva f simbolicamente e avalia
-          const df = nerdamer(f).differentiate('x');
-          const dfStr = df.toString();
-          const LpH = evalNum(dfStr, {x: aVal + 0.0001});
-          const LmH = evalNum(dfStr, {x: aVal - 0.0001});
-          if(isFinite(LpH)) Lp = LpH;
-          if(isFinite(LmH)) Lm = LmH;
-          method = `Regra de L'Hôpital (1ª derivada): f'(x) = ${dfStr}`;
-        }catch(e){
-          // Tenta 2ª derivada
-          try{
-            const d2f = nerdamer(f).differentiate('x', 2);
-            const d2fStr = d2f.toString();
-            const LpH = evalNum(d2fStr, {x: aVal + 0.0001});
-            const LmH = evalNum(d2fStr, {x: aVal - 0.0001});
-            if(isFinite(LpH)) Lp = LpH;
-            if(isFinite(LmH)) Lm = LmH;
-            method = `Regra de L'Hôpital (2ª derivada): f''(x) = ${d2fStr}`;
-          }catch(e){}
+      if(frac){
+        fracDetected = true;
+        stepsHTML += `<p><span class="step-num">4.</span> Fração detectada. Numerador: <code>${frac.num}</code>, Denominador: <code>${frac.den}</code></p>`;
+        
+        let curNum = frac.num, curDen = frac.den;
+        let lhLog = [];
+        
+        for(let iter=1; iter<=5; iter++){
+          const numVal = evalNum(curNum, {x: aVal});
+          const denVal = evalNum(curDen, {x: aVal});
+          lhLog.push(`<b>Iteração ${iter}:</b> num(${aVal})=${isFinite(numVal)?numVal.toPrecision(4):'NaN'}, den(${aVal})=${isFinite(denVal)?denVal.toPrecision(4):'NaN'}`);
+          
+          const numZero = !isFinite(numVal) || Math.abs(numVal) < 1e-7;
+          const denZero = !isFinite(denVal) || Math.abs(denVal) < 1e-7;
+          
+          if(numZero && denZero){
+            try{
+              const newNum = nerdamer(curNum).differentiate('x').toString();
+              const newDen = nerdamer(curDen).differentiate('x').toString();
+              lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
+              curNum = newNum;
+              curDen = newDen;
+              lhopitalApplied = iter;
+            }catch(e){ 
+              lhLog.push(`  → Erro ao derivar: ${e.message}`);
+              break; 
+            }
+          }else{
+            lhLog.push(`  → Não é mais 0/0. Parando.`);
+            break;
+          }
         }
-      }
-      
-      if(dir==='both' || dir==='right'){ /* Lp já calculado */ }
-      if(dir==='both' || dir==='left'){ /* Lm já calculado */ }
-      
-      if(dir==='both'){
-        if(!isFinite(Lp) || !isFinite(Lm)) throw new Error('Limite não existe (divergente ou indeterminado após L\'Hôpital)');
-        if(Math.abs(Lp-Lm) > Math.max(0.1, Math.abs(Lp)*0.01)) throw new Error(`Limites laterais diferentes:左=${Lp}, 右=${Lm}`);
-        L = (Lp+Lm)/2;
-        if(!method) method = 'Aproximação numérica bilateral com delta adaptativo';
+        
+        stepsHTML += `<p><span class="step-num">5.</span> Aplicações de L'Hôpital: <strong>${lhopitalApplied}</strong></p>`;
+        stepsHTML += `<div style="margin-left:20px; font-size:0.85rem; background:#fef3c7; padding:10px; border-radius:6px">${lhLog.join('<br>')}</div>`;
+        stepsHTML += `<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
+        
+        const finalNum = evalNum(curNum, {x: aVal});
+        const finalDen = evalNum(curDen, {x: aVal});
+        
+        if(isFinite(finalNum) && isFinite(finalDen) && Math.abs(finalDen) > 1e-10){
+          L = finalNum / finalDen;
+          method = `L'Hôpital simbólico (${lhopitalApplied}x) + avaliação final`;
+        }else{
+          // Fallback: avaliação numérica com delta
+          const delta = 0.001;
+          const Lp = evalNum(f, {x: aVal + delta});
+          const Lm = evalNum(f, {x: aVal - delta});
+          if(isFinite(Lp) && isFinite(Lm)){
+            L = (Lp + Lm) / 2;
+            method = `Fallback numérico (delta=${delta})`;
+          }
+        }
       }else{
-        L = (dir==='right' ? Lp : Lm);
-        if(!isFinite(L)) throw new Error('Limite não existe neste lado');
-        if(!method) method = `Aproximação numérica pela ${dir==='right'?'direita':'esquerda'}`;
+        // Não é fração — avaliação numérica
+        const delta = 0.001;
+        const Lp = evalNum(f, {x: aVal + delta});
+        const Lm = evalNum(f, {x: aVal - delta});
+        if(dir==='both'){
+          if(isFinite(Lp) && isFinite(Lm)) L = (Lp+Lm)/2;
+        }else{
+          L = (dir==='right' ? Lp : Lm);
+        }
+        method = `Avaliação numérica (delta=${delta})`;
       }
     }
     
     if(!isFinite(L)) throw new Error('Limite divergente ou não calculável');
     
-    stepsHTML += `<p><span class="step-num">4.</span> Método: ${method}</p>`;
-    stepsHTML += `<p><span class="step-num">5.</span> <strong>Resultado: lim = ${Number(L).toPrecision(8)}</strong></p>`;
+    const stepNum = fracDetected ? 7 : 4;
+    stepsHTML += `<p><span class="step-num">${stepNum}.</span> Método: ${method}</p>`;
+    stepsHTML += `<p><span class="step-num">${stepNum+1}.</span> <strong>Resultado: lim = ${Number(L).toPrecision(8)}</strong></p>`;
     stepsHTML += `</div>`;
     
-    const dirTxt = dir==='left'?'⁻':dir==='right'?'⁺':'';
+    const dirTxt = dir==='left'?'':dir==='right'?'⁺':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(8)}</strong></span></div>
     `;
     document.getElementById('lim-steps').innerHTML = stepsHTML;
     addHist('Limites', `lim x→${aStr} de ${f}`, Number(L).toPrecision(8));
-    toast('Limite calculado simbolicamente!','ok');
+    toast('Limite calculado com L\'Hôpital!','ok');
     
     // Plot
     let xvals, yvals;
@@ -559,12 +577,10 @@ function calcDerivadas(){
     if(tRange.length!==2||!isFinite(tRange[0])||!isFinite(tRange[1])) throw new Error('Intervalo inválido');
     const [t0,t1]=tRange;
     
-    // Derivação simbólica com Nerdamer
     const sExpr = nerdamer(s);
     const vExpr = sExpr.differentiate('t');
     const aExpr = vExpr.differentiate('t');
     
-    // Simplifica
     const sSimp = nerdamer(s).evaluate();
     const vSimp = nerdamer(vExpr.toString()).evaluate();
     const aSimp = nerdamer(aExpr.toString()).evaluate();
@@ -573,7 +589,6 @@ function calcDerivadas(){
     const aStr = aSimp.toString();
     const sStr = sSimp.toString();
     
-    // Funções numéricas para plot
     const sFn = t => evalNum(s, {t:t});
     const vFn = t => evalNum(vStr, {t:t});
     const aFn = t => evalNum(aStr, {t:t});
@@ -588,15 +603,11 @@ function calcDerivadas(){
         <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
       </div>`;
     
-    // Passo a passo
     let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Derivação</h3>`;
     stepsHTML += `<p><span class="step-num">1.</span> Função posição: <code>s(t) = ${sStr}</code></p>`;
-    stepsHTML += `<p><span class="step-num">2.</span> Aplicando regras de derivação (cadeia, produto, potência) em relação a <code>t</code>:</p>`;
-    stepsHTML += `<p style="margin-left:20px">• Regra da potência: d/dt[tⁿ] = n·tⁿ⁻¹</p>`;
-    stepsHTML += `<p style="margin-left:20px">• Regra da cadeia: d/dt[f(g(t))] = f'(g(t))·g'(t)</p>`;
-    stepsHTML += `<p style="margin-left:20px">• Regra do produto: d/dt[f·g] = f'·g + f·g'</p>`;
-    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada (velocidade): <code>v(t) = ${vStr}</code></p>`;
-    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada (aceleração): <code>a(t) = ${aStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">2.</span> Regras aplicadas: cadeia, produto, potência, trigonométricas.</p>`;
+    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada: <code>v(t) = ${vStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada: <code>a(t) = ${aStr}</code></p>`;
     stepsHTML += `</div>`;
     document.getElementById('der-steps').innerHTML = stepsHTML;
     
@@ -619,7 +630,6 @@ function calcIntegral(){
     if(x1===x2) throw new Error('x₁ e x₂ devem ser diferentes');
     if(x1>x2) throw new Error('x₁ deve ser menor que x₂');
     
-    // Antiderivada simbólica
     let Fstr;
     let symbolicOK = false;
     try{
@@ -635,26 +645,23 @@ function calcIntegral(){
     stepsHTML += `<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
     
     if(symbolicOK){
-      stepsHTML += `<p><span class="step-num">3.</span> Antiderivada (integral indefinida): <code>∫F(x)dx = ${Fstr} + C</code></p>`;
-      // Avalia F(x2) - F(x1)
+      stepsHTML += `<p><span class="step-num">3.</span> Antiderivada: <code>∫F(x)dx = ${Fstr} + C</code></p>`;
       const Fx2 = evalNum(Fstr, {x:x2});
       const Fx1 = evalNum(Fstr, {x:x1});
       if(isFinite(Fx2) && isFinite(Fx1)){
         W = Fx2 - Fx1;
-        stepsHTML += `<p><span class="step-num">4.</span> Aplicando Teorema Fundamental do Cálculo:</p>`;
-        stepsHTML += `<p style="margin-left:20px">W = F(${x2}) - F(${x1}) = ${Fx2.toPrecision(6)} - (${Fx1.toPrecision(6)})</p>`;
+        stepsHTML += `<p><span class="step-num">4.</span> Teorema Fundamental: W = F(${x2}) - F(${x1}) = ${Fx2.toPrecision(6)} - (${Fx1.toPrecision(6)})</p>`;
         stepsHTML += `<p><span class="step-num">5.</span> <strong>Trabalho W = ${Number(W).toPrecision(8)} J</strong></p>`;
       }else{
-        throw new Error('Erro ao avaliar antiderivada nos limites');
+        throw new Error('Erro ao avaliar antiderivada');
       }
     }else{
-      // Fallback numérico (Simpson)
       const fn=x=>evalNum(f,{x:x});
       const h=(x2-x1)/1000;
       let s=fn(x1)+fn(x2);
       for(let i=1;i<1000;i++) s+=fn(x1+i*h)*(i%2?4:2);
       W = s*h/3;
-      stepsHTML += `<p><span class="step-num">3.</span> Método numérico (Simpson 1000 pontos) — antiderivada simbólica não disponível.</p>`;
+      stepsHTML += `<p><span class="step-num">3.</span> Método numérico (Simpson 1000 pontos).</p>`;
       stepsHTML += `<p><span class="step-num">4.</span> <strong>Trabalho W ≈ ${Number(W).toPrecision(8)} J</strong></p>`;
     }
     stepsHTML += `</div>`;
@@ -667,10 +674,9 @@ function calcIntegral(){
       </div>`;
     document.getElementById('int-steps').innerHTML = stepsHTML;
     
-    addHist('Trabalho', `∫[${x1},${x2}] ${f} dx`, Number(W).toPrecision(8)+' J'+(symbolicOK?` [F(x)=${Fstr}]`:''));
+    addHist('Trabalho', `∫[${x1},${x2}] ${f} dx`, Number(W).toPrecision(8)+' J');
     toast('Trabalho calculado!','ok');
     
-    // Plot
     const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
     const ys=xs.map(x=>evalNum(f,{x:x}));
     const areaX=[...xs,xs[xs.length-1],xs[0]];
@@ -682,7 +688,7 @@ function calcIntegral(){
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ SIMULADORES (inalterados, usam math nativo) ============ */
+/* ============ SIMULADORES ============ */
 function simMHS(){
   try{
     const A=num('mhs-a'), w=num('mhs-w'), p=num('mhs-p'), T=num('mhs-t');
@@ -733,7 +739,7 @@ function simObl(){
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ TEORIA DOS NÚMEROS (inalterada) ============ */
+/* ============ TEORIA DOS NÚMEROS ============ */
 function isPrime(n){
   if(n<2) return false;
   if(n<4) return true;
