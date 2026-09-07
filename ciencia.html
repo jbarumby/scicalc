@@ -66,13 +66,13 @@
 </head>
 <body>
 <header>
-  <h1> SciCalc — Cálculo & Física</h1>
+  <h1>🧮 SciCalc — Cálculo & Física</h1>
   <p>Software científico com álgebra simbólica (Nerdamer) · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas"> Derivadas & Cinemática</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
   <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
   <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
@@ -83,7 +83,7 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2> Cálculo de Limites (Simbólico)</h2>
+    <h2>📐 Cálculo de Limites (Simbólico)</h2>
     <p class="sub">Resolução simbólica com L'Hôpital automático.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
@@ -91,7 +91,7 @@
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a⁻)</option>
+          <option value="left">Pela esquerda (x→a)</option>
           <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
@@ -171,7 +171,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2> Teoria dos Números</h2>
+    <h2>🔢 Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -230,7 +230,6 @@
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
-/* ============ NAVEGAÇÃO ============ */
 document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -249,36 +248,34 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
   };
 });
 
-/* ============ TOASTS ============ */
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'️':type==='warn'?'⚡':'✅';
+  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300)},3800);
 }
 
-/* ============ HELPERS ============ */
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id,required=true){const v=document.getElementById(id).value.trim().replace(',','.');if(!v){if(required)throw new Error('Campo vazio');return NaN;}const n=Number(v);if(!isFinite(n))throw new Error(`Valor inválido em "${v}"`);return n;}
 
-// 🚀 DERIVADA SIMBÓLICA ROBUSTA (usa derivative() dentro do nerdamer)
+//  DERIVADA SIMBÓLICA COM SIMPLIFICAÇÃO
 function derivadaSimbolica(expr, varName){
   try{
-    // Forma mais confiável: usar derivative() dentro do nerdamer
-    const result = nerdamer('derivative(' + expr + ', ' + varName + ')');
-    return result.toString();
+    // Usa derivative() e depois simplify() para obter expressão limpa
+    const result = nerdamer('simplify(derivative(' + expr + ', ' + varName + '))');
+    return result.text(); // text() retorna a forma simplificada
   }catch(e){
     throw new Error('Erro ao derivar: ' + e.message);
   }
 }
 
-// 🚀 INTEGRAL SIMBÓLICA ROBUSTA
+// 🚀 INTEGRAL SIMBÓLICA COM SIMPLIFICAÇÃO
 function integralSimbolica(expr, varName){
   try{
-    const result = nerdamer('integrate(' + expr + ', ' + varName + ')');
-    return result.toString();
+    const result = nerdamer('simplify(integrate(' + expr + ', ' + varName + '))');
+    return result.text();
   }catch(e){
     throw new Error('Erro ao integrar: ' + e.message);
   }
@@ -344,7 +341,6 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-/* ============ HISTÓRICO ============ */
 let history=[];
 function addHist(tab,input,result){history.push({n:history.length+1,time:new Date().toLocaleTimeString('pt-BR'),tab,input,result});renderHist();}
 function renderHist(){const tb=document.querySelector('#hist-table tbody');tb.innerHTML=history.map(h=>`<tr><td>${h.n}</td><td>${h.time}</td><td><span class="chip">${h.tab}</span></td><td>${h.input}</td><td>${h.result}</td></tr>`).join('');document.getElementById('hist-count').textContent=history.length+' registros';}
@@ -358,7 +354,6 @@ function exportarHistorico(){
   toast('Relatório exportado!','ok');
 }
 
-/* ============ DETECTOR DE FRAÇÃO ============ */
 function separarFracao(expr){
   let depth=0,mainSlash=-1;
   for(let i=0;i<expr.length;i++){
@@ -383,7 +378,6 @@ function separarFracao(expr){
   return {num,den};
 }
 
-/* ============ LIMITES ============ */
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -425,9 +419,8 @@ function calcLimite(){
           const denZero=!isFinite(denVal)||Math.abs(denVal)<1e-9;
           if(numZero&&denZero){
             try{
-              // 🚀 Usa derivative() dentro do nerdamer (funciona sempre)
-              const newNum=nerdamer('derivative('+curNum+', x)').toString();
-              const newDen=nerdamer('derivative('+curDen+', x)').toString();
+              const newNum=nerdamer('simplify(derivative('+curNum+', x))').text();
+              const newDen=nerdamer('simplify(derivative('+curDen+', x))').text();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
               curNum=newNum;curDen=newDen;lhopitalApplied=iter;
             }catch(e){lhLog.push(`  → Erro: ${e.message}`);break;}
@@ -484,13 +477,12 @@ function calcLimite(){
   }catch(e){toast(e.message,'err');}
 }
 
-/* ============ DERIVADAS ============ */
 function calcDerivadas(){
   try{
     const s=str('der-s');
     const [t0,t1]=parseIntervalo(str('der-t'));
     
-    // 🚀 Derivação simbólica usando derivative() dentro do nerdamer
+    // 🚀 Derivação com simplify para obter expressão limpa
     const vStr=derivadaSimbolica(s,'t');
     const aStr=derivadaSimbolica(vStr,'t');
     
@@ -536,7 +528,6 @@ function calcDerivadas(){
   }catch(e){toast(e.message,'err');}
 }
 
-/* ============ INTEGRAIS ============ */
 function calcIntegral(){
   try{
     const f=str('int-f');
@@ -546,7 +537,6 @@ function calcIntegral(){
     
     let Fstr,symbolicOK=false;
     try{
-      // 🚀 Usa integrate() dentro do nerdamer
       Fstr=integralSimbolica(f,'x');
       symbolicOK=true;
     }catch(e){Fstr=null;}
@@ -586,7 +576,6 @@ function calcIntegral(){
   }catch(e){toast(e.message,'err');}
 }
 
-/* ============ SIMULADORES ============ */
 function simMHS(){
   try{
     const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p'),T=num('mhs-t');
@@ -614,7 +603,6 @@ function simObl(){
   }catch(e){toast(e.message,'err');}
 }
 
-/* ============ TEORIA DOS NÚMEROS ============ */
 function isPrime(n){if(n<2)return false;if(n<4)return true;if(n%2===0||n%3===0)return false;for(let i=5;i*i<=n;i+=6)if(n%i===0||n%(i+2)===0)return false;return true;}
 function testPrimo(){try{const n=Math.floor(num('p-n'));if(n<0)throw new Error('n≥0');const r=isPrime(n);document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${r?'<span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO primo</span>'}</div>`;toast('Teste concluído','ok');}catch(e){toast(e.message,'err');}}
 function crivo(){try{const N=Math.floor(num('p-sieve'));if(N<2||N>1e6)throw new Error('2≤N≤1e6');const sieve=new Array(N+1).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<=N;i++)if(sieve[i])for(let j=i*i;j<=N;j+=i)sieve[j]=false;const primes=[];for(let i=2;i<=N;i++)if(sieve[i])primes.push(i);document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong><br><small>${primes.slice(0,100).join(', ')}${primes.length>100?'...':''}</small></div>`;toast('Crivo executado','ok');}catch(e){toast(e.message,'err');}}
@@ -628,7 +616,7 @@ function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),
 function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 function congUI(){try{const a=Math.floor(num('m-ca')),b=Math.floor(num('m-cb')),m=Math.floor(num('m-cm'));if(m<=0)throw new Error('m>0');const g=gcd(a,m);if(b%g!==0)throw new Error('Sem solução');const a_=a/g,b_=b/g,m_=m/g;const[_,inv]=extGcd(a_,m_);const x0=((inv*b_)%m_+m_)%m_;const sols=[];for(let k=0;k<g;k++)sols.push((x0+k*m_)%m);document.getElementById('m-result').innerHTML=`<div class="result">${a}x≡${b}(mod ${m})<br>Soluções:<strong>${sols.join(',')}</strong></div>`;toast('Resolvido','ok');}catch(e){toast(e.message,'err');}}
 function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
-function teoremasUI(){try{const a=Math.floor(num('m-ta')),m=Math.floor(num('m-tm'));if(m<=0)throw new Error('m>0');let fermat='N/A',euler='N/A';if(isPrime(m)){const r=potMod(a<0?a+m:a,m-1,m);fermat=`a^${m-1}≡${r}(mod ${m}) ${r===1?'✅':'❌'}`;}else fermat='m não é primo';const ph=phi(m);const r2=potMod(a<0?a+m:a,ph,m);euler=`a^φ(${m})=${ph}≡${r2}(mod ${m}) ${r2===1?'✅':''}`;document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong>${fermat}<br><strong>Euler:</strong>${euler}</div>`;toast('Verificado','ok');}catch(e){toast(e.message,'err');}}
+function teoremasUI(){try{const a=Math.floor(num('m-ta')),m=Math.floor(num('m-tm'));if(m<=0)throw new Error('m>0');let fermat='N/A',euler='N/A';if(isPrime(m)){const r=potMod(a<0?a+m:a,m-1,m);fermat=`a^${m-1}≡${r}(mod ${m}) ${r===1?'✅':''}`;}else fermat='m não é primo';const ph=phi(m);const r2=potMod(a<0?a+m:a,ph,m);euler=`a^φ(${m})=${ph}≡${r2}(mod ${m}) ${r2===1?'✅':'❌'}`;document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong>${fermat}<br><strong>Euler:</strong>${euler}</div>`;toast('Verificado','ok');}catch(e){toast(e.message,'err');}}
 function funcoesNUI(){try{const n=Math.floor(num('f-n'));if(n<1)throw new Error('n≥1');const ph=phi(n);let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}divs.sort((a,b)=>a-b);const d=divs.length,sigma=divs.reduce((a,b)=>a+b,0);document.getElementById('f-result').innerHTML=`<div class="result"><div>φ(${n})=<strong>${ph}</strong></div><div>μ(${n})=<strong>${mu}</strong></div><div>d(${n})=<strong>${d}</strong></div><div>σ(${n})=<strong>${sigma}</strong></div><div>Divisores: ${divs.join(',')}</div></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 </script>
 </body>
