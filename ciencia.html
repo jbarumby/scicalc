@@ -70,8 +70,6 @@
     color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25);
   }
   .btn:hover{transform:translateY(-1px); box-shadow:0 6px 18px rgba(79,70,229,.35)}
-  .btn.secondary{background:#fff; color:var(--primary); border:1.5px solid var(--primary); box-shadow:none}
-  .btn.secondary:hover{background:#eef2ff}
   .btn.accent{background:linear-gradient(120deg,var(--accent),#0891b2)}
   .btn.danger{background:linear-gradient(120deg,var(--err),#dc2626)}
   .result{
@@ -81,6 +79,17 @@
   }
   .result strong{color:var(--primary)}
   .result .math{font-family:'Cambria Math','Times New Roman',serif; font-size:1.1rem}
+  
+  /* NOVO ESTILO PARA O PASSO A PASSO */
+  .step-box {
+    margin-top: 18px; padding: 16px; border-radius: 12px;
+    background: #fffbeb; border-left: 4px solid #f59e0b;
+    font-size: 0.95rem; line-height: 1.6;
+  }
+  .step-box h3 { margin-top: 0; color: #b45309; font-size: 1.1rem; }
+  .step-box p { margin: 8px 0; }
+  .step-box code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #92400e; }
+  
   .plot{width:100%; height:380px; margin-top:14px; border-radius:12px; background:#fafbff}
   .tab-content{display:none; animation:fade .3s}
   .tab-content.active{display:block}
@@ -122,7 +131,7 @@
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas"> Derivadas & Cinemática</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
   <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
   <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
@@ -141,13 +150,14 @@
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a⁻)</option>
-          <option value="right">Pela direita (x→a)</option>
+          <option value="left">Pela esquerda (x→a)</option>
+          <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
     </div>
     <button class="btn" onclick="calcLimite()">Calcular Limite</button>
     <div id="lim-result"></div>
+    <div id="lim-steps"></div>
     <div id="lim-plot" class="plot"></div>
   </div>
 </section>
@@ -162,6 +172,7 @@
     </div>
     <button class="btn" onclick="calcDerivadas()">Calcular & Plotar</button>
     <div id="der-result"></div>
+    <div id="der-steps"></div>
     <div id="der-plot" class="plot"></div>
   </div>
 </section>
@@ -183,7 +194,7 @@
 
 <section class="tab-content" id="simuladores">
   <div class="panel">
-    <h2> Simuladores de Física</h2>
+    <h2>🚀 Simuladores de Física</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="mhs">Oscilador Harmônico (MHS)</button>
       <button class="sub-tab" data-sub="obl">Lançamento Oblíquo</button>
@@ -219,7 +230,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2>🔢 Teoria dos Números</h2>
+    <h2> Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -247,7 +258,7 @@
 
     <div class="sub-panel" id="sub-modular">
       <div class="form-row">
-        <div><label>Potência modular a mod m</label>
+        <div><label>Potência modular a^b mod m</label>
           <div style="display:flex; gap:6px"><input id="m-a" placeholder="a"><input id="m-b" placeholder="b"><input id="m-m" placeholder="m"></div>
           <button class="btn" style="margin-top:8px" onclick="potModUI()">Calcular</button>
         </div>
@@ -322,7 +333,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
+  const icon=type==='err'?'⚠️':type==='warn'?'':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0'; setTimeout(()=>el.remove(),300)},3800);
@@ -389,32 +400,52 @@ function calcLimite(){
     const isInf=a==='inf'||a==='Infinity';
     const isMInf=a==='-inf'||a==='-Infinity';
 
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo</h3>`;
+    stepsHTML += `<p><strong>1. Função analisada:</strong> <code>f(x) = ${f}</code></p>`;
+    stepsHTML += `<p><strong>2. Tendência:</strong> <code>x → ${a}</code></p>`;
+
     if(isInf){
       L=fn(1e8); Lp=L; Lm=L;
+      stepsHTML += `<p><strong>3. Método:</strong> Avaliado para um valor muito grande (x = 10) para simular o infinito.</p>`;
     }else if(isMInf){
       L=fn(-1e8); Lp=L; Lm=L;
+      stepsHTML += `<p><strong>3. Método:</strong> Avaliado para um valor muito pequeno (x = -10) para simular o menos infinito.</p>`;
     }else{
       const aN=Number(a.replace(',','.'));
       if(!isFinite(aN)) throw new Error('Valor de "a" inválido');
-      // 🚀 TRUQUE: delta fixo de 0.0001 para evitar perda de precisão
+      
+      // Tenta substituição direta
+      let subDir = 'Indeterminado';
+      try { 
+          const val = fn(aN); 
+          if(isFinite(val)) subDir = val; 
+      } catch(e) {}
+      
+      stepsHTML += `<p><strong>3. Substituição direta:</strong> <code>f(${aN}) = ${subDir}</code></p>`;
+      
       const delta=0.0001;
-      if(dir==='both'||dir==='right'){
-        Lp=fn(aN+delta);
-      }
-      if(dir==='both'||dir==='left'){
-        Lm=fn(aN-delta);
-      }
+      if(dir==='both'||dir==='right') Lp=fn(aN+delta);
+      if(dir==='both'||dir==='left') Lm=fn(aN-delta);
+
       if(dir==='both'){
         if(!isFinite(Lp)||!isFinite(Lm)) throw new Error('Limite não existe (divergente)');
         if(Math.abs(Lp-Lm)>0.1) throw new Error('Limites laterais diferentes — o limite bilateral não existe');
         L=(Lp+Lm)/2;
-      }else L=(dir==='right'?Lp:Lm);
+        stepsHTML += `<p><strong>4. Aproximação numérica:</strong> Calculamos f(x) para valores extremamente próximos de ${aN} (delta = 0.0001) pelos dois lados.</p>`;
+        stepsHTML += `<p><strong>5. Conclusão:</strong> Os valores convergem para <strong>${Number(L).toPrecision(6)}</strong>.</p>`;
+      }else{
+        L=(dir==='right'?Lp:Lm);
+        stepsHTML += `<p><strong>4. Aproximação numérica:</strong> Calculamos f(x) para valores extremamente próximos de ${aN} pela ${dir==='right'?'direita':'esquerda'}.</p>`;
+        stepsHTML += `<p><strong>5. Conclusão:</strong> O valor converge para <strong>${Number(L).toPrecision(6)}</strong>.</p>`;
+      }
     }
+    stepsHTML += `</div>`;
 
-    if(!isFinite(L)) throw new Error('Limite divergente (±∞)');
+    if(!isFinite(L)) throw new Error('Limite divergente (±)');
     const dirTxt=dir==='left'?'⁻':dir==='right'?'⁺':'';
     const out=`lim<sub>x→${a}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(6)}</strong>`;
     document.getElementById('lim-result').innerHTML=`<div class="result"><span class="math">${out}</span></div>`;
+    document.getElementById('lim-steps').innerHTML = stepsHTML;
     addHist('Limites',`lim x→${a} de ${f}`,Number(L).toPrecision(6));
     toast('Limite calculado','ok');
 
@@ -442,7 +473,10 @@ function calcDerivadas(){
     const node=math.parse(s);
     const vNode=math.derivative(node,'t');
     const aNode=math.derivative(vNode,'t');
+    
+    const rawV = vNode.toString();
     const vStr=math.simplify(vNode).toString();
+    const rawA = aNode.toString();
     const aStr=math.simplify(aNode).toString();
 
     const vFn=t=>safeEval(vStr,{t});
@@ -458,6 +492,18 @@ function calcDerivadas(){
         <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
         <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
       </div>`;
+      
+    // PASSO A PASSO DERIVADAS
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Derivação</h3>`;
+    stepsHTML += `<p><strong>1. Função Posição:</strong> <code>s(t) = ${math.simplify(node).toString()}</code></p>`;
+    stepsHTML += `<p><strong>2. Regras aplicadas:</strong> O sistema aplicou as regras de derivação (Cadeia, Produto, Quociente e Potência) em relação à variável <code>t</code>.</p>`;
+    stepsHTML += `<p><strong>3. Derivada 1ª (Bruta):</strong> <code>v(t) = ${rawV}</code></p>`;
+    stepsHTML += `<p><strong>4. Simplificação da Velocidade:</strong> <code>v(t) = ${vStr}</code></p>`;
+    stepsHTML += `<p><strong>5. Derivada 2ª (Bruta):</strong> <code>a(t) = ${rawA}</code></p>`;
+    stepsHTML += `<p><strong>6. Simplificação da Aceleração:</strong> <code>a(t) = ${aStr}</code></p>`;
+    stepsHTML += `</div>`;
+    document.getElementById('der-steps').innerHTML = stepsHTML;
+
     addHist('Cinemática',`s(t)=${s}`,`v(t)=${vStr}; a(t)=${aStr}`);
     toast('Derivadas calculadas','ok');
 
@@ -487,7 +533,7 @@ function calcIntegral(){
 
     document.getElementById('int-result').innerHTML=`
       <div class="result">
-        <div class="math">W = ∫<sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div>
+        <div class="math">W = <sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div>
         <div class="math"><strong>Trabalho W = ${W.toPrecision(8)} J</strong></div>
       </div>`;
     addHist('Trabalho',`∫[${x1},${x2}] ${f} dx`,W.toPrecision(8)+' J');
@@ -682,7 +728,7 @@ function teoremasUI(){
     let fermat='N/A', euler='N/A';
     if(isPrime(m)){
       const r=potMod(a<0?a+m:a,m-1,m);
-      fermat=`a<sup>${m-1}</sup>  ${r} (mod ${m}) ${r===1?'✅ (Fermat válido)':'❌'}`;
+      fermat=`a<sup>${m-1}</sup> ≡ ${r} (mod ${m}) ${r===1?'✅ (Fermat válido)':'❌'}`;
     }else fermat='m não é primo — Fermat não se aplica';
     const ph=phi(m);
     const r2=potMod(a<0?a+m:a,ph,m);
