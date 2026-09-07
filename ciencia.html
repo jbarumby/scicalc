@@ -66,24 +66,24 @@
 </head>
 <body>
 <header>
-  <h1> SciCalc — Cálculo & Física</h1>
+  <h1>🧮 SciCalc — Cálculo & Física</h1>
   <p>Software científico com álgebra simbólica (Nerdamer) · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas"> Derivadas & Cinemática</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
-  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
-  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
-  <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
+  <button class="tab" data-tab="simuladores"> Simuladores</button>
+  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
+  <button class="tab" data-tab="historico"> Histórico & Exportação</button>
 </nav>
 
 <main>
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2> Cálculo de Limites (Simbólico)</h2>
+    <h2>📐 Cálculo de Limites (Simbólico)</h2>
     <p class="sub">Resolução simbólica com L'Hôpital automático.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
@@ -213,7 +213,7 @@
     <p class="sub">Todos os cálculos realizados nesta sessão são registrados automaticamente.</p>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar Histórico como Relatório</button>
-      <button class="btn danger" onclick="limparHistorico()">️ Limpar Histórico</button>
+      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div style="overflow-x:auto">
@@ -260,29 +260,24 @@ function toast(msg,type='err'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id,required=true){const v=document.getElementById(id).value.trim().replace(',','.');if(!v){if(required)throw new Error('Campo vazio');return NaN;}const n=Number(v);if(!isFinite(n))throw new Error(`Valor inválido em "${v}"`);return n;}
 
-// 🚀 DERIVADA SIMBÓLICA - DUAS ETAPAS (derivative + simplify separados)
+// 🚀 DERIVADA SIMBÓLICA - USANDO MÉTODO .differentiate() DO OBJETO
 function derivadaSimbolica(expr, varName){
   try{
-    // Etapa 1: Calcular derivada
-    const derivExpr = 'derivative(' + expr + ', ' + varName + ')';
-    const derivResult = nerdamer(derivExpr);
-    
-    // Etapa 2: Simplificar o resultado
-    const simplified = nerdamer('simplify(' + derivResult.text() + ')');
-    
-    return simplified.text();
+    // Cria expressão Nerdamer e usa método .differentiate()
+    const derivExpr = nerdamer(expr);
+    const derivResult = derivExpr.diff(varName); // método diff()
+    return derivResult.text();
   }catch(e){
     throw new Error('Erro ao derivar: ' + e.message);
   }
 }
 
-// 🚀 INTEGRAL SIMBÓLICA - DUAS ETAPAS
+// 🚀 INTEGRAL SIMBÓLICA - USANDO MÉTODO .integrate() DO OBJETO
 function integralSimbolica(expr, varName){
   try{
-    const intExpr = 'integrate(' + expr + ', ' + varName + ')';
-    const intResult = nerdamer(intExpr);
-    const simplified = nerdamer('simplify(' + intResult.text() + ')');
-    return simplified.text();
+    const intExpr = nerdamer(expr);
+    const intResult = intExpr.integrate(varName);
+    return intResult.text();
   }catch(e){
     throw new Error('Erro ao integrar: ' + e.message);
   }
@@ -426,11 +421,9 @@ function calcLimite(){
           const denZero=!isFinite(denVal)||Math.abs(denVal)<1e-9;
           if(numZero&&denZero){
             try{
-              //  Duas etapas separadas
-              const derivNum = nerdamer('derivative('+curNum+', x)');
-              const newNum = nerdamer('simplify('+derivNum.text()+')').text();
-              const derivDen = nerdamer('derivative('+curDen+', x)');
-              const newDen = nerdamer('simplify('+derivDen.text()+')').text();
+              // 🚀 Usa método .diff() do objeto Nerdamer
+              const newNum = nerdamer(curNum).diff('x').text();
+              const newDen = nerdamer(curDen).diff('x').text();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
               curNum=newNum;curDen=newDen;lhopitalApplied=iter;
             }catch(e){lhLog.push(`  → Erro: ${e.message}`);break;}
@@ -473,7 +466,7 @@ function calcLimite(){
     stepsHTML+=`<p><span class="step-num">${stepNum}.</span> Método: ${method}</p>`;
     stepsHTML+=`<p><span class="step-num">${stepNum+1}.</span> <strong>Resultado: lim = ${L}</strong></p>`;
     stepsHTML+=`</div>`;
-    const dirTxt=dir==='left'?'':dir==='right'?'⁺':'';
+    const dirTxt=dir==='left'?'⁻':dir==='right'?'':'';
     document.getElementById('lim-result').innerHTML=`<div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${L}</strong></span></div>`;
     document.getElementById('lim-steps').innerHTML=stepsHTML;
     addHist('Limites',`lim x→${aStr} de ${f}`,L);
@@ -492,7 +485,7 @@ function calcDerivadas(){
     const s=str('der-s');
     const [t0,t1]=parseIntervalo(str('der-t'));
     
-    // 🚀 Derivação em duas etapas
+    // 🚀 Usa método .diff() do objeto Nerdamer
     const vStr=derivadaSimbolica(s,'t');
     const aStr=derivadaSimbolica(vStr,'t');
     
