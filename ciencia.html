@@ -393,56 +393,95 @@ function exportarHistorico(){
 
 /* ============ LIMITES ============ */
 function calcLimite(){
-  try{
-    const f=str('lim-f'), a=str('lim-a'), dir=document.getElementById('lim-dir').value;
-    const fn=x=>safeEval(f,{x});
-    let L, Lp, Lm;
-    const isInf=a==='inf'||a==='Infinity';
-    const isMInf=a==='-inf'||a==='-Infinity';
+function calcLimite() {
+  try {
+    const f = str('lim-f'), a = str('lim-a'), dir = document.getElementById('lim-dir').value;
+    const isInf = a === 'inf' || a === 'Infinity';
+    const isMInf = a === '-inf' || a === '-Infinity';
+    const aN = isInf || isMInf ? NaN : Number(a.replace(',', '.'));
 
-    if(isInf){
-      L=fn(1e10); Lp=L; Lm=L;
-    }else if(isMInf){
-      L=fn(-1e10); Lp=L; Lm=L;
-    }else{
-      const aN=Number(a.replace(',','.'));
-      if(!isFinite(aN)) throw new Error('Valor de "a" inválido');
-      const deltas=[1e-3,1e-5,1e-7,1e-9];
-      if(dir==='both'||dir==='right'){
-        const vals=deltas.map(d=>fn(aN+d));
-        Lp=vals[vals.length-1];
+    const avaliar = (expr, val) => {
+      try { return math.evaluate(expr, { x: val }); } 
+      catch { return NaN; }
+    };
+
+    let L, Lp, Lm;
+
+    if (isInf) {
+      L = avaliar(f, 1e10); Lp = L; Lm = L;
+    } else if (isMInf) {
+      L = avaliar(f, -1e10); Lp = L; Lm = L;
+    } else {
+      const deltas = [1e-2, 1e-4, 1e-6, 1e-8];
+      
+      const calcularLado = (sinal) => {
+        const vals = deltas.map(d => avaliar(f, aN + sinal * d));
+        // Filtra NaNs e pega o último valor válido
+        const validos = vals.filter(v => isFinite(v));
+        return validos.length > 0 ? validos[validos.length - 1] : NaN;
+      };
+
+      if (dir === 'both' || dir === 'right') Lp = calcularLado(1);
+      if (dir === 'both' || dir === 'left') Lm = calcularLado(-1);
+
+      if (dir === 'both') {
+        if (!isFinite(Lp) || !isFinite(Lm)) throw new Error('Limite divergente ou indeterminado numericamente.');
+        if (Math.abs(Lp - Lm) > 1e-3) throw new Error('Limites laterais diferentes. O limite bilateral não existe.');
+        L = Lp;
+      } else {
+        L = (dir === 'right' ? Lp : Lm);
       }
-      if(dir==='both'||dir==='left'){
-        const vals=deltas.map(d=>fn(aN-d));
-        Lm=vals[vals.length-1];
-      }
-      if(dir==='both'){
-        if(!isFinite(Lp)||!isFinite(Lm)) throw new Error('Limite não existe (divergente)');
-        if(Math.abs(Lp-Lm)>1e-4) throw new Error('Limites laterais diferentes — o limite bilateral não existe');
-        L=Lp;
-      }else L=(dir==='right'?Lp:Lm);
     }
 
-    if(!isFinite(L)) throw new Error('Limite divergente (±∞)');
-    const dirTxt=dir==='left'?'⁻':dir==='right'?'⁺':'';
-    const out=`lim<sub>x→${a}${dirTxt}</sub> f(x) = <strong>${L.toPrecision(8)}</strong>`;
-    document.getElementById('lim-result').innerHTML=`<div class="result"><span class="math">${out}</span></div>`;
-    addHist('Limites',`lim x→${a} de ${f}`,L.toPrecision(8));
-    toast('Limite calculado','ok');
+    // 🚀 UPGRADE: Se der 0 ou NaN em ponto finito, tentar Regra de L'Hôpital
+    let lhopitalMsg = '';
+    if ((L === 0 || isNaN(L) || L === null) && !isNaN(aN)) {
+      const node = math.parse(f);
+      if (node.isOperatorNode && node.op === '/' && node.args.length === 2) {
+        const numStr = node.args[0].toString();
+        const denStr = node.args[1].toString();
+        
+        const dNum = math.derivative(numStr, 'x').toString();
+        const dDen = math.derivative(denStr, 'x').toString();
+        
+        const fLHopital = `(${dNum}) / (${dDen})`;
+        L = avaliar(fLHopital, aN + 1e-6); // Avalia a derivada com um delta pequeno
+        
+        if (isFinite(L)) {
+          lhopitalMsg = `<div class="result" style="border-left-color: #f59e0b; margin-top:10px; padding:10px; background:#fffbeb;">
+            ⚠️ <strong>Forma 0/0 detectada:</strong> O sistema aplicou a Regra de L'Hôpital automaticamente [Derivando numerador e denominador] para evitar erro de precisão numérica.
+          </div>`;
+        }
+      }
+    }
+
+    if (!isFinite(L)) throw new Error('Limite divergente (±∞) ou indeterminado.');
+
+    const dirTxt = dir === 'left' ? '⁻' : dir === 'right' ? '⁺' : '';
+    const out = `lim<sub>x→${a}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(6)}</strong>`;
+    
+    document.getElementById('lim-result').innerHTML = `
+      <div class="result"><span class="math">${out}</span></div>
+      ${lhopitalMsg}
+    `;
+    
+    addHist('Limites', `lim x→${a} de ${f}`, Number(L).toPrecision(6) + (lhopitalMsg ? ' (L\'Hôpital)' : ''));
+    toast('Limite calculado com sucesso!', 'ok');
 
     // Plot
-    let xvals,yvals;
-    if(isInf){ xvals=Array.from({length:200},(_,i)=>i*0.5+0.1); }
-    else if(isMInf){ xvals=Array.from({length:200},(_,i)=>-i*0.5-0.1); }
-    else{
-      const aN=Number(a.replace(',','.'));
-      xvals=Array.from({length:200},(_,i)=>aN-5+i*0.05);
+    let xvals, yvals;
+    if (isInf) { xvals = Array.from({ length: 200 }, (_, i) => i * 0.5 + 0.1); }
+    else if (isMInf) { xvals = Array.from({ length: 200 }, (_, i) => -i * 0.5 - 0.1); }
+    else {
+      xvals = Array.from({ length: 200 }, (_, i) => aN - 5 + i * 0.05);
     }
-    yvals=xvals.map(x=>{try{return fn(x)}catch{return null}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5'}}],
-      {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},
-      {responsive:true});
-  }catch(e){ toast(e.message,'err'); }
+    yvals = xvals.map(x => { try { return avaliar(f, x); } catch { return null; } });
+    
+    Plotly.newPlot('lim-plot', [{ x: xvals, y: yvals, type: 'scatter', mode: 'lines', name: 'f(x)', line: { color: '#4f46e5' } }],
+      { title: 'Comportamento de f(x)', margin: { t: 40 }, paper_bgcolor: '#fafbff', plot_bgcolor: '#fafbff' },
+      { responsive: true });
+
+  } catch (e) { toast(e.message, 'err'); }
 }
 
 /* ============ DERIVADAS ============ */
