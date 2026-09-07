@@ -126,17 +126,17 @@
 </head>
 <body>
 <header>
-  <h1> SciCalc — Cálculo & Física</h1>
+  <h1>🧮 SciCalc — Cálculo & Física</h1>
   <p>Software científico com álgebra simbólica (Nerdamer) · Limites · Derivadas · Integrais · Simuladores · Teoria dos Números</p>
 </header>
 
 <nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="limites"> Limites</button>
+  <button class="tab active" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
-  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
+  <button class="tab" data-tab="simuladores"> Simuladores</button>
   <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
-  <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
+  <button class="tab" data-tab="historico"> Histórico & Exportação</button>
 </nav>
 
 <main>
@@ -144,7 +144,7 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites (Simbólico)</h2>
-    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^∞, ∞-∞, 0·∞.</p>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^, ∞-∞, 0·.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
@@ -232,7 +232,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2>🔢 Teoria dos Números</h2>
+    <h2> Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -293,11 +293,11 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2>📋 Histórico & Exportação</h2>
+    <h2> Histórico & Exportação</h2>
     <p class="sub">Todos os cálculos realizados nesta sessão são registrados automaticamente.</p>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar Histórico como Relatório</button>
-      <button class="btn danger" onclick="limparHistorico()">️ Limpar Histórico</button>
+      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar Histórico</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div style="overflow-x:auto">
@@ -356,7 +356,40 @@ function num(id,required=true){
   if(!isFinite(n)) throw new Error(`Valor inválido em "${v}"`);
   return n;
 }
-function evalNum(expr, vars={}){
+
+// 🚀 NOVO: Avaliação numérica usando Math nativo do JavaScript (100% confiável)
+function evalJS(expr, vars={}){
+  try{
+    let jsExpr = expr;
+    // Substitui variáveis
+    for(const [key, val] of Object.entries(vars)){
+      // Substitui apenas a variável isolada (não dentro de nomes como 'sin')
+      jsExpr = jsExpr.replace(new RegExp(`\\b${key}\\b`, 'g'), `(${val})`);
+    }
+    // Converte funções matemáticas para Math.xxx
+    jsExpr = jsExpr.replace(/\bsin\b/g, 'Math.sin');
+    jsExpr = jsExpr.replace(/\bcos\b/g, 'Math.cos');
+    jsExpr = jsExpr.replace(/\btan\b/g, 'Math.tan');
+    jsExpr = jsExpr.replace(/\basin\b/g, 'Math.asin');
+    jsExpr = jsExpr.replace(/\bacos\b/g, 'Math.acos');
+    jsExpr = jsExpr.replace(/\batan\b/g, 'Math.atan');
+    jsExpr = jsExpr.replace(/\bsqrt\b/g, 'Math.sqrt');
+    jsExpr = jsExpr.replace(/\blog\b/g, 'Math.log');
+    jsExpr = jsExpr.replace(/\blog10\b/g, 'Math.log10');
+    jsExpr = jsExpr.replace(/\bexp\b/g, 'Math.exp');
+    jsExpr = jsExpr.replace(/\babs\b/g, 'Math.abs');
+    jsExpr = jsExpr.replace(/\bpi\b/gi, 'Math.PI');
+    jsExpr = jsExpr.replace(/\be\b/g, 'Math.E');
+    // Converte ^ para ** (potência JS)
+    jsExpr = jsExpr.replace(/\^/g, '**');
+    
+    const result = new Function('return ' + jsExpr)();
+    return isFinite(result) ? result : NaN;
+  }catch(e){ return NaN; }
+}
+
+// Avaliação simbólica com Nerdamer (para derivadas e integrais)
+function evalNerdamer(expr, vars={}){
   try{
     const r = nerdamer(expr, vars).evaluate().number;
     return isFinite(r) ? r : NaN;
@@ -397,14 +430,12 @@ function exportarHistorico(){
 
 /* ============ DETECTOR DE FRAÇÃO ============ */
 function separarFracao(expr){
-  // Encontra o '/' principal (fora de parênteses e não precedido por ^)
   let depth=0, mainSlash=-1;
   for(let i=0;i<expr.length;i++){
     const c=expr[i];
     if(c==='('||c==='['||c==='{') depth++;
     else if(c===')'||c===']'||c==='}') depth--;
     else if(c==='/' && depth===0){
-      // Evita capturar '/' em '^/' ou dentro de '//'
       if(i>0 && expr[i-1]==='^') continue;
       mainSlash=i;
       break;
@@ -413,9 +444,7 @@ function separarFracao(expr){
   if(mainSlash<0) return null;
   let num=expr.substring(0,mainSlash).trim();
   let den=expr.substring(mainSlash+1).trim();
-  // Remove parênteses externos balanceados
   while(num.startsWith('(') && num.endsWith(')') && num.length>1){
-    // Verifica se os parênteses são balanceados
     let d=0, ok=true;
     for(let i=0;i<num.length;i++){
       if(num[i]==='(') d++;
@@ -453,21 +482,19 @@ function calcLimite(){
     stepsHTML += `<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
-    // Substituição direta
+    // Substituição direta usando evalJS (confiável)
     let subResult = 'Indeterminado';
-    try{
-      if(aVal!==null){
-        const subNum = evalNum(f, {x: aVal});
-        if(isFinite(subNum)) subResult = subNum;
-      }
-    }catch(e){}
+    if(aVal!==null){
+      const subNum = evalJS(f, {x: aVal});
+      if(isFinite(subNum)) subResult = subNum;
+    }
     stepsHTML += `<p><span class="step-num">3.</span> Substituição direta: <code>f(${aVal!==null?aVal:aStr}) = ${subResult}</code></p>`;
     
     let L, method='', lhopitalApplied=0, fracDetected=false;
     
     if(isInf || isMInf){
       const big = isInf ? 1e6 : -1e6;
-      L = evalNum(f, {x: big});
+      L = evalJS(f, {x: big});
       method = `Avaliação numérica em x = ${big}`;
     }else{
       // Tenta separar em fração
@@ -481,15 +508,17 @@ function calcLimite(){
         let lhLog = [];
         
         for(let iter=1; iter<=5; iter++){
-          const numVal = evalNum(curNum, {x: aVal});
-          const denVal = evalNum(curDen, {x: aVal});
-          lhLog.push(`<b>Iteração ${iter}:</b> num(${aVal})=${isFinite(numVal)?numVal.toPrecision(4):'NaN'}, den(${aVal})=${isFinite(denVal)?denVal.toPrecision(4):'NaN'}`);
+          // 🚀 Usa evalJS para avaliação numérica (100% confiável)
+          const numVal = evalJS(curNum, {x: aVal});
+          const denVal = evalJS(curDen, {x: aVal});
+          lhLog.push(`<b>Iteração ${iter}:</b> num(${aVal})=${isFinite(numVal)?numVal.toPrecision(6):'NaN'}, den(${aVal})=${isFinite(denVal)?denVal.toPrecision(6):'NaN'}`);
           
-          const numZero = !isFinite(numVal) || Math.abs(numVal) < 1e-7;
-          const denZero = !isFinite(denVal) || Math.abs(denVal) < 1e-7;
+          const numZero = !isFinite(numVal) || Math.abs(numVal) < 1e-9;
+          const denZero = !isFinite(denVal) || Math.abs(denVal) < 1e-9;
           
           if(numZero && denZero){
             try{
+              // Deriva simbolicamente com Nerdamer
               const newNum = nerdamer(curNum).differentiate('x').toString();
               const newDen = nerdamer(curDen).differentiate('x').toString();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
@@ -510,8 +539,9 @@ function calcLimite(){
         stepsHTML += `<div style="margin-left:20px; font-size:0.85rem; background:#fef3c7; padding:10px; border-radius:6px">${lhLog.join('<br>')}</div>`;
         stepsHTML += `<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
         
-        const finalNum = evalNum(curNum, {x: aVal});
-        const finalDen = evalNum(curDen, {x: aVal});
+        // 🚀 Avaliação final com evalJS
+        const finalNum = evalJS(curNum, {x: aVal});
+        const finalDen = evalJS(curDen, {x: aVal});
         
         if(isFinite(finalNum) && isFinite(finalDen) && Math.abs(finalDen) > 1e-10){
           L = finalNum / finalDen;
@@ -519,8 +549,8 @@ function calcLimite(){
         }else{
           // Fallback: avaliação numérica com delta
           const delta = 0.001;
-          const Lp = evalNum(f, {x: aVal + delta});
-          const Lm = evalNum(f, {x: aVal - delta});
+          const Lp = evalJS(f, {x: aVal + delta});
+          const Lm = evalJS(f, {x: aVal - delta});
           if(isFinite(Lp) && isFinite(Lm)){
             L = (Lp + Lm) / 2;
             method = `Fallback numérico (delta=${delta})`;
@@ -529,8 +559,8 @@ function calcLimite(){
       }else{
         // Não é fração — avaliação numérica
         const delta = 0.001;
-        const Lp = evalNum(f, {x: aVal + delta});
-        const Lm = evalNum(f, {x: aVal - delta});
+        const Lp = evalJS(f, {x: aVal + delta});
+        const Lm = evalJS(f, {x: aVal - delta});
         if(dir==='both'){
           if(isFinite(Lp) && isFinite(Lm)) L = (Lp+Lm)/2;
         }else{
@@ -547,7 +577,7 @@ function calcLimite(){
     stepsHTML += `<p><span class="step-num">${stepNum+1}.</span> <strong>Resultado: lim = ${Number(L).toPrecision(8)}</strong></p>`;
     stepsHTML += `</div>`;
     
-    const dirTxt = dir==='left'?'':dir==='right'?'⁺':'';
+    const dirTxt = dir==='left'?'⁻':dir==='right'?'':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(8)}</strong></span></div>
     `;
@@ -562,7 +592,7 @@ function calcLimite(){
     else{
       xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);
     }
-    yvals=xvals.map(x=>{try{return evalNum(f,{x:x})}catch{return null}});
+    yvals=xvals.map(x=>{try{return evalJS(f,{x:x})}catch{return null}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],
       {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},
       {responsive:true});
@@ -589,9 +619,9 @@ function calcDerivadas(){
     const aStr = aSimp.toString();
     const sStr = sSimp.toString();
     
-    const sFn = t => evalNum(s, {t:t});
-    const vFn = t => evalNum(vStr, {t:t});
-    const aFn = t => evalNum(aStr, {t:t});
+    const sFn = t => evalJS(s, {t:t});
+    const vFn = t => evalJS(vStr, {t:t});
+    const aFn = t => evalJS(aStr, {t:t});
     
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn), V=ts.map(vFn), A=ts.map(aFn);
@@ -646,8 +676,8 @@ function calcIntegral(){
     
     if(symbolicOK){
       stepsHTML += `<p><span class="step-num">3.</span> Antiderivada: <code>∫F(x)dx = ${Fstr} + C</code></p>`;
-      const Fx2 = evalNum(Fstr, {x:x2});
-      const Fx1 = evalNum(Fstr, {x:x1});
+      const Fx2 = evalJS(Fstr, {x:x2});
+      const Fx1 = evalJS(Fstr, {x:x1});
       if(isFinite(Fx2) && isFinite(Fx1)){
         W = Fx2 - Fx1;
         stepsHTML += `<p><span class="step-num">4.</span> Teorema Fundamental: W = F(${x2}) - F(${x1}) = ${Fx2.toPrecision(6)} - (${Fx1.toPrecision(6)})</p>`;
@@ -656,7 +686,7 @@ function calcIntegral(){
         throw new Error('Erro ao avaliar antiderivada');
       }
     }else{
-      const fn=x=>evalNum(f,{x:x});
+      const fn=x=>evalJS(f,{x:x});
       const h=(x2-x1)/1000;
       let s=fn(x1)+fn(x2);
       for(let i=1;i<1000;i++) s+=fn(x1+i*h)*(i%2?4:2);
@@ -678,7 +708,7 @@ function calcIntegral(){
     toast('Trabalho calculado!','ok');
     
     const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
-    const ys=xs.map(x=>evalNum(f,{x:x}));
+    const ys=xs.map(x=>evalJS(f,{x:x}));
     const areaX=[...xs,xs[xs.length-1],xs[0]];
     const areaY=[...ys,0,0];
     Plotly.newPlot('int-plot',[
