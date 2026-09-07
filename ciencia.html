@@ -2,12 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc — Cálculo & Física (Simbólico)</title>
+<title>SciCalc — Cálculo & Física</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
   :root{--bg:#f4f6fb;--panel:#ffffff;--ink:#1a2238;--muted:#6b7390;--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px;}
@@ -85,7 +84,7 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites (Simbólico)</h2>
-    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, /∞, 1^∞, -∞, 0·∞.</p>
+    <p class="sub">Resolução simbólica com L'Hôpital automático. Suporta formas 0/0, ∞/∞, 1^∞, ∞-∞, 0·∞.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a (a)</label><input id="lim-a" placeholder="Ex: 0, inf, -inf"></div>
@@ -107,13 +106,14 @@
 <section class="tab-content" id="derivadas">
   <div class="panel">
     <h2>📈 Derivadas & Cinemática</h2>
-    <p class="sub">Derivação simbólica exata. Digite s(t) e obtenha v(t) e a(t) simplificadas.</p>
+    <p class="sub">Digite s(t) e o sistema calcula v(t) e a(t) simbolicamente, com tabela de valores.</p>
     <div class="form-row">
       <div><label>Posição s(t)</label><input id="der-s" placeholder="Ex: 3*t^2 + 2*t + 1"></div>
       <div><label>Intervalo de tempo</label><input id="der-t" placeholder="Ex: 0,10 ou 0 a 10"></div>
     </div>
     <button class="btn" onclick="calcDerivadas()">Calcular & Plotar</button>
     <div id="der-result"></div>
+    <div id="der-table"></div>
     <div id="der-steps"></div>
     <div id="der-plot" class="plot"></div>
   </div>
@@ -171,7 +171,7 @@
 
 <section class="tab-content" id="numeros">
   <div class="panel">
-    <h2> Teoria dos Números</h2>
+    <h2>🔢 Teoria dos Números</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="primos">Primos & Fatoração</button>
       <button class="sub-tab" data-sub="modular">Aritmética Modular</button>
@@ -250,7 +250,6 @@
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
-/* ============ NAVEGAÇÃO ============ */
 document.querySelectorAll('.tab').forEach(t=>{
   t.onclick=()=>{
     document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -269,17 +268,15 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
   };
 });
 
-/* ============ TOASTS ============ */
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
+  const icon=type==='err'?'⚠️':type==='warn'?'':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0'; setTimeout(()=>el.remove(),300)},3800);
 }
 
-/* ============ HELPERS ============ */
 function str(id){
   const v=document.getElementById(id).value.trim();
   if(!v) throw new Error('Campo vazio');
@@ -293,97 +290,47 @@ function num(id,required=true){
   return n;
 }
 
-// 🚀 Parser robusto de intervalo: aceita "0,10", "0 a 10", "0;10", "0 10", "0 até 10"
 function parseIntervalo(str){
-  // Remove espaços extras
   str = str.trim();
-  
-  // Tenta separar por "a", "até", ";", ",", espaço
   let parts = null;
-  
-  // Padrão: número (a|até) número
   const matchA = str.match(/^(-?\d+\.?\d*)\s*(a|até)\s*(-?\d+\.?\d*)$/i);
-  if(matchA){
-    parts = [matchA[1], matchA[3]];
-  }
-  
-  // Padrão: número; número
-  if(!parts && str.includes(';')){
-    parts = str.split(';');
-  }
-  
-  // Padrão: número, número (mas cuidado com vírgula decimal)
+  if(matchA) parts = [matchA[1], matchA[3]];
+  if(!parts && str.includes(';')) parts = str.split(';');
   if(!parts && str.includes(',')){
-    // Se tem apenas uma vírgula e parece ser separador (não decimal)
     const commaCount = (str.match(/,/g) || []).length;
     if(commaCount === 1){
-      // Verifica se não é decimal (ex: "0,5" seria 0.5)
       const testNum = Number(str.replace(',','.'));
-      if(!isFinite(testNum)){
-        // Não é número válido com vírgula decimal, então é separador
-        parts = str.split(',');
-      }else{
-        // É um número com vírgula decimal, não é intervalo
-        throw new Error('Formato de intervalo inválido. Use: "0,10" ou "0 a 10"');
-      }
-    }else{
-      // Múltiplas vírgulas - assume separador
-      parts = str.split(',');
-    }
+      if(!isFinite(testNum)) parts = str.split(',');
+      else throw new Error('Formato de intervalo inválido. Use: "0,10" ou "0 a 10"');
+    }else parts = str.split(',');
   }
-  
-  // Padrão: número espaço número
   if(!parts){
     const matchSpace = str.match(/^(-?\d+\.?\d*)\s+(-?\d+\.?\d*)$/);
-    if(matchSpace){
-      parts = [matchSpace[1], matchSpace[2]];
-    }
+    if(matchSpace) parts = [matchSpace[1], matchSpace[2]];
   }
-  
-  if(!parts){
-    throw new Error('Formato de intervalo inválido. Exemplos: "0,10", "0 a 10", "0;10"');
-  }
-  
-  // Converte para números
+  if(!parts) throw new Error('Formato de intervalo inválido. Exemplos: "0,10", "0 a 10", "0;10"');
   const n1 = Number(parts[0].trim().replace(',','.'));
   const n2 = Number(parts[1].trim().replace(',','.'));
-  
-  if(!isFinite(n1) || !isFinite(n2)){
-    throw new Error('Valores do intervalo inválidos');
-  }
-  
+  if(!isFinite(n1) || !isFinite(n2)) throw new Error('Valores do intervalo inválidos');
   return [n1, n2];
 }
 
-// 🚀 Arredondamento inteligente para valores "limpos"
 function roundClean(n){
   if(!isFinite(n)) return n;
-  
-  // Tolerância mais agressiva: 1e-5
-  const tol = 1e-5;
-  
-  // Inteiros próximos
+  const tol = 1e-4;
   const rounded = Math.round(n);
   if(Math.abs(n - rounded) < tol) return rounded;
-  
-  // Frações simples (denominador até 20)
   for(let d=2; d<=20; d++){
     const num = Math.round(n*d);
     if(Math.abs(n - num/d) < tol) return num/d;
   }
-  
-  // Valores com poucas casas decimais
   const fixed2 = parseFloat(n.toFixed(2));
   if(Math.abs(n - fixed2) < tol) return fixed2;
-  
   return n;
 }
 
-// 🚀 Parser robusto: converte expressão matemática para JavaScript
 function mathToJS(expr, vars={}){
   let js = expr;
-  
-  // 1. Protege funções matemáticas com placeholders
   const funcMap = {
     'sin':'__SIN__','cos':'__COS__','tan':'__TAN__',
     'asin':'__ASIN__','acos':'__ACOS__','atan':'__ATAN__',
@@ -395,13 +342,9 @@ function mathToJS(expr, vars={}){
   for(const [func, ph] of Object.entries(funcMap)){
     js = js.replace(new RegExp('\\b'+func+'\\b','g'), ph);
   }
-  
-  // 2. Substitui variáveis
   for(const [key, val] of Object.entries(vars)){
     js = js.replace(new RegExp('\\b'+key+'\\b','g'), '('+val+')');
   }
-  
-  // 3. Restaura funções como Math.xxx
   const funcRestore = {
     '__SIN__':'Math.sin','__COS__':'Math.cos','__TAN__':'Math.tan',
     '__ASIN__':'Math.asin','__ACOS__':'Math.acos','__ATAN__':'Math.atan',
@@ -413,14 +356,9 @@ function mathToJS(expr, vars={}){
   for(const [ph, func] of Object.entries(funcRestore)){
     js = js.replace(new RegExp(ph,'g'), func);
   }
-  
-  // 4. Constantes
   js = js.replace(/\bpi\b/gi, 'Math.PI');
   js = js.replace(/\be\b/g, 'Math.E');
-  
-  // 5. ^ para **
   js = js.replace(/\^/g, '**');
-  
   return js;
 }
 
@@ -432,7 +370,6 @@ function evalMath(expr, vars={}){
   }catch(e){ return NaN; }
 }
 
-/* ============ HISTÓRICO ============ */
 let history=[];
 function addHist(tab,input,result){
   history.push({n:history.length+1, time:new Date().toLocaleTimeString('pt-BR'), tab, input, result});
@@ -464,7 +401,6 @@ function exportarHistorico(){
   toast('Relatório exportado!','ok');
 }
 
-/* ============ DETECTOR DE FRAÇÃO ============ */
 function separarFracao(expr){
   let depth=0, mainSlash=-1;
   for(let i=0;i<expr.length;i++){
@@ -501,18 +437,16 @@ function separarFracao(expr){
   return {num, den};
 }
 
-/* ============ LIMITES SIMBÓLICOS ============ */
 function calcLimite(){
   try{
     const f=str('lim-f');
     const aStr=str('lim-a').toLowerCase();
     const dir=document.getElementById('lim-dir').value;
-    
     const isInf = aStr==='inf' || aStr==='infinity';
     const isMInf = aStr==='-inf' || aStr==='-infinity';
     const aVal = (isInf||isMInf) ? null : Number(aStr.replace(',','.'));
     
-    let stepsHTML = `<div class="step-box"><h3> Passo a Passo Simbólico</h3>`;
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo Simbólico</h3>`;
     stepsHTML += `<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML += `<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
@@ -531,47 +465,31 @@ function calcLimite(){
       method = `Avaliação numérica em x = ${big}`;
     }else{
       const frac = separarFracao(f);
-      
       if(frac){
         fracDetected = true;
         stepsHTML += `<p><span class="step-num">4.</span> Fração detectada. Numerador: <code>${frac.num}</code>, Denominador: <code>${frac.den}</code></p>`;
-        
         let curNum = frac.num, curDen = frac.den;
         let lhLog = [];
-        
         for(let iter=1; iter<=5; iter++){
           const numVal = evalMath(curNum, {x: aVal});
           const denVal = evalMath(curDen, {x: aVal});
           lhLog.push(`<b>Iteração ${iter}:</b> num(${aVal})=${isFinite(numVal)?numVal.toPrecision(6):'NaN'}, den(${aVal})=${isFinite(denVal)?denVal.toPrecision(6):'NaN'}`);
-          
           const numZero = !isFinite(numVal) || Math.abs(numVal) < 1e-9;
           const denZero = !isFinite(denVal) || Math.abs(denVal) < 1e-9;
-          
           if(numZero && denZero){
             try{
               const newNum = nerdamer(curNum).differentiate('x').toString();
               const newDen = nerdamer(curDen).differentiate('x').toString();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
-              curNum = newNum;
-              curDen = newDen;
-              lhopitalApplied = iter;
-            }catch(e){ 
-              lhLog.push(`  → Erro ao derivar: ${e.message}`);
-              break; 
-            }
-          }else{
-            lhLog.push(`  → Não é mais 0/0. Parando.`);
-            break;
-          }
+              curNum = newNum; curDen = newDen; lhopitalApplied = iter;
+            }catch(e){ lhLog.push(`  → Erro: ${e.message}`); break; }
+          }else{ lhLog.push(`  → Não é 0/0. Parando.`); break; }
         }
-        
         stepsHTML += `<p><span class="step-num">5.</span> Aplicações de L'Hôpital: <strong>${lhopitalApplied}</strong></p>`;
         stepsHTML += `<div style="margin-left:20px; font-size:0.85rem; background:#fef3c7; padding:10px; border-radius:6px">${lhLog.join('<br>')}</div>`;
         stepsHTML += `<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
-        
         const finalNum = evalMath(curNum, {x: aVal});
         const finalDen = evalMath(curDen, {x: aVal});
-        
         if(isFinite(finalNum) && isFinite(finalDen) && Math.abs(finalDen) > 1e-10){
           L = finalNum / finalDen;
           method = `L'Hôpital simbólico (${lhopitalApplied}x) + avaliação direta`;
@@ -583,10 +501,8 @@ function calcLimite(){
             const vm = evalMath(f, {x: aVal - d});
             if(isFinite(vp) && isFinite(vm)) vals.push((vp+vm)/2);
           }
-          if(vals.length>0){
-            L = vals[vals.length-1];
-            method = `Média de aproximações numéricas`;
-          }
+          if(vals.length>0) L = vals[vals.length-1];
+          method = `Média de aproximações numéricas`;
         }
       }else{
         const deltas = [0.01, 0.001, 0.0001, 0.00001];
@@ -600,358 +516,155 @@ function calcLimite(){
         method = `Média de aproximações numéricas`;
       }
     }
-    
     if(!isFinite(L)) throw new Error('Limite divergente ou não calculável');
-    
-    // 🚀 Arredonda para valor limpo
     L = roundClean(L);
-    
     const stepNum = fracDetected ? 7 : 4;
     stepsHTML += `<p><span class="step-num">${stepNum}.</span> Método: ${method}</p>`;
-    stepsHTML += `<p><span class="step-num">${stepNum+1}.</span> <strong>Resultado: lim = ${Number(L).toPrecision(8)}</strong></p>`;
+    stepsHTML += `<p><span class="step-num">${stepNum+1}.</span> <strong>Resultado: lim = ${L}</strong></p>`;
     stepsHTML += `</div>`;
-    
-    const dirTxt = dir==='left'?'⁻':dir==='right'?'⁺':'';
-    document.getElementById('lim-result').innerHTML=`
-      <div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${Number(L).toPrecision(8)}</strong></span></div>
-    `;
+    const dirTxt = dir==='left'?'':dir==='right'?'⁺':'';
+    document.getElementById('lim-result').innerHTML=`<div class="result"><span class="math">lim<sub>x→${aStr}${dirTxt}</sub> f(x) = <strong>${L}</strong></span></div>`;
     document.getElementById('lim-steps').innerHTML = stepsHTML;
-    addHist('Limites', `lim x→${aStr} de ${f}`, Number(L).toPrecision(8));
-    toast('Limite calculado com L\'Hôpital!','ok');
-    
+    addHist('Limites', `lim x→${aStr} de ${f}`, L);
+    toast('Limite calculado!','ok');
     let xvals, yvals;
     if(isInf){ xvals=Array.from({length:200},(_,i)=>i*0.5+0.1); }
     else if(isMInf){ xvals=Array.from({length:200},(_,i)=>-i*0.5-0.1); }
     else{ xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05); }
     yvals=xvals.map(x=>{try{return evalMath(f,{x:x})}catch{return null}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],
-      {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},
-      {responsive:true});
+      {title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ DERIVADAS SIMBÓLICAS ============ */
 function calcDerivadas(){
   try{
     const s=str('der-s');
-    const tRangeStr=str('der-t');
-    
-    // 🚀 Parser robusto de intervalo
-    const [t0,t1] = parseIntervalo(tRangeStr);
-    
-    // Derivação simbólica com Nerdamer
+    const [t0,t1] = parseIntervalo(str('der-t'));
     const vExpr = nerdamer(s).differentiate('t');
     const aExpr = vExpr.differentiate('t');
-    
     const vStr = vExpr.toString();
     const aStr = aExpr.toString();
-    
-    // Funções numéricas para plot
     const sFn = t => evalMath(s, {t:t});
     const vFn = t => evalMath(vStr, {t:t});
     const aFn = t => evalMath(aStr, {t:t});
-    
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn), V=ts.map(vFn), A=ts.map(aFn);
-    
     document.getElementById('der-result').innerHTML=`
       <div class="result">
         <div class="math">s(t) = ${s}</div>
         <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
         <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
       </div>`;
-    
-    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Derivação</h3>`;
-    stepsHTML += `<p><span class="step-num">1.</span> Função posição: <code>s(t) = ${s}</code></p>`;
-    stepsHTML += `<p><span class="step-num">2.</span> Regras aplicadas: cadeia, produto, potência, trigonométricas.</p>`;
-    stepsHTML += `<p><span class="step-num">3.</span> Primeira derivada (velocidade): <code>v(t) = ${vStr}</code></p>`;
-    stepsHTML += `<p><span class="step-num">4.</span> Segunda derivada (aceleração): <code>a(t) = ${aStr}</code></p>`;
+    // Tabela de valores
+    const nPoints = 10;
+    const tVals = Array.from({length:nPoints},(_,i)=>t0+(t1-t0)*i/(nPoints-1));
+    let tableHTML = `<div style="margin-top:18px; overflow-x:auto"><table><thead><tr><th>t</th><th>s(t)</th><th>v(t)</th><th>a(t)</th></tr></thead><tbody>`;
+    tVals.forEach(t=>{
+      tableHTML += `<tr><td>${t.toFixed(2)}</td><td>${sFn(t).toFixed(4)}</td><td>${vFn(t).toFixed(4)}</td><td>${aFn(t).toFixed(4)}</td></tr>`;
+    });
+    tableHTML += `</tbody></table></div>`;
+    document.getElementById('der-table').innerHTML = tableHTML;
+    let stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo</h3>`;
+    stepsHTML += `<p><span class="step-num">1.</span> Função: <code>s(t) = ${s}</code></p>`;
+    stepsHTML += `<p><span class="step-num">2.</span> Derivando em relação a t: <code>v(t) = ${vStr}</code></p>`;
+    stepsHTML += `<p><span class="step-num">3.</span> Derivando novamente: <code>a(t) = ${aStr}</code></p>`;
     stepsHTML += `</div>`;
     document.getElementById('der-steps').innerHTML = stepsHTML;
-    
     addHist('Cinemática', `s(t)=${s}`, `v(t)=${vStr}; a(t)=${aStr}`);
-    toast('Derivadas simbólicas calculadas!','ok');
-    
+    toast('Derivadas calculadas!','ok');
     Plotly.newPlot('der-plot',[
-      {x:ts,y:S,name:'s(t) posição',line:{color:'#4f46e5'}},
-      {x:ts,y:V,name:'v(t) velocidade',line:{color:'#06b6d4'}},
-      {x:ts,y:A,name:'a(t) aceleração',line:{color:'#f59e0b'}}
-    ],{title:'Cinemática — s(t), v(t), a(t)',yaxis:{title:'valor'},xaxis:{title:'t'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
+      {x:ts,y:S,name:'s(t)',line:{color:'#4f46e5'}},
+      {x:ts,y:V,name:'v(t)',line:{color:'#06b6d4'}},
+      {x:ts,y:A,name:'a(t)',line:{color:'#f59e0b'}}
+    ],{title:'Cinemática',yaxis:{title:'valor'},xaxis:{title:'t'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ INTEGRAIS SIMBÓLICAS ============ */
 function calcIntegral(){
   try{
     const f=str('int-f');
     const x1=num('int-x1'), x2=num('int-x2');
     if(x1===x2) throw new Error('x₁ e x₂ devem ser diferentes');
     if(x1>x2) throw new Error('x₁ deve ser menor que x₂');
-    
-    let Fstr;
-    let symbolicOK = false;
-    try{
-      const F = nerdamer(f).integrate('x');
-      Fstr = F.toString();
-      symbolicOK = true;
-    }catch(e){ Fstr = null; }
-    
-    let W, stepsHTML = `<div class="step-box"><h3>📝 Passo a Passo da Integração</h3>`;
-    stepsHTML += `<p><span class="step-num">1.</span> Função força: <code>F(x) = ${f}</code></p>`;
-    stepsHTML += `<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
-    
+    let Fstr, symbolicOK=false;
+    try{ const F = nerdamer(f).integrate('x'); Fstr = F.toString(); symbolicOK=true; }catch(e){ Fstr=null; }
+    let W, stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo</h3>`;
+    stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>F(x) = ${f}</code></p>`;
+    stepsHTML+=`<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
     if(symbolicOK){
-      stepsHTML += `<p><span class="step-num">3.</span> Antiderivada: <code>∫F(x)dx = ${Fstr} + C</code></p>`;
-      const Fx2 = evalMath(Fstr, {x:x2});
-      const Fx1 = evalMath(Fstr, {x:x1});
-      if(isFinite(Fx2) && isFinite(Fx1)){
-        W = Fx2 - Fx1;
-        stepsHTML += `<p><span class="step-num">4.</span> Teorema Fundamental: W = F(${x2}) - F(${x1}) = ${Fx2.toPrecision(6)} - (${Fx1.toPrecision(6)})</p>`;
-        stepsHTML += `<p><span class="step-num">5.</span> <strong>Trabalho W = ${Number(W).toPrecision(8)} J</strong></p>`;
-      }else{
-        throw new Error('Erro ao avaliar antiderivada');
-      }
+      stepsHTML+=`<p><span class="step-num">3.</span> Antiderivada: <code>∫F(x)dx = ${Fstr} + C</code></p>`;
+      const Fx2=evalMath(Fstr,{x:x2}), Fx1=evalMath(Fstr,{x:x1});
+      if(isFinite(Fx2)&&isFinite(Fx1)){
+        W=Fx2-Fx1;
+        stepsHTML+=`<p><span class="step-num">4.</span> W = F(${x2}) - F(${x1}) = ${Fx2.toFixed(4)} - (${Fx1.toFixed(4)})</p>`;
+        stepsHTML+=`<p><span class="step-num">5.</span> <strong>W = ${W.toFixed(6)} J</strong></p>`;
+      }else throw new Error('Erro na avaliação');
     }else{
       const fn=x=>evalMath(f,{x:x});
-      const h=(x2-x1)/1000;
-      let s=fn(x1)+fn(x2);
+      const h=(x2-x1)/1000; let s=fn(x1)+fn(x2);
       for(let i=1;i<1000;i++) s+=fn(x1+i*h)*(i%2?4:2);
-      W = s*h/3;
-      stepsHTML += `<p><span class="step-num">3.</span> Método numérico (Simpson 1000 pontos).</p>`;
-      stepsHTML += `<p><span class="step-num">4.</span> <strong>Trabalho W ≈ ${Number(W).toPrecision(8)} J</strong></p>`;
+      W=s*h/3;
+      stepsHTML+=`<p><span class="step-num">3.</span> Método numérico (Simpson)</p>`;
+      stepsHTML+=`<p><span class="step-num">4.</span> <strong>W ≈ ${W.toFixed(6)} J</strong></p>`;
     }
-    stepsHTML += `</div>`;
-    
-    document.getElementById('int-result').innerHTML=`
-      <div class="result">
-        <div class="math">W = ∫<sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div>
-        <div class="math"><strong>Trabalho W = ${Number(W).toPrecision(8)} J</strong></div>
-        ${symbolicOK ? `<div class="math" style="font-size:0.95rem; margin-top:8px">Antiderivada: F(x) = ${Fstr}</div>` : ''}
-      </div>`;
-    document.getElementById('int-steps').innerHTML = stepsHTML;
-    
-    addHist('Trabalho', `∫[${x1},${x2}] ${f} dx`, Number(W).toPrecision(8)+' J');
+    stepsHTML+=`</div>`;
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">W = ∫<sub>${x1}</sub><sup>${x2}</sup> (${f}) dx</div><div class="math"><strong>W = ${W.toFixed(6)} J</strong></div>${symbolicOK?`<div class="math" style="font-size:.95rem;margin-top:8px">F(x) = ${Fstr}</div>`:''}</div>`;
+    document.getElementById('int-steps').innerHTML=stepsHTML;
+    addHist('Trabalho',`[${x1},${x2}] ${f} dx`,W.toFixed(6)+' J');
     toast('Trabalho calculado!','ok');
-    
     const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
     const ys=xs.map(x=>evalMath(f,{x:x}));
-    const areaX=[...xs,xs[xs.length-1],xs[0]];
-    const areaY=[...ys,0,0];
+    const areaX=[...xs,xs[xs.length-1],xs[0]], areaY=[...ys,0,0];
     Plotly.newPlot('int-plot',[
       {x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}},
-      {x:areaX,y:areaY,fill:'tozeroy',fillcolor:'rgba(79,70,229,.3)',name:'Área = W',line:{width:0}}
-    ],{title:'Força × Posição — Área sombreada = Trabalho',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
+      {x:areaX,y:areaY,fill:'tozeroy',fillcolor:'rgba(79,70,229,.3)',name:'Área',line:{width:0}}
+    ],{title:'Força × Posição',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ SIMULADORES ============ */
 function simMHS(){
   try{
-    const A=num('mhs-a'), w=num('mhs-w'), p=num('mhs-p'), T=num('mhs-t');
-    if(A<=0||w<=0||T<=0) throw new Error('Valores devem ser positivos');
+    const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p'),T=num('mhs-t');
+    if(A<=0||w<=0||T<=0) throw new Error('Valores positivos');
     const ts=Array.from({length:400},(_,i)=>T*i/399);
-    const x=ts.map(t=>A*Math.cos(w*t+p));
-    const v=ts.map(t=>-A*w*Math.sin(w*t+p));
-    const period=(2*Math.PI/w).toPrecision(5);
-    const freq=(w/(2*Math.PI)).toPrecision(5);
-    document.getElementById('mhs-result').innerHTML=`
-      <div class="result">
-        <div class="math">x(t) = ${A}·cos(${w}t + ${p})</div>
-        <div>Período T = <strong>${period} s</strong> · Frequência f = <strong>${freq} Hz</strong></div>
-      </div>`;
-    addHist('MHS',`A=${A}, ω=${w}, φ=${p}`,`T=${period}s, f=${freq}Hz`);
-    toast('MHS simulado','ok');
-    Plotly.newPlot('mhs-plot',[
-      {x:ts,y:x,name:'x(t) posição',line:{color:'#4f46e5'}},
-      {x:ts,y:v,name:'v(t) velocidade',line:{color:'#06b6d4'}}
-    ],{title:'Movimento Harmônico Simples',xaxis:{title:'t (s)'},yaxis:{title:'x, v'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
+    const x=ts.map(t=>A*Math.cos(w*t+p)), v=ts.map(t=>-A*w*Math.sin(w*t+p));
+    document.getElementById('mhs-result').innerHTML=`<div class="result"><div class="math">x(t) = ${A}·cos(${w}t + ${p})</div><div>Período = <strong>${(2*Math.PI/w).toFixed(3)} s</strong></div></div>`;
+    Plotly.newPlot('mhs-plot',[{x:ts,y:x,name:'x(t)',line:{color:'#4f46e5'}},{x:ts,y:v,name:'v(t)',line:{color:'#06b6d4'}}],{title:'MHS',xaxis:{title:'t (s)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    toast('MHS simulado!','ok');
   }catch(e){ toast(e.message,'err'); }
 }
 
 function simObl(){
   try{
-    const v0=num('obl-v'), ang=num('obl-a'), h0=num('obl-h'), g=num('obl-g');
-    if(v0<=0||g<=0) throw new Error('v₀ e g devem ser positivos');
-    const rad=ang*Math.PI/180;
-    const vx=v0*Math.cos(rad), vy=v0*Math.sin(rad);
-    if(vx===0) throw new Error('Ângulo não pode ser 90°');
-    const tImpacte=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
-    const H=h0+vy*vy/(2*g);
-    const R=vx*tImpacte;
-    const ts=Array.from({length:300},(_,i)=>tImpacte*i/299);
-    const X=ts.map(t=>vx*t);
-    const Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
-    document.getElementById('obl-result').innerHTML=`
-      <div class="result">
-        <div>Alcance R = <strong>${R.toPrecision(6)} m</strong> · Altura máxima H = <strong>${H.toPrecision(6)} m</strong></div>
-        <div>Tempo de voo = <strong>${tImpacte.toPrecision(5)} s</strong></div>
-      </div>`;
-    addHist('Lançamento',`v₀=${v0}, θ=${ang}°, h₀=${h0}`,`R=${R.toPrecision(5)}m, H=${H.toPrecision(5)}m`);
-    toast('Lançamento simulado','ok');
-    Plotly.newPlot('obl-plot',[
-      {x:X,y:Y,type:'scatter',mode:'lines',name:'Trajetória',line:{color:'#4f46e5',width:3}},
-      {x:[0,R],y:[0,0],mode:'lines',name:'Solo',line:{color:'#10b981',dash:'dash'}}
-    ],{title:'Trajetória — Altura (Y) × Distância (X)',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
+    const v0=num('obl-v'),ang=num('obl-a'),h0=num('obl-h'),g=num('obl-g');
+    if(v0<=0||g<=0) throw new Error('Valores positivos');
+    const rad=ang*Math.PI/180, vx=v0*Math.cos(rad), vy=v0*Math.sin(rad);
+    if(vx===0) throw new Error('Ângulo ≠ 90°');
+    const tI=(vy+Math.sqrt(vy*vy+2*g*h0))/g, H=h0+vy*vy/(2*g), R=vx*tI;
+    const ts=Array.from({length:300},(_,i)=>tI*i/299);
+    const X=ts.map(t=>vx*t), Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
+    document.getElementById('obl-result').innerHTML=`<div class="result"><div>Alcance = <strong>${R.toFixed(2)} m</strong> · Altura máx = <strong>${H.toFixed(2)} m</strong></div></div>`;
+    Plotly.newPlot('obl-plot',[{x:X,y:Y,type:'scatter',mode:'lines',name:'Trajetória',line:{color:'#4f46e5',width:3}}],{title:'Lançamento Oblíquo',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    toast('Lançamento simulado!','ok');
   }catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ TEORIA DOS NÚMEROS ============ */
-function isPrime(n){
-  if(n<2) return false; if(n<4) return true;
-  if(n%2===0||n%3===0) return false;
-  for(let i=5;i*i<=n;i+=6) if(n%i===0||n%(i+2)===0) return false;
-  return true;
-}
-function testPrimo(){
-  try{
-    const n=Math.floor(num('p-n'));
-    if(n<0) throw new Error('n deve ser ≥ 0');
-    const r=isPrime(n);
-    document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${r?'é <span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO</span> é primo'}</div>`;
-    addHist('Primalidade',`n=${n}`,r?'Primo':'Composto');
-    toast('Teste concluído','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function crivo(){
-  try{
-    const N=Math.floor(num('p-sieve'));
-    if(N<2||N>1e6) throw new Error('N deve estar entre 2 e 1.000.000');
-    const sieve=new Array(N+1).fill(true);
-    sieve[0]=sieve[1]=false;
-    for(let i=2;i*i<=N;i++) if(sieve[i]) for(let j=i*i;j<=N;j+=i) sieve[j]=false;
-    const primes=[]; for(let i=2;i<=N;i++) if(sieve[i]) primes.push(i);
-    document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong> encontrados<br><small style="word-break:break-all">${primes.slice(0,200).join(', ')}${primes.length>200?'...':''}</small></div>`;
-    addHist('Crivo',`até ${N}`,primes.length+' primos');
-    toast('Crivo executado','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function fatorar(){
-  try{
-    let n=Math.floor(num('p-fact'));
-    if(n<2) throw new Error('n deve ser ≥ 2');
-    const orig=n, factors={};
-    for(let p=2;p*p<=n;p++) while(n%p===0){ factors[p]=(factors[p]||0)+1; n/=p; }
-    if(n>1) factors[n]=(factors[n]||0)+1;
-    const str=Object.entries(factors).map(([p,k])=>k>1?`${p}^${k}`:p).join(' · ');
-    document.getElementById('p-result').innerHTML=`<div class="result"><strong>${orig} = ${str}</strong></div>`;
-    addHist('Fatoração',orig,str);
-    toast('Fatoração concluída','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function gcd(a,b){a=Math.abs(a); b=Math.abs(b); while(b){[a,b]=[b,a%b]} return a;}
-function mdc(){
-  try{
-    const a=Math.floor(num('p-a')), b=Math.floor(num('p-b'));
-    const r=gcd(a,b);
-    document.getElementById('p-result').innerHTML=`<div class="result">MDC(${a}, ${b}) = <strong>${r}</strong></div>`;
-    addHist('MDC',`${a}, ${b}`,r);
-    toast('MDC calculado','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function mmc(){
-  try{
-    const a=Math.floor(num('p-c')), b=Math.floor(num('p-d'));
-    const r=Math.abs(a*b)/gcd(a,b);
-    document.getElementById('p-result').innerHTML=`<div class="result">MMC(${a}, ${b}) = <strong>${r}</strong></div>`;
-    addHist('MMC',`${a}, ${b}`,r);
-    toast('MMC calculado','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function potMod(base,exp,mod){
-  let r=1n; base=BigInt(base)%BigInt(mod); exp=BigInt(exp); mod=BigInt(mod);
-  while(exp>0n){ if(exp%2n===1n) r=(r*base)%mod; exp/=2n; base=(base*base)%mod; }
-  return Number(r);
-}
-function extGcd(a,b){
-  if(b===0) return [a,1,0];
-  const [g,x,y]=extGcd(b,a%b);
-  return [g,y,x-Math.floor(a/b)*y];
-}
-function potModUI(){
-  try{
-    const a=Math.floor(num('m-a')), b=Math.floor(num('m-b')), m=Math.floor(num('m-m'));
-    if(m<=0) throw new Error('m deve ser > 0');
-    const r=potMod(a<0?a+m:a,b,m);
-    document.getElementById('m-result').innerHTML=`<div class="result">${a}^${b} mod ${m} = <strong>${r}</strong></div>`;
-    addHist('Pot. Modular',`${a}^${b} mod ${m}`,r);
-    toast('Potência modular calculada','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function invModUI(){
-  try{
-    const a=Math.floor(num('m-ia')), m=Math.floor(num('m-im'));
-    if(m<=0) throw new Error('m deve ser > 0');
-    const [g,x]=extGcd(a,m);
-    if(g!==1) throw new Error('Inverso não existe (MDC ≠ 1)');
-    const r=((x%m)+m)%m;
-    document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m} = <strong>${r}</strong><br><small>Verificação: ${a}·${r} mod ${m} = ${(a*r)%m}</small></div>`;
-    addHist('Inv. Modular',`${a} mod ${m}`,r);
-    toast('Inverso calculado','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function congUI(){
-  try{
-    const a=Math.floor(num('m-ca')), b=Math.floor(num('m-cb')), m=Math.floor(num('m-cm'));
-    if(m<=0) throw new Error('m deve ser > 0');
-    const g=gcd(a,m);
-    if(b%g!==0) throw new Error('Solução inexistente: gcd(a,m) ∤ b');
-    const a_=a/g, b_=b/g, m_=m/g;
-    const [_,inv]=extGcd(a_,m_);
-    const x0=((inv*b_)%m_+m_)%m_;
-    const sols=[]; for(let k=0;k<g;k++) sols.push((x0+k*m_)%m);
-    document.getElementById('m-result').innerHTML=`<div class="result">${a}x ≡ ${b} (mod ${m})<br>Soluções: <strong>${sols.join(', ')}</strong></div>`;
-    addHist('Congruência',`${a}x≡${b} mod ${m}`,sols.join(','));
-    toast('Congruência resolvida','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function phi(n){
-  let r=n;
-  for(let p=2;p*p<=n;p++) if(n%p===0){ while(n%p===0) n/=p; r-=r/p; }
-  if(n>1) r-=r/n;
-  return r;
-}
-function teoremasUI(){
-  try{
-    const a=Math.floor(num('m-ta')), m=Math.floor(num('m-tm'));
-    if(m<=0) throw new Error('m deve ser > 0');
-    let fermat='N/A', euler='N/A';
-    if(isPrime(m)){
-      const r=potMod(a<0?a+m:a,m-1,m);
-      fermat=`a<sup>${m-1}</sup> ≡ ${r} (mod ${m}) ${r===1?'✅ (Fermat válido)':'❌'}`;
-    }else fermat='m não é primo — Fermat não se aplica';
-    const ph=phi(m);
-    const r2=potMod(a<0?a+m:a,ph,m);
-    euler=`a<sup>φ(${m})=${ph}</sup> ≡ ${r2} (mod ${m}) ${r2===1?'✅ (Euler válido)':'❌'}`;
-    document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong> ${fermat}<br><strong>Euler:</strong> ${euler}</div>`;
-    addHist('Teoremas',`a=${a}, m=${m}`,`φ=${ph}`);
-    toast('Teoremas verificados','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
-function funcoesNUI(){
-  try{
-    const n=Math.floor(num('f-n'));
-    if(n<1) throw new Error('n deve ser ≥ 1');
-    const ph=phi(n);
-    let nn=n, mu=1, sqf=true;
-    for(let p=2;p*p<=nn;p++) if(nn%p===0){ let c=0; while(nn%p===0){c++; nn/=p;} if(c>1){sqf=false; break;} mu=-mu; }
-    if(nn>1) mu=-mu;
-    if(!sqf) mu=0;
-    const divs=[]; for(let i=1;i*i<=n;i++) if(n%i===0){ divs.push(i); if(i!==n/i) divs.push(n/i); }
-    divs.sort((a,b)=>a-b);
-    const d=divs.length;
-    const sigma=divs.reduce((a,b)=>a+b,0);
-    document.getElementById('f-result').innerHTML=`
-      <div class="result">
-        <div><strong>φ(${n})</strong> (totiente de Euler) = <strong>${ph}</strong></div>
-        <div><strong>μ(${n})</strong> (Möbius) = <strong>${mu}</strong> ${mu===0?'(n tem fator quadrático)':mu===1?'(fatoração com nº par de primos)':'(fatoração com nº ímpar de primos)'}</div>
-        <div><strong>d(${n})</strong> (nº de divisores) = <strong>${d}</strong></div>
-        <div><strong>σ(${n})</strong> (soma dos divisores) = <strong>${sigma}</strong></div>
-        <div><strong>Divisores:</strong> ${divs.join(', ')}</div>
-      </div>`;
-    addHist('Funções N.',`n=${n}`,`φ=${ph}, μ=${mu}, d=${d}, σ=${sigma}`);
-    toast('Funções calculadas','ok');
-  }catch(e){ toast(e.message,'err'); }
-}
+function isPrime(n){if(n<2)return false;if(n<4)return true;if(n%2===0||n%3===0)return false;for(let i=5;i*i<=n;i+=6)if(n%i===0||n%(i+2)===0)return false;return true;}
+function testPrimo(){try{const n=Math.floor(num('p-n'));if(n<0)throw new Error('n≥0');const r=isPrime(n);document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${r?'<span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO primo</span>'}</div>`;toast('Teste concluído','ok');}catch(e){toast(e.message,'err');}}
+function crivo(){try{const N=Math.floor(num('p-sieve'));if(N<2||N>1e6)throw new Error('2≤N≤1e6');const sieve=new Array(N+1).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<=N;i++)if(sieve[i])for(let j=i*i;j<=N;j+=i)sieve[j]=false;const primes=[];for(let i=2;i<=N;i++)if(sieve[i])primes.push(i);document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong><br><small>${primes.slice(0,100).join(', ')}${primes.length>100?'...':''}</small></div>`;toast('Crivo executado','ok');}catch(e){toast(e.message,'err');}}
+function fatorar(){try{let n=Math.floor(num('p-fact'));if(n<2)throw new Error('n≥2');const orig=n,factors={};for(let p=2;p*p<=n;p++)while(n%p===0){factors[p]=(factors[p]||0)+1;n/=p;}if(n>1)factors[n]=(factors[n]||0)+1;const str=Object.entries(factors).map(([p,k])=>k>1?`${p}^${k}`:p).join('·');document.getElementById('p-result').innerHTML=`<div class="result"><strong>${orig} = ${str}</strong></div>`;toast('Fatoração concluída','ok');}catch(e){toast(e.message,'err');}}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a;}
+function mdc(){try{const a=Math.floor(num('p-a')),b=Math.floor(num('p-b'));const r=gcd(a,b);document.getElementById('p-result').innerHTML=`<div class="result">MDC(${a},${b})=<strong>${r}</strong></div>`;toast('MDC calculado','ok');}catch(e){toast(e.message,'err');}}
+function mmc(){try{const a=Math.floor(num('p-c')),b=Math.floor(num('p-d'));const r=Math.abs(a*b)/gcd(a,b);document.getElementById('p-result').innerHTML=`<div class="result">MMC(${a},${b})=<strong>${r}</strong></div>`;toast('MMC calculado','ok');}catch(e){toast(e.message,'err');}}
+function potMod(base,exp,mod){let r=1n;base=BigInt(base)%BigInt(mod);exp=BigInt(exp);mod=BigInt(mod);while(exp>0n){if(exp%2n===1n)r=(r*base)%mod;exp/=2n;base=(base*base)%mod;}return Number(r);}
+function extGcd(a,b){if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}
+function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),m=Math.floor(num('m-m'));if(m<=0)throw new Error('m>0');const r=potMod(a<0?a+m:a,b,m);document.getElementById('m-result').innerHTML=`<div class="result">${a}^${b} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
+function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
+function congUI(){try{const a=Math.floor(num('m-ca')),b=Math.floor(num('m-cb')),m=Math.floor(num('m-cm'));if(m<=0)throw new Error('m>0');const g=gcd(a,m);if(b%g!==0)throw new Error('Sem solução');const a_=a/g,b_=b/g,m_=m/g;const[_,inv]=extGcd(a_,m_);const x0=((inv*b_)%m_+m_)%m_;const sols=[];for(let k=0;k<g;k++)sols.push((x0+k*m_)%m);document.getElementById('m-result').innerHTML=`<div class="result">${a}x≡${b}(mod ${m})<br>Soluções:<strong>${sols.join(',')}</strong></div>`;toast('Resolvido','ok');}catch(e){toast(e.message,'err');}}
+function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
+function teoremasUI(){try{const a=Math.floor(num('m-ta')),m=Math.floor(num('m-tm'));if(m<=0)throw new Error('m>0');let fermat='N/A',euler='N/A';if(isPrime(m)){const r=potMod(a<0?a+m:a,m-1,m);fermat=`a^${m-1}≡${r}(mod ${m}) ${r===1?'✅':'❌'}`;}else fermat='m não é primo';const ph=phi(m);const r2=potMod(a<0?a+m:a,ph,m);euler=`a^φ(${m})=${ph}≡${r2}(mod ${m}) ${r2===1?'✅':'❌'}`;document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong>${fermat}<br><strong>Euler:</strong>${euler}</div>`;toast('Verificado','ok');}catch(e){toast(e.message,'err');}}
+function funcoesNUI(){try{const n=Math.floor(num('f-n'));if(n<1)throw new Error('n≥1');const ph=phi(n);let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}divs.sort((a,b)=>a-b);const d=divs.length,sigma=divs.reduce((a,b)=>a+b,0);document.getElementById('f-result').innerHTML=`<div class="result"><div>φ(${n})=<strong>${ph}</strong></div><div>μ(${n})=<strong>${mu}</strong></div><div>d(${n})=<strong>${d}</strong></div><div>σ(${n})=<strong>${sigma}</strong></div><div>Divisores: ${divs.join(',')}</div></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 </script>
 </body>
 </html>
