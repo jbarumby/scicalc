@@ -71,11 +71,11 @@
 </header>
 
 <nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas"> Derivadas & Cinemática</button>
-  <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
+  <button class="tab active" data-tab="limites"> Limites</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
+  <button class="tab" data-tab="integrais"> Integrais & Trabalho</button>
   <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
-  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
+  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
   <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
@@ -83,7 +83,7 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2> Cálculo de Limites (Simbólico)</h2>
+    <h2>📐 Cálculo de Limites (Simbólico)</h2>
     <p class="sub">Resolução simbólica com L'Hôpital automático.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
@@ -91,8 +91,8 @@
       <div><label>Direção</label>
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
-          <option value="left">Pela esquerda (x→a)</option>
-          <option value="right">Pela direita (x→a)</option>
+          <option value="left">Pela esquerda (x→a⁻)</option>
+          <option value="right">Pela direita (x→a⁺)</option>
         </select>
       </div>
     </div>
@@ -251,7 +251,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='err'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  const icon=type==='err'?'⚠️':type==='warn'?'⚡':'✅';
+  const icon=type==='err'?'️':type==='warn'?'⚡':'✅';
   el.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300)},3800);
@@ -260,27 +260,31 @@ function toast(msg,type='err'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id,required=true){const v=document.getElementById(id).value.trim().replace(',','.');if(!v){if(required)throw new Error('Campo vazio');return NaN;}const n=Number(v);if(!isFinite(n))throw new Error(`Valor inválido em "${v}"`);return n;}
 
-// 🚀 DERIVADA SIMBÓLICA - USANDO NERDAMER CORRETAMENTE
+// 🚀 DERIVADA SIMBÓLICA - Tenta diff() do Nerdamer (sintaxe correta v1.1.13)
 function derivadaSimbolica(expr, varName){
   try{
-    // Cria expressão e deriva usando .differentiate()
-    const expression = nerdamer(expr);
-    const derivative = expression.diff(varName);
-    // Simplifica o resultado
-    const simplified = derivative.simplify();
-    return simplified.text();
+    // Sintaxe oficial do Nerdamer: diff(expr, var)
+    const result = nerdamer('diff(' + expr + ', ' + varName + ')');
+    const texto = result.text();
+    // Verifica se o resultado é válido (não contém "diff" ou "derivative")
+    if(texto.includes('diff(') || texto.includes('derivative(')){
+      throw new Error('Nerdamer não resolveu a derivada');
+    }
+    return texto;
   }catch(e){
     throw new Error('Erro ao derivar: ' + e.message);
   }
 }
 
-// 🚀 INTEGRAL SIMBÓLICA - USANDO NERDAMER CORRETAMENTE
+// 🚀 INTEGRAL SIMBÓLICA
 function integralSimbolica(expr, varName){
   try{
-    const expression = nerdamer(expr);
-    const integral = expression.integrate(varName);
-    const simplified = integral.simplify();
-    return simplified.text();
+    const result = nerdamer('integrate(' + expr + ', ' + varName + ')');
+    const texto = result.text();
+    if(texto.includes('integrate(')){
+      throw new Error('Nerdamer não resolveu a integral');
+    }
+    return texto;
   }catch(e){
     throw new Error('Erro ao integrar: ' + e.message);
   }
@@ -346,6 +350,17 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
+// 🚀 DERIVADA NUMÉRICA (diferenças finitas centradas) - FALLBACK
+function derivadaNumerica(expr, varName, ponto, h=1e-5){
+  const varsMais = {...varsMenos = {}, vars={}};
+  varsMais[varName] = ponto + h;
+  varsMenos[varName] = ponto - h;
+  const fMais = evalMath(expr, varsMais);
+  const fMenos = evalMath(expr, varsMenos);
+  if(!isFinite(fMais) || !isFinite(fMenos)) return NaN;
+  return (fMais - fMenos) / (2*h);
+}
+
 let history=[];
 function addHist(tab,input,result){history.push({n:history.length+1,time:new Date().toLocaleTimeString('pt-BR'),tab,input,result});renderHist();}
 function renderHist(){const tb=document.querySelector('#hist-table tbody');tb.innerHTML=history.map(h=>`<tr><td>${h.n}</td><td>${h.time}</td><td><span class="chip">${h.tab}</span></td><td>${h.input}</td><td>${h.result}</td></tr>`).join('');document.getElementById('hist-count').textContent=history.length+' registros';}
@@ -392,7 +407,7 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=(isInf||isMInf)?null:Number(aStr.replace(',','.'));
     
-    let stepsHTML=`<div class="step-box"><h3> Passo a Passo Simbólico</h3>`;
+    let stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo Simbólico</h3>`;
     stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>f(x) = ${f}</code></p>`;
     stepsHTML+=`<p><span class="step-num">2.</span> Tendência: <code>x → ${aStr}</code></p>`;
     
@@ -424,32 +439,45 @@ function calcLimite(){
           const denZero=!isFinite(denVal)||Math.abs(denVal)<1e-9;
           if(numZero&&denZero){
             try{
-              // 🚀 Usa .diff() e .simplify() corretamente
-              const newNum = nerdamer(curNum).diff('x').simplify().text();
-              const newDen = nerdamer(curDen).diff('x').simplify().text();
+              // 🚀 Usa diff() do Nerdamer
+              const newNum = nerdamer('diff('+curNum+', x)').text();
+              const newDen = nerdamer('diff('+curDen+', x)').text();
+              if(newNum.includes('diff(') || newDen.includes('diff(')) throw new Error('Não resolveu');
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
               curNum=newNum;curDen=newDen;lhopitalApplied=iter;
-            }catch(e){lhLog.push(`  → Erro: ${e.message}`);break;}
+            }catch(e){
+              // Fallback: derivada numérica
+              const dNum = derivadaNumerica(curNum, 'x', aVal);
+              const dDen = derivadaNumerica(curDen, 'x', aVal);
+              lhLog.push(`  → L'Hôpital numérico: num'≈${dNum.toPrecision(6)}, den'≈${dDen.toPrecision(6)}`);
+              if(isFinite(dNum) && isFinite(dDen) && Math.abs(dDen)>1e-10){
+                L = dNum/dDen;
+                method = `L'Hôpital numérico (${iter}x)`;
+              }
+              break;
+            }
           }else{lhLog.push(`  → Não é 0/0. Parando.`);break;}
         }
         stepsHTML+=`<p><span class="step-num">5.</span> Aplicações de L'Hôpital: <strong>${lhopitalApplied}</strong></p>`;
         stepsHTML+=`<div style="margin-left:20px;font-size:0.85rem;background:#fef3c7;padding:10px;border-radius:6px">${lhLog.join('<br>')}</div>`;
-        stepsHTML+=`<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
-        const finalNum=evalMath(curNum,{x:aVal});
-        const finalDen=evalMath(curDen,{x:aVal});
-        if(isFinite(finalNum)&&isFinite(finalDen)&&Math.abs(finalDen)>1e-10){
-          L=finalNum/finalDen;
-          method=`L'Hôpital simbólico (${lhopitalApplied}x) + avaliação direta`;
-        }else{
-          const deltas=[0.01,0.001,0.0001,0.00001];
-          const vals=[];
-          for(const d of deltas){
-            const vp=evalMath(f,{x:aVal+d});
-            const vm=evalMath(f,{x:aVal-d});
-            if(isFinite(vp)&&isFinite(vm))vals.push((vp+vm)/2);
+        if(!isFinite(L)){
+          stepsHTML+=`<p><span class="step-num">6.</span> Expressão final: <code>${curNum} / ${curDen}</code></p>`;
+          const finalNum=evalMath(curNum,{x:aVal});
+          const finalDen=evalMath(curDen,{x:aVal});
+          if(isFinite(finalNum)&&isFinite(finalDen)&&Math.abs(finalDen)>1e-10){
+            L=finalNum/finalDen;
+            method=`L'Hôpital simbólico (${lhopitalApplied}x) + avaliação direta`;
+          }else{
+            const deltas=[0.01,0.001,0.0001,0.00001];
+            const vals=[];
+            for(const d of deltas){
+              const vp=evalMath(f,{x:aVal+d});
+              const vm=evalMath(f,{x:aVal-d});
+              if(isFinite(vp)&&isFinite(vm))vals.push((vp+vm)/2);
+            }
+            if(vals.length>0)L=vals[vals.length-1];
+            method=`Média de aproximações numéricas`;
           }
-          if(vals.length>0)L=vals[vals.length-1];
-          method=`Média de aproximações numéricas`;
         }
       }else{
         const deltas=[0.01,0.001,0.0001,0.00001];
@@ -488,43 +516,73 @@ function calcDerivadas(){
     const s=str('der-s');
     const [t0,t1]=parseIntervalo(str('der-t'));
     
-    // 🚀 Usa .diff() e .simplify() corretamente
-    const vStr=derivadaSimbolica(s,'t');
-    const aStr=derivadaSimbolica(vStr,'t');
+    // 🚀 Tenta derivada simbólica com diff()
+    let vStr='', aStr='', simbolicoOK=false;
+    try{
+      vStr = derivadaSimbolica(s, 't');
+      aStr = derivadaSimbolica(vStr, 't');
+      simbolicoOK = true;
+    }catch(e){
+      // Fallback: usa expressão original com aviso
+      vStr = `d/dt[${s}]`;
+      aStr = `d²/dt²[${s}]`;
+    }
     
-    const sFn=t=>evalMath(s,{t:t});
-    const vFn=t=>evalMath(vStr,{t:t});
-    const aFn=t=>evalMath(aStr,{t:t});
+    // 🚀 Funções numéricas: usa derivada numérica se simbólica falhou
+    const sFn = t => evalMath(s, {t:t});
+    const vFn = simbolicoOK 
+      ? (t => evalMath(vStr, {t:t}))
+      : (t => derivadaNumerica(s, 't', t));
+    const aFn = simbolicoOK 
+      ? (t => evalMath(aStr, {t:t}))
+      : (t => {
+          // Derivada segunda numérica: f''(t) ≈ [f(t+h) - 2f(t) + f(t-h)] / h²
+          const h = 1e-4;
+          const fp = evalMath(s, {t: t+h});
+          const fm = evalMath(s, {t: t-h});
+          const fc = evalMath(s, {t: t});
+          return (fp - 2*fc + fm) / (h*h);
+        });
     
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn),V=ts.map(vFn),A=ts.map(aFn);
     
-    document.getElementById('der-result').innerHTML=`
-      <div class="result">
-        <div class="math">s(t) = ${s}</div>
-        <div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
-        <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>
-      </div>`;
+    let resultHTML = `<div class="result">
+      <div class="math">s(t) = ${s}</div>`;
+    if(simbolicoOK){
+      resultHTML += `<div class="math">v(t) = s'(t) = <strong>${vStr}</strong></div>
+        <div class="math">a(t) = v'(t) = <strong>${aStr}</strong></div>`;
+    }else{
+      resultHTML += `<div style="color:#f59e0b;margin-top:8px">⚠️ Derivada simbólica indisponível. Usando cálculo numérico (diferenças finitas).</div>`;
+    }
+    resultHTML += `</div>`;
+    document.getElementById('der-result').innerHTML = resultHTML;
     
     // Tabela de valores
     const nPoints=10;
     const tVals=Array.from({length:nPoints},(_,i)=>t0+(t1-t0)*i/(nPoints-1));
     let tableHTML=`<div style="margin-top:18px;overflow-x:auto"><table><thead><tr><th>t</th><th>s(t)</th><th>v(t)</th><th>a(t)</th></tr></thead><tbody>`;
     tVals.forEach(t=>{
-      tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${sFn(t).toFixed(4)}</td><td>${vFn(t).toFixed(4)}</td><td>${aFn(t).toFixed(4)}</td></tr>`;
+      const sv=sFn(t), vv=vFn(t), av=aFn(t);
+      tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${isFinite(sv)?sv.toFixed(4):'NaN'}</td><td>${isFinite(vv)?vv.toFixed(4):'NaN'}</td><td>${isFinite(av)?av.toFixed(4):'NaN'}</td></tr>`;
     });
     tableHTML+=`</tbody></table></div>`;
     document.getElementById('der-table').innerHTML=tableHTML;
     
     let stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo</h3>`;
     stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>s(t) = ${s}</code></p>`;
-    stepsHTML+=`<p><span class="step-num">2.</span> Derivando em relação a t: <code>v(t) = ${vStr}</code></p>`;
-    stepsHTML+=`<p><span class="step-num">3.</span> Derivando novamente: <code>a(t) = ${aStr}</code></p>`;
+    if(simbolicoOK){
+      stepsHTML+=`<p><span class="step-num">2.</span> Derivando em relação a t: <code>v(t) = ${vStr}</code></p>`;
+      stepsHTML+=`<p><span class="step-num">3.</span> Derivando novamente: <code>a(t) = ${aStr}</code></p>`;
+    }else{
+      stepsHTML+=`<p><span class="step-num">2.</span> Método numérico: v(t) ≈ [s(t+h) - s(t-h)] / (2h)</p>`;
+      stepsHTML+=`<p><span class="step-num">3.</span> Aceleração: a(t) ≈ [s(t+h) - 2s(t) + s(t-h)] / h²</p>`;
+    }
     stepsHTML+=`</div>`;
     document.getElementById('der-steps').innerHTML=stepsHTML;
     
-    addHist('Cinemática',`s(t)=${s}`,`v(t)=${vStr}; a(t)=${aStr}`);
-    toast('Derivadas calculadas!','ok');
+    addHist('Cinemática',`s(t)=${s}`,simbolicoOK?`v(t)=${vStr}; a(t)=${aStr}`:'Cálculo numérico');
+    toast(simbolicoOK?'Derivadas calculadas!':'Derivadas numéricas calculadas!','ok');
     
     Plotly.newPlot('der-plot',[
       {x:ts,y:S,name:'s(t)',line:{color:'#4f46e5'}},
@@ -564,7 +622,7 @@ function calcIntegral(){
       const h=(x2-x1)/1000;let s=fn(x1)+fn(x2);
       for(let i=1;i<1000;i++)s+=fn(x1+i*h)*(i%2?4:2);
       W=s*h/3;
-      stepsHTML+=`<p><span class="step-num">3.</span> Método numérico (Simpson)</p>`;
+      stepsHTML+=`<p><span class="step-num">3.</span> Método numérico (Simpson 1000 pontos)</p>`;
       stepsHTML+=`<p><span class="step-num">4.</span> <strong>W ≈ ${W.toFixed(6)} J</strong></p>`;
     }
     stepsHTML+=`</div>`;
@@ -622,7 +680,7 @@ function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),
 function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 function congUI(){try{const a=Math.floor(num('m-ca')),b=Math.floor(num('m-cb')),m=Math.floor(num('m-cm'));if(m<=0)throw new Error('m>0');const g=gcd(a,m);if(b%g!==0)throw new Error('Sem solução');const a_=a/g,b_=b/g,m_=m/g;const[_,inv]=extGcd(a_,m_);const x0=((inv*b_)%m_+m_)%m_;const sols=[];for(let k=0;k<g;k++)sols.push((x0+k*m_)%m);document.getElementById('m-result').innerHTML=`<div class="result">${a}x≡${b}(mod ${m})<br>Soluções:<strong>${sols.join(',')}</strong></div>`;toast('Resolvido','ok');}catch(e){toast(e.message,'err');}}
 function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
-function teoremasUI(){try{const a=Math.floor(num('m-ta')),m=Math.floor(num('m-tm'));if(m<=0)throw new Error('m>0');let fermat='N/A',euler='N/A';if(isPrime(m)){const r=potMod(a<0?a+m:a,m-1,m);fermat=`a^${m-1}≡${r}(mod ${m}) ${r===1?'✅':''}`;}else fermat='m não é primo';const ph=phi(m);const r2=potMod(a<0?a+m:a,ph,m);euler=`a^φ(${m})=${ph}${r2}(mod ${m}) ${r2===1?'✅':'❌'}`;document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong>${fermat}<br><strong>Euler:</strong>${euler}</div>`;toast('Verificado','ok');}catch(e){toast(e.message,'err');}}
+function teoremasUI(){try{const a=Math.floor(num('m-ta')),m=Math.floor(num('m-tm'));if(m<=0)throw new Error('m>0');let fermat='N/A',euler='N/A';if(isPrime(m)){const r=potMod(a<0?a+m:a,m-1,m);fermat=`a^${m-1}${r}(mod ${m}) ${r===1?'✅':''}`;}else fermat='m não é primo';const ph=phi(m);const r2=potMod(a<0?a+m:a,ph,m);euler=`a^φ(${m})=${ph}≡${r2}(mod ${m}) ${r2===1?'✅':'❌'}`;document.getElementById('m-result').innerHTML=`<div class="result"><strong>Fermat:</strong>${fermat}<br><strong>Euler:</strong>${euler}</div>`;toast('Verificado','ok');}catch(e){toast(e.message,'err');}}
 function funcoesNUI(){try{const n=Math.floor(num('f-n'));if(n<1)throw new Error('n≥1');const ph=phi(n);let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}divs.sort((a,b)=>a-b);const d=divs.length,sigma=divs.reduce((a,b)=>a+b,0);document.getElementById('f-result').innerHTML=`<div class="result"><div>φ(${n})=<strong>${ph}</strong></div><div>μ(${n})=<strong>${mu}</strong></div><div>d(${n})=<strong>${d}</strong></div><div>σ(${n})=<strong>${sigma}</strong></div><div>Divisores: ${divs.join(',')}</div></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 </script>
 </body>
