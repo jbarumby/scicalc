@@ -72,10 +72,10 @@
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas">📈 Derivadas & Cinemática</button>
+  <button class="tab" data-tab="derivadas"> Derivadas & Cinemática</button>
   <button class="tab" data-tab="integrais">∫ Integrais & Trabalho</button>
-  <button class="tab" data-tab="simuladores"> Simuladores</button>
-  <button class="tab" data-tab="numeros"> Teoria dos Números</button>
+  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
+  <button class="tab" data-tab="numeros">🔢 Teoria dos Números</button>
   <button class="tab" data-tab="historico">📋 Histórico & Exportação</button>
 </nav>
 
@@ -83,7 +83,7 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2>📐 Cálculo de Limites (Simbólico)</h2>
+    <h2> Cálculo de Limites (Simbólico)</h2>
     <p class="sub">Resolução simbólica com L'Hôpital automático.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
@@ -92,7 +92,7 @@
         <select id="lim-dir">
           <option value="both">Ambos os lados</option>
           <option value="left">Pela esquerda (x→a)</option>
-          <option value="right">Pela direita (x→a⁺)</option>
+          <option value="right">Pela direita (x→a)</option>
         </select>
       </div>
     </div>
@@ -260,22 +260,27 @@ function toast(msg,type='err'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id,required=true){const v=document.getElementById(id).value.trim().replace(',','.');if(!v){if(required)throw new Error('Campo vazio');return NaN;}const n=Number(v);if(!isFinite(n))throw new Error(`Valor inválido em "${v}"`);return n;}
 
-// 🚀 DERIVADA SIMBÓLICA - USANDO FUNÇÃO derivative() CORRETAMENTE
+// 🚀 DERIVADA SIMBÓLICA - USANDO NERDAMER CORRETAMENTE
 function derivadaSimbolica(expr, varName){
   try{
-    // Nerdamer v1.1.13: usar derivative() como função, não como método
-    const result = nerdamer('derivative(' + expr + ', ' + varName + ')');
-    return result.text();
+    // Cria expressão e deriva usando .differentiate()
+    const expression = nerdamer(expr);
+    const derivative = expression.diff(varName);
+    // Simplifica o resultado
+    const simplified = derivative.simplify();
+    return simplified.text();
   }catch(e){
     throw new Error('Erro ao derivar: ' + e.message);
   }
 }
 
-//  INTEGRAL SIMBÓLICA - USANDO FUNÇÃO integrate() CORRETAMENTE
+// 🚀 INTEGRAL SIMBÓLICA - USANDO NERDAMER CORRETAMENTE
 function integralSimbolica(expr, varName){
   try{
-    const result = nerdamer('integrate(' + expr + ', ' + varName + ')');
-    return result.text();
+    const expression = nerdamer(expr);
+    const integral = expression.integrate(varName);
+    const simplified = integral.simplify();
+    return simplified.text();
   }catch(e){
     throw new Error('Erro ao integrar: ' + e.message);
   }
@@ -419,9 +424,9 @@ function calcLimite(){
           const denZero=!isFinite(denVal)||Math.abs(denVal)<1e-9;
           if(numZero&&denZero){
             try{
-              // 🚀 Usa função derivative() corretamente
-              const newNum = nerdamer('derivative('+curNum+', x)').text();
-              const newDen = nerdamer('derivative('+curDen+', x)').text();
+              // 🚀 Usa .diff() e .simplify() corretamente
+              const newNum = nerdamer(curNum).diff('x').simplify().text();
+              const newDen = nerdamer(curDen).diff('x').simplify().text();
               lhLog.push(`  → L'Hôpital: num' = <code>${newNum}</code>, den' = <code>${newDen}</code>`);
               curNum=newNum;curDen=newDen;lhopitalApplied=iter;
             }catch(e){lhLog.push(`  → Erro: ${e.message}`);break;}
@@ -483,7 +488,7 @@ function calcDerivadas(){
     const s=str('der-s');
     const [t0,t1]=parseIntervalo(str('der-t'));
     
-    // 🚀 Usa função derivative() corretamente
+    // 🚀 Usa .diff() e .simplify() corretamente
     const vStr=derivadaSimbolica(s,'t');
     const aStr=derivadaSimbolica(vStr,'t');
     
@@ -542,7 +547,7 @@ function calcIntegral(){
       symbolicOK=true;
     }catch(e){Fstr=null;}
     
-    let W,stepsHTML=`<div class="step-box"><h3> Passo a Passo</h3>`;
+    let W,stepsHTML=`<div class="step-box"><h3>📝 Passo a Passo</h3>`;
     stepsHTML+=`<p><span class="step-num">1.</span> Função: <code>F(x) = ${f}</code></p>`;
     stepsHTML+=`<p><span class="step-num">2.</span> Intervalo: <code>[${x1}, ${x2}]</code></p>`;
     
