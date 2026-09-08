@@ -651,21 +651,7 @@ function calcLimite(){
       else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
       else final=parseFloat(L.toFixed(6));
     }
-    
-    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'':'';
-    document.getElementById('lim-result').innerHTML=`
-      <div class="result">
-        <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
-        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)"> Método: ${method}</div>
-        ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
-      </div>`;
-    
-    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
-    const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
-    toast('Limite calculado!','ok');
-  }catch(e){toast(e.message,'err');}
-}
+      
 // ============ INTEGRAIS ============
 function calcIntegral(){
   try{
