@@ -350,6 +350,19 @@ function derivarTermo(termo, varName){
     return String(novoCoef) + '*' + varName + '^' + novoExp;
   }
   
+  // a/cos(b*x)^n (importante para derivada de tan)
+  const matchCosDiv = termo.match(/^(-?\d*\.?\d*)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
+  if(matchCosDiv){
+    let a = matchCosDiv[1] === '' || matchCosDiv[1] === '-' ? (matchCosDiv[1]==='-'?-1:1) : parseFloat(matchCosDiv[1]);
+    const b = matchCosDiv[2] === '' ? 1 : parseFloat(matchCosDiv[2]);
+    const v = matchCosDiv[3];
+    const n = parseInt(matchCosDiv[4]);
+    
+    // d/dx[a/cos(bx)^n] = a*n*b*sin(bx)/cos(bx)^(n+1)
+    const novoCoef = a * n * b;
+    return `${novoCoef}*sin(${b}*${v})/cos(${b}*${v})^${n+1}`;
+  }
+  
   // a*sin(b*x)
   const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchSin){
@@ -423,7 +436,6 @@ function derivarTermo(termo, varName){
   
   return null;
 }
-
 function simplificarExpressao(expr){
   expr = expr.replace(/\b0\*\S+/g, '0');
   expr = expr.replace(/\+\s*0\b/g, '');
