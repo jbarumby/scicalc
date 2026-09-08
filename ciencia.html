@@ -816,20 +816,25 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
   // ============ LIMITES ============
+// ============ LIMITE OTIMIZADO E LEVE ============
 function calcLimite(){
   try{
     const f=str('lim-f');
     const aStr=str('lim-a').toLowerCase();
     const dir=document.getElementById('lim-dir').value;
+    
     const isInf=aStr==='inf'||aStr==='infinity';
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
+    // Detecção automática de domínio (mais simples)
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
-      for(let i=1; i<=10; i++){
-        const d=i*0.001;
+      
+      // Testa apenas 3 pontos (não 10)
+      for(let i=1; i<=3; i++){
+        const d=i*0.01;
         try{
           const testRight=evalMath(f,{x:aVal+d});
           if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
@@ -840,6 +845,7 @@ function calcLimite(){
         }catch(e){}
         if(rightOK || leftOK) break;
       }
+      
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
@@ -850,81 +856,125 @@ function calcLimite(){
     }
     
     let L,method='';
+    
     if(isInf){
-      const deltas=[1e2,1e3,1e4,1e5,1e6];
+      // Apenas 3 pontos para infinito (não 5)
+      const deltas=[1e3,1e5,1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
-      if(vals.length<2)throw new Error('Não calculável');
+      if(vals.length<1)throw new Error('Não calculável');
       L=vals[vals.length-1];
       method='Aproximação x→+∞';
     }else if(isMInf){
-      const deltas=[-1e2,-1e3,-1e4,-1e5,-1e6];
+      const deltas=[-1e3,-1e5,-1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
-      if(vals.length<2)throw new Error('Não calculável');
+      if(vals.length<1)throw new Error('Não calculável');
       L=vals[vals.length-1];
       method='Aproximação x→-∞';
     }else{
-      const deltas=[0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001];
+      // Apenas 4 deltas (não 6)
+      const deltas=[0.01, 0.001, 0.0001, 0.00001];
       const valsP=[],valsM=[];
+      
       for(const d of deltas){
         if(effectiveDir==='both'||effectiveDir==='right'){
-          try{const vp=evalMath(f,{x:aVal+d});if(isFinite(vp)&&!isNaN(vp))valsP.push({d,v:vp});}catch(e){}
+          try{
+            const vp=evalMath(f,{x:aVal+d});
+            if(isFinite(vp)&&!isNaN(vp))valsP.push(vp);
+          }catch(e){}
         }
         if(effectiveDir==='both'||effectiveDir==='left'){
-          try{const vm=evalMath(f,{x:aVal-d});if(isFinite(vm)&&!isNaN(vm))valsM.push({d,v:vm});}catch(e){}
+          try{
+            const vm=evalMath(f,{x:aVal-d});
+            if(isFinite(vm)&&!isNaN(vm))valsM.push(vm);
+          }catch(e){}
         }
       }
+      
       if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
+      
       if(effectiveDir==='both'){
-        const LP=valsP[valsP.length-1].v;
-        const LM=valsM[valsM.length-1].v;
-        if(Math.abs(LP-LM)>0.01 && Math.abs(LP-LM)>Math.abs(LP)*0.01){
-          throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
+        const LP=valsP[valsP.length-1];
+        const LM=valsM[valsM.length-1];
+        if(Math.abs(LP-LM)>0.1 && Math.abs(LP-LM)>Math.abs(LP)*0.1){
+          throw new Error('Limites laterais diferentes');
         }
         L=(LP+LM)/2;
         method='Média bilateral';
       }else if(effectiveDir==='right'){
-        L=valsP[valsP.length-1].v;
+        L=valsP[valsP.length-1];
         method='Aproximação pela direita';
       }else{
-        L=valsM[valsM.length-1].v;
+        L=valsM[valsM.length-1];
         method='Aproximação pela esquerda';
       }
     }
     
-    const tol=0.0001;
+    // Arredondamento simples
+    const tol=0.001;
     let final;
     const rounded=Math.round(L);
     if(Math.abs(L-rounded)<tol) final=rounded;
     else if(Math.abs(L*2-Math.round(L*2))<tol) final=Math.round(L*2)/2;
     else if(Math.abs(L*3-Math.round(L*3))<tol) final=Math.round(L*3)/3;
-    else if(Math.abs(L*6-Math.round(L*6))<tol) final=Math.round(L*6)/6;
     else final=parseFloat(L.toFixed(6));
     
-    const dirSymbol=effectiveDir==='left'?'':effectiveDir==='right'?'⁺':'';
+    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
         <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
-        ${effectiveDir==='right'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x > '+aVal+'</div>':''}
+        ${effectiveDir==='right'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">️ Função definida apenas para x > '+aVal+'</div>':''}
         ${effectiveDir==='left'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x < '+aVal+'</div>':''}
       </div>`;
     
+    // Gráfico otimizado (apenas 100 pontos, não 300)
     let xvals,yvals;
-    if(isInf){xvals=Array.from({length:300},(_,i)=>Math.pow(10,i*0.05));yvals=xvals.map(x=>evalMath(f,{x:x}));}
-    else if(isMInf){xvals=Array.from({length:300},(_,i)=>-Math.pow(10,i*0.05));yvals=xvals.map(x=>evalMath(f,{x:x}));}
-    else{
-      const testPoints=[];
-      const range=10;
-      for(let i=0;i<=500;i++){
-        const x=aVal-range+2*range*i/500;
-        try{const y=evalMath(f,{x:x});if(isFinite(y)&&!isNaN(y)&&Math.abs(y)<1e6)testPoints.push({x,y});}catch(e){}
-      }
-      xvals=testPoints.map(p=>p.x);
-      yvals=testPoints.map(p=>p.y);
+    if(isInf){
+      xvals=Array.from({length:100},(_,i)=>Math.pow(10,i*0.05));
+      yvals=xvals.map(x=>evalMath(f,{x:x}));
+    }else if(isMInf){
+      xvals=Array.from({length:100},(_,i)=>-Math.pow(10,i*0.05));
+      yvals=xvals.map(x=>evalMath(f,{x:x}));
+    }else{
+      const range=5; // Menor range
+      xvals=Array.from({length:100},(_,i)=>aVal-range+2*range*i/99);
+      yvals=xvals.map(x=>{
+        try{
+          const y=evalMath(f,{x:x});
+          return isFinite(y)&&Math.abs(y)<1e4?y:null;
+        }catch(e){return null;}
+      });
     }
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff',xaxis:{title:'x',zeroline:true},yaxis:{title:'f(x)',zeroline:true}},{responsive:true});
+    
+    // Filtra valores inválidos
+    const validPoints=[];
+    for(let i=0;i<xvals.length;i++){
+      if(yvals[i]!==null && isFinite(yvals[i])){
+        validPoints.push({x:xvals[i],y:yvals[i]});
+      }
+    }
+    
+    if(validPoints.length>0){
+      const plotX=validPoints.map(p=>p.x);
+      const plotY=validPoints.map(p=>p.y);
+      
+      Plotly.newPlot('lim-plot',[{
+        x:plotX,y:plotY,type:'scatter',mode:'lines',name:'f(x)',
+        line:{color:'#4f46e5',width:2}
+      }],{
+        title:'Comportamento de f(x)',
+        margin:{t:40,b:40,l:50,r:20},
+        paper_bgcolor:'#fafbff',
+        plot_bgcolor:'#fafbff',
+        xaxis:{title:'x',zeroline:true},
+        yaxis:{title:'f(x)',zeroline:true,range:[Math.min(...plotY)*1.1,Math.max(...plotY)*1.1]}
+      },{responsive:true,displayModeBar:false});
+    }
+    
     toast('Limite calculado!','ok');
-  }catch(e){toast(e.message,'err');}
+  }catch(e){
+    toast(e.message,'err');
+  }
 }
 
 // ============ INTEGRAIS ============
