@@ -288,7 +288,7 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-//  LIMITE CORRIGIDO - Detecção automática de domínio + Extrapolação
+// 🚀 LIMITE CORRIGIDO - Detecção automática de domínio + Extrapolação
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -302,10 +302,20 @@ function calcLimite(){
     // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
-      const testRight=evalMath(f,{x:aVal+1e-6});
-      const testLeft=evalMath(f,{x:aVal-1e-6});
-      const rightOK=isFinite(testRight);
-      const leftOK=isFinite(testLeft);
+      // Testa com pontos um pouco mais afastados para evitar problemas numéricos
+      const testPoints=[1e-3, 1e-4, 1e-5];
+      let rightOK=false, leftOK=false;
+      
+      for(const d of testPoints){
+        if(!rightOK){
+          const testRight=evalMath(f,{x:aVal+d});
+          if(isFinite(testRight)) rightOK=true;
+        }
+        if(!leftOK){
+          const testLeft=evalMath(f,{x:aVal-d});
+          if(isFinite(testLeft)) leftOK=true;
+        }
+      }
       
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
@@ -320,11 +330,10 @@ function calcLimite(){
       const deltas=[1e2,1e3,1e4,1e5,1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length<2)throw new Error('Não calculável');
-      // Extrapolação de Richardson
       L=vals[vals.length-1];
       if(vals.length>=3){
         const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
-        L=v3+(v3-v2)-(v2-v1); // Aitken
+        L=v3+(v3-v2)-(v2-v1);
       }
       method='Aproximação x→+∞ com extrapolação';
     }else if(isMInf){
@@ -359,7 +368,6 @@ function calcLimite(){
       function richardsonExtrapolate(vals){
         if(vals.length<3)return vals[vals.length-1].v;
         const v1=vals[vals.length-3].v,v2=vals[vals.length-2].v,v3=vals[vals.length-1].v;
-        // Aitken's delta-squared
         const denom=(v3-2*v2+v1);
         if(Math.abs(denom)<1e-15)return v3;
         return v3-(v3-v2)*(v3-v2)/denom;
@@ -368,7 +376,6 @@ function calcLimite(){
       if(effectiveDir==='both'){
         const LP=richardsonExtrapolate(valsP);
         const LM=richardsonExtrapolate(valsM);
-        // Verifica se os limites laterais convergem
         if(Math.abs(LP-LM)>0.001 && Math.abs(LP-LM)>Math.abs(LP)*0.001){
           throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
         }
@@ -396,7 +403,7 @@ function calcLimite(){
         ${effectiveDir==='left'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x < '+aVal+'</div>':''}
       </div>`;
     
-    // 🚀 GRÁFICO ADAPTADO AO DOMÍNIO
+    //  GRÁFICO ADAPTADO AO DOMÍNIO
     let xvals,yvals;
     if(isInf){
       xvals=Array.from({length:300},(_,i)=>Math.pow(10,i*0.05));
@@ -405,7 +412,6 @@ function calcLimite(){
       xvals=Array.from({length:300},(_,i)=>-Math.pow(10,i*0.05));
       yvals=xvals.map(x=>evalMath(f,{x:x}));
     }else{
-      // Detecta o domínio válido para o gráfico
       const testPoints=[];
       const range=10;
       for(let i=0;i<=500;i++){
