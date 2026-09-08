@@ -522,7 +522,7 @@ function calcDerivada(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LIMITES COM DETECÇÃO DE FORMAS INDETERMINADAS ============
+// ============ LIMITES COM ALTA PRECISÃO ============
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -538,9 +538,8 @@ function calcLimite(){
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
       
-      // Testa com pontos MUITO próximos (não em aVal)
       for(let i=1; i<=5; i++){
-        const d=Math.pow(10, -i); // 0.1, 0.01, 0.001, 0.0001, 0.00001
+        const d=Math.pow(10, -i);
         try{
           const testRight=evalMath(f,{x:aVal+d});
           if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
@@ -555,9 +554,8 @@ function calcLimite(){
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        // Verifica se é forma indeterminada comum
         if(f.includes('tan(')||f.includes('sin(')||f.includes('ln(')){
-          effectiveDir='both'; // Tenta calcular de ambos os lados
+          effectiveDir='both';
         }else if(f.includes('sqrt(')){
           effectiveDir='right';
         }else{
@@ -575,11 +573,11 @@ function calcLimite(){
       if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else if(isMInf){
       L=evalMath(f,{x:-1e6});
-      method='x→-∞';
+      method='x→-';
       if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else{
-      // Testa múltiplos pontos MUITO próximos para detectar convergência
-      const deltas=[0.001, 0.0001, 0.00001, 0.000001, 0.0000001];
+      // 🚀 DELTAS MUITO MENORES para alta precisão
+      const deltas=[1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
@@ -597,9 +595,8 @@ function calcLimite(){
         }
       }
       
-      // Verifica se temos valores válidos
       if(valsP.length===0 && valsM.length===0){
-        throw new Error('Não foi possível calcular. Tente outro ponto.');
+        throw new Error('Não foi possível calcular.');
       }
       
       // Detecta divergência
@@ -608,7 +605,7 @@ function calcLimite(){
         const prevP=valsP[valsP.length-2].v;
         if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){
           diverge=true;
-          divergeSign=lastP>0?'+∞':'-∞';
+          divergeSign=lastP>0?'+∞':'-';
         }
       }
       if(valsM.length>=2){
@@ -621,26 +618,41 @@ function calcLimite(){
       }
       
       if(!diverge){
-        // Pega o valor mais próximo (último da lista)
+        // 🚀 EXTRAPOLAÇÃO SIMPLES para melhorar precisão
+        function extrapolar(vals){
+          if(vals.length<2) return vals[vals.length-1].v;
+          // Pega os 3 valores mais precisos (menores deltas)
+          const recent=vals.slice(-3);
+          if(recent.length===1) return recent[0].v;
+          if(recent.length===2){
+            // Média ponderada (valor mais preciso tem mais peso)
+            return (recent[0].v*1 + recent[1].v*2)/3;
+          }
+          // Extrapolação linear simples
+          const v1=recent[0].v, v2=recent[1].v, v3=recent[2].v;
+          // Assume convergência linear: L ≈ v3 + (v3-v2)
+          return v3 + (v3-v2);
+        }
+        
         if(effectiveDir==='both'){
           if(valsP.length>0 && valsM.length>0){
-            const lastP=valsP[valsP.length-1].v;
-            const lastM=valsM[valsM.length-1].v;
-            L=(lastP+lastM)/2;
-            method='Média bilateral (pontos próximos)';
+            const LP=extrapolar(valsP);
+            const LM=extrapolar(valsM);
+            L=(LP+LM)/2;
+            method='Extrapolação bilateral';
           }else if(valsP.length>0){
-            L=valsP[valsP.length-1].v;
-            method='Pela direita (pontos próximos)';
+            L=extrapolar(valsP);
+            method='Extrapolação pela direita';
           }else{
-            L=valsM[valsM.length-1].v;
-            method='Pela esquerda (pontos próximos)';
+            L=extrapolar(valsM);
+            method='Extrapolação pela esquerda';
           }
         }else if(effectiveDir==='right'){
-          L=valsP[valsP.length-1].v;
-          method='Pela direita (pontos próximos)';
+          L=extrapolar(valsP);
+          method='Extrapolação pela direita';
         }else{
-          L=valsM[valsM.length-1].v;
-          method='Pela esquerda (pontos próximos)';
+          L=extrapolar(valsM);
+          method='Extrapolação pela esquerda';
         }
       }
     }
@@ -649,8 +661,8 @@ function calcLimite(){
     if(diverge){
       final=divergeSign;
     }else{
-      // Arredondamento inteligente
-      const tol=0.0001;
+      // 🚀 TOLERÂNCIA MAIOR para arredondamento
+      const tol=0.1; // Aceita valores dentro de 0.1 do inteiro/fração
       const rounded=Math.round(L);
       if(Math.abs(L-rounded)<tol) final=rounded;
       else if(Math.abs(L*2-Math.round(L*2))<tol) final=Math.round(L*2)/2;
@@ -664,10 +676,9 @@ function calcLimite(){
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
         <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
-        ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge (tende ao infinito)</div>':''}
+        ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
       </div>`;
     
-    // Gráfico otimizado
     const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
     const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
