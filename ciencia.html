@@ -415,15 +415,29 @@ function calcLimite(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ DERIVADOR SIMBÓLICO MELHORADO (suporta múltiplas variáveis) ============
+// ============ DERIVADOR SIMBÓLICO COMPLETO ============
+function derivarSimbolica(expr, varName){
+  const termos = expr.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
+  const derivadas = [];
+  for(const termo of termos){
+    const d = derivarTermo(termo, varName);
+    if(d !== null) derivadas.push(d);
+  }
+  let resultado = '';
+  for(let i=0; i<derivadas.length; i++){
+    const d = derivadas[i];
+    if(i===0) resultado += d;
+    else{if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();else resultado += ' + ' + d;}
+  }
+  return simplificarExpressao(resultado);
+}
+
 function derivarTermo(termo, varName){
   termo = termo.trim();
   if(termo === '') return null;
-  
-  // Constante (sem a variável)
   if(!termo.includes(varName)) return '0';
   
-  // ax^n (uma variável só)
+  // ax^n
   const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchPot && matchPot[2] === varName){
     let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
@@ -436,8 +450,7 @@ function derivarTermo(termo, varName){
     return String(novoCoef) + '*' + varName + '^' + novoExp;
   }
   
-  //  PRODUTO: a*x^n * y^m (derivada em relação a x)
-  // Ex: x^2*y → 2*x*y ; 3*x*y^2 → 3*y^2 ; x*y → y
+  // PRODUTO: x^n * y^m (derivada parcial)
   const matchProd = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchProd){
     const coefStr = matchProd[1];
@@ -446,35 +459,31 @@ function derivarTermo(termo, varName){
     const v2 = matchProd[4];
     const exp2Str = matchProd[5];
     
-    // Só processa se uma das variáveis for a que queremos derivar
     if(v1 === varName || v2 === varName){
       const coef = coefStr === '' || coefStr === '-' ? (coefStr==='-'?-1:1) : parseFloat(coefStr);
       const exp1 = exp1Str ? parseFloat(exp1Str) : 1;
       const exp2 = exp2Str ? parseFloat(exp2Str) : 1;
       
       if(v1 === varName){
-        // Derivada de x^n * y^m em relação a x: n*x^(n-1)*y^m
         const novoCoef = coef * exp1;
         const novoExp1 = exp1 - 1;
         let resultado = '';
-        if(novoCoef !== 1) resultado += novoCoef + '*';
+        if(novoCoef !== 1 && novoCoef !== 0) resultado += novoCoef + '*';
         if(novoExp1 === 1) resultado += v1;
         else if(novoExp1 > 0) resultado += v1 + '^' + novoExp1;
-        // Se exp1 era 1 e agora é 0, não aparece x
         if(exp2 === 1) resultado += '*' + v2;
         else if(exp2 > 0) resultado += '*' + v2 + '^' + exp2;
-        return resultado.replace(/^\*/, '').replace(/\*$/, '');
+        return resultado.replace(/^\*/, '').replace(/\*$/, '').replace(/\*+/g, '*');
       }else{
-        // v2 é a variável: x^m * y^n derivada em relação a y
         const novoCoef = coef * exp2;
         const novoExp2 = exp2 - 1;
         let resultado = '';
-        if(novoCoef !== 1) resultado += novoCoef + '*';
-        if(exp1 === 1) resultado += v1;
+        if(novoCoef !== 1 && novoCoef !== 0) resultado += novoCoef + '*';
+        if(exp1 === 1) resultado += v1 + '*';
         else if(exp1 > 0) resultado += v1 + '^' + exp1 + '*';
         if(novoExp2 === 1) resultado += v2;
         else if(novoExp2 > 0) resultado += v2 + '^' + novoExp2;
-        return resultado.replace(/^\*/, '').replace(/\*$/, '');
+        return resultado.replace(/^\*/, '').replace(/\*$/, '').replace(/\*+/g, '*');
       }
     }
   }
@@ -510,6 +519,12 @@ function derivarTermo(termo, varName){
   return null;
 }
 
+function simplificarExpressao(expr){
+  expr = expr.replace(/\b0\*\S+/g, '0').replace(/\+\s*0\b/g, '').replace(/\-\s*0\b/g, '').replace(/\b0\s*\+/g, '').replace(/\b0\s*\-/g, '-').replace(/\b1\*([a-zA-Z(])/g, '$1').replace(/\*1\b/g, '').replace(/\s+/g, ' ').trim().replace(/\+ -/g, '- ').replace(/- -/g, '+ ');
+  if(expr.startsWith('+ ')) expr = expr.substring(2);
+  return expr || '0';
+}
+
 // ============ DERIVADAS PARCIAIS ============
 function calcParcial(){
   try{
@@ -529,29 +544,15 @@ function calcTaylor(){
     if(n<1||n>10) throw new Error('Ordem deve ser entre 1 e 10');
     
     const fFn=x=>evalMath(f,{x:x});
-    const h=1e-4;
+    const h=1e-5;
     
-    // Calcula derivadas numericamente no ponto a
-    // f(a), f'(a), f''(a), ..., f^(n)(a)
     const derivadasNoPonto=[];
-    
-    // f(a)
     const fa=fFn(a);
     if(!isFinite(fa)) throw new Error('Função não definida em x='+a);
     derivadasNoPonto.push(fa);
     
-    // Derivadas de ordem 1 a n usando diferenças centradas
     for(let ordem=1;ordem<=n;ordem++){
-      // Fórmula de diferenças finitas centradas de alta ordem
       let deriv=0;
-      const m=ordem; // número de pontos de cada lado
-      const coeficientes=[];
-      
-      // Coeficientes para diferenças finitas centradas
-      // Para ordem 1: f'(x) ≈ (f(x+h)-f(x-h))/(2h)
-      // Para ordem 2: f''(x) ≈ (f(x+h)-2f(x)+f(x-h))/h²
-      // Para ordem k: usa fórmula geral
-      
       if(ordem===1){
         deriv=(fFn(a+h)-fFn(a-h))/(2*h);
       }else if(ordem===2){
@@ -560,10 +561,9 @@ function calcTaylor(){
         deriv=(fFn(a+2*h)-2*fFn(a+h)+2*fFn(a-h)-fFn(a-2*h))/(2*h*h*h);
       }else if(ordem===4){
         deriv=(fFn(a+2*h)-4*fFn(a+h)+6*fFn(a)-4*fFn(a-h)+fFn(a-2*h))/(h*h*h*h);
+      }else if(ordem===5){
+        deriv=(fFn(a+3*h)-4*fFn(a+2*h)+5*fFn(a+h)-5*fFn(a-h)+4*fFn(a-2*h)-fFn(a-3*h))/(8*h*h*h*h*h);
       }else{
-        // Para ordens maiores, usa aproximação recursiva
-        // f^(n)(x) ≈ (f^(n-1)(x+h) - f^(n-1)(x-h))/(2h)
-        // Mas isso é caro, então usa fórmula simplificada
         deriv=(fFn(a+h)-fFn(a-h))/(2*Math.pow(h,ordem));
       }
       
@@ -571,11 +571,8 @@ function calcTaylor(){
       derivadasNoPonto.push(deriv);
     }
     
-    // Monta polinômio de Taylor
-    // P(x) = Σ f^(k)(a)/k! * (x-a)^k
     let taylor=`${fa.toFixed(4)}`;
-    const coeficientesTaylor=[];
-    coeficientesTaylor.push(fa);
+    const coeficientesTaylor=[fa];
     
     for(let i=1;i<=n;i++){
       const coef=derivadasNoPonto[i]/factorial(i);
@@ -589,18 +586,16 @@ function calcTaylor(){
       }
     }
     
-    // Limpa formatação
     taylor=taylor.replace(/\+ -/g,'- ').replace(/\(x-0\)/g,'x').replace(/\(x-0\)\^/g,'x^');
     
     document.getElementById('tay-result').innerHTML=`
       <div class="result">
         <div class="math" style="font-size:1.1rem">f(x) = ${f}</div>
         <div class="math" style="font-size:1.2rem;margin-top:10px">Série de Taylor em x=${a}, ordem ${n}:</div>
-        <div class="math" style="font-size:1.1rem;margin-top:10px;background:#fff;padding:10px;border-radius:6px"><strong>${taylor}</strong></div>
+        <div class="math" style="font-size:1.1rem;margin-top:10px;background:var(--bg);padding:10px;border-radius:6px"><strong>${taylor}</strong></div>
       </div>`;
     
-    // Gráfico comparando f(x) e Taylor
-    const xs=Array.from({length:200},(_,i)=>a-3+6*i/199);
+    const xs=Array.from({length:200},(_,i)=>a-2+4*i/199);
     const ys=xs.map(x=>fFn(x));
     const yt=xs.map(x=>{
       let sum=coeficientesTaylor[0];
