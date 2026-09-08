@@ -533,34 +533,25 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
-    // Detecção automática de domínio
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
-      
       for(let i=1; i<=5; i++){
         const d=Math.pow(10, -i);
         try{
-          const testRight=evalMath(f,{x:aVal+d});
-          if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
+          if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;
         }catch(e){}
         try{
-          const testLeft=evalMath(f,{x:aVal-d});
-          if(isFinite(testLeft) && !isNaN(testLeft)) leftOK=true;
+          if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;
         }catch(e){}
         if(rightOK && leftOK) break;
       }
-      
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        if(f.includes('tan(')||f.includes('sin(')||f.includes('ln(')){
-          effectiveDir='both';
-        }else if(f.includes('sqrt(')){
-          effectiveDir='right';
-        }else{
-          throw new Error('Função não definida. Selecione manualmente.');
-        }
+        if(f.includes('tan(')||f.includes('sin(')||f.includes('ln(')) effectiveDir='both';
+        else if(f.includes('sqrt(')) effectiveDir='right';
+        else throw new Error('Função não definida.');
       }
       else effectiveDir='both';
     }
@@ -570,14 +561,14 @@ function calcLimite(){
     if(isInf){
       L=evalMath(f,{x:1e6});
       method='x→+∞';
-      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
+      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}
     }else if(isMInf){
       L=evalMath(f,{x:-1e6});
       method='x→-';
       if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else{
-      // 🚀 DELTAS MUITO MENORES para alta precisão
-      const deltas=[1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10];
+      // 🚀 DELTAS MUITO PEQUENOS
+      const deltas=[1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
@@ -618,41 +609,26 @@ function calcLimite(){
       }
       
       if(!diverge){
-        // 🚀 EXTRAPOLAÇÃO SIMPLES para melhorar precisão
-        function extrapolar(vals){
-          if(vals.length<2) return vals[vals.length-1].v;
-          // Pega os 3 valores mais precisos (menores deltas)
-          const recent=vals.slice(-3);
-          if(recent.length===1) return recent[0].v;
-          if(recent.length===2){
-            // Média ponderada (valor mais preciso tem mais peso)
-            return (recent[0].v*1 + recent[1].v*2)/3;
-          }
-          // Extrapolação linear simples
-          const v1=recent[0].v, v2=recent[1].v, v3=recent[2].v;
-          // Assume convergência linear: L ≈ v3 + (v3-v2)
-          return v3 + (v3-v2);
-        }
-        
+        //  USA APENAS O VALOR MAIS PRECISO (sem extrapolação)
         if(effectiveDir==='both'){
           if(valsP.length>0 && valsM.length>0){
-            const LP=extrapolar(valsP);
-            const LM=extrapolar(valsM);
-            L=(LP+LM)/2;
-            method='Extrapolação bilateral';
+            const lastP=valsP[valsP.length-1].v;
+            const lastM=valsM[valsM.length-1].v;
+            L=(lastP+lastM)/2;
+            method='Média bilateral';
           }else if(valsP.length>0){
-            L=extrapolar(valsP);
-            method='Extrapolação pela direita';
+            L=valsP[valsP.length-1].v;
+            method='Pela direita';
           }else{
-            L=extrapolar(valsM);
-            method='Extrapolação pela esquerda';
+            L=valsM[valsM.length-1].v;
+            method='Pela esquerda';
           }
         }else if(effectiveDir==='right'){
-          L=extrapolar(valsP);
-          method='Extrapolação pela direita';
+          L=valsP[valsP.length-1].v;
+          method='Pela direita';
         }else{
-          L=extrapolar(valsM);
-          method='Extrapolação pela esquerda';
+          L=valsM[valsM.length-1].v;
+          method='Pela esquerda';
         }
       }
     }
@@ -661,21 +637,46 @@ function calcLimite(){
     if(diverge){
       final=divergeSign;
     }else{
-      // 🚀 TOLERÂNCIA MAIOR para arredondamento
-      const tol=0.1; // Aceita valores dentro de 0.1 do inteiro/fração
-      const rounded=Math.round(L);
-      if(Math.abs(L-rounded)<tol) final=rounded;
-      else if(Math.abs(L*2-Math.round(L*2))<tol) final=Math.round(L*2)/2;
-      else if(Math.abs(L*3-Math.round(L*3))<tol) final=Math.round(L*3)/3;
-      else if(Math.abs(L*6-Math.round(L*6))<tol) final=Math.round(L*6)/6;
-      else final=parseFloat(L.toFixed(6));
+      // 🚀 ARREDONDAMENTO INTELIGENTE
+      const tol=0.01; // Tolerância de 1%
+      
+      // Verifica frações comuns
+      const fracoes=[
+        {num:0, den:1, val:0},
+        {num:1, den:6, val:1/6},
+        {num:1, den:3, val:1/3},
+        {num:1, den:2, val:1/2},
+        {num:2, den:3, val:2/3},
+        {num:3, den:4, val:3/4},
+        {num:1, den:1, val:1},
+        {num:3, den:2, val:3/2},
+        {num:2, den:1, val:2},
+        {num:3, den:1, val:3}
+      ];
+      
+      let melhorFrac=null, melhorDiff=Infinity;
+      for(const frac of fracoes){
+        const diff=Math.abs(L-frac.val);
+        if(diff<melhorDiff && diff<tol){
+          melhorDiff=diff;
+          melhorFrac=frac;
+        }
+      }
+      
+      if(melhorFrac && melhorFrac.den===1){
+        final=melhorFrac.num;
+      }else if(melhorFrac){
+        final=`${melhorFrac.num}/${melhorFrac.den}`;
+      }else{
+        final=parseFloat(L.toFixed(6));
+      }
     }
     
     const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
-        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)"> Método: ${method}</div>
         ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
       </div>`;
     
