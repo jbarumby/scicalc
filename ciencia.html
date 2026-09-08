@@ -279,7 +279,17 @@ function num(id){const v=document.getElementById(id).value.trim().replace(',','.
 function evalMath(expr,vars={}){
   try{
     let js=expr;
-    const funcs={'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan','sqrt':'Math.sqrt','log':'Math.log','exp':'Math.exp','abs':'Math.abs','pi':'Math.PI','e':'Math.E'};
+    // 🚀 Adicionado 'ln' como sinônimo de Math.log
+    const funcs={
+      'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan',
+      'asin':'Math.asin','acos':'Math.acos','atan':'Math.atan',
+      'sqrt':'Math.sqrt','log':'Math.log','ln':'Math.log',
+      'log10':'Math.log10','log2':'Math.log2',
+      'exp':'Math.exp','abs':'Math.abs',
+      'pi':'Math.PI','e':'Math.E',
+      'sinh':'Math.sinh','cosh':'Math.cosh','tanh':'Math.tanh',
+      'sec':'(1/Math.cos)','csc':'(1/Math.sin)','cot':'(1/Math.tan)'
+    };
     for(const[f,j]of Object.entries(funcs))js=js.replace(new RegExp('\\b'+f+'\\b','g'),j);
     for(const[k,v]of Object.entries(vars))js=js.replace(new RegExp('\\b'+k+'\\b','g'),'('+v+')');
     js=js.replace(/\^/g,'**');
