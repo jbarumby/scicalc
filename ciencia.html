@@ -60,8 +60,6 @@
   .chip{display:inline-block;padding:3px 10px;background:#eef2ff;color:var(--primary);border-radius:20px;font-size:.78rem;font-weight:600}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
-  
-  /* 🎨 CARDS DAS FUNÇÕES DE TEORIA DOS NÚMEROS */
   .func-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
   .func-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 4px 12px rgba(0,0,0,.06);border-left:5px solid var(--primary);transition:transform .2s}
   .func-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
@@ -93,8 +91,8 @@
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
   <button class="tab" data-tab="fisica">⚡ Física</button>
-  <button class="tab" data-tab="numeros">🔢 Números</button>
-  <button class="tab" data-tab="historico"> Histórico</button>
+  <button class="tab" data-tab="numeros"> Números</button>
+  <button class="tab" data-tab="historico">📋 Histórico</button>
 </nav>
 
 <main>
@@ -102,12 +100,13 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites</h2>
-    <p class="sub">Análise do comportamento de funções.</p>
+    <p class="sub">Análise do comportamento de funções com detecção automática de domínio.</p>
     <div class="form-row">
-      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
+      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: x*ln(x)"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
+          <option value="auto"> Automático</option>
           <option value="both">Ambos os lados</option>
           <option value="left">Pela esquerda</option>
           <option value="right">Pela direita</option>
@@ -233,7 +232,7 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2>📋 Histórico</h2>
+    <h2> Histórico</h2>
     <div class="history-actions">
       <button class="btn accent" onclick="exportarHistorico()">📄 Exportar</button>
       <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar</button>
@@ -284,8 +283,154 @@ function evalMath(expr,vars={}){
     for(const[f,j]of Object.entries(funcs))js=js.replace(new RegExp('\\b'+f+'\\b','g'),j);
     for(const[k,v]of Object.entries(vars))js=js.replace(new RegExp('\\b'+k+'\\b','g'),'('+v+')');
     js=js.replace(/\^/g,'**');
-    return new Function('return '+js)();
+    const r=new Function('return '+js)();
+    return isFinite(r)?r:NaN;
   }catch(e){return NaN;}
+}
+
+//  LIMITE CORRIGIDO - Detecção automática de domínio + Extrapolação
+function calcLimite(){
+  try{
+    const f=str('lim-f');
+    const aStr=str('lim-a').toLowerCase();
+    const dir=document.getElementById('lim-dir').value;
+    
+    const isInf=aStr==='inf'||aStr==='infinity';
+    const isMInf=aStr==='-inf'||aStr==='-infinity';
+    const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
+    
+    // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO
+    let effectiveDir=dir;
+    if(dir==='auto' && !isInf && !isMInf){
+      const testRight=evalMath(f,{x:aVal+1e-6});
+      const testLeft=evalMath(f,{x:aVal-1e-6});
+      const rightOK=isFinite(testRight);
+      const leftOK=isFinite(testLeft);
+      
+      if(rightOK && !leftOK) effectiveDir='right';
+      else if(leftOK && !rightOK) effectiveDir='left';
+      else if(!rightOK && !leftOK) throw new Error('Função não definida em nenhum lado de x='+aVal);
+      else effectiveDir='both';
+    }
+    
+    let L,method='';
+    
+    if(isInf){
+      // 🚀 Extrapolation para infinito
+      const deltas=[1e2,1e3,1e4,1e5,1e6];
+      const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
+      if(vals.length<2)throw new Error('Não calculável');
+      // Extrapolação de Richardson
+      L=vals[vals.length-1];
+      if(vals.length>=3){
+        const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
+        L=v3+(v3-v2)-(v2-v1); // Aitken
+      }
+      method='Aproximação x→+∞ com extrapolação';
+    }else if(isMInf){
+      const deltas=[-1e2,-1e3,-1e4,-1e5,-1e6];
+      const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
+      if(vals.length<2)throw new Error('Não calculável');
+      L=vals[vals.length-1];
+      if(vals.length>=3){
+        const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
+        L=v3+(v3-v2)-(v2-v1);
+      }
+      method='Aproximação x→-∞ com extrapolação';
+    }else{
+      // 🚀 Múltiplas aproximações com extrapolação
+      const deltas=[1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1e-7,1e-8];
+      const valsP=[],valsM=[];
+      
+      for(const d of deltas){
+        if(effectiveDir==='both'||effectiveDir==='right'){
+          const vp=evalMath(f,{x:aVal+d});
+          if(isFinite(vp))valsP.push({d,v:vp});
+        }
+        if(effectiveDir==='both'||effectiveDir==='left'){
+          const vm=evalMath(f,{x:aVal-d});
+          if(isFinite(vm))valsM.push({d,v:vm});
+        }
+      }
+      
+      if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
+      
+      // Extrapolação de Richardson (Aitken) para melhorar precisão
+      function richardsonExtrapolate(vals){
+        if(vals.length<3)return vals[vals.length-1].v;
+        const v1=vals[vals.length-3].v,v2=vals[vals.length-2].v,v3=vals[vals.length-1].v;
+        // Aitken's delta-squared
+        const denom=(v3-2*v2+v1);
+        if(Math.abs(denom)<1e-15)return v3;
+        return v3-(v3-v2)*(v3-v2)/denom;
+      }
+      
+      if(effectiveDir==='both'){
+        const LP=richardsonExtrapolate(valsP);
+        const LM=richardsonExtrapolate(valsM);
+        // Verifica se os limites laterais convergem
+        if(Math.abs(LP-LM)>0.001 && Math.abs(LP-LM)>Math.abs(LP)*0.001){
+          throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
+        }
+        L=(LP+LM)/2;
+        method='Média bilateral com extrapolação de Richardson';
+      }else if(effectiveDir==='right'){
+        L=richardsonExtrapolate(valsP);
+        method='Aproximação pela direita com extrapolação';
+      }else{
+        L=richardsonExtrapolate(valsM);
+        method='Aproximação pela esquerda com extrapolação';
+      }
+    }
+    
+    // Arredondamento inteligente
+    const rounded=Math.round(L);
+    const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
+    
+    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
+    document.getElementById('lim-result').innerHTML=`
+      <div class="result">
+        <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
+        ${effectiveDir==='right'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x > '+aVal+'</div>':''}
+        ${effectiveDir==='left'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x < '+aVal+'</div>':''}
+      </div>`;
+    
+    // 🚀 GRÁFICO ADAPTADO AO DOMÍNIO
+    let xvals,yvals;
+    if(isInf){
+      xvals=Array.from({length:300},(_,i)=>Math.pow(10,i*0.05));
+      yvals=xvals.map(x=>evalMath(f,{x:x}));
+    }else if(isMInf){
+      xvals=Array.from({length:300},(_,i)=>-Math.pow(10,i*0.05));
+      yvals=xvals.map(x=>evalMath(f,{x:x}));
+    }else{
+      // Detecta o domínio válido para o gráfico
+      const testPoints=[];
+      const range=10;
+      for(let i=0;i<=500;i++){
+        const x=aVal-range+2*range*i/500;
+        const y=evalMath(f,{x:x});
+        if(isFinite(y)&&Math.abs(y)<1e6)testPoints.push({x,y});
+      }
+      xvals=testPoints.map(p=>p.x);
+      yvals=testPoints.map(p=>p.y);
+    }
+    
+    Plotly.newPlot('lim-plot',[{
+      x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',
+      line:{color:'#4f46e5',width:2}
+    }],{
+      title:'Comportamento de f(x)'+(effectiveDir==='right'?' (x>'+aVal+')':effectiveDir==='left'?' (x<'+aVal+')':''),
+      margin:{t:40},
+      paper_bgcolor:'#fafbff',
+      plot_bgcolor:'#fafbff',
+      xaxis:{title:'x',zeroline:true},
+      yaxis:{title:'f(x)',zeroline:true}
+    },{responsive:true});
+    
+    toast('Limite calculado!','ok');
+  }catch(e){toast(e.message,'err');}
 }
 
 function calcDerivada(){
@@ -367,42 +512,6 @@ function calcDerivada(){
     }
     toast(derivadaOK?'Derivada simbólica calculada!':'Derivada numérica calculada!','ok');
   }catch(e){toast(e.message,'err');document.getElementById('der-result').innerHTML=`<div class="result"><div class="math">Erro: ${e.message}</div></div>`;}
-}
-
-function calcLimite(){
-  try{
-    const f=str('lim-f');
-    const aStr=str('lim-a').toLowerCase();
-    const dir=document.getElementById('lim-dir').value;
-    const isInf=aStr==='inf'||aStr==='infinity';
-    const aVal=isInf?null:Number(aStr.replace(',','.'));
-    let L;
-    if(isInf){
-      const vals=[1e3,1e4,1e5,1e6].map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
-      if(vals.length===0)throw new Error('Não calculável');
-      L=vals[vals.length-1];
-    }else{
-      const deltas=[0.001,0.0001,0.00001,0.000001];
-      const valsP=[],valsM=[];
-      for(const d of deltas){
-        if(dir==='both'||dir==='right'){const vp=evalMath(f,{x:aVal+d});if(isFinite(vp))valsP.push(vp);}
-        if(dir==='both'||dir==='left'){const vm=evalMath(f,{x:aVal-d});if(isFinite(vm))valsM.push(vm);}
-      }
-      if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
-      if(dir==='both'){const lastP=valsP[valsP.length-1],lastM=valsM[valsM.length-1];L=(lastP+lastM)/2;}
-      else if(dir==='right'){L=valsP[valsP.length-1];}
-      else{L=valsM[valsM.length-1];}
-    }
-    const rounded=Math.round(L);
-    const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
-    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong>${final}</strong></div></div>`;
-    let xvals,yvals;
-    if(isInf){xvals=Array.from({length:200},(_,i)=>i*0.5+0.1);}
-    else{xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);}
-    yvals=xvals.map(x=>{try{return evalMath(f,{x:x})}catch{return null}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
-    toast('Limite calculado!','ok');
-  }catch(e){toast(e.message,'err');}
 }
 
 function calcIntegral(){
@@ -501,80 +610,29 @@ function potMod(base,exp,mod){let r=1n;base=BigInt(base)%BigInt(mod);exp=BigInt(
 function extGcd(a,b){if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}
 function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),m=Math.floor(num('m-m'));if(m<=0)throw new Error('m>0');const r=potMod(a<0?a+m:a,b,m);document.getElementById('m-result').innerHTML=`<div class="result">${a}^${b} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
-
-// 🎨 FUNÇÕES DE TEORIA DOS NÚMEROS - CARDS INDIVIDUAIS
 function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
 function mobius(n){let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;return mu;}
 function numDivisores(n){let d=0;for(let i=1;i*i<=n;i++)if(n%i===0){d++;if(i!==n/i)d++;}return d;}
 function somaDivisores(n){let s=0;for(let i=1;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s;}
 function listarDivisores(n){const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}return divs.sort((a,b)=>a-b);}
-
 function funcoesNUI(){
   try{
     const n=Math.floor(num('f-n'));
     if(n<1)throw new Error('n≥1');
-    
-    const ph=phi(n);
-    const mu=mobius(n);
-    const d=numDivisores(n);
-    const sigma=somaDivisores(n);
-    const divs=listarDivisores(n);
-    
-    // Descrição de cada função
-    let muDesc='';
-    if(mu===0)muDesc='n tem fator quadrático perfeito';
-    else if(mu===1)muDesc='n é produto de nº par de primos distintos';
-    else muDesc='n é produto de nº ímpar de primos distintos';
-    
-    // 🎨 Cards individuais para cada função
-    let html=`<div class="func-cards">`;
-    
-    // Card φ(n) - Totiente de Euler
-    html+=`<div class="func-card phi">
-      <div class="func-symbol">φ(${n})</div>
-      <div class="func-name">Totiente de Euler</div>
-      <div class="func-value">${ph}</div>
-      <div class="func-desc">Nº de inteiros entre 1 e ${n} coprimos com ${n}</div>
-    </div>`;
-    
-    // Card μ(n) - Função de Möbius
-    html+=`<div class="func-card mu">
-      <div class="func-symbol">μ(${n})</div>
-      <div class="func-name">Função de Möbius</div>
-      <div class="func-value">${mu}</div>
-      <div class="func-desc">${muDesc}</div>
-    </div>`;
-    
-    // Card d(n) - Número de divisores
-    html+=`<div class="func-card d">
-      <div class="func-symbol">d(${n})</div>
-      <div class="func-name">Nº de Divisores</div>
-      <div class="func-value">${d}</div>
-      <div class="func-desc">Quantidade total de divisores positivos de ${n}</div>
-    </div>`;
-    
-    // Card σ(n) - Soma dos divisores
-    html+=`<div class="func-card sigma">
-      <div class="func-symbol">σ(${n})</div>
-      <div class="func-name">Soma dos Divisores</div>
-      <div class="func-value">${sigma}</div>
-      <div class="func-desc">Soma de todos os divisores positivos de ${n}</div>
-    </div>`;
-    
-    html+=`</div>`;
-    
-    // Box com lista de divisores
-    html+=`<div class="divisores-box">
-      <div class="title">📋 Divisores de ${n}</div>
-      <div class="list">${divs.join(', ')}</div>
-    </div>`;
-    
+    const ph=phi(n),mu=mobius(n),d=numDivisores(n),sigma=somaDivisores(n),divs=listarDivisores(n);
+    let muDesc=mu===0?'n tem fator quadrático perfeito':mu===1?'n é produto de nº par de primos distintos':'n é produto de nº ímpar de primos distintos';
+    let html=`<div class="func-cards">
+      <div class="func-card phi"><div class="func-symbol">φ(${n})</div><div class="func-name">Totiente de Euler</div><div class="func-value">${ph}</div><div class="func-desc">Nº de inteiros entre 1 e ${n} coprimos com ${n}</div></div>
+      <div class="func-card mu"><div class="func-symbol">μ(${n})</div><div class="func-name">Função de Möbius</div><div class="func-value">${mu}</div><div class="func-desc">${muDesc}</div></div>
+      <div class="func-card d"><div class="func-symbol">d(${n})</div><div class="func-name">Nº de Divisores</div><div class="func-value">${d}</div><div class="func-desc">Quantidade total de divisores positivos de ${n}</div></div>
+      <div class="func-card sigma"><div class="func-symbol">σ(${n})</div><div class="func-name">Soma dos Divisores</div><div class="func-value">${sigma}</div><div class="func-desc">Soma de todos os divisores positivos de ${n}</div></div>
+    </div>
+    <div class="divisores-box"><div class="title">📋 Divisores de ${n}</div><div class="list">${divs.join(', ')}</div></div>`;
     document.getElementById('f-result').innerHTML=html;
     toast('Funções calculadas!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// Histórico
 let history=[];
 function exportarHistorico(){
   if(!history.length){toast('Vazio','warn');return;}
