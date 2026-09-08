@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc — Cálculo & Física</title>
+<title>SciCalc - Cálculo & Física</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
@@ -33,15 +33,11 @@
   .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,#eef2ff,#ecfeff);border-left:4px solid var(--primary);font-size:1rem}
   .result strong{color:var(--primary)}
   .result .math{font-family:'Cambria Math','Times New Roman',serif;font-size:1.15rem}
-  .step-box{margin-top:18px;padding:16px;border-radius:12px;background:#fffbeb;border-left:4px solid #f59e0b;font-size:.95rem;line-height:1.7}
-  .step-box h3{margin-top:0;color:#b45309;font-size:1.1rem}
-  .step-box p{margin:8px 0}
-  .step-box code{background:#fef3c7;padding:2px 6px;border-radius:4px;font-family:monospace;color:#92400e}
-  .step-box .step-num{font-weight:700;color:#b45309}
-  .wolfram-step{background:#f0f9ff;border-left:4px solid #06b6d4;padding:12px;margin:10px 0;border-radius:8px}
-  .wolfram-step .title{font-weight:700;color:#0891b2;margin-bottom:6px}
-  .wolfram-step .formula{font-family:'Cambria Math',serif;background:#fff;padding:8px;border-radius:4px;margin:6px 0}
-  .plot{width:100%;height:380px;margin-top:14px;border-radius:12px;background:#fafbff}
+  .wolfram-step{background:#f0f9ff;border-left:4px solid #06b6d4;padding:14px;margin:12px 0;border-radius:8px}
+  .wolfram-step .title{font-weight:700;color:#0891b2;margin-bottom:8px;font-size:1rem}
+  .wolfram-step .formula{font-family:'Cambria Math',serif;background:#fff;padding:10px;border-radius:6px;margin:8px 0;font-size:1.05rem}
+  .wolfram-step .rule{font-size:0.88rem;color:var(--muted);margin-top:6px;font-style:italic}
+  .plot{width:100%;height:400px;margin-top:14px;border-radius:12px;background:#fafbff}
   .tab-content{display:none;animation:fade .3s}
   .tab-content.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -68,16 +64,16 @@
 </head>
 <body>
 <header>
-  <h1>🧮 SciCalc — Cálculo & Física</h1>
-  <p>Software científico estilo WolframAlpha · Limites · Derivadas · Integrais</p>
+  <h1>🧮 SciCalc - Cálculo & Física</h1>
+  <p>Ferramentas matemáticas para cálculo e física aplicada</p>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="simuladores">🚀 Simuladores</button>
-  <button class="tab" data-tab="historico"> Histórico</button>
+  <button class="tab" data-tab="fisica">⚡ Física Aplicada</button>
+  <button class="tab" data-tab="historico">📋 Histórico</button>
 </nav>
 
 <main>
@@ -85,12 +81,19 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites</h2>
-    <p class="sub">Cálculo numérico preciso.</p>
+    <p class="sub">Análise do comportamento de funções.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
+      <div><label>Direção</label>
+        <select id="lim-dir">
+          <option value="both">Ambos os lados</option>
+          <option value="left">Pela esquerda</option>
+          <option value="right">Pela direita</option>
+        </select>
+      </div>
     </div>
-    <button class="btn" onclick="calcLimite()">Calcular</button>
+    <button class="btn" onclick="calcLimite()">Calcular Limite</button>
     <div id="lim-result"></div>
     <div id="lim-plot" class="plot"></div>
   </div>
@@ -98,55 +101,80 @@
 
 <section class="tab-content" id="derivadas">
   <div class="panel">
-    <h2>📈 Derivadas (Estilo WolframAlpha)</h2>
-    <p class="sub">Derivação simbólica com passo a passo.</p>
+    <h2>📈 Derivadas</h2>
+    <p class="sub">Derivação simbólica com visualização gráfica.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="der-f" placeholder="Ex: 3*x^2 + 2*x + 1"></div>
       <div><label>Variável</label><input id="der-var" value="x"></div>
+      <div><label>Intervalo x</label><input id="der-intervalo" placeholder="Ex: -5,5"></div>
     </div>
     <button class="btn" onclick="calcDerivada()">Calcular Derivada</button>
     <div id="der-result"></div>
     <div id="der-steps"></div>
+    <div id="der-plot" class="plot"></div>
   </div>
 </section>
 
 <section class="tab-content" id="integrais">
   <div class="panel">
-    <h2>∫ Integrais</h2>
-    <p class="sub">Integral definida numérica.</p>
+    <h2>∫ Integrais & Trabalho</h2>
+    <p class="sub">Cálculo de área sob a curva e trabalho mecânico.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="int-f" placeholder="Ex: x^2"></div>
-      <div><label>x₁</label><input id="int-x1" placeholder="0"></div>
-      <div><label>x₂</label><input id="int-x2" placeholder="10"></div>
+      <div><label>x₁ (início)</label><input id="int-x1" placeholder="0"></div>
+      <div><label>x₂ (fim)</label><input id="int-x2" placeholder="10"></div>
     </div>
-    <button class="btn" onclick="calcIntegral()">Calcular</button>
+    <button class="btn" onclick="calcIntegral()">Calcular Integral</button>
     <div id="int-result"></div>
+    <div id="int-plot" class="plot"></div>
   </div>
 </section>
 
-<section class="tab-content" id="simuladores">
+<section class="tab-content" id="fisica">
   <div class="panel">
-    <h2>🚀 Simuladores</h2>
+    <h2>⚡ Física Aplicada</h2>
     <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="mhs">MHS</button>
-      <button class="sub-tab" data-sub="obl">Lançamento</button>
+      <button class="sub-tab active" data-sub="mhs">Oscilador Harmônico</button>
+      <button class="sub-tab" data-sub="obl">Lançamento Oblíquo</button>
+      <button class="sub-tab" data-sub="cinematica">Cinemática</button>
     </div>
+    
     <div class="sub-panel active" id="sub-mhs">
+      <p class="sub">Movimento Harmônico Simples: x(t) = A·cos(ωt + φ)</p>
       <div class="form-row">
-        <div><label>A</label><input id="mhs-a" value="1"></div>
-        <div><label>ω</label><input id="mhs-w" value="2"></div>
-        <div><label>φ</label><input id="mhs-p" value="0"></div>
+        <div><label>Amplitude A (m)</label><input id="mhs-a" value="1"></div>
+        <div><label>Freq. angular ω (rad/s)</label><input id="mhs-w" value="2"></div>
+        <div><label>Fase φ (rad)</label><input id="mhs-p" value="0"></div>
+        <div><label>Tempo total (s)</label><input id="mhs-t" value="10"></div>
       </div>
-      <button class="btn" onclick="simMHS()">Simular</button>
+      <button class="btn" onclick="simMHS()">Simular MHS</button>
+      <div id="mhs-result"></div>
       <div id="mhs-plot" class="plot"></div>
     </div>
+    
     <div class="sub-panel" id="sub-obl">
+      <p class="sub">Lançamento de projéteis com ângulo.</p>
       <div class="form-row">
-        <div><label>v₀</label><input id="obl-v" value="30"></div>
-        <div><label>θ</label><input id="obl-a" value="45"></div>
+        <div><label>Velocidade v₀ (m/s)</label><input id="obl-v" value="30"></div>
+        <div><label>Ângulo θ (graus)</label><input id="obl-a" value="45"></div>
+        <div><label>Altura inicial h₀ (m)</label><input id="obl-h" value="0"></div>
+        <div><label>Gravidade g (m/s²)</label><input id="obl-g" value="9.81"></div>
       </div>
-      <button class="btn" onclick="simObl()">Simular</button>
+      <button class="btn" onclick="simObl()">Simular Lançamento</button>
+      <div id="obl-result"></div>
       <div id="obl-plot" class="plot"></div>
+    </div>
+    
+    <div class="sub-panel" id="sub-cinematica">
+      <p class="sub">Análise completa de movimento: posição, velocidade e aceleração.</p>
+      <div class="form-row">
+        <div><label>Posição s(t)</label><input id="cin-s" placeholder="Ex: 3*t^2 + 2*t + 1"></div>
+        <div><label>Intervalo de tempo</label><input id="cin-t" placeholder="Ex: 0,10"></div>
+      </div>
+      <button class="btn" onclick="calcCinematica()">Analisar Movimento</button>
+      <div id="cin-result"></div>
+      <div id="cin-table"></div>
+      <div id="cin-plot" class="plot"></div>
     </div>
   </div>
 </section>
@@ -154,6 +182,11 @@
 <section class="tab-content" id="historico">
   <div class="panel">
     <h2>📋 Histórico</h2>
+    <div class="history-actions">
+      <button class="btn accent" onclick="exportarHistorico()">📄 Exportar</button>
+      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar</button>
+      <span class="chip" id="hist-count">0 registros</span>
+    </div>
     <div id="hist-list"></div>
   </div>
 </section>
@@ -185,8 +218,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=type==='err'?'⚠️':'✅';
-  el.innerHTML+=` <span>${msg}</span>`;
+  el.innerHTML=(type==='err'?'️':'✅')+' <span>'+msg+'</span>';
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
@@ -194,7 +226,6 @@ function toast(msg,type='ok'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id){const v=document.getElementById(id).value.trim().replace(',','.');const n=Number(v);if(!isFinite(n))throw new Error('Inválido');return n;}
 
-// Avaliação numérica
 function evalMath(expr,vars={}){
   try{
     let js=expr;
@@ -206,83 +237,99 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// 🚀 DERIVADA ESTILO WOLFRAMALPHA
+// DERIVADA COM GRÁFICO
 function calcDerivada(){
   try{
     const f=str('der-f');
     const varName=str('der-var');
+    const intervalo=str('der-intervalo');
+    const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
     
     let stepsHTML='<div style="margin-top:20px">';
     
-    // Passo 1: Função original
     stepsHTML+=`<div class="wolfram-step">
       <div class="title">📋 Função Original</div>
       <div class="formula">f(${varName}) = ${f}</div>
     </div>`;
     
-    // Passo 2: Aplicar derivação termo a termo
-    stepsHTML+=`<div class="wolfram-step">
-      <div class="title">🔍 Aplicando Regras de Derivação</div>`;
-    
-    // Tenta derivar com Nerdamer
     let derivadaStr='';
+    let derivadaOK=false;
     try{
-      const expr=nerdamer(f);
-      const deriv=expr.differentiate(varName);
-      derivadaStr=deriv.toString();
-      
-      // Detecta termos e mostra regras
-      const termos=f.split(/(?=[+-])/g);
-      stepsHTML+='<div style="margin-top:10px">';
-      termos.forEach((termo,idx)=>{
-        const termoLimpo=termo.trim();
-        if(termoLimpo){
-          try{
-            const exprTermo=nerdamer(termoLimpo);
-            const derivTermo=exprTermo.differentiate(varName);
-            const derivStr=derivTermo.toString();
-            
-            // Identifica regra aplicada
-            let regra='';
-            if(termoLimpo.includes('^')){
-              regra='Regra da Potência: d/dx[xⁿ] = n·xⁿ⁻¹';
-            }else if(termoLimpo.includes('sin')||termoLimpo.includes('cos')||termoLimpo.includes('tan')){
-              regra='Regra Trigonométrica';
-            }else if(termoLimpo.includes(varName)){
-              regra='Regra Básica';
-            }else{
-              regra='Derivada de constante = 0';
-            }
-            
-            stepsHTML+=`<div style="margin:8px 0;padding:8px;background:#fff;border-radius:4px">
-              <div style="font-size:0.9rem;color:var(--muted)">Termo ${idx+1}: <code>${termoLimpo}</code></div>
-              <div style="font-size:0.85rem;color:var(--muted)">${regra}</div>
-              <div style="margin-top:4px"><strong>d/d${varName}[${termoLimpo}] = ${derivStr}</strong></div>
-            </div>`;
-          }catch(e){}
-        }
-      });
-      stepsHTML+='</div>';
-    }catch(e){
-      stepsHTML+='<div style="color:var(--err)">Erro na derivação simbólica</div>';
-    }
-    stepsHTML+='</div>';
+      const resultado = nerdamer('diff(' + f + ', ' + varName + ')');
+      derivadaStr = resultado.text();
+      if(!derivadaStr.includes('diff(') && derivadaStr.length > 0){
+        derivadaOK = true;
+      }
+    }catch(e){derivadaOK = false;}
     
-    // Passo 3: Resultado simplificado
-    stepsHTML+=`<div class="wolfram-step">
-      <div class="title">✅ Resultado Simplificado</div>
-      <div class="formula">f'(${varName}) = <strong>${derivadaStr||'não calculável'}</strong></div>
-    </div>`;
+    if(derivadaOK){
+      stepsHTML+=`<div class="wolfram-step">
+        <div class="title">🔍 Aplicando Regras de Derivação</div>
+        <div style="margin-top:10px">`;
+      
+      const termos = f.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
+      termos.forEach((termo,idx)=>{
+        try{
+          const derivTermo = nerdamer('diff(' + termo + ', ' + varName + ')').text();
+          let regra='';
+          if(termo.includes('^')){
+            regra=' Regra da Potência: d/d'+varName+'[a·'+varName+'] = a·n·'+varName+'⁻¹';
+          }else if(/sin|cos|tan/i.test(termo)){
+            regra='📐 Regra Trigonométrica';
+          }else if(termo.includes(varName)){
+            regra='📏 Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
+          }else{
+            regra='📏 Derivada de constante = 0';
+          }
+          
+          stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
+            <div style="font-size:0.95rem"><strong>Termo ${idx+1}:</strong> <code>${termo}</code></div>
+            <div class="rule">${regra}</div>
+            <div style="margin-top:6px;font-size:1.05rem"><strong>d/d${varName}[${termo}] = ${derivTermo}</strong></div>
+          </div>`;
+        }catch(e){}
+      });
+      
+      stepsHTML+=`</div></div>`;
+      
+      stepsHTML+=`<div class="wolfram-step">
+        <div class="title">✅ Resultado Final</div>
+        <div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${derivadaStr}</strong></div>
+      </div>`;
+    }else{
+      stepsHTML+=`<div class="wolfram-step">
+        <div class="title">⚠️ Derivação Indisponível</div>
+        <div style="color:var(--muted)">Verifique a notação da função.</div>
+      </div>`;
+    }
     
     stepsHTML+='</div>';
     
     document.getElementById('der-steps').innerHTML=stepsHTML;
     document.getElementById('der-result').innerHTML=`
       <div class="result">
-        <div class="math">d/d${varName}(${f}) = <strong>${derivadaStr||'...'}</strong></div>
+        <div class="math">d/d${varName}(${f}) = <strong>${derivadaOK?derivadaStr:'...'}</strong></div>
       </div>`;
     
-    toast('Derivada calculada!','ok');
+    // Gráfico: f(x) e f'(x)
+    if(derivadaOK && !isNaN(x1) && !isNaN(x2)){
+      const xs=Array.from({length:200},(_,i)=>x1+(x2-x1)*i/199);
+      const ys=xs.map(x=>evalMath(f,{[varName]:x}));
+      const yds=xs.map(x=>evalMath(derivadaStr,{[varName]:x}));
+      
+      Plotly.newPlot('der-plot',[
+        {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
+        {x:xs,y:yds,name:"f'(x)",line:{color:'#06b6d4',width:3,dash:'dash'}}
+      ],{
+        title:'Função e sua Derivada',
+        xaxis:{title:varName},
+        yaxis:{title:'valor'},
+        paper_bgcolor:'#fafbff',
+        plot_bgcolor:'#fafbff'
+      },{responsive:true});
+    }
+    
+    toast(derivadaOK?'Derivada calculada!':'Erro na derivação',derivadaOK?'ok':'err');
   }catch(e){toast(e.message,'err');}
 }
 
@@ -291,21 +338,43 @@ function calcLimite(){
   try{
     const f=str('lim-f');
     const aStr=str('lim-a').toLowerCase();
-    const aVal=aStr==='inf'||aStr==='infinity'?null:Number(aStr);
+    const dir=document.getElementById('lim-dir').value;
+    const isInf=aStr==='inf'||aStr==='infinity';
+    const aVal=isInf?null:Number(aStr.replace(',','.'));
     
-    const deltas=[0.001,0.0001,0.00001];
-    const vals=deltas.map(d=>evalMath(f,{x:aVal?aVal+d:1e6})).filter(v=>isFinite(v));
+    let L;
+    if(isInf){
+      const vals=[1e3,1e4,1e5,1e6].map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
+      if(vals.length===0)throw new Error('Não calculável');
+      L=vals[vals.length-1];
+    }else{
+      const deltas=[0.001,0.0001,0.00001,0.000001];
+      const valsP=[],valsM=[];
+      for(const d of deltas){
+        if(dir==='both'||dir==='right'){const vp=evalMath(f,{x:aVal+d});if(isFinite(vp))valsP.push(vp);}
+        if(dir==='both'||dir==='left'){const vm=evalMath(f,{x:aVal-d});if(isFinite(vm))valsM.push(vm);}
+      }
+      if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
+      if(dir==='both'){
+        const lastP=valsP[valsP.length-1],lastM=valsM[valsM.length-1];
+        L=(lastP+lastM)/2;
+      }else if(dir==='right'){L=valsP[valsP.length-1];}
+      else{L=valsM[valsM.length-1];}
+    }
     
-    if(vals.length===0)throw new Error('Não calculável');
-    
-    const L=vals[vals.length-1];
     const rounded=Math.round(L);
-    const final=Math.abs(L-rounded)<1e-6?rounded:L.toFixed(8);
+    const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
     
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong>${final}</strong></div>
       </div>`;
+    
+    let xvals,yvals;
+    if(isInf){xvals=Array.from({length:200},(_,i)=>i*0.5+0.1);}
+    else{xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);}
+    yvals=xvals.map(x=>{try{return evalMath(f,{x:x})}catch{return null}});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
     
     toast('Limite calculado!','ok');
   }catch(e){toast(e.message,'err');}
@@ -324,28 +393,155 @@ function calcIntegral(){
     
     document.getElementById('int-result').innerHTML=`
       <div class="result">
-        <div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div>
+        <div class="math"><sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Área sob a curva / Trabalho mecânico</div>
       </div>`;
+    
+    const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
+    const ys=xs.map(x=>evalMath(f,{x:x}));
+    const areaX=[...xs,xs[xs.length-1],xs[0]],areaY=[...ys,0,0];
+    Plotly.newPlot('int-plot',[
+      {x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}},
+      {x:areaX,y:areaY,fill:'tozeroy',fillcolor:'rgba(79,70,229,.3)',name:'Área',line:{width:0}}
+    ],{title:'Integral Definida - Área sob a curva',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
     
     toast('Integral calculada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// Simuladores
-function simMHS(){
-  const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p');
-  const ts=Array.from({length:200},(_,i)=>i*0.1);
-  const x=ts.map(t=>A*Math.cos(w*t+p));
-  Plotly.newPlot('mhs-plot',[{x:ts,y:x,name:'x(t)',line:{color:'#4f46e5'}}],{title:'MHS'},{responsive:true});
+// Cinemática
+function calcCinematica(){
+  try{
+    const s=str('cin-s');
+    const tRange=str('cin-t');
+    const [t0,t1]=tRange.split(',').map(x=>Number(x.trim()));
+    
+    // Função posição
+    const sFn=t=>evalMath(s,{t:t});
+    
+    // Derivadas numéricas
+    const vFn=t=>{const h=1e-5;return(sFn(t+h)-sFn(t-h))/(2*h);};
+    const aFn=t=>{const h=1e-4;return(sFn(t+h)-2*sFn(t)+sFn(t-h))/(h*h);};
+    
+    // Gráfico
+    const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
+    const S=ts.map(sFn),V=ts.map(vFn),A=ts.map(aFn);
+    
+    Plotly.newPlot('cin-plot',[
+      {x:ts,y:S,name:'s(t) - Posição',line:{color:'#4f46e5',width:3}},
+      {x:ts,y:V,name:'v(t) - Velocidade',line:{color:'#06b6d4',width:3}},
+      {x:ts,y:A,name:'a(t) - Aceleração',line:{color:'#f59e0b',width:3}}
+    ],{
+      title:'Análise Cinemática Completa',
+      xaxis:{title:'t (s)'},
+      yaxis:{title:'valor'},
+      paper_bgcolor:'#fafbff',
+      plot_bgcolor:'#fafbff'
+    },{responsive:true});
+    
+    // Tabela
+    const nPoints=10;
+    const tVals=Array.from({length:nPoints},(_,i)=>t0+(t1-t0)*i/(nPoints-1));
+    let tableHTML=`<div style="margin-top:18px;overflow-x:auto"><table><thead><tr><th>t (s)</th><th>s(t) (m)</th><th>v(t) (m/s)</th><th>a(t) (m/s²)</th></tr></thead><tbody>`;
+    tVals.forEach(t=>{
+      const sv=sFn(t),vv=vFn(t),av=aFn(t);
+      tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${isFinite(sv)?sv.toFixed(4):'NaN'}</td><td>${isFinite(vv)?vv.toFixed(4):'NaN'}</td><td>${isFinite(av)?av.toFixed(4):'NaN'}</td></tr>`;
+    });
+    tableHTML+=`</tbody></table></div>`;
+    document.getElementById('cin-table').innerHTML=tableHTML;
+    
+    document.getElementById('cin-result').innerHTML=`
+      <div class="result">
+        <div class="math">s(t) = ${s}</div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">v(t) e a(t) calculados numericamente</div>
+      </div>`;
+    
+    toast('Cinemática analisada!','ok');
+  }catch(e){toast(e.message,'err');}
 }
 
-function simObl(){
-  const v0=num('obl-v'),ang=num('obl-a');
-  const rad=ang*Math.PI/180,vx=v0*Math.cos(rad),vy=v0*Math.sin(rad),g=9.81;
-  const tI=2*vy/g,ts=Array.from({length:200},(_,i)=>tI*i/199);
-  const X=ts.map(t=>vx*t),Y=ts.map(t=>vy*t-0.5*g*t*t);
-  Plotly.newPlot('obl-plot',[{x:X,y:Y,name:'Trajetória',line:{color:'#4f46e5'}}],{title:'Lançamento'},{responsive:true});
+// MHS
+function simMHS(){
+  try{
+    const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p'),T=num('mhs-t');
+    if(A<=0||w<=0||T<=0)throw new Error('Valores positivos');
+    const ts=Array.from({length:400},(_,i)=>T*i/399);
+    const x=ts.map(t=>A*Math.cos(w*t+p));
+    const v=ts.map(t=>-A*w*Math.sin(w*t+p));
+    const a=ts.map(t=>-A*w*w*Math.cos(w*t+p));
+    
+    const periodo=(2*Math.PI/w).toFixed(3);
+    const freq=(w/(2*Math.PI)).toFixed(3);
+    
+    document.getElementById('mhs-result').innerHTML=`
+      <div class="result">
+        <div class="math">x(t) = ${A}·cos(${w}t + ${p})</div>
+        <div style="margin-top:8px">Período T = <strong>${periodo} s</strong> · Frequência f = <strong>${freq} Hz</strong></div>
+      </div>`;
+    
+    Plotly.newPlot('mhs-plot',[
+      {x:ts,y:x,name:'x(t) - Posição',line:{color:'#4f46e5',width:3}},
+      {x:ts,y:v,name:'v(t) - Velocidade',line:{color:'#06b6d4',width:3}},
+      {x:ts,y:a,name:'a(t) - Aceleração',line:{color:'#f59e0b',width:3}}
+    ],{
+      title:'Movimento Harmônico Simples',
+      xaxis:{title:'t (s)'},
+      yaxis:{title:'valor'},
+      paper_bgcolor:'#fafbff',
+      plot_bgcolor:'#fafbff'
+    },{responsive:true});
+    
+    toast('MHS simulado!','ok');
+  }catch(e){toast(e.message,'err');}
 }
+
+// Lançamento Oblíquo
+function simObl(){
+  try{
+    const v0=num('obl-v'),ang=num('obl-a'),h0=num('obl-h'),g=num('obl-g');
+    if(v0<=0||g<=0)throw new Error('Valores positivos');
+    const rad=ang*Math.PI/180;
+    const vx=v0*Math.cos(rad),vy=v0*Math.sin(rad);
+    if(vx===0)throw new Error('Ângulo ≠ 90°');
+    const tI=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
+    const H=h0+vy*vy/(2*g);
+    const R=vx*tI;
+    
+    const ts=Array.from({length:300},(_,i)=>tI*i/299);
+    const X=ts.map(t=>vx*t);
+    const Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
+    
+    document.getElementById('obl-result').innerHTML=`
+      <div class="result">
+        <div>Alcance horizontal R = <strong>${R.toFixed(2)} m</strong></div>
+        <div>Altura máxima H = <strong>${H.toFixed(2)} m</strong></div>
+        <div>Tempo de voo = <strong>${tI.toFixed(2)} s</strong></div>
+      </div>`;
+    
+    Plotly.newPlot('obl-plot',[
+      {x:X,y:Y,name:'Trajetória',line:{color:'#4f46e5',width:3},fill:'tozeroy',fillcolor:'rgba(79,70,229,.2)'}
+    ],{
+      title:'Lançamento Oblíquo - Trajetória',
+      xaxis:{title:'x (m)'},
+      yaxis:{title:'y (m)'},
+      paper_bgcolor:'#fafbff',
+      plot_bgcolor:'#fafbff'
+    },{responsive:true});
+    
+    toast('Lançamento simulado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// Histórico
+let history=[];
+function exportarHistorico(){
+  if(!history.length){toast('Vazio','warn');return;}
+  let txt='RELATÓRIO SciCalc\n'+new Date().toLocaleString('pt-BR')+'\n\n';
+  history.forEach(h=>{txt+=`[${h.n}] ${h.time} — ${h.tab}\n    ${h.input} → ${h.result}\n\n`;});
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='relatorio.txt';a.click();
+}
+function limparHistorico(){history=[];toast('Limpo','ok');}
 </script>
 </body>
 </html>
