@@ -288,7 +288,6 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// 🚀 LIMITE CORRIGIDO - Detecção automática de domínio + Extrapolação
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -299,34 +298,43 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
-    // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO
+    // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO - Versão Melhorada
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
-      // Testa com pontos um pouco mais afastados para evitar problemas numéricos
-      const testPoints=[1e-3, 1e-4, 1e-5];
       let rightOK=false, leftOK=false;
       
-      for(const d of testPoints){
-        if(!rightOK){
+      // Testa com vários pontos
+      for(let i=1; i<=10; i++){
+        const d=i*1e-3;
+        try{
           const testRight=evalMath(f,{x:aVal+d});
-          if(isFinite(testRight)) rightOK=true;
-        }
-        if(!leftOK){
+          if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
+        }catch(e){}
+        
+        try{
           const testLeft=evalMath(f,{x:aVal-d});
-          if(isFinite(testLeft)) leftOK=true;
-        }
+          if(isFinite(testLeft) && !isNaN(testLeft)) leftOK=true;
+        }catch(e){}
+        
+        if(rightOK || leftOK) break;
       }
       
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
-      else if(!rightOK && !leftOK) throw new Error('Função não definida em nenhum lado de x='+aVal);
+      else if(!rightOK && !leftOK){
+        // Tenta detectar automaticamente baseado na função
+        if(f.includes('ln(')||f.includes('log(')||f.includes('sqrt(')){
+          effectiveDir='right'; // Assume domínio positivo
+        }else{
+          throw new Error('Função não definida em nenhum lado de x='+aVal+'. Selecione "Pela direita" ou "Pela esquerda" manualmente.');
+        }
+      }
       else effectiveDir='both';
     }
     
     let L,method='';
     
     if(isInf){
-      // 🚀 Extrapolation para infinito
       const deltas=[1e2,1e3,1e4,1e5,1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length<2)throw new Error('Não calculável');
@@ -345,26 +353,28 @@ function calcLimite(){
         const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
         L=v3+(v3-v2)-(v2-v1);
       }
-      method='Aproximação x→-∞ com extrapolação';
+      method='Aproximação x→- com extrapolação';
     }else{
-      // 🚀 Múltiplas aproximações com extrapolação
       const deltas=[1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1e-7,1e-8];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
         if(effectiveDir==='both'||effectiveDir==='right'){
-          const vp=evalMath(f,{x:aVal+d});
-          if(isFinite(vp))valsP.push({d,v:vp});
+          try{
+            const vp=evalMath(f,{x:aVal+d});
+            if(isFinite(vp)&&!isNaN(vp))valsP.push({d,v:vp});
+          }catch(e){}
         }
         if(effectiveDir==='both'||effectiveDir==='left'){
-          const vm=evalMath(f,{x:aVal-d});
-          if(isFinite(vm))valsM.push({d,v:vm});
+          try{
+            const vm=evalMath(f,{x:aVal-d});
+            if(isFinite(vm)&&!isNaN(vm))valsM.push({d,v:vm});
+          }catch(e){}
         }
       }
       
       if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
       
-      // Extrapolação de Richardson (Aitken) para melhorar precisão
       function richardsonExtrapolate(vals){
         if(vals.length<3)return vals[vals.length-1].v;
         const v1=vals[vals.length-3].v,v2=vals[vals.length-2].v,v3=vals[vals.length-1].v;
@@ -380,7 +390,7 @@ function calcLimite(){
           throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
         }
         L=(LP+LM)/2;
-        method='Média bilateral com extrapolação de Richardson';
+        method='Média bilateral com extrapolação';
       }else if(effectiveDir==='right'){
         L=richardsonExtrapolate(valsP);
         method='Aproximação pela direita com extrapolação';
@@ -390,7 +400,6 @@ function calcLimite(){
       }
     }
     
-    // Arredondamento inteligente
     const rounded=Math.round(L);
     const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
     
@@ -403,7 +412,6 @@ function calcLimite(){
         ${effectiveDir==='left'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x < '+aVal+'</div>':''}
       </div>`;
     
-    //  GRÁFICO ADAPTADO AO DOMÍNIO
     let xvals,yvals;
     if(isInf){
       xvals=Array.from({length:300},(_,i)=>Math.pow(10,i*0.05));
@@ -416,8 +424,10 @@ function calcLimite(){
       const range=10;
       for(let i=0;i<=500;i++){
         const x=aVal-range+2*range*i/500;
-        const y=evalMath(f,{x:x});
-        if(isFinite(y)&&Math.abs(y)<1e6)testPoints.push({x,y});
+        try{
+          const y=evalMath(f,{x:x});
+          if(isFinite(y)&&!isNaN(y)&&Math.abs(y)<1e6)testPoints.push({x,y});
+        }catch(e){}
       }
       xvals=testPoints.map(p=>p.x);
       yvals=testPoints.map(p=>p.y);
@@ -427,7 +437,7 @@ function calcLimite(){
       x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',
       line:{color:'#4f46e5',width:2}
     }],{
-      title:'Comportamento de f(x)'+(effectiveDir==='right'?' (x>'+aVal+')':effectiveDir==='left'?' (x<'+aVal+')':''),
+      title:'Comportamento de f(x)',
       margin:{t:40},
       paper_bgcolor:'#fafbff',
       plot_bgcolor:'#fafbff',
