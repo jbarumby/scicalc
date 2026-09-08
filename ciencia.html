@@ -313,7 +313,6 @@ function calcLimite(){
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
       
-      // Testa com vários pontos
       for(let i=1; i<=10; i++){
         const d=i*0.001;
         try{
@@ -332,13 +331,12 @@ function calcLimite(){
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        // Fallback: detecta funções com domínio restrito
         if(f.includes('ln(')||f.includes('log(')){
           effectiveDir='right';
         }else if(f.includes('sqrt(')){
           effectiveDir='right';
         }else{
-          throw new Error('Função não definida. Selecione "Pela direita" ou "Pela esquerda" manualmente.');
+          throw new Error('Função não definida. Selecione manualmente.');
         }
       }
       else effectiveDir='both';
@@ -351,23 +349,16 @@ function calcLimite(){
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length<2)throw new Error('Não calculável');
       L=vals[vals.length-1];
-      if(vals.length>=3){
-        const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
-        L=v3+(v3-v2)-(v2-v1);
-      }
       method='Aproximação x→+∞';
     }else if(isMInf){
       const deltas=[-1e2,-1e3,-1e4,-1e5,-1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
       if(vals.length<2)throw new Error('Não calculável');
       L=vals[vals.length-1];
-      if(vals.length>=3){
-        const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
-        L=v3+(v3-v2)-(v2-v1);
-      }
       method='Aproximação x→-∞';
     }else{
-      const deltas=[0.1,0.01,0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001];
+      // 🚀 Deltas otimizados para evitar erros de precisão
+      const deltas=[0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
@@ -387,18 +378,31 @@ function calcLimite(){
       
       if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
       
+      //  Extrapolation de Richardson melhorada
       function richardsonExtrapolate(vals){
-        if(vals.length<3)return vals[vals.length-1].v;
-        const v1=vals[vals.length-3].v,v2=vals[vals.length-2].v,v3=vals[vals.length-1].v;
+        if(vals.length<2) return vals[vals.length-1].v;
+        
+        // Pega os últimos 3 valores (mais precisos)
+        const n=Math.min(3,vals.length);
+        const recent=vals.slice(-n);
+        
+        if(n===1) return recent[0].v;
+        if(n===2){
+          // Média dos dois últimos
+          return (recent[0].v+recent[1].v)/2;
+        }
+        
+        // Aitken's delta-squared para 3 pontos
+        const v1=recent[0].v,v2=recent[1].v,v3=recent[2].v;
         const denom=(v3-2*v2+v1);
-        if(Math.abs(denom)<1e-15)return v3;
+        if(Math.abs(denom)<1e-12) return v3;
         return v3-(v3-v2)*(v3-v2)/denom;
       }
       
       if(effectiveDir==='both'){
         const LP=richardsonExtrapolate(valsP);
         const LM=richardsonExtrapolate(valsM);
-        if(Math.abs(LP-LM)>0.001 && Math.abs(LP-LM)>Math.abs(LP)*0.001){
+        if(Math.abs(LP-LM)>0.01 && Math.abs(LP-LM)>Math.abs(LP)*0.01){
           throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
         }
         L=(LP+LM)/2;
@@ -412,10 +416,27 @@ function calcLimite(){
       }
     }
     
-    const rounded=Math.round(L);
-    const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
+    // 🚀 ARREDONDAMENTO INTELIGENTE
+    // Verifica se está próximo de valores "bonitos"
+    const roundedInt=Math.round(L);
+    const roundedHalf=Math.round(L*2)/2;
+    const roundedThird=Math.round(L*3)/3;
+    const roundedSixth=Math.round(L*6)/6;
     
-    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
+    let final;
+    if(Math.abs(L-roundedInt)<1e-6){
+      final=roundedInt;
+    }else if(Math.abs(L-roundedHalf)<1e-6){
+      final=roundedHalf;
+    }else if(Math.abs(L-roundedThird)<1e-6){
+      final=roundedThird;
+    }else if(Math.abs(L-roundedSixth)<1e-6){
+      final=roundedSixth;
+    }else{
+      final=parseFloat(L.toFixed(8));
+    }
+    
+    const dirSymbol=effectiveDir==='left'?'':effectiveDir==='right'?'':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
