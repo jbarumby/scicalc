@@ -522,7 +522,7 @@ function calcDerivada(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LIMITES COM DETECÇÃO DE DIVERGÊNCIA ============
+// ============ LIMITES COM DETECÇÃO DE FORMAS INDETERMINADAS ============
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -533,22 +533,36 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
+    // Detecção automática de domínio
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
-      for(let i=1; i<=3; i++){
-        const d=i*0.01;
+      
+      // Testa com pontos MUITO próximos (não em aVal)
+      for(let i=1; i<=5; i++){
+        const d=Math.pow(10, -i); // 0.1, 0.01, 0.001, 0.0001, 0.00001
         try{
-          if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;
-          if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;
+          const testRight=evalMath(f,{x:aVal+d});
+          if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
         }catch(e){}
-        if(rightOK || leftOK) break;
+        try{
+          const testLeft=evalMath(f,{x:aVal-d});
+          if(isFinite(testLeft) && !isNaN(testLeft)) leftOK=true;
+        }catch(e){}
+        if(rightOK && leftOK) break;
       }
+      
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        if(f.includes('ln(')||f.includes('sqrt(')) effectiveDir='right';
-        else throw new Error('Função não definida.');
+        // Verifica se é forma indeterminada comum
+        if(f.includes('tan(')||f.includes('sin(')||f.includes('ln(')){
+          effectiveDir='both'; // Tenta calcular de ambos os lados
+        }else if(f.includes('sqrt(')){
+          effectiveDir='right';
+        }else{
+          throw new Error('Função não definida. Selecione manualmente.');
+        }
       }
       else effectiveDir='both';
     }
@@ -564,54 +578,69 @@ function calcLimite(){
       method='x→-∞';
       if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else{
-      const deltas=[0.01, 0.001, 0.0001, 0.00001];
+      // Testa múltiplos pontos MUITO próximos para detectar convergência
+      const deltas=[0.001, 0.0001, 0.00001, 0.000001, 0.0000001];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
         if(effectiveDir==='both'||effectiveDir==='right'){
           try{
             const vp=evalMath(f,{x:aVal+d});
-            if(isFinite(vp)) valsP.push(vp);
+            if(isFinite(vp)) valsP.push({d,v:vp});
           }catch(e){}
         }
         if(effectiveDir==='both'||effectiveDir==='left'){
           try{
             const vm=evalMath(f,{x:aVal-d});
-            if(isFinite(vm)) valsM.push(vm);
+            if(isFinite(vm)) valsM.push({d,v:vm});
           }catch(e){}
         }
       }
       
+      // Verifica se temos valores válidos
+      if(valsP.length===0 && valsM.length===0){
+        throw new Error('Não foi possível calcular. Tente outro ponto.');
+      }
+      
       // Detecta divergência
       if(valsP.length>=2){
-        const lastP=valsP[valsP.length-1];
-        const prevP=valsP[valsP.length-2];
+        const lastP=valsP[valsP.length-1].v;
+        const prevP=valsP[valsP.length-2].v;
         if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){
           diverge=true;
           divergeSign=lastP>0?'+∞':'-∞';
         }
       }
       if(valsM.length>=2){
-        const lastM=valsM[valsM.length-1];
-        const prevM=valsM[valsM.length-2];
+        const lastM=valsM[valsM.length-1].v;
+        const prevM=valsM[valsM.length-2].v;
         if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){
           diverge=true;
-          divergeSign=lastM>0?'+∞':'-∞';
+          divergeSign=lastM>0?'+':'-∞';
         }
       }
       
       if(!diverge){
+        // Pega o valor mais próximo (último da lista)
         if(effectiveDir==='both'){
-          const vp=valsP[valsP.length-1]||0;
-          const vm=valsM[valsM.length-1]||0;
-          L=(vp+vm)/2;
-          method='Média bilateral';
+          if(valsP.length>0 && valsM.length>0){
+            const lastP=valsP[valsP.length-1].v;
+            const lastM=valsM[valsM.length-1].v;
+            L=(lastP+lastM)/2;
+            method='Média bilateral (pontos próximos)';
+          }else if(valsP.length>0){
+            L=valsP[valsP.length-1].v;
+            method='Pela direita (pontos próximos)';
+          }else{
+            L=valsM[valsM.length-1].v;
+            method='Pela esquerda (pontos próximos)';
+          }
         }else if(effectiveDir==='right'){
-          L=valsP[valsP.length-1]||0;
-          method='Pela direita';
+          L=valsP[valsP.length-1].v;
+          method='Pela direita (pontos próximos)';
         }else{
-          L=valsM[valsM.length-1]||0;
-          method='Pela esquerda';
+          L=valsM[valsM.length-1].v;
+          method='Pela esquerda (pontos próximos)';
         }
       }
     }
@@ -620,15 +649,17 @@ function calcLimite(){
     if(diverge){
       final=divergeSign;
     }else{
-      const tol=0.001;
+      // Arredondamento inteligente
+      const tol=0.0001;
       const rounded=Math.round(L);
       if(Math.abs(L-rounded)<tol) final=rounded;
       else if(Math.abs(L*2-Math.round(L*2))<tol) final=Math.round(L*2)/2;
       else if(Math.abs(L*3-Math.round(L*3))<tol) final=Math.round(L*3)/3;
+      else if(Math.abs(L*6-Math.round(L*6))<tol) final=Math.round(L*6)/6;
       else final=parseFloat(L.toFixed(6));
     }
     
-    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
+    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
@@ -636,13 +667,13 @@ function calcLimite(){
         ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge (tende ao infinito)</div>':''}
       </div>`;
     
-    const xvals=Array.from({length:100},(_,i)=>aVal-5+10*i/99);
+    // Gráfico otimizado
+    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
     const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
     toast('Limite calculado!','ok');
   }catch(e){toast(e.message,'err');}
 }
-
 // ============ INTEGRAIS ============
 function calcIntegral(){
   try{
