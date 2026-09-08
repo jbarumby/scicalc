@@ -415,43 +415,57 @@ function calcLimite(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ DERIVADOR SIMBÓLICO COMPLETO ============
+// ============ DERIVADOR SIMBÓLICO COMPLETO E CORRIGIDO ============
 function derivarSimbolica(expr, varName){
-  const termos = expr.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
+  // Remove espaços e normaliza
+  expr = expr.replace(/\s+/g, '');
+  
+  // Separa por + e - mantendo o sinal
+  const termos = expr.match(/([+-]?[^+-]+)/g) || [];
   const derivadas = [];
+  
   for(const termo of termos){
+    if(termo === '' || termo === '+' || termo === '-') continue;
     const d = derivarTermo(termo, varName);
-    if(d !== null) derivadas.push(d);
+    if(d !== null && d !== '0') derivadas.push(d);
   }
-  let resultado = '';
-  for(let i=0; i<derivadas.length; i++){
+  
+  if(derivadas.length === 0) return '0';
+  
+  // Junta as derivadas
+  let resultado = derivadas[0];
+  for(let i=1; i<derivadas.length; i++){
     const d = derivadas[i];
-    if(i===0) resultado += d;
-    else{if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();else resultado += ' + ' + d;}
+    if(d.startsWith('-')) resultado += ' - ' + d.substring(1);
+    else resultado += ' + ' + d;
   }
+  
   return simplificarExpressao(resultado);
 }
 
 function derivarTermo(termo, varName){
-  termo = termo.trim();
+  termo = termo.trim().replace(/^\+/, ''); // Remove + inicial
+  
   if(termo === '') return null;
   if(!termo.includes(varName)) return '0';
   
-  // ax^n
+  // 1. Caso: ax^n (apenas uma variável)
   const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchPot && matchPot[2] === varName){
     let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
     const exp = matchPot[3] ? parseFloat(matchPot[3]) : 1;
-    if(exp === 0) return '0';if(exp === 1) return String(coef);
-    const novoCoef = coef * exp,novoExp = exp - 1;
+    if(exp === 0) return '0';
+    if(exp === 1) return String(coef);
+    const novoCoef = coef * exp;
+    const novoExp = exp - 1;
     if(novoExp === 1) return String(novoCoef) + '*' + varName;
     if(novoExp === 0) return String(novoCoef);
-    if(novoExp === -1) return String(novoCoef) + '/' + varName;
     return String(novoCoef) + '*' + varName + '^' + novoExp;
   }
   
-  // PRODUTO: x^n * y^m (derivada parcial)
-  const matchProd = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
+  // 2. Caso: Produto de duas variáveis com potências (x^n * y^m ou coef*x^n*y^m)
+  // Ex: x^2*y, 3*x*y^2, x*y, 2*x^3*y^4
+  const matchProd = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?\*([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchProd){
     const coefStr = matchProd[1];
     const v1 = matchProd[2];
@@ -459,68 +473,139 @@ function derivarTermo(termo, varName){
     const v2 = matchProd[4];
     const exp2Str = matchProd[5];
     
-    if(v1 === varName || v2 === varName){
-      const coef = coefStr === '' || coefStr === '-' ? (coefStr==='-'?-1:1) : parseFloat(coefStr);
-      const exp1 = exp1Str ? parseFloat(exp1Str) : 1;
-      const exp2 = exp2Str ? parseFloat(exp2Str) : 1;
-      
-      if(v1 === varName){
-        const novoCoef = coef * exp1;
-        const novoExp1 = exp1 - 1;
-        let resultado = '';
-        if(novoCoef !== 1 && novoCoef !== 0) resultado += novoCoef + '*';
-        if(novoExp1 === 1) resultado += v1;
-        else if(novoExp1 > 0) resultado += v1 + '^' + novoExp1;
-        if(exp2 === 1) resultado += '*' + v2;
-        else if(exp2 > 0) resultado += '*' + v2 + '^' + exp2;
-        return resultado.replace(/^\*/, '').replace(/\*$/, '').replace(/\*+/g, '*');
+    const coef = coefStr === '' || coefStr === '+' ? 1 : (coefStr === '-' ? -1 : parseFloat(coefStr));
+    const exp1 = exp1Str ? parseFloat(exp1Str) : 1;
+    const exp2 = exp2Str ? parseFloat(exp2Str) : 1;
+    
+    if(v1 === varName && v2 !== varName){
+      // Deriva em relação a v1: d/dx[x^n * y^m] = n*x^(n-1) * y^m
+      const novoCoef = coef * exp1;
+      const novoExp1 = exp1 - 1;
+      if(novoExp1 === 0){
+        // x desaparece
+        if(novoCoef === 1) return v2 + (exp2 === 1 ? '' : '^' + exp2);
+        return novoCoef + '*' + v2 + (exp2 === 1 ? '' : '^' + exp2);
       }else{
-        const novoCoef = coef * exp2;
-        const novoExp2 = exp2 - 1;
         let resultado = '';
-        if(novoCoef !== 1 && novoCoef !== 0) resultado += novoCoef + '*';
-        if(exp1 === 1) resultado += v1 + '*';
-        else if(exp1 > 0) resultado += v1 + '^' + exp1 + '*';
-        if(novoExp2 === 1) resultado += v2;
-        else if(novoExp2 > 0) resultado += v2 + '^' + novoExp2;
-        return resultado.replace(/^\*/, '').replace(/\*$/, '').replace(/\*+/g, '*');
+        if(novoCoef !== 1) resultado += novoCoef + '*';
+        resultado += v1 + (novoExp1 === 1 ? '' : '^' + novoExp1);
+        resultado += '*' + v2 + (exp2 === 1 ? '' : '^' + exp2);
+        return resultado;
+      }
+    }else if(v2 === varName && v1 !== varName){
+      // Deriva em relação a v2: d/dy[x^n * y^m] = x^n * m*y^(m-1)
+      const novoCoef = coef * exp2;
+      const novoExp2 = exp2 - 1;
+      if(novoExp2 === 0){
+        // y desaparece
+        if(novoCoef === 1) return v1 + (exp1 === 1 ? '' : '^' + exp1);
+        return novoCoef + '*' + v1 + (exp1 === 1 ? '' : '^' + exp1);
+      }else{
+        let resultado = '';
+        if(novoCoef !== 1) resultado += novoCoef + '*';
+        resultado += v1 + (exp1 === 1 ? '' : '^' + exp1);
+        resultado += '*' + v2 + (novoExp2 === 1 ? '' : '^' + novoExp2);
+        return resultado;
       }
     }
   }
   
-  // a*sin(b*x)
+  // 3. Caso: a*sin(b*x)
   const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchSin){let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);const v = matchSin[3];const novoCoef = coef * b;if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';return novoCoef + '*cos(' + b + '*' + v + ')';}
+  if(matchSin){
+    let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);
+    const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);
+    const v = matchSin[3];
+    const novoCoef = coef * b;
+    if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';
+    if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';
+    return novoCoef + '*cos(' + b + '*' + v + ')';
+  }
   
-  // a*cos(b*x)
+  // 4. Caso: a*cos(b*x)
   const matchCos = termo.match(/^(-?\d*\.?\d*)\*?cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchCos){let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);const v = matchCos[3];const novoCoef = -coef * b;if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';return novoCoef + '*sin(' + b + '*' + v + ')';}
+  if(matchCos){
+    let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);
+    const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);
+    const v = matchCos[3];
+    const novoCoef = -coef * b;
+    if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';
+    if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';
+    return novoCoef + '*sin(' + b + '*' + v + ')';
+  }
   
-  // a*exp(b*x)
+  // 5. Caso: a*exp(b*x)
   const matchExp = termo.match(/^(-?\d*\.?\d*)\*?exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchExp){let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);const v = matchExp[3];const novoCoef = coef * b;if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';return novoCoef + '*exp(' + b + '*' + v + ')';}
+  if(matchExp){
+    let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);
+    const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);
+    const v = matchExp[3];
+    const novoCoef = coef * b;
+    if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';
+    if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';
+    return novoCoef + '*exp(' + b + '*' + v + ')';
+  }
   
-  // a*ln(b*x)
+  // 6. Caso: a*ln(b*x)
   const matchLn = termo.match(/^(-?\d*\.?\d*)\*?(?:ln|log)\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchLn){let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);const b = matchLn[2] === '' ? 1 : parseFloat(matchLn[2]);const v = matchLn[3];if(coef === 1) return '1/' + v;if(coef === -1) return '-1/' + v;return coef + '/' + v;}
+  if(matchLn){
+    let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);
+    const b = matchLn[2] === '' ? 1 : parseFloat(matchLn[2]);
+    const v = matchLn[3];
+    if(coef === 1) return '1/' + v;
+    if(coef === -1) return '-1/' + v;
+    return coef + '/' + v;
+  }
   
-  // a*sqrt(b*x)
+  // 7. Caso: a*sqrt(b*x)
   const matchSqrt = termo.match(/^(-?\d*\.?\d*)\*?sqrt\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchSqrt){let coef = matchSqrt[1] === '' || matchSqrt[1] === '-' ? (matchSqrt[1]==='-'?-1:1) : parseFloat(matchSqrt[1]);const b = matchSqrt[2] === '' ? 1 : parseFloat(matchSqrt[2]);const v = matchSqrt[3];const novoCoef = coef * b / 2;if(novoCoef === 1) return '1/(2*sqrt(' + b + '*' + v + '))';return novoCoef + '/sqrt(' + b + '*' + v + ')';}
+  if(matchSqrt){
+    let coef = matchSqrt[1] === '' || matchSqrt[1] === '-' ? (matchSqrt[1]==='-'?-1:1) : parseFloat(matchSqrt[1]);
+    const b = matchSqrt[2] === '' ? 1 : parseFloat(matchSqrt[2]);
+    const v = matchSqrt[3];
+    const novoCoef = coef * b / 2;
+    if(novoCoef === 1) return '1/(2*sqrt(' + b + '*' + v + '))';
+    return novoCoef + '/sqrt(' + b + '*' + v + ')';
+  }
   
-  // a*tan(b*x)
+  // 8. Caso: a*tan(b*x)
   const matchTan = termo.match(/^(-?\d*\.?\d*)\*?tan\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchTan){let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);const v = matchTan[3];const novoCoef = coef * b;if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';return novoCoef + '/cos(' + b + '*' + v + ')^2';}
+  if(matchTan){
+    let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);
+    const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);
+    const v = matchTan[3];
+    const novoCoef = coef * b;
+    if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';
+    if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';
+    return novoCoef + '/cos(' + b + '*' + v + ')^2';
+  }
   
-  // a/cos(b*x)^n
+  // 9. Caso: a/cos(b*x)^n
   const matchCosDiv = termo.match(/^(-?\d*\.?\d*)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
-  if(matchCosDiv){let a = matchCosDiv[1] === '' || matchCosDiv[1] === '-' ? (matchCosDiv[1]==='-'?-1:1) : parseFloat(matchCosDiv[1]);const b = matchCosDiv[2] === '' ? 1 : parseFloat(matchCosDiv[2]);const v = matchCosDiv[3];const n = parseInt(matchCosDiv[4]);const novoCoef = a * n * b;return `${novoCoef}*sin(${b}*${v})/cos(${b}*${v})^${n+1}`;}
+  if(matchCosDiv){
+    let a = matchCosDiv[1] === '' || matchCosDiv[1] === '-' ? (matchCosDiv[1]==='-'?-1:1) : parseFloat(matchCosDiv[1]);
+    const b = matchCosDiv[2] === '' ? 1 : parseFloat(matchCosDiv[2]);
+    const v = matchCosDiv[3];
+    const n = parseInt(matchCosDiv[4]);
+    const novoCoef = a * n * b;
+    return `${novoCoef}*sin(${b}*${v})/cos(${b}*${v})^${n+1}`;
+  }
   
   return null;
 }
 
 function simplificarExpressao(expr){
-  expr = expr.replace(/\b0\*\S+/g, '0').replace(/\+\s*0\b/g, '').replace(/\-\s*0\b/g, '').replace(/\b0\s*\+/g, '').replace(/\b0\s*\-/g, '-').replace(/\b1\*([a-zA-Z(])/g, '$1').replace(/\*1\b/g, '').replace(/\s+/g, ' ').trim().replace(/\+ -/g, '- ').replace(/- -/g, '+ ');
+  expr = expr.replace(/\b0\*\S+/g, '0')
+             .replace(/\+\s*0\b/g, '')
+             .replace(/\-\s*0\b/g, '')
+             .replace(/\b0\s*\+/g, '')
+             .replace(/\b0\s*\-/g, '-')
+             .replace(/\b1\*([a-zA-Z(])/g, '$1')
+             .replace(/\*1\b/g, '')
+             .replace(/\s+/g, ' ')
+             .trim()
+             .replace(/\+ -/g, '- ')
+             .replace(/- -/g, '+ ');
   if(expr.startsWith('+ ')) expr = expr.substring(2);
   return expr || '0';
 }
@@ -544,13 +629,12 @@ function calcTaylor(){
     if(n<1||n>10) throw new Error('Ordem deve ser entre 1 e 10');
     
     const fFn=x=>evalMath(f,{x:x});
-    const h=1e-5;
+    const h=1e-6;
     
-    const derivadasNoPonto=[];
-    const fa=fFn(a);
-    if(!isFinite(fa)) throw new Error('Função não definida em x='+a);
-    derivadasNoPonto.push(fa);
+    // Calcula todas as derivadas no ponto a
+    const derivadas=[fFn(a)];
     
+    // Derivadas de ordem 1 a n
     for(let ordem=1;ordem<=n;ordem++){
       let deriv=0;
       if(ordem===1){
@@ -562,22 +646,22 @@ function calcTaylor(){
       }else if(ordem===4){
         deriv=(fFn(a+2*h)-4*fFn(a+h)+6*fFn(a)-4*fFn(a-h)+fFn(a-2*h))/(h*h*h*h);
       }else if(ordem===5){
-        deriv=(fFn(a+3*h)-4*fFn(a+2*h)+5*fFn(a+h)-5*fFn(a-h)+4*fFn(a-2*h)-fFn(a-3*h))/(8*h*h*h*h*h);
+        deriv=(fFn(a+3*h)-4*fFn(a+2*h)+5*fFn(a+h)-5*fFn(a-h)+4*fFn(a-2*h)-fFn(a-3*h))/(8*Math.pow(h,5));
       }else{
+        // Para ordens maiores, aproximação simplificada
         deriv=(fFn(a+h)-fFn(a-h))/(2*Math.pow(h,ordem));
       }
-      
-      if(!isFinite(deriv)) throw new Error('Não foi possível calcular derivada de ordem '+ordem);
-      derivadasNoPonto.push(deriv);
+      derivadas.push(deriv);
     }
     
-    let taylor=`${fa.toFixed(4)}`;
-    const coeficientesTaylor=[fa];
+    // Monta polinômio
+    let taylor=`${derivadas[0].toFixed(4)}`;
+    const coeficientes=[derivadas[0]];
     
     for(let i=1;i<=n;i++){
-      const coef=derivadasNoPonto[i]/factorial(i);
-      coeficientesTaylor.push(coef);
-      if(Math.abs(coef)>1e-8){
+      const coef=derivadas[i]/factorial(i);
+      coeficientes.push(coef);
+      if(Math.abs(coef)>1e-10){
         const sinal=coef>0?'+':'-';
         const absCoef=Math.abs(coef);
         const coefStr=absCoef===1?'':absCoef.toFixed(4)+'*';
@@ -595,12 +679,13 @@ function calcTaylor(){
         <div class="math" style="font-size:1.1rem;margin-top:10px;background:var(--bg);padding:10px;border-radius:6px"><strong>${taylor}</strong></div>
       </div>`;
     
-    const xs=Array.from({length:200},(_,i)=>a-2+4*i/199);
+    // Gráfico
+    const xs=Array.from({length:200},(_,i)=>a-3+6*i/199);
     const ys=xs.map(x=>fFn(x));
     const yt=xs.map(x=>{
-      let sum=coeficientesTaylor[0];
+      let sum=coeficientes[0];
       for(let i=1;i<=n;i++){
-        sum+=coeficientesTaylor[i]*Math.pow(x-a,i);
+        sum+=coeficientes[i]*Math.pow(x-a,i);
       }
       return sum;
     });
