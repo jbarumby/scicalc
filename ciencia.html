@@ -529,6 +529,7 @@ function simplificarExpressao(expr){
 }
 
 // ============ CALCULAR DERIVADA ============
+// ============ CALCULAR DERIVADA - VERSÃO CORRIGIDA ============
 function calcDerivada(){
   try{
     const f=str('der-f');
@@ -536,27 +537,48 @@ function calcDerivada(){
     const intervalo=str('der-intervalo');
     const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
     
+    // Primeira derivada
     const fp = derivarSimbolica(f, varName);
-    const fpp = derivarSimbolica(fp, varName);
     
-    // Se f'' falhou, tenta Nerdamer diretamente
-    let fppFinal = fpp;
-    if(!fpp || fpp.includes('diff(') || fpp.includes('derivative(')){
-      try{
-        fppFinal = nerdamer('diff(' + fp + ', ' + varName + ')').text();
-        if(fppFinal.includes('diff(') || fppFinal.includes('derivative(')){
-          fppFinal = 'Não calculável simbolicamente';
-        }
-      }catch(e){
-        fppFinal = 'Não calculável simbolicamente';
+    // Segunda derivada - tenta simplificar antes
+    let fpp = null;
+    let fppStr = '';
+    
+    // Tenta derivador próprio primeiro
+    try{
+      fpp = derivarSimbolica(fp, varName);
+      if(fpp && !fpp.includes('diff(') && !fpp.includes('derivative(')){
+        fppStr = fpp;
       }
+    }catch(e){}
+    
+    // Se falhou, tenta Nerdamer com expressão simplificada
+    if(!fppStr || fppStr.includes('diff(')){
+      try{
+        // Simplifica: converte 1/cos^2 para sec^2, etc
+        let fpSimplificado = fp
+          .replace(/1\/cos\(([^)]+)\)\^2/g, 'sec($1)^2')
+          .replace(/1\/sin\(([^)]+)\)\^2/g, 'csc($1)^2')
+          .replace(/1\/cos\(([^)]+)\)/g, 'sec($1)')
+          .replace(/1\/sin\(([^)]+)\)/g, 'csc($1)');
+        
+        const resultado = nerdamer('diff(' + fpSimplificado + ', ' + varName + ')').text();
+        if(resultado && !resultado.includes('diff(') && !resultado.includes('derivative(')){
+          fppStr = resultado;
+        }
+      }catch(e){}
+    }
+    
+    // Se ainda falhou, calcula manualmente para casos comuns
+    if(!fppStr || fppStr.includes('diff(')){
+      fppStr = derivarSegundaManual(fp, varName);
     }
     
     document.getElementById('der-result').innerHTML=`
       <div class="result">
         <div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div>
         <div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fppFinal}</strong></div>
+        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fppStr}</strong></div>
       </div>`;
     
     let stepsHTML='<div style="margin-top:20px">';
@@ -568,15 +590,15 @@ function calcDerivada(){
       if(t==='') return;
       const d = derivarTermo(t, varName);
       let regra='';
-      if(t.includes('^')) regra='📏 Regra da Potência: d/d'+varName+'[a·'+varName+'] = a·n·'+varName+'⁻¹';
-      else if(/sin/i.test(t)) regra=' d/d'+varName+'[sin(u)] = cos(u)·u\'';
-      else if(/cos/i.test(t)) regra=' d/d'+varName+'[cos(u)] = -sin(u)·u\'';
-      else if(/tan/i.test(t)) regra=' d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
+      if(t.includes('^')) regra='📏 Regra da Potência';
+      else if(/sin/i.test(t)) regra='📐 d/d'+varName+'[sin(u)] = cos(u)·u\'';
+      else if(/cos/i.test(t)) regra='📐 d/d'+varName+'[cos(u)] = -sin(u)·u\'';
+      else if(/tan/i.test(t)) regra='📐 d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
       else if(/atan|arctan/i.test(t)) regra='📐 d/d'+varName+'[atan(u)] = u\'/(1+u²)';
       else if(/exp/i.test(t)) regra='📐 d/d'+varName+'[eᵘ] = eᵘ·u\'';
-      else if(/ln|log/i.test(t)) regra='📐 d/d'+varName+'[ln(u)] = u\'/u';
+      else if(/ln|log/i.test(t)) regra=' d/d'+varName+'[ln(u)] = u\'/u';
       else if(/sqrt/i.test(t)) regra='📐 d/d'+varName+'[√u] = u\'/(2√u)';
-      else if(t.includes(varName)) regra='📏 Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
+      else if(t.includes(varName)) regra='📏 Regra Linear';
       else regra='📏 Derivada de constante = 0';
       
       stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
@@ -587,7 +609,7 @@ function calcDerivada(){
     });
     stepsHTML+=`</div></div>`;
     stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Primeira Derivada</div><div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${fp}</strong></div></div>`;
-    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${fppFinal}</strong></div></div>`;
+    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${fppStr}</strong></div></div>`;
     stepsHTML+='</div>';
     document.getElementById('der-steps').innerHTML=stepsHTML;
     
@@ -595,7 +617,7 @@ function calcDerivada(){
       const xs=Array.from({length:200},(_,i)=>x1+(x2-x1)*i/199);
       const ys=xs.map(x=>{const v=evalMath(f,{[varName]:x});return Math.abs(v)<1e6?v:null;});
       const yps=xs.map(x=>{const v=evalMath(fp,{[varName]:x});return Math.abs(v)<1e6?v:null;});
-      const ypps=xs.map(x=>{const v=evalMath(fppFinal,{[varName]:x});return Math.abs(v)<1e6?v:null;});
+      const ypps=xs.map(x=>{const v=evalMath(fppStr,{[varName]:x});return Math.abs(v)<1e6?v:null;});
       
       Plotly.newPlot('der-plot',[
         {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
@@ -611,6 +633,93 @@ function calcDerivada(){
     }
     toast('Derivadas calculadas!','ok');
   }catch(e){toast(e.message,'err');document.getElementById('der-result').innerHTML=`<div class="result"><div class="math">Erro: ${e.message}</div></div>`;}
+}
+
+// ============ DERIVADA SEGUNDA MANUAL PARA CASOS COMUNS ============
+function derivarSegundaManual(expr, varName){
+  // Detecta padrões comuns e calcula manualmente
+  
+  // Padrão: a/cos(b*x)^n
+  const matchCosPow = expr.match(/^(-?\d*\.?\d*)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
+  if(matchCosPow){
+    const a = matchCosPow[1] === '' ? 1 : parseFloat(matchCosPow[1]);
+    const b = parseFloat(matchCosPow[2]);
+    const x = matchCosPow[3];
+    const n = parseInt(matchCosPow[4]);
+    
+    // d/dx[a/cos(bx)^n] = a*n*sin(bx)*b/cos(bx)^(n+1)
+    const novoCoef = a * n * b;
+    return `${novoCoef}*sin(${b}*${x})/cos(${b}*${x})^${n+1}`;
+  }
+  
+  // Padrão: a*sin(b*x)/cos(b*x)^n
+  const matchSinCos = expr.match(/^(-?\d*\.?\d*)\*sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
+  if(matchSinCos){
+    const a = matchSinCos[1] === '' ? 1 : parseFloat(matchSinCos[1]);
+    const b1 = parseFloat(matchSinCos[2]);
+    const b2 = parseFloat(matchSinCos[4]);
+    
+    if(b1 === b2){
+      // d/dx[a*sin(bx)/cos(bx)^n] = a*b*cos(bx)/cos(bx)^n + a*n*sin(bx)^2*b/cos(bx)^(n+1)
+      // Simplificando: a*b/cos(bx)^(n-1) + a*n*b*sin(bx)^2/cos(bx)^(n+1)
+      const termo1 = `${a*b1}/cos(${b1}*${varName})^${n-1}`;
+      const termo2 = `${a*n*b1}*sin(${b1}*${varName})^2/cos(${b1}*${varName})^${n+1}`;
+      return `${termo1} + ${termo2}`;
+    }
+  }
+  
+  // Padrão: a*cos(b*x)
+  const matchCos = expr.match(/^(-?\d*\.?\d*)\*cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchCos){
+    const a = matchCos[1] === '' ? 1 : parseFloat(matchCos[1]);
+    const b = parseFloat(matchCos[2]);
+    const x = matchCos[3];
+    // d/dx[a*cos(bx)] = -a*b*sin(bx)
+    return `${-a*b}*sin(${b}*${x})`;
+  }
+  
+  // Padrão: a*sin(b*x)
+  const matchSin = expr.match(/^(-?\d*\.?\d*)\*sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchSin){
+    const a = matchSin[1] === '' ? 1 : parseFloat(matchSin[1]);
+    const b = parseFloat(matchSin[2]);
+    const x = matchSin[3];
+    // d/dx[a*sin(bx)] = a*b*cos(bx)
+    return `${a*b}*cos(${b}*${x})`;
+  }
+  
+  // Padrão: a*exp(b*x)
+  const matchExp = expr.match(/^(-?\d*\.?\d*)\*exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchExp){
+    const a = matchExp[1] === '' ? 1 : parseFloat(matchExp[1]);
+    const b = parseFloat(matchExp[2]);
+    const x = matchExp[3];
+    // d/dx[a*exp(bx)] = a*b*exp(bx)
+    return `${a*b}*exp(${b}*${x})`;
+  }
+  
+  // Padrão: a*x^n
+  const matchPow = expr.match(/^(-?\d*\.?\d*)\*([a-zA-Z]+)\^(-?\d+)$/);
+  if(matchPow){
+    const a = matchPow[1] === '' ? 1 : parseFloat(matchPow[1]);
+    const x = matchPow[2];
+    const n = parseInt(matchPow[3]);
+    // d/dx[a*x^n] = a*n*x^(n-1)
+    const novoCoef = a * n;
+    const novoExp = n - 1;
+    if(novoExp === 0) return String(novoCoef);
+    if(novoExp === 1) return `${novoCoef}*${x}`;
+    return `${novoCoef}*${x}^${novoExp}`;
+  }
+  
+  // Padrão: a*x
+  const matchLin = expr.match(/^(-?\d*\.?\d*)\*([a-zA-Z]+)$/);
+  if(matchLin){
+    const a = matchLin[1] === '' ? 1 : parseFloat(matchLin[1]);
+    return String(a);
+  }
+  
+  return 'Não calculável simbolicamente';
 }
 
 // ============ LIMITES ============
