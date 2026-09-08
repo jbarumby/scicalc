@@ -705,57 +705,83 @@ function calcDerivada() {
     stepsHTML += '</div>';
     document.getElementById('der-steps').innerHTML = stepsHTML;
 
-    // 9. Gráfico (USANDO AS EXPRESSÕES EM INGLÊS para o evalMath funcionar!)
+        // 9. Gráfico COM DERIVAÇÃO NUMÉRICA COMO FALLBACK
     if (!isNaN(x1) && !isNaN(x2) && x2 > x1) {
       const pontos = 200;
       const xs = Array.from({ length: pontos }, (_, i) => x1 + (x2 - x1) * i / (pontos - 1));
       
+      // Função original
+      const fEn = paraNerdamer(f);
       const ys = xs.map(x => {
         try {
-          const v = evalMath(f, { [varName]: x });
+          const v = evalMath(fEn, { [varName]: x });
           return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
         } catch (e) { return null; }
       });
 
-      const yps = xs.map(x => {
+      // Primeira derivada - tenta simbólica, senão usa numérica
+      const yps = xs.map((x, i) => {
+        // Tenta avaliação simbólica primeiro
+        if (fpGrafico && fpGrafico !== '0') {
+          try {
+            const v = evalMath(fpGrafico, { [varName]: x });
+            if (isFinite(v) && Math.abs(v) < 1e6) return v;
+          } catch (e) {}
+        }
+        // Fallback: derivação numérica (diferenças centradas)
+        const h = 1e-5;
         try {
-          const v = evalMath(fpGrafico, { [varName]: x });
-          return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
-        } catch (e) { return null; }
+          const fPlus = evalMath(fEn, { [varName]: x + h });
+          const fMinus = evalMath(fEn, { [varName]: x - h });
+          if (isFinite(fPlus) && isFinite(fMinus)) {
+            return (fPlus - fMinus) / (2 * h);
+          }
+        } catch (e) {}
+        return null;
       });
 
-      const ypps = xs.map(x => {
+      // Segunda derivada - tenta simbólica, senão usa numérica
+      const ypps = xs.map((x, i) => {
+        // Tenta avaliação simbólica primeiro
+        if (fppGrafico && fppGrafico !== '0') {
+          try {
+            const v = evalMath(fppGrafico, { [varName]: x });
+            if (isFinite(v) && Math.abs(v) < 1e6) return v;
+          } catch (e) {}
+        }
+        // Fallback: derivação numérica de segunda ordem
+        const h = 1e-4;
         try {
-          const v = evalMath(fppGrafico, { [varName]: x });
-          return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
-        } catch (e) { return null; }
+          const fPlus = evalMath(fEn, { [varName]: x + h });
+          const fMinus = evalMath(fEn, { [varName]: x - h });
+          const fCurr = evalMath(fEn, { [varName]: x });
+          if (isFinite(fPlus) && isFinite(fMinus) && isFinite(fCurr)) {
+            return (fPlus - 2 * fCurr + fMinus) / (h * h);
+          }
+        } catch (e) {}
+        return null;
       });
 
-      Plotly.newPlot('der-plot', [
-        { x: xs, y: ys, name: 'f(x)', line: { color: '#4f46e5', width: 3 } },
-        { x: xs, y: yps, name: "f'(x)", line: { color: '#06b6d4', width: 3, dash: 'dash' } },
-        { x: xs, y: ypps, name: "f''(x)", line: { color: '#f59e0b', width: 3, dash: 'dot' } }
-      ], {
-        title: 'Função, Primeira e Segunda Derivada',
-        xaxis: { title: varName },
-        yaxis: { title: 'Valor', range: [-10, 10] },
-        paper_bgcolor: '#fafbff',
-        plot_bgcolor: '#fafbff'
-      }, { responsive: true });
+      // Verifica se temos dados válidos para plotar
+      const hasData = ys.some(y => y !== null) || yps.some(y => y !== null) || ypps.some(y => y !== null);
+      
+      if (hasData) {
+        Plotly.newPlot('der-plot', [
+          { x: xs, y: ys, name: 'f(x)', line: { color: '#4f46e5', width: 3 } },
+          { x: xs, y: yps, name: "f'(x)", line: { color: '#06b6d4', width: 3, dash: 'dash' } },
+          { x: xs, y: ypps, name: "f''(x)", line: { color: '#f59e0b', width: 3, dash: 'dot' } }
+        ], {
+          title: 'Função, Primeira e Segunda Derivada',
+          xaxis: { title: varName },
+          yaxis: { title: 'Valor', range: [-10, 10] },
+          paper_bgcolor: '#fafbff',
+          plot_bgcolor: '#fafbff',
+          showlegend: true
+        }, { responsive: true, displayModeBar: true });
+      } else {
+        document.getElementById('der-plot').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">️ Não foi possível gerar o gráfico. Tente um intervalo diferente.</div>';
+      }
     }
-
-    showToast('Derivadas calculadas com sucesso!', 'success');
-
-  } catch (e) {
-    console.error('Erro na derivação:', e);
-    document.getElementById('der-result').innerHTML = `
-      <div class="result" style="border-color:#ef4444">
-        <div class="math" style="color:#ef4444">❌ <strong>Erro:</strong> ${e.message}</div>
-      </div>`;
-    showToast('Erro: ' + e.message, 'error');
-  }
-}
-
 // ============ FUNÇÕES AUXILIARES ============
 function showToast(message, type = 'info') {
   const colors = {
