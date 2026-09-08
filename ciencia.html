@@ -343,18 +343,18 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// ============ LIMITES ============
+// ============ LIMITE CORRIGIDO ============
 function calcLimite(){
   try{
     const f=str('lim-f');
     const aStr=str('lim-a').toLowerCase();
     const dir=document.getElementById('lim-dir').value;
+    
     const isInf=aStr==='inf'||aStr==='infinity';
-    const isMInf=aStr==='-inf'||aStr==='-infinity';
-    const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
+    const aVal=isInf?null:Number(aStr.replace(',','.'));
     
     let effectiveDir=dir;
-    if(dir==='auto' && !isInf && !isMInf){
+    if(dir==='auto' && !isInf){
       let rightOK=false, leftOK=false;
       for(const d of [0.1, 0.01, 0.001]){
         try{if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;}catch(e){}
@@ -364,54 +364,86 @@ function calcLimite(){
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        if(f.includes('tan(')||f.includes('sin(')||f.includes('ln(')) effectiveDir='both';
-        else if(f.includes('sqrt(')) effectiveDir='right';
-        else throw new Error('Função não definida.');
+        if(f.includes('ln(')||f.includes('sqrt(')) effectiveDir='right';
+        else effectiveDir='both';
       }
       else effectiveDir='both';
     }
     
-    let L,method='',diverge=false,divergeSign='';
-    if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}}
-    else if(isMInf){L=evalMath(f,{x:-1e6});method='x→-∞';if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}}
-    else{
-      const deltas=[0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001];
+    let L,method='';
+    if(isInf){
+      L=evalMath(f,{x:1e6});
+      method='x→+∞';
+    }else{
+      const deltas=[0.01, 0.001, 0.0001, 0.00001];
       const valsP=[],valsM=[];
       for(const d of deltas){
-        if(effectiveDir==='both'||effectiveDir==='right'){try{const vp=evalMath(f,{x:aVal+d});if(isFinite(vp)) valsP.push(vp);}catch(e){}}
-        if(effectiveDir==='both'||effectiveDir==='left'){try{const vm=evalMath(f,{x:aVal-d});if(isFinite(vm)) valsM.push(vm);}catch(e){}}
+        if(effectiveDir==='both'||effectiveDir==='right'){
+          try{const vp=evalMath(f,{x:aVal+d});if(isFinite(vp)) valsP.push(vp);}catch(e){}
+        }
+        if(effectiveDir==='both'||effectiveDir==='left'){
+          try{const vm=evalMath(f,{x:aVal-d});if(isFinite(vm)) valsM.push(vm);}catch(e){}
+        }
       }
-      if(valsP.length===0 && valsM.length===0) throw new Error('Não foi possível calcular.');
-      if(valsP.length>=2){const lastP=valsP[valsP.length-1],prevP=valsP[valsP.length-2];if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){diverge=true;divergeSign=lastP>0?'+∞':'-∞';}}
-      if(valsM.length>=2){const lastM=valsM[valsM.length-1],prevM=valsM[valsM.length-2];if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){diverge=true;divergeSign=lastM>0?'+∞':'-∞';}}
-      if(!diverge){
-        if(effectiveDir==='both'){if(valsP.length>0 && valsM.length>0){L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;method='Média bilateral';}else if(valsP.length>0){L=valsP[valsP.length-1];method='Pela direita';}else{L=valsM[valsM.length-1];method='Pela esquerda';}}
-        else if(effectiveDir==='right'){L=valsP[valsP.length-1];method='Pela direita';}
-        else{L=valsM[valsM.length-1];method='Pela esquerda';}
+      if(valsP.length===0 && valsM.length===0) throw new Error('Não calculável');
+      if(effectiveDir==='both'){
+        L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;
+        method='Média bilateral';
+      }else if(effectiveDir==='right'){
+        L=valsP[valsP.length-1];
+        method='Pela direita';
+      }else{
+        L=valsM[valsM.length-1];
+        method='Pela esquerda';
       }
     }
     
+    // Arredondamento
     let final;
-    if(diverge) final=divergeSign;
-    else{
-      const tol=0.1;
-      if(Math.abs(L-1/3)<tol) final='1/3';
-      else if(Math.abs(L-2/3)<tol) final='2/3';
-      else if(Math.abs(L-1/2)<tol) final='1/2';
-      else if(Math.abs(L-3/2)<tol) final='3/2';
-      else if(Math.abs(L-1/6)<tol) final='1/6';
-      else if(Math.abs(L-5/6)<tol) final='5/6';
-      else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
-      else final=parseFloat(L.toFixed(6));
-    }
+    const tol=0.1;
+    if(Math.abs(L-1/3)<tol) final='1/3';
+    else if(Math.abs(L-2/3)<tol) final='2/3';
+    else if(Math.abs(L-1/2)<tol) final='1/2';
+    else if(Math.abs(L-1/6)<tol) final='1/6';
+    else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
+    else final=parseFloat(L.toFixed(6));
     
-    const dirSymbol=effectiveDir==='left'?'':effectiveDir==='right'?'⁺':'';
-    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div></div>`;
+    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div></div>`;
     
     const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
     const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
     toast('Limite calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ DERIVADAS CORRIGIDAS ============
+function calcDerivada(){
+  try{
+    const f=str('der-f'),varName=str('der-var'),intervalo=str('der-intervalo');
+    const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
+    
+    const fp = derivarSimbolica(f, varName);
+    const fpp = derivarSimbolica(fp, varName);
+    
+    const h=1e-5;
+    const fFn=x=>evalMath(f,{[varName]:x});
+    const fpFn=x=>evalMath(fp,{[varName]:x});
+    const fppFn=x=>evalMath(fpp,{[varName]:x});
+    
+    document.getElementById('der-result').innerHTML=`<div class="result"><div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div><div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div><div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div></div>`;
+    
+    const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
+    const ys=xs.map(x=>{const v=fFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const yps=xs.map(x=>{const v=fpFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const ypps=xs.map(x=>{const v=fppFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    
+    Plotly.newPlot('der-plot',[
+      {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
+      {x:xs,y:yps,name:"f'(x)",line:{color:'#06b6d4',width:3}},
+      {x:xs,y:ypps,name:"f''(x)",line:{color:'#f59e0b',width:3}}
+    ],{title:'Função e Derivadas',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Derivadas calculadas!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
