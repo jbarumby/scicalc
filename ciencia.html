@@ -308,16 +308,11 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// ============ DERIVADOR SIMBÓLICO HÍBRIDO ============
-// Tenta derivador próprio primeiro, usa Nerdamer como fallback
-
+// ============ DERIVADOR SIMBÓLICO HÍBRIDO MELHORADO ============
 function derivarSimbolica(expr, varName){
-  // Normaliza
-  let e = expr.replace(/\s+/g,' ').trim();
-  
   // Tenta derivador próprio
   try{
-    const termos = separarTermos(e);
+    const termos = separarTermos(expr);
     const derivadas = [];
     for(const termo of termos){
       const d = derivarTermo(termo.trim(), varName);
@@ -346,7 +341,7 @@ function derivarSimbolica(expr, varName){
     }
   }catch(err){}
   
-  return '0';
+  return null;
 }
 
 function separarTermos(expr){
@@ -376,11 +371,11 @@ function derivarTermo(termo, varName){
   if(termo === '') return null;
   if(!termo.includes(varName)) return '0';
   
-  // ax^n
-  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+))?$/);
+  // ax^n (incluindo expoentes negativos)
+  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchPot && matchPot[2] === varName){
     let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
-    const exp = matchPot[3] ? parseInt(matchPot[3]) : 1;
+    const exp = matchPot[3] ? parseFloat(matchPot[3]) : 1;
     if(exp === 0) return '0';
     if(exp === 1) return String(coef);
     const novoCoef = coef * exp;
@@ -476,6 +471,45 @@ function derivarTermo(termo, varName){
     return c + g + '1/(1+(' + inside + ')^2)';
   }
   
+  // a*f(u)^n (regra da cadeia generalizada) - ex: 3*cos(3*x)^(-2)
+  const matchChain = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)\(([^)]+)\)(?:\^(-?\d+\.?\d*))?$/);
+  if(matchChain){
+    let coef = matchChain[1] === '' || matchChain[1] === '-' ? (matchChain[1]==='-'?-1:1) : parseFloat(matchChain[1]);
+    const func = matchChain[2];
+    const inside = matchChain[3];
+    const exp = matchChain[4] ? parseFloat(matchChain[4]) : 1;
+    
+    const gDeriv = derivarTermo(inside, varName);
+    if(gDeriv === '0') return '0';
+    
+    // Derivada de f(u)^n = n*f(u)^(n-1)*f'(u)*u'
+    let fDeriv = '';
+    if(func === 'sin') fDeriv = 'cos(' + inside + ')';
+    else if(func === 'cos') fDeriv = '-sin(' + inside + ')';
+    else if(func === 'tan') fDeriv = '1/cos(' + inside + ')^2';
+    else return null; // Não suporta outras funções compostas
+    
+    if(exp === 1){
+      // f(u) * g'(u)
+      const c = coef===1?'':coef===-1?'-':coef+'*';
+      const g = gDeriv==='1'?'':'('+gDeriv+')*';
+      return c + g + fDeriv;
+    }else{
+      // n*f(u)^(n-1)*f'(u)*g'(u)
+      const novoCoef = coef * exp;
+      const novoExp = exp - 1;
+      const c = novoCoef===1?'':novoCoef===-1?'-':novoCoef+'*';
+      const g = gDeriv==='1'?'':'('+gDeriv+')*';
+      if(novoExp === 0){
+        return c + g + fDeriv;
+      }else if(novoExp === 1){
+        return c + g + func + '(' + inside + ')*' + fDeriv;
+      }else{
+        return c + g + func + '(' + inside + ')^' + novoExp + '*' + fDeriv;
+      }
+    }
+  }
+  
   return null;
 }
 
@@ -505,11 +539,24 @@ function calcDerivada(){
     const fp = derivarSimbolica(f, varName);
     const fpp = derivarSimbolica(fp, varName);
     
+    // Se f'' falhou, tenta Nerdamer diretamente
+    let fppFinal = fpp;
+    if(!fpp || fpp.includes('diff(') || fpp.includes('derivative(')){
+      try{
+        fppFinal = nerdamer('diff(' + fp + ', ' + varName + ')').text();
+        if(fppFinal.includes('diff(') || fppFinal.includes('derivative(')){
+          fppFinal = 'Não calculável simbolicamente';
+        }
+      }catch(e){
+        fppFinal = 'Não calculável simbolicamente';
+      }
+    }
+    
     document.getElementById('der-result').innerHTML=`
       <div class="result">
         <div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div>
         <div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div>
+        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fppFinal}</strong></div>
       </div>`;
     
     let stepsHTML='<div style="margin-top:20px">';
@@ -522,14 +569,14 @@ function calcDerivada(){
       const d = derivarTermo(t, varName);
       let regra='';
       if(t.includes('^')) regra='📏 Regra da Potência: d/d'+varName+'[a·'+varName+'] = a·n·'+varName+'⁻¹';
-      else if(/sin/i.test(t)) regra='📐 d/d'+varName+'[sin(u)] = cos(u)·u\'';
-      else if(/cos/i.test(t)) regra='📐 d/d'+varName+'[cos(u)] = -sin(u)·u\'';
-      else if(/tan/i.test(t)) regra='📐 d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
+      else if(/sin/i.test(t)) regra=' d/d'+varName+'[sin(u)] = cos(u)·u\'';
+      else if(/cos/i.test(t)) regra=' d/d'+varName+'[cos(u)] = -sin(u)·u\'';
+      else if(/tan/i.test(t)) regra=' d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
       else if(/atan|arctan/i.test(t)) regra='📐 d/d'+varName+'[atan(u)] = u\'/(1+u²)';
-      else if(/exp/i.test(t)) regra='📐 d/d'+varName+'[e] = eᵘ·u\'';
+      else if(/exp/i.test(t)) regra='📐 d/d'+varName+'[eᵘ] = eᵘ·u\'';
       else if(/ln|log/i.test(t)) regra='📐 d/d'+varName+'[ln(u)] = u\'/u';
       else if(/sqrt/i.test(t)) regra='📐 d/d'+varName+'[√u] = u\'/(2√u)';
-      else if(t.includes(varName)) regra=' Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
+      else if(t.includes(varName)) regra='📏 Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
       else regra='📏 Derivada de constante = 0';
       
       stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
@@ -540,7 +587,7 @@ function calcDerivada(){
     });
     stepsHTML+=`</div></div>`;
     stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Primeira Derivada</div><div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${fp}</strong></div></div>`;
-    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${fpp}</strong></div></div>`;
+    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${fppFinal}</strong></div></div>`;
     stepsHTML+='</div>';
     document.getElementById('der-steps').innerHTML=stepsHTML;
     
@@ -548,7 +595,7 @@ function calcDerivada(){
       const xs=Array.from({length:200},(_,i)=>x1+(x2-x1)*i/199);
       const ys=xs.map(x=>{const v=evalMath(f,{[varName]:x});return Math.abs(v)<1e6?v:null;});
       const yps=xs.map(x=>{const v=evalMath(fp,{[varName]:x});return Math.abs(v)<1e6?v:null;});
-      const ypps=xs.map(x=>{const v=evalMath(fpp,{[varName]:x});return Math.abs(v)<1e6?v:null;});
+      const ypps=xs.map(x=>{const v=evalMath(fppFinal,{[varName]:x});return Math.abs(v)<1e6?v:null;});
       
       Plotly.newPlot('der-plot',[
         {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
