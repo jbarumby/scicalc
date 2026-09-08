@@ -522,7 +522,7 @@ function calcDerivada(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LIMITES COM ALTA PRECISÃO ============
+// ============ LIMITES - VERSÃO FINAL FUNCIONAL ============
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -533,19 +533,25 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
+    // Detecção automática de domínio
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
+      
+      // Testa pontos próximos
       for(let i=1; i<=5; i++){
         const d=Math.pow(10, -i);
         try{
-          if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;
+          const valR=evalMath(f,{x:aVal+d});
+          if(isFinite(valR)) rightOK=true;
         }catch(e){}
         try{
-          if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;
+          const valL=evalMath(f,{x:aVal-d});
+          if(isFinite(valL)) leftOK=true;
         }catch(e){}
         if(rightOK && leftOK) break;
       }
+      
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
@@ -561,13 +567,13 @@ function calcLimite(){
     if(isInf){
       L=evalMath(f,{x:1e6});
       method='x→+∞';
-      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}
+      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else if(isMInf){
       L=evalMath(f,{x:-1e6});
-      method='x→-';
+      method='x→-∞';
       if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
     }else{
-      // 🚀 DELTAS MUITO PEQUENOS
+      // Calcula em pontos muito próximos
       const deltas=[1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10];
       const valsP=[],valsM=[];
       
@@ -575,83 +581,97 @@ function calcLimite(){
         if(effectiveDir==='both'||effectiveDir==='right'){
           try{
             const vp=evalMath(f,{x:aVal+d});
-            if(isFinite(vp)) valsP.push({d,v:vp});
+            if(isFinite(vp)) valsP.push(vp);
           }catch(e){}
         }
         if(effectiveDir==='both'||effectiveDir==='left'){
           try{
             const vm=evalMath(f,{x:aVal-d});
-            if(isFinite(vm)) valsM.push({d,v:vm});
+            if(isFinite(vm)) valsM.push(vm);
           }catch(e){}
         }
       }
       
       if(valsP.length===0 && valsM.length===0){
-        throw new Error('Não foi possível calcular.');
+        throw new Error('Não foi possível calcular o limite.');
       }
       
       // Detecta divergência
       if(valsP.length>=2){
-        const lastP=valsP[valsP.length-1].v;
-        const prevP=valsP[valsP.length-2].v;
+        const lastP=valsP[valsP.length-1];
+        const prevP=valsP[valsP.length-2];
         if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){
           diverge=true;
-          divergeSign=lastP>0?'+∞':'-';
+          divergeSign=lastP>0?'+∞':'-∞';
         }
       }
       if(valsM.length>=2){
-        const lastM=valsM[valsM.length-1].v;
-        const prevM=valsM[valsM.length-2].v;
+        const lastM=valsM[valsM.length-1];
+        const prevM=valsM[valsM.length-2];
         if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){
           diverge=true;
-          divergeSign=lastM>0?'+':'-∞';
+          divergeSign=lastM>0?'+∞':'-∞';
         }
       }
       
       if(!diverge){
-        //  USA APENAS O VALOR MAIS PRECISO (sem extrapolação)
+        // Pega o valor mais preciso
         if(effectiveDir==='both'){
           if(valsP.length>0 && valsM.length>0){
-            const lastP=valsP[valsP.length-1].v;
-            const lastM=valsM[valsM.length-1].v;
-            L=(lastP+lastM)/2;
+            L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;
             method='Média bilateral';
           }else if(valsP.length>0){
-            L=valsP[valsP.length-1].v;
+            L=valsP[valsP.length-1];
             method='Pela direita';
           }else{
-            L=valsM[valsM.length-1].v;
+            L=valsM[valsM.length-1];
             method='Pela esquerda';
           }
         }else if(effectiveDir==='right'){
-          L=valsP[valsP.length-1].v;
+          L=valsP[valsP.length-1];
           method='Pela direita';
         }else{
-          L=valsM[valsM.length-1].v;
+          L=valsM[valsM.length-1];
           method='Pela esquerda';
         }
       }
     }
     
-           let final;
+    let final;
     if(diverge){
       final=divergeSign;
     }else{
-      //  ARREDONDAMENTO INTELIGENTE - ORDEM CORRETA
-      const tol=0.1; // 10% de tolerância
+      // Arredondamento inteligente - verifica frações PRIMEIRO
+      const tol=0.1;
       
-      // Verifica frações PRIMEIRO (antes de inteiros)
       if(Math.abs(L-1/3)<tol) final='1/3';
       else if(Math.abs(L-2/3)<tol) final='2/3';
       else if(Math.abs(L-1/2)<tol) final='1/2';
       else if(Math.abs(L-3/2)<tol) final='3/2';
       else if(Math.abs(L-1/6)<tol) final='1/6';
       else if(Math.abs(L-5/6)<tol) final='5/6';
-      // Depois verifica inteiros
       else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
       else final=parseFloat(L.toFixed(6));
     }
-      
+    
+    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
+    document.getElementById('lim-result').innerHTML=`
+      <div class="result">
+        <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
+        ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
+      </div>`;
+    
+    // Gráfico
+    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
+    const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    toast('Limite calculado!','ok');
+  }catch(e){
+    toast(e.message,'err');
+    document.getElementById('lim-result').innerHTML=`<div class="result" style="border-color:#ef4444"><div class="math" style="color:#ef4444">❌ Erro: ${e.message}</div></div>`;
+  }
+}
 // ============ INTEGRAIS ============
 function calcIntegral(){
   try{
