@@ -298,14 +298,14 @@ function calcLimite(){
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
-    // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO - Versão Melhorada
+    // 🚀 DETECÇÃO AUTOMÁTICA DE DOMÍNIO
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
       
       // Testa com vários pontos
       for(let i=1; i<=10; i++){
-        const d=i*1e-3;
+        const d=i*0.001;
         try{
           const testRight=evalMath(f,{x:aVal+d});
           if(isFinite(testRight) && !isNaN(testRight)) rightOK=true;
@@ -322,11 +322,13 @@ function calcLimite(){
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
-        // Tenta detectar automaticamente baseado na função
-        if(f.includes('ln(')||f.includes('log(')||f.includes('sqrt(')){
-          effectiveDir='right'; // Assume domínio positivo
+        // Fallback: detecta funções com domínio restrito
+        if(f.includes('ln(')||f.includes('log(')){
+          effectiveDir='right';
+        }else if(f.includes('sqrt(')){
+          effectiveDir='right';
         }else{
-          throw new Error('Função não definida em nenhum lado de x='+aVal+'. Selecione "Pela direita" ou "Pela esquerda" manualmente.');
+          throw new Error('Função não definida. Selecione "Pela direita" ou "Pela esquerda" manualmente.');
         }
       }
       else effectiveDir='both';
@@ -343,7 +345,7 @@ function calcLimite(){
         const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
         L=v3+(v3-v2)-(v2-v1);
       }
-      method='Aproximação x→+∞ com extrapolação';
+      method='Aproximação x→+∞';
     }else if(isMInf){
       const deltas=[-1e2,-1e3,-1e4,-1e5,-1e6];
       const vals=deltas.map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
@@ -353,9 +355,9 @@ function calcLimite(){
         const v1=vals[vals.length-3],v2=vals[vals.length-2],v3=vals[vals.length-1];
         L=v3+(v3-v2)-(v2-v1);
       }
-      method='Aproximação x→- com extrapolação';
+      method='Aproximação x→-∞';
     }else{
-      const deltas=[1e-1,1e-2,1e-3,1e-4,1e-5,1e-6,1e-7,1e-8];
+      const deltas=[0.1,0.01,0.001,0.0001,0.00001,0.000001,0.0000001,0.00000001];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
@@ -390,13 +392,13 @@ function calcLimite(){
           throw new Error('Limites laterais diferentes: L⁺='+LP.toFixed(6)+', L='+LM.toFixed(6));
         }
         L=(LP+LM)/2;
-        method='Média bilateral com extrapolação';
+        method='Média bilateral';
       }else if(effectiveDir==='right'){
         L=richardsonExtrapolate(valsP);
-        method='Aproximação pela direita com extrapolação';
+        method='Aproximação pela direita';
       }else{
         L=richardsonExtrapolate(valsM);
-        method='Aproximação pela esquerda com extrapolação';
+        method='Aproximação pela esquerda';
       }
     }
     
