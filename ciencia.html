@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>SciCalc - Cálculo & Física</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <style>
   :root{--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
@@ -76,18 +78,20 @@
   .divisores-box{margin-top:16px;padding:14px;background:#f0f9ff;border-radius:10px;border-left:4px solid #06b6d4}
   .divisores-box .title{font-weight:700;color:#0891b2;margin-bottom:6px}
   .divisores-box .list{font-family:monospace;background:#fff;padding:8px;border-radius:6px;word-break:break-all}
+  .intervalo-dica{margin-top:10px;padding:10px;background:#fffbeb;border-radius:8px;border-left:4px solid #f59e0b;font-size:.88rem;color:#92400e}
+  .intervalo-dica strong{color:#b45309}
 </style>
 </head>
 <body>
 <header>
-  <h1> SciCalc - Cálculo & Física</h1>
+  <h1>🧮 SciCalc - Cálculo & Física</h1>
   <p>Ferramentas matemáticas para cálculo, física e teoria dos números</p>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas">📈 Derivadas</button>
-  <button class="tab" data-tab="integrais"> Integrais</button>
+  <button class="tab" data-tab="derivadas"> Derivadas</button>
+  <button class="tab" data-tab="integrais">∫ Integrais</button>
   <button class="tab" data-tab="fisica">⚡ Física</button>
   <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="historico">📋 Histórico</button>
@@ -97,14 +101,14 @@
 
 <section class="tab-content active" id="limites">
   <div class="panel">
-    <h2> Cálculo de Limites</h2>
+    <h2>📐 Cálculo de Limites</h2>
     <p class="sub">Análise do comportamento de funções com detecção automática de domínio.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: (tan(x)-x)/(x-sin(x))"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
       <div><label>Direção</label>
         <select id="lim-dir">
-          <option value="auto"> Automático</option>
+          <option value="auto">🔍 Automático</option>
           <option value="both">Ambos os lados</option>
           <option value="left">Pela esquerda</option>
           <option value="right">Pela direita</option>
@@ -119,17 +123,25 @@
 
 <section class="tab-content" id="derivadas">
   <div class="panel">
-    <h2>📈 Derivadas Simbólicas</h2>
+    <h2> Derivadas Simbólicas</h2>
     <p class="sub">Derivação simbólica com f'(x), f''(x) e gráfico.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="der-f" placeholder="Ex: 3*x^2 + 2*x + 1"></div>
       <div><label>Variável</label><input id="der-var" value="x"></div>
-      <div><label>Intervalo x</label><input id="der-intervalo" placeholder="Ex: -5,5"></div>
+      <div><label>Intervalo x</label><input id="der-intervalo" placeholder="Ex: -1,1"></div>
     </div>
     <button class="btn" onclick="calcDerivada()">Calcular Derivada</button>
     <div id="der-result"></div>
     <div id="der-steps"></div>
     <div id="der-plot" class="plot"></div>
+    <div class="intervalo-dica">
+      <strong>💡 Dicas de intervalo:</strong><br>
+      • <code>tan(x)</code>, <code>tan(3*x)</code>: use <code>-1,1</code> ou <code>-0.5,0.5</code> (evite múltiplos de π/2)<br>
+      • <code>1/x</code>, <code>ln(x)</code>: use <code>0.1,5</code> (evite x=0)<br>
+      • <code>sin(x)</code>, <code>cos(x)</code>: use <code>-3.14,3.14</code> ou <code>-6.28,6.28</code><br>
+      • <code>exp(x)</code>: use <code>-2,2</code> (cresce muito rápido)<br>
+      • Polinômios: use <code>-5,5</code> ou <code>-10,10</code>
+    </div>
   </div>
 </section>
 
@@ -232,8 +244,8 @@
   <div class="panel">
     <h2>📋 Histórico</h2>
     <div class="history-actions">
-      <button class="btn accent" onclick="exportarHistorico()"> Exportar</button>
-      <button class="btn danger" onclick="limparHistorico()">️ Limpar</button>
+      <button class="btn accent" onclick="exportarHistorico()">📄 Exportar</button>
+      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div id="hist-list"></div>
@@ -267,7 +279,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=(type==='err'?'⚠️':'✅')+' <span>'+msg+'</span>';
+  el.innerHTML=(type==='err'?'️':'✅')+' <span>'+msg+'</span>';
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
@@ -281,7 +293,7 @@ function evalMath(expr,vars={}){
     let js=expr;
     const funcs={
       'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan',
-      'asin':'Math.asin','acos':'Math.acos','atan':'Math.atan',
+      'asin':'Math.asin','acos':'Math.acos','atan':'Math.atan','arctan':'Math.atan',
       'sqrt':'Math.sqrt','log':'Math.log','ln':'Math.log',
       'log10':'Math.log10','log2':'Math.log2',
       'exp':'Math.exp','abs':'Math.abs',
@@ -296,25 +308,45 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// ============ DERIVADOR SIMBÓLICO PRÓPRIO ============
+// ============ DERIVADOR SIMBÓLICO HÍBRIDO ============
+// Tenta derivador próprio primeiro, usa Nerdamer como fallback
+
 function derivarSimbolica(expr, varName){
+  // Normaliza
   let e = expr.replace(/\s+/g,' ').trim();
-  const termos = separarTermos(e);
-  const derivadas = [];
-  for(const termo of termos){
-    const d = derivarTermo(termo.trim(), varName);
-    if(d !== null) derivadas.push(d);
-  }
-  let resultado = '';
-  for(let i=0; i<derivadas.length; i++){
-    const d = derivadas[i];
-    if(i===0) resultado += d;
-    else{
-      if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();
-      else resultado += ' + ' + d;
+  
+  // Tenta derivador próprio
+  try{
+    const termos = separarTermos(e);
+    const derivadas = [];
+    for(const termo of termos){
+      const d = derivarTermo(termo.trim(), varName);
+      if(d !== null) derivadas.push(d);
     }
-  }
-  return simplificarExpressao(resultado);
+    let resultado = '';
+    for(let i=0; i<derivadas.length; i++){
+      const d = derivadas[i];
+      if(i===0) resultado += d;
+      else{
+        if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();
+        else resultado += ' + ' + d;
+      }
+    }
+    resultado = simplificarExpressao(resultado);
+    if(resultado && resultado !== '0' && !resultado.includes('diff(')){
+      return resultado;
+    }
+  }catch(err){}
+  
+  // Fallback: Nerdamer
+  try{
+    const resultado = nerdamer('diff(' + expr + ', ' + varName + ')').text();
+    if(resultado && !resultado.includes('diff(') && !resultado.includes('derivative(')){
+      return resultado;
+    }
+  }catch(err){}
+  
+  return '0';
 }
 
 function separarTermos(expr){
@@ -345,7 +377,7 @@ function derivarTermo(termo, varName){
   if(!termo.includes(varName)) return '0';
   
   // ax^n
-  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(\d+))?$/);
+  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+))?$/);
   if(matchPot && matchPot[2] === varName){
     let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
     const exp = matchPot[3] ? parseInt(matchPot[3]) : 1;
@@ -354,6 +386,8 @@ function derivarTermo(termo, varName){
     const novoCoef = coef * exp;
     const novoExp = exp - 1;
     if(novoExp === 1) return String(novoCoef) + '*' + varName;
+    if(novoExp === 0) return String(novoCoef);
+    if(novoExp === -1) return String(novoCoef) + '/' + varName;
     return String(novoCoef) + '*' + varName + '^' + novoExp;
   }
   
@@ -430,6 +464,18 @@ function derivarTermo(termo, varName){
     return c + g + '1/(2*sqrt(' + inside + '))';
   }
   
+  // a*atan(u) ou a*arctan(u)
+  const matchAtan = termo.match(/^(-?\d*\.?\d*)\*?(?:atan|arctan)\(([^)]+)\)$/);
+  if(matchAtan){
+    let coef = matchAtan[1] === '' || matchAtan[1] === '-' ? (matchAtan[1]==='-'?-1:1) : parseFloat(matchAtan[1]);
+    const inside = matchAtan[2];
+    const gDeriv = derivarTermo(inside, varName);
+    if(gDeriv === '0') return '0';
+    const c = coef===1?'':coef===-1?'-':coef+'*';
+    const g = gDeriv==='1'?'':'('+gDeriv+')*';
+    return c + g + '1/(1+(' + inside + ')^2)';
+  }
+  
   return null;
 }
 
@@ -439,7 +485,7 @@ function simplificarExpressao(expr){
   expr = expr.replace(/\-\s*0\b/g, '');
   expr = expr.replace(/\b0\s*\+/g, '');
   expr = expr.replace(/\b0\s*\-/g, '-');
-  expr = expr.replace(/\b1\*([a-zA-Z])/g, '$1');
+  expr = expr.replace(/\b1\*([a-zA-Z(])/g, '$1');
   expr = expr.replace(/\*1\b/g, '');
   expr = expr.replace(/\s+/g, ' ').trim();
   expr = expr.replace(/\+ -/g, '- ');
@@ -479,11 +525,12 @@ function calcDerivada(){
       else if(/sin/i.test(t)) regra='📐 d/d'+varName+'[sin(u)] = cos(u)·u\'';
       else if(/cos/i.test(t)) regra='📐 d/d'+varName+'[cos(u)] = -sin(u)·u\'';
       else if(/tan/i.test(t)) regra='📐 d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
-      else if(/exp/i.test(t)) regra=' d/d'+varName+'[eᵘ] = eᵘ·u\'';
+      else if(/atan|arctan/i.test(t)) regra='📐 d/d'+varName+'[atan(u)] = u\'/(1+u²)';
+      else if(/exp/i.test(t)) regra='📐 d/d'+varName+'[e] = eᵘ·u\'';
       else if(/ln|log/i.test(t)) regra='📐 d/d'+varName+'[ln(u)] = u\'/u';
       else if(/sqrt/i.test(t)) regra='📐 d/d'+varName+'[√u] = u\'/(2√u)';
-      else if(t.includes(varName)) regra='📏 Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
-      else regra=' Derivada de constante = 0';
+      else if(t.includes(varName)) regra=' Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
+      else regra='📏 Derivada de constante = 0';
       
       stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
         <div style="font-size:0.95rem"><strong>Termo ${idx+1}:</strong> <code>${t}</code></div>
@@ -499,9 +546,9 @@ function calcDerivada(){
     
     if(!isNaN(x1) && !isNaN(x2)){
       const xs=Array.from({length:200},(_,i)=>x1+(x2-x1)*i/199);
-      const ys=xs.map(x=>evalMath(f,{[varName]:x}));
-      const yps=xs.map(x=>evalMath(fp,{[varName]:x}));
-      const ypps=xs.map(x=>evalMath(fpp,{[varName]:x}));
+      const ys=xs.map(x=>{const v=evalMath(f,{[varName]:x});return Math.abs(v)<1e6?v:null;});
+      const yps=xs.map(x=>{const v=evalMath(fp,{[varName]:x});return Math.abs(v)<1e6?v:null;});
+      const ypps=xs.map(x=>{const v=evalMath(fpp,{[varName]:x});return Math.abs(v)<1e6?v:null;});
       
       Plotly.newPlot('der-plot',[
         {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
@@ -510,7 +557,7 @@ function calcDerivada(){
       ],{
         title:'Função, Primeira e Segunda Derivada',
         xaxis:{title:varName},
-        yaxis:{title:'valor'},
+        yaxis:{title:'valor',range:[-10,10]},
         paper_bgcolor:'#fafbff',
         plot_bgcolor:'#fafbff'
       },{responsive:true});
@@ -604,11 +651,11 @@ function calcLimite(){
     else if(Math.abs(L*6-Math.round(L*6))<tol) final=Math.round(L*6)/6;
     else final=parseFloat(L.toFixed(6));
     
-    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
+    const dirSymbol=effectiveDir==='left'?'':effectiveDir==='right'?'⁺':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
-        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)"> Método: ${method}</div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
         ${effectiveDir==='right'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x > '+aVal+'</div>':''}
         ${effectiveDir==='left'?'<div style="margin-top:4px;font-size:0.85rem;color:#06b6d4">ℹ️ Função definida apenas para x < '+aVal+'</div>':''}
       </div>`;
