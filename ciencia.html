@@ -528,11 +528,11 @@ function simplificarExpressao(expr){
   return expr || '0';
 }
 
-// ============ CALCULAR DERIVADA - VERSÃO DEFINITIVA ============
+// ============ CALCULAR DERIVADA - VERSÃO CORRIGIDA E ROBUSTA ============
 function calcDerivada() {
   try {
     // 1. Validação de entrada
-    const f = str('der-f').trim();
+    let f = str('der-f').trim();
     if (!f) throw new Error('Função não pode estar vazia');
     
     const varName = str('der-var').trim();
@@ -541,43 +541,33 @@ function calcDerivada() {
     const intervalo = str('der-intervalo').trim();
     if (!intervalo) throw new Error('Intervalo não especificado');
     
-    const parts = intervalo.split(',').map(x => Number(x.trim()));
+    const parts = intervalo.split(',').map(x => Number(x.trim().replace(',', '.')));
     if (parts.length !== 2 || parts.some(isNaN)) {
       throw new Error('Intervalo inválido. Use formato: "min,max"');
     }
     const [x1, x2] = parts;
 
-    // 2. Função para converter notação brasileira para Nerdamer
+    // 2. Converter notação brasileira para Nerdamer/JS (INTERNO)
     function paraNerdamer(expr) {
       let e = expr;
-      // Substitui funções trigonométricas
       e = e.replace(/tg\(/g, 'tan(');
       e = e.replace(/sen\(/g, 'sin(');
-      e = e.replace(/cos\(/g, 'cos(');
       e = e.replace(/cot\(/g, 'cot(');
       e = e.replace(/sec\(/g, 'sec(');
       e = e.replace(/csc\(/g, 'csc(');
-      
-      // Substitui funções inversas
       e = e.replace(/arcsen\(/g, 'asin(');
       e = e.replace(/arccos\(/g, 'acos(');
       e = e.replace(/arctg\(/g, 'atan(');
       e = e.replace(/arctan\(/g, 'atan(');
-      
-      // Substitui logaritmo
       e = e.replace(/ln\(/g, 'log(');
-      
-      // Substitui e^ por exp
-      e = e.replace(/e\^/g, 'exp');
-      
-      // Substitui multiplicação implícita (ex: 3x -> 3*x)
+      e = e.replace(/e\^/g, 'exp('); 
       e = e.replace(/(\d)([a-zA-Z])/g, '$1*$2');
       e = e.replace(/([a-zA-Z])(\d)/g, '$1*$2');
-      
+      e = e.replace(/·/g, '*'); // Garante que · vire *
       return e;
     }
 
-    // 3. Função para converter de Nerdamer para notação brasileira
+    // 3. Converter de Nerdamer para notação brasileira (APENAS PARA EXIBIÇÃO)
     function paraBrasileiro(expr) {
       let e = expr;
       e = e.replace(/tan\(/g, 'tg(');
@@ -586,87 +576,54 @@ function calcDerivada() {
       e = e.replace(/acos\(/g, 'arccos(');
       e = e.replace(/atan\(/g, 'arctg(');
       e = e.replace(/log\(/g, 'ln(');
-      e = e.replace(/exp/g, 'e^');
+      e = e.replace(/exp\(/g, 'e^(');
       e = e.replace(/\*/g, '·');
       return e;
     }
 
-    // 4. Função principal de derivação usando Nerdamer
+    // 4. Função principal de derivação
     function derivar(expr, varName, ordem = 1) {
       try {
-        // Converte para notação Nerdamer
         const exprNerd = paraNerdamer(expr);
+        let comando = ordem === 1 ? `diff(${exprNerd}, ${varName})` : `diff(${exprNerd}, ${varName}, ${ordem})`;
         
-        // Cria o comando de derivação
-        let comando;
-        if (ordem === 1) {
-          comando = `diff(${exprNerd}, ${varName})`;
-        } else {
-          comando = `diff(${exprNerd}, ${varName}, ${ordem})`;
+        let resultado = nerdamer(comando).text();
+        
+        // Se falhar ou retornar diff, tenta alternativa
+        if (resultado.includes('diff(') || resultado.includes('derivative(')) {
+          comando = ordem === 1 ? `derivative(${exprNerd}, ${varName})` : `derivative(${exprNerd}, ${varName}, ${ordem})`;
+          resultado = nerdamer(comando).text();
         }
         
-        console.log('Comando Nerdamer:', comando); // Debug
-        
-        // Executa a derivação
-        const resultado = nerdamer(comando);
-        let resultadoText = resultado.text();
-        
-        console.log('Resultado bruto:', resultadoText); // Debug
-        
-        // Se o resultado ainda contém 'diff', significa que não derivou
-        if (resultadoText.includes('diff(')) {
-          // Tenta uma abordagem alternativa
-          if (ordem === 1) {
-            comando = `derivative(${exprNerd}, ${varName})`;
-          } else {
-            comando = `derivative(${exprNerd}, ${varName}, ${ordem})`;
-          }
-          const resultado2 = nerdamer(comando);
-          resultadoText = resultado2.text();
+        // Se ainda tiver diff, retorna null para acionar fallback
+        if (resultado.includes('diff(') || resultado.includes('derivative(')) {
+          return null;
         }
         
-        // Se ainda tem diff, tenta simplificar
-        if (resultadoText.includes('diff(')) {
-          const simplificado = nerdamer(resultadoText);
-          resultadoText = simplificado.text();
-        }
-        
-        // Converte de volta para notação brasileira
-        resultadoText = paraBrasileiro(resultadoText);
-        
-        return resultadoText;
+        return resultado; // Retorna em formato Nerdamer (inglês) para o evalMath funcionar!
       } catch (e) {
-        console.error('Erro na derivação:', e);
         return null;
       }
     }
 
-    // 5. Função de derivação manual para casos específicos (fallback)
+    // 5. Fallback manual para casos específicos
     function derivarManual(expr, varName, ordem = 1) {
-      // Caso: tg(a*x)
-      const tgMatch = expr.match(/tg\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
+      // Caso: tg(a*x) ou tan(a*x)
+      const tgMatch = expr.match(/(?:tg|tan)\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
       if (tgMatch) {
         const a = tgMatch[1] ? parseInt(tgMatch[1]) : 1;
         const v = tgMatch[2];
-        
-        if (ordem === 1) {
-          return `${a}/cos(${a}*${v})^2`;
-        } else if (ordem === 2) {
-          return `${2 * a * a}*sen(${a}*${v})/cos(${a}*${v})^3`;
-        }
+        if (ordem === 1) return `${a}/cos(${a}*${v})^2`;
+        if (ordem === 2) return `${2 * a * a}*sin(${a}*${v})/cos(${a}*${v})^3`;
       }
       
-      // Caso: sen(a*x)
-      const senMatch = expr.match(/sen\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
+      // Caso: sen(a*x) ou sin(a*x)
+      const senMatch = expr.match(/(?:sen|sin)\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
       if (senMatch) {
         const a = senMatch[1] ? parseInt(senMatch[1]) : 1;
         const v = senMatch[2];
-        
-        if (ordem === 1) {
-          return `${a}*cos(${a}*${v})`;
-        } else if (ordem === 2) {
-          return `-${a * a}*sen(${a}*${v})`;
-        }
+        if (ordem === 1) return `${a}*cos(${a}*${v})`;
+        if (ordem === 2) return `-${a * a}*sin(${a}*${v})`;
       }
       
       // Caso: cos(a*x)
@@ -674,69 +631,53 @@ function calcDerivada() {
       if (cosMatch) {
         const a = cosMatch[1] ? parseInt(cosMatch[1]) : 1;
         const v = cosMatch[2];
-        
-        if (ordem === 1) {
-          return `-${a}*sen(${a}*${v})`;
-        } else if (ordem === 2) {
-          return `-${a * a}*cos(${a}*${v})`;
-        }
+        if (ordem === 1) return `-${a}*sin(${a}*${v})`;
+        if (ordem === 2) return `-${a * a}*cos(${a}*${v})`;
       }
       
-      // Caso: e^(a*x)
-      const expMatch = expr.match(/e\^\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
+      // Caso: e^(a*x) ou exp(a*x)
+      const expMatch = expr.match(/(?:e\^|exp)\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
       if (expMatch) {
         const a = expMatch[1] ? parseInt(expMatch[1]) : 1;
         const v = expMatch[2];
-        
-        if (ordem === 1) {
-          return `${a}*e^(${a}*${v})`;
-        } else if (ordem === 2) {
-          return `${a * a}*e^(${a}*${v})`;
-        }
+        if (ordem === 1) return `${a}*exp(${a}*${v})`;
+        if (ordem === 2) return `${a * a}*exp(${a}*${v})`;
       }
       
       return null;
     }
 
-    // 6. Calcular derivadas
-    let fp = derivar(f, varName, 1);
-    let fpp = derivar(f, varName, 2);
+    // 6. Calcular derivadas (mantendo formato inglês interno para o evalMath funcionar)
+    let fpEn = derivar(f, varName, 1);
+    let fppEn = derivar(f, varName, 2);
     
-    // Se Nerdamer falhou, tenta manual
-    if (!fp || fp.includes('diff(')) {
-      fp = derivarManual(f, varName, 1);
-    }
-    if (!fpp || fpp.includes('diff(')) {
-      fpp = derivarManual(f, varName, 2);
-    }
+    if (!fpEn) fpEn = derivarManual(f, varName, 1);
+    if (!fppEn) fppEn = derivarManual(f, varName, 2);
     
-    // Último fallback: usar eval com derivação numérica
-    if (!fp || fp.includes('diff(')) {
-      fp = `${f} (derivação numérica necessária)`;
-    }
-    if (!fpp || fpp.includes('diff(')) {
-      fpp = `${f} (derivação numérica necessária)`;
-    }
+    // Separa: uma versão para exibição (bonita) e uma para cálculo (gráfico)
+    const fpDisplay = fpEn ? paraBrasileiro(fpEn) : 'Não calculável simbolicamente';
+    const fppDisplay = fppEn ? paraBrasileiro(fppEn) : 'Não calculável simbolicamente';
+    
+    const fpGrafico = fpEn || '0';
+    const fppGrafico = fppEn || '0';
 
     // 7. Exibir resultados
     document.getElementById('der-result').innerHTML = `
       <div class="result">
-        <div class="math" style="font-size:1.1rem">f(${varName}) = ${formatExpression(f)}</div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${formatExpression(fp)}</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${formatExpression(fpp)}</strong></div>
+        <div class="math" style="font-size:1.1rem">f(${varName}) = ${paraBrasileiro(f)}</div>
+        <div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fpDisplay}</strong></div>
+        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fppDisplay}</strong></div>
       </div>`;
 
     // 8. Passos detalhados
     let stepsHTML = '<div style="margin-top:20px">';
-    stepsHTML += `<div class="wolfram-step"><div class="title">📋 Função Original</div><div class="formula">f(${varName}) = ${formatExpression(f)}</div></div>`;
+    stepsHTML += `<div class="wolfram-step"><div class="title">📋 Função Original</div><div class="formula">f(${varName}) = ${paraBrasileiro(f)}</div></div>`;
     
-    // Mostra passos específicos para tg(3x)
-    if (f.includes('tg(')) {
-      const match = f.match(/tg\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
+    if (f.includes('tg(') || f.includes('tan(')) {
+      const match = f.match(/(?:tg|tan)\(\s*([0-9]*)\*?\s*([a-zA-Z])\s*\)/);
       if (match) {
         const a = match[1] ? parseInt(match[1]) : 1;
         const v = match[2];
-        
         stepsHTML += `
           <div class="wolfram-step">
             <div class="title">🔍 Aplicando Regras de Derivação</div>
@@ -744,40 +685,27 @@ function calcDerivada() {
               <div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
                 <div style="font-weight:bold">Passo 1: Identificar a regra</div>
                 <div style="margin-top:5px">A função é da forma tg(u), onde u = ${a}·${v}</div>
-                <div style="margin-top:5px">Regra: d/d${v}[tg(u)] = sec²(u)·u'</div>
+                <div style="margin-top:5px">Regra: d/d${v}[tg(u)] = sec²(u)·u' = u'/cos²(u)</div>
                 <div style="margin-top:5px">u' = ${a}</div>
               </div>
               <div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary-2)">
                 <div style="font-weight:bold">Passo 2: Aplicar a regra</div>
-                <div style="margin-top:5px">f'(${v}) = sec²(${a}·${v})·${a}</div>
-                <div style="margin-top:5px;font-size:1.1rem;color:var(--primary)">f'(${v}) = ${a}/cos(${a}·${v})²</div>
+                <div style="margin-top:5px">f'(${v}) = ${a}/cos(${a}·${v})²</div>
               </div>
               <div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid #f59e0b">
                 <div style="font-weight:bold">Passo 3: Segunda derivada</div>
-                <div style="margin-top:5px">Regra: d/d${v}[sec²(u)] = 2·sec²(u)·tg(u)·u'</div>
+                <div style="margin-top:5px">Regra do quociente/cadeia em 1/cos²(u)</div>
                 <div style="margin-top:5px;font-size:1.1rem;color:#f59e0b">f''(${v}) = ${2*a*a}·sen(${a}·${v})/cos(${a}·${v})³</div>
               </div>
             </div>
           </div>
         `;
       }
-    } else {
-      stepsHTML += `
-        <div class="wolfram-step">
-          <div class="title">🔍 Aplicando Regras de Derivação</div>
-          <div style="padding:10px;background:#f8f9fa;border-radius:6px;margin-top:10px">
-            Derivação aplicada usando regras padrão do cálculo diferencial.
-          </div>
-        </div>
-      `;
     }
-    
-    stepsHTML += `<div class="wolfram-step"><div class="title">✅ Primeira Derivada</div><div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${formatExpression(fp)}</strong></div></div>`;
-    stepsHTML += `<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${formatExpression(fpp)}</strong></div></div>`;
     stepsHTML += '</div>';
     document.getElementById('der-steps').innerHTML = stepsHTML;
 
-    // 9. Gráfico
+    // 9. Gráfico (USANDO AS EXPRESSÕES EM INGLÊS para o evalMath funcionar!)
     if (!isNaN(x1) && !isNaN(x2) && x2 > x1) {
       const pontos = 200;
       const xs = Array.from({ length: pontos }, (_, i) => x1 + (x2 - x1) * i / (pontos - 1));
@@ -786,27 +714,21 @@ function calcDerivada() {
         try {
           const v = evalMath(f, { [varName]: x });
           return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
-        } catch (e) {
-          return null;
-        }
+        } catch (e) { return null; }
       });
 
       const yps = xs.map(x => {
         try {
-          const v = evalMath(fp, { [varName]: x });
+          const v = evalMath(fpGrafico, { [varName]: x });
           return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
-        } catch (e) {
-          return null;
-        }
+        } catch (e) { return null; }
       });
 
       const ypps = xs.map(x => {
         try {
-          const v = evalMath(fpp, { [varName]: x });
+          const v = evalMath(fppGrafico, { [varName]: x });
           return (isFinite(v) && Math.abs(v) < 1e6) ? v : null;
-        } catch (e) {
-          return null;
-        }
+        } catch (e) { return null; }
       });
 
       Plotly.newPlot('der-plot', [
@@ -829,31 +751,12 @@ function calcDerivada() {
     document.getElementById('der-result').innerHTML = `
       <div class="result" style="border-color:#ef4444">
         <div class="math" style="color:#ef4444">❌ <strong>Erro:</strong> ${e.message}</div>
-        <div style="margin-top:10px;font-size:0.9rem;color:#6b7280">
-          💡 Dicas:<br>
-          • Verifique se a função está bem formatada<br>
-          • Use: tg(x), sen(x), cos(x), e^(x), ln(x)<br>
-          • Use * para multiplicação: 3*x
-        </div>
       </div>`;
     showToast('Erro: ' + e.message, 'error');
   }
 }
 
 // ============ FUNÇÕES AUXILIARES ============
-
-function formatExpression(expr) {
-  if (!expr) return expr;
-  return expr
-    .replace(/\*/g, '·')
-    .replace(/sin/g, 'sen')
-    .replace(/cos/g, 'cos')
-    .replace(/tan/g, 'tg')
-    .replace(/atan/g, 'arctg')
-    .replace(/sqrt/g, '√')
-    .replace(/pi/g, 'π');
-}
-
 function showToast(message, type = 'info') {
   const colors = {
     success: '#10b981',
@@ -878,7 +781,6 @@ function showToast(message, type = 'info') {
     max-width: 400px;
   `;
   toast.textContent = message;
-  
   document.body.appendChild(toast);
   
   setTimeout(() => {
@@ -886,7 +788,7 @@ function showToast(message, type = 'info') {
     toast.style.transition = 'opacity 0.5s';
     setTimeout(() => toast.remove(), 500);
   }, 3000);
-}  
+}
   // ============ LIMITES ============
 function calcLimite(){
   try{
