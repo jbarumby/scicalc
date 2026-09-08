@@ -522,7 +522,7 @@ function calcDerivada(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LIMITES - VERSÃO FINAL FUNCIONAL ============
+// ============ LIMITES - VERSÃO COM DELTAS OTIMIZADOS ============
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -537,21 +537,16 @@ function calcLimite(){
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
-      
-      // Testa pontos próximos
-      for(let i=1; i<=5; i++){
-        const d=Math.pow(10, -i);
+      // Usa deltas moderados para detecção
+      for(const d of [0.1, 0.01, 0.001]){
         try{
-          const valR=evalMath(f,{x:aVal+d});
-          if(isFinite(valR)) rightOK=true;
+          if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;
         }catch(e){}
         try{
-          const valL=evalMath(f,{x:aVal-d});
-          if(isFinite(valL)) leftOK=true;
+          if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;
         }catch(e){}
         if(rightOK && leftOK) break;
       }
-      
       if(rightOK && !leftOK) effectiveDir='right';
       else if(leftOK && !rightOK) effectiveDir='left';
       else if(!rightOK && !leftOK){
@@ -571,23 +566,25 @@ function calcLimite(){
     }else if(isMInf){
       L=evalMath(f,{x:-1e6});
       method='x→-∞';
-      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
+      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}
     }else{
-      // Calcula em pontos muito próximos
-      const deltas=[1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10];
+      //  DELTAS OTIMIZADOS - nem muito grandes, nem muito pequenos
+      // Evita cancelamento catastrófico (pontos muito pequenos)
+      // e erro de truncamento (pontos muito grandes)
+      const deltas=[0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001];
       const valsP=[],valsM=[];
       
       for(const d of deltas){
         if(effectiveDir==='both'||effectiveDir==='right'){
           try{
             const vp=evalMath(f,{x:aVal+d});
-            if(isFinite(vp)) valsP.push(vp);
+            if(isFinite(vp)) valsP.push({d:d, v:vp});
           }catch(e){}
         }
         if(effectiveDir==='both'||effectiveDir==='left'){
           try{
             const vm=evalMath(f,{x:aVal-d});
-            if(isFinite(vm)) valsM.push(vm);
+            if(isFinite(vm)) valsM.push({d:d, v:vm});
           }catch(e){}
         }
       }
@@ -596,18 +593,36 @@ function calcLimite(){
         throw new Error('Não foi possível calcular o limite.');
       }
       
+      //  DETECTA CONVERGÊNCIA - encontra o "platô" de valores
+      function encontrarValorConvergente(vals){
+        if(vals.length===0) return null;
+        if(vals.length===1) return vals[0].v;
+        
+        // Procura onde os valores estabilizam
+        for(let i=vals.length-1; i>=1; i--){
+          const atual=vals[i].v;
+          const anterior=vals[i-1].v;
+          // Se dois valores consecutivos são próximos, usa a média
+          if(Math.abs(atual-anterior)<0.001*Math.max(1,Math.abs(atual))){
+            return (atual+anterior)/2;
+          }
+        }
+        // Se não convergiu, usa o último valor
+        return vals[vals.length-1].v;
+      }
+      
       // Detecta divergência
       if(valsP.length>=2){
-        const lastP=valsP[valsP.length-1];
-        const prevP=valsP[valsP.length-2];
+        const lastP=valsP[valsP.length-1].v;
+        const prevP=valsP[valsP.length-2].v;
         if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){
           diverge=true;
           divergeSign=lastP>0?'+∞':'-∞';
         }
       }
       if(valsM.length>=2){
-        const lastM=valsM[valsM.length-1];
-        const prevM=valsM[valsM.length-2];
+        const lastM=valsM[valsM.length-1].v;
+        const prevM=valsM[valsM.length-2].v;
         if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){
           diverge=true;
           divergeSign=lastM>0?'+∞':'-∞';
@@ -615,23 +630,25 @@ function calcLimite(){
       }
       
       if(!diverge){
-        // Pega o valor mais preciso
+        const LP=encontrarValorConvergente(valsP);
+        const LM=encontrarValorConvergente(valsM);
+        
         if(effectiveDir==='both'){
-          if(valsP.length>0 && valsM.length>0){
-            L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;
+          if(LP!==null && LM!==null){
+            L=(LP+LM)/2;
             method='Média bilateral';
-          }else if(valsP.length>0){
-            L=valsP[valsP.length-1];
+          }else if(LP!==null){
+            L=LP;
             method='Pela direita';
           }else{
-            L=valsM[valsM.length-1];
+            L=LM;
             method='Pela esquerda';
           }
         }else if(effectiveDir==='right'){
-          L=valsP[valsP.length-1];
+          L=LP!==null?LP:valsP[valsP.length-1].v;
           method='Pela direita';
         }else{
-          L=valsM[valsM.length-1];
+          L=LM!==null?LM:valsM[valsM.length-1].v;
           method='Pela esquerda';
         }
       }
@@ -640,25 +657,49 @@ function calcLimite(){
     let final;
     if(diverge){
       final=divergeSign;
+    }else if(L===undefined || L===null || isNaN(L)){
+      final='Indeterminado';
     }else{
-      // Arredondamento inteligente - verifica frações PRIMEIRO
-      const tol=0.1;
+      // 🚀 ARREDONDAMENTO INTELIGENTE - frações PRIMEIRO
+      const tol=0.05;
       
-      if(Math.abs(L-1/3)<tol) final='1/3';
-      else if(Math.abs(L-2/3)<tol) final='2/3';
-      else if(Math.abs(L-1/2)<tol) final='1/2';
-      else if(Math.abs(L-3/2)<tol) final='3/2';
-      else if(Math.abs(L-1/6)<tol) final='1/6';
-      else if(Math.abs(L-5/6)<tol) final='5/6';
-      else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
-      else final=parseFloat(L.toFixed(6));
+      // Lista de frações comuns (ordenadas por frequência)
+      const fracoes=[
+        {n:1, d:3, v:1/3, s:'1/3'},
+        {n:2, d:3, v:2/3, s:'2/3'},
+        {n:1, d:2, v:0.5, s:'1/2'},
+        {n:3, d:2, v:1.5, s:'3/2'},
+        {n:1, d:6, v:1/6, s:'1/6'},
+        {n:5, d:6, v:5/6, s:'5/6'},
+        {n:1, d:4, v:0.25, s:'1/4'},
+        {n:3, d:4, v:0.75, s:'3/4'},
+        {n:2, d:1, v:2, s:'2'},
+        {n:3, d:1, v:3, s:'3'},
+        {n:1, d:1, v:1, s:'1'},
+        {n:0, d:1, v:0, s:'0'}
+      ];
+      
+      let melhor=null, melhorDiff=Infinity;
+      for(const frac of fracoes){
+        const diff=Math.abs(L-frac.v);
+        if(diff<melhorDiff && diff<tol){
+          melhorDiff=diff;
+          melhor=frac;
+        }
+      }
+      
+      if(melhor){
+        final=melhor.s;
+      }else{
+        final=parseFloat(L.toFixed(6));
+      }
     }
     
     const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
     document.getElementById('lim-result').innerHTML=`
       <div class="result">
         <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
-        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div>
+        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)"> Método: ${method}</div>
         ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
       </div>`;
     
