@@ -633,28 +633,22 @@ function calcLimite(){
       }
     }
     
-        let final;
+           let final;
     if(diverge){
       final=divergeSign;
     }else{
-      //  ARREDONDAMENTO SIMPLES E DIRETO
-      const tol=0.05; // 5% de tolerância
+      //  ARREDONDAMENTO INTELIGENTE - ORDEM CORRETA
+      const tol=0.1; // 10% de tolerância
       
-      // Verifica se está próximo de inteiros
-      const rounded=Math.round(L);
-      if(Math.abs(L-rounded)<tol) final=rounded;
-      // Verifica 1/3
-      else if(Math.abs(L-1/3)<tol) final='1/3';
-      // Verifica 2/3
+      // Verifica frações PRIMEIRO (antes de inteiros)
+      if(Math.abs(L-1/3)<tol) final='1/3';
       else if(Math.abs(L-2/3)<tol) final='2/3';
-      // Verifica 1/2
-      else if(Math.abs(L-0.5)<tol) final='1/2';
-      // Verifica 3/2
-      else if(Math.abs(L-1.5)<tol) final='3/2';
-      // Verifica 1/6
+      else if(Math.abs(L-1/2)<tol) final='1/2';
+      else if(Math.abs(L-3/2)<tol) final='3/2';
       else if(Math.abs(L-1/6)<tol) final='1/6';
-      // Verifica 5/6
       else if(Math.abs(L-5/6)<tol) final='5/6';
+      // Depois verifica inteiros
+      else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
       else final=parseFloat(L.toFixed(6));
     }
     
