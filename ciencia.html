@@ -5,16 +5,20 @@
 <title>SciCalc - Cálculo & Física</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
+  body.dark-mode{--bg:#1a1a2e;--panel:#16213e;--ink:#e4e4e7;--muted:#a1a1aa;--border:#2d2d44;--shadow:0 8px 24px rgba(0,0,0,.3)}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135deg,#eef2ff 0%,#f4f6fb 50%,#ecfeff 100%);color:var(--ink);min-height:100vh}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;transition:all .3s}
   header{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;padding:22px 32px;box-shadow:var(--shadow)}
   header h1{font-size:1.7rem}
   header p{margin:4px 0 0;opacity:.9;font-size:.95rem}
-  .tabs{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  .theme-toggle{position:absolute;top:20px;right:30px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:.9rem}
+  .theme-toggle:hover{background:rgba(255,255,255,.3)}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
   .tab{padding:10px 18px;border:none;background:transparent;cursor:pointer;border-radius:10px;font-weight:600;color:var(--muted);font-size:.92rem;transition:all .2s}
-  .tab:hover{background:#eef2ff;color:var(--primary)}
+  .tab:hover{background:var(--bg);color:var(--primary)}
   .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.3)}
   main{padding:28px;max-width:1200px;margin:0 auto}
   .panel{background:var(--panel);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
@@ -22,20 +26,17 @@
   .panel .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
   .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
   label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--ink)}
-  input,select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:inherit;transition:all .2s;background:#fafbff}
-  input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15);background:#fff}
+  input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:inherit;transition:all .2s;background:var(--bg);color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
   .btn{padding:11px 22px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;transition:all .2s;background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25)}
   .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,70,229,.35)}
   .btn.accent{background:linear-gradient(120deg,var(--accent),#0891b2)}
   .btn.danger{background:linear-gradient(120deg,var(--err),#dc2626)}
-  .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,#eef2ff,#ecfeff);border-left:4px solid var(--primary);font-size:1rem}
+  .btn.small{padding:6px 12px;font-size:.82rem}
+  .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--bg),var(--panel));border-left:4px solid var(--primary);font-size:1rem}
   .result strong{color:var(--primary)}
   .result .math{font-family:'Cambria Math','Times New Roman',serif;font-size:1.15rem}
-  .wolfram-step{background:#f0f9ff;border-left:4px solid #06b6d4;padding:14px;margin:12px 0;border-radius:8px}
-  .wolfram-step .title{font-weight:700;color:#0891b2;margin-bottom:8px;font-size:1rem}
-  .wolfram-step .formula{font-family:'Cambria Math',serif;background:#fff;padding:10px;border-radius:6px;margin:8px 0;font-size:1.05rem}
-  .wolfram-step .rule{font-size:0.88rem;color:var(--muted);margin-top:6px;font-style:italic}
-  .plot{width:100%;height:400px;margin-top:14px;border-radius:12px;background:#fafbff}
+  .plot{width:100%;height:400px;margin-top:14px;border-radius:12px;background:var(--bg)}
   .tab-content{display:none;animation:fade .3s}
   .tab-content.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -46,53 +47,39 @@
   .toast.ok{background:linear-gradient(120deg,var(--ok),#059669)}
   @keyframes slide{from{transform:translateX(120%)}to{transform:none}}
   .sub-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-  .sub-tab{padding:8px 14px;border:1.5px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);transition:all .2s}
+  .sub-tab{padding:8px 14px;border:1.5px solid var(--border);background:var(--panel);border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);transition:all .2s}
   .sub-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .sub-panel{display:none}
   .sub-panel.active{display:block}
   table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
-  th{background:#f4f6fb;font-weight:600;color:var(--primary)}
-  tr:hover td{background:#fafbff}
-  .history-actions{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-  .chip{display:inline-block;padding:3px 10px;background:#eef2ff;color:var(--primary);border-radius:20px;font-size:.78rem;font-weight:600}
+  th{background:var(--bg);font-weight:600;color:var(--primary)}
+  tr:hover td{background:var(--bg)}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
-  .func-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
-  .func-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 4px 12px rgba(0,0,0,.06);border-left:5px solid var(--primary);transition:transform .2s}
-  .func-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
-  .func-card.phi{border-left-color:#4f46e5}
-  .func-card.mu{border-left-color:#06b6d4}
-  .func-card.d{border-left-color:#f59e0b}
-  .func-card.sigma{border-left-color:#10b981}
-  .func-card .func-symbol{font-family:'Cambria Math',serif;font-size:2rem;font-weight:700;margin-bottom:4px}
-  .func-card.phi .func-symbol{color:#4f46e5}
-  .func-card.mu .func-symbol{color:#06b6d4}
-  .func-card.d .func-symbol{color:#f59e0b}
-  .func-card.sigma .func-symbol{color:#10b981}
-  .func-card .func-name{font-size:.85rem;color:var(--muted);margin-bottom:10px;font-weight:600}
-  .func-card .func-value{font-size:1.8rem;font-weight:700;color:var(--ink);margin-bottom:8px}
-  .func-card .func-desc{font-size:.82rem;color:var(--muted);line-height:1.5;font-style:italic}
-  .divisores-box{margin-top:16px;padding:14px;background:#f0f9ff;border-radius:10px;border-left:4px solid #06b6d4}
-  .divisores-box .title{font-weight:700;color:#0891b2;margin-bottom:6px}
-  .divisores-box .list{font-family:monospace;background:#fff;padding:8px;border-radius:6px;word-break:break-all}
-  .intervalo-dica{margin-top:10px;padding:10px;background:#fffbeb;border-radius:8px;border-left:4px solid #f59e0b;font-size:.88rem;color:#92400e}
-  .intervalo-dica strong{color:#b45309}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  .matrix-input{display:grid;gap:8px}
+  .matrix-input input{width:100%;padding:8px;text-align:center}
 </style>
 </head>
 <body>
 <header>
   <h1>🧮 SciCalc - Cálculo & Física</h1>
   <p>Ferramentas matemáticas para cálculo, física e teoria dos números</p>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
 </header>
 
 <nav class="tabs" id="tabs">
   <button class="tab active" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
-  <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="fisica">⚡ Física</button>
-  <button class="tab" data-tab="numeros"> Números</button>
-  <button class="tab" data-tab="historico">📋 Histórico</button>
+  <button class="tab" data-tab="parciais">∂ Parciais</button>
+  <button class="tab" data-tab="taylor">📊 Taylor</button>
+  <button class="tab" data-tab="integrais"> Integrais</button>
+  <button class="tab" data-tab="complexos"> Complexos</button>
+  <button class="tab" data-tab="matrizes"> Matrizes</button>
+  <button class="tab" data-tab="estatistica"> Estatística</button>
+  <button class="tab" data-tab="fisica"> Física</button>
+  <button class="tab" data-tab="numeros">🔢 Números</button>
 </nav>
 
 <main>
@@ -100,7 +87,7 @@
 <section class="tab-content active" id="limites">
   <div class="panel">
     <h2>📐 Cálculo de Limites</h2>
-    <p class="sub">Análise do comportamento de funções com detecção automática de domínio.</p>
+    <p class="sub">Análise do comportamento de funções.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -130,21 +117,46 @@
     </div>
     <button class="btn" onclick="calcDerivada()">Calcular Derivada</button>
     <div id="der-result"></div>
-    <div id="der-steps"></div>
     <div id="der-plot" class="plot"></div>
-    <div class="intervalo-dica">
-      <strong>💡 Dicas de intervalo:</strong><br>
-      • Polinômios: <code>-5,5</code><br>
-      • Trigonométricas: <code>-3.14,3.14</code><br>
-      • Exponenciais: <code>-2,2</code><br>
-      • 1/x, ln(x): <code>0.1,5</code>
+  </div>
+</section>
+
+<section class="tab-content" id="parciais">
+  <div class="panel">
+    <h2>∂ Derivadas Parciais</h2>
+    <p class="sub">Derivadas parciais de funções de várias variáveis.</p>
+    <div class="form-row">
+      <div><label>Função f(x,y)</label><input id="par-f" placeholder="Ex: x^2*y + 3*x*y^2"></div>
+      <div><label>Variável</label>
+        <select id="par-var">
+          <option value="x">∂/∂x</option>
+          <option value="y">∂/∂y</option>
+        </select>
+      </div>
     </div>
+    <button class="btn" onclick="calcParcial()">Calcular Derivada Parcial</button>
+    <div id="par-result"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="taylor">
+  <div class="panel">
+    <h2>📊 Série de Taylor</h2>
+    <p class="sub">Aproximação polinomial de funções.</p>
+    <div class="form-row">
+      <div><label>Função f(x)</label><input id="tay-f" placeholder="Ex: sin(x)"></div>
+      <div><label>Ponto a</label><input id="tay-a" value="0"></div>
+      <div><label>Ordem n</label><input id="tay-n" value="5"></div>
+    </div>
+    <button class="btn" onclick="calcTaylor()">Calcular Série de Taylor</button>
+    <div id="tay-result"></div>
+    <div id="tay-plot" class="plot"></div>
   </div>
 </section>
 
 <section class="tab-content" id="integrais">
   <div class="panel">
-    <h2>∫ Integrais & Trabalho</h2>
+    <h2>∫ Integrais</h2>
     <p class="sub">Cálculo de área sob a curva.</p>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="int-f" placeholder="Ex: x^2"></div>
@@ -157,13 +169,90 @@
   </div>
 </section>
 
+<section class="tab-content" id="complexos">
+  <div class="panel">
+    <h2> Números Complexos</h2>
+    <p class="sub">Operações com números complexos.</p>
+    <div class="form-row">
+      <div><label>z₁ (a+bi)</label><input id="com-z1" placeholder="Ex: 3+4i"></div>
+      <div><label>z₂ (c+di)</label><input id="com-z2" placeholder="Ex: 1+2i"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="btn small" onclick="calcComplexo('add')">z₁ + z₂</button>
+      <button class="btn small" onclick="calcComplexo('sub')">z₁ - z₂</button>
+      <button class="btn small" onclick="calcComplexo('mul')">z₁ · z₂</button>
+      <button class="btn small" onclick="calcComplexo('div')">z₁ / z₂</button>
+      <button class="btn small" onclick="calcComplexo('mod')">|z₁|</button>
+    </div>
+    <div id="com-result"></div>
+    <div id="com-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="matrizes">
+  <div class="panel">
+    <h2>🔢 Matrizes</h2>
+    <p class="sub">Operações com matrizes 2x2 e 3x3.</p>
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="mat2">2×2</button>
+      <button class="sub-tab" data-sub="mat3">3×3</button>
+    </div>
+    <div class="sub-panel active" id="sub-mat2">
+      <div class="grid-2">
+        <div>
+          <label>Matriz A</label>
+          <div class="matrix-input">
+            <div class="grid-2"><input id="m2-a11" placeholder="a11"><input id="m2-a12" placeholder="a12"></div>
+            <div class="grid-2"><input id="m2-a21" placeholder="a21"><input id="m2-a22" placeholder="a22"></div>
+          </div>
+        </div>
+        <div>
+          <label>Matriz B</label>
+          <div class="matrix-input">
+            <div class="grid-2"><input id="m2-b11" placeholder="b11"><input id="m2-b12" placeholder="b12"></div>
+            <div class="grid-2"><input id="m2-b21" placeholder="b21"><input id="m2-b22" placeholder="b22"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn small" onclick="calcMatriz2('add')">A + B</button>
+        <button class="btn small" onclick="calcMatriz2('mul')">A · B</button>
+        <button class="btn small" onclick="calcMatriz2('detA')">det(A)</button>
+        <button class="btn small" onclick="calcMatriz2('detB')">det(B)</button>
+      </div>
+      <div id="mat2-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-mat3">
+      <label>Matriz A (3×3)</label>
+      <div class="matrix-input">
+        <div class="grid-3"><input id="m3-a11" placeholder="a11"><input id="m3-a12" placeholder="a12"><input id="m3-a13" placeholder="a13"></div>
+        <div class="grid-3"><input id="m3-a21" placeholder="a21"><input id="m3-a22" placeholder="a22"><input id="m3-a23" placeholder="a23"></div>
+        <div class="grid-3"><input id="m3-a31" placeholder="a31"><input id="m3-a32" placeholder="a32"><input id="m3-a33" placeholder="a33"></div>
+      </div>
+      <button class="btn" style="margin-top:14px" onclick="calcMatriz3()">Determinante de A</button>
+      <div id="mat3-result"></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="estatistica">
+  <div class="panel">
+    <h2>📈 Estatística</h2>
+    <p class="sub">Análise estatística de dados.</p>
+    <div class="form-row">
+      <div><label>Dados (separados por vírgula)</label><textarea id="est-data" placeholder="Ex: 10,20,30,40,50" rows="3"></textarea></div>
+    </div>
+    <button class="btn" onclick="calcEstatistica()">Calcular Estatísticas</button>
+    <div id="est-result"></div>
+  </div>
+</section>
+
 <section class="tab-content" id="fisica">
   <div class="panel">
-    <h2> Física Aplicada</h2>
+    <h2>⚡ Física Aplicada</h2>
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="mhs">MHS</button>
       <button class="sub-tab" data-sub="obl">Lançamento</button>
-      <button class="sub-tab" data-sub="cinematica">Cinemática</button>
     </div>
     <div class="sub-panel active" id="sub-mhs">
       <p class="sub">x(t) = A·cos(ωt + φ)</p>
@@ -182,21 +271,10 @@
         <div><label>v₀</label><input id="obl-v" value="30"></div>
         <div><label>θ</label><input id="obl-a" value="45"></div>
         <div><label>h₀</label><input id="obl-h" value="0"></div>
-        <div><label>g</label><input id="obl-g" value="9.81"></div>
       </div>
       <button class="btn" onclick="simObl()">Simular</button>
       <div id="obl-result"></div>
       <div id="obl-plot" class="plot"></div>
-    </div>
-    <div class="sub-panel" id="sub-cinematica">
-      <div class="form-row">
-        <div><label>s(t)</label><input id="cin-s" placeholder="3*t^2 + 2*t + 1"></div>
-        <div><label>Intervalo</label><input id="cin-t" placeholder="0,10"></div>
-      </div>
-      <button class="btn" onclick="calcCinematica()">Analisar</button>
-      <div id="cin-result"></div>
-      <div id="cin-table"></div>
-      <div id="cin-plot" class="plot"></div>
     </div>
   </div>
 </section>
@@ -204,48 +282,11 @@
 <section class="tab-content" id="numeros">
   <div class="panel">
     <h2>🔢 Teoria dos Números</h2>
-    <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="primos">Primos</button>
-      <button class="sub-tab" data-sub="modular">Modular</button>
-      <button class="sub-tab" data-sub="funcoes">Funções</button>
+    <div class="form-row">
+      <div><label>Teste primalidade</label><input id="p-n" placeholder="97"><button class="btn" style="margin-top:8px" onclick="testPrimo()">Testar</button></div>
+      <div><label>Fatoração</label><input id="p-fact" placeholder="360"><button class="btn" style="margin-top:8px" onclick="fatorar()">Fatorar</button></div>
     </div>
-    <div class="sub-panel active" id="sub-primos">
-      <div class="form-row">
-        <div><label>Teste</label><input id="p-n" placeholder="97"><button class="btn" style="margin-top:8px" onclick="testPrimo()">Testar</button></div>
-        <div><label>Crivo até</label><input id="p-sieve" placeholder="100"><button class="btn" style="margin-top:8px" onclick="crivo()">Gerar</button></div>
-        <div><label>Fatorar</label><input id="p-fact" placeholder="360"><button class="btn" style="margin-top:8px" onclick="fatorar()">Fatorar</button></div>
-        <div class="grid-2">
-          <div><label>MDC</label><div style="display:flex;gap:6px"><input id="p-a" placeholder="a"><input id="p-b" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="mdc()">Calcular</button></div>
-          <div><label>MMC</label><div style="display:flex;gap:6px"><input id="p-c" placeholder="a"><input id="p-d" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="mmc()">Calcular</button></div>
-        </div>
-      </div>
-      <div id="p-result"></div>
-    </div>
-    <div class="sub-panel" id="sub-modular">
-      <div class="form-row">
-        <div><label>a^b mod m</label><div style="display:flex;gap:6px"><input id="m-a" placeholder="a"><input id="m-b" placeholder="b"><input id="m-m" placeholder="m"></div><button class="btn" style="margin-top:8px" onclick="potModUI()">Calcular</button></div>
-        <div><label>Inverso</label><div style="display:flex;gap:6px"><input id="m-ia" placeholder="a"><input id="m-im" placeholder="m"></div><button class="btn" style="margin-top:8px" onclick="invModUI()">Calcular</button></div>
-      </div>
-      <div id="m-result"></div>
-    </div>
-    <div class="sub-panel" id="sub-funcoes">
-      <div class="form-row">
-        <div><label>n</label><input id="f-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="funcoesNUI()">Calcular Todas</button></div>
-      </div>
-      <div id="f-result"></div>
-    </div>
-  </div>
-</section>
-
-<section class="tab-content" id="historico">
-  <div class="panel">
-    <h2>📋 Histórico</h2>
-    <div class="history-actions">
-      <button class="btn accent" onclick="exportarHistorico()"> Exportar</button>
-      <button class="btn danger" onclick="limparHistorico()">️ Limpar</button>
-      <span class="chip" id="hist-count">0 registros</span>
-    </div>
-    <div id="hist-list"></div>
+    <div id="p-result"></div>
   </div>
 </section>
 
@@ -273,6 +314,12 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
   };
 });
 
+function toggleTheme(){
+  document.body.classList.toggle('dark-mode');
+  const btn=document.querySelector('.theme-toggle');
+  btn.textContent=document.body.classList.contains('dark-mode')?'️ Modo Claro':'🌙 Modo Escuro';
+}
+
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
@@ -284,17 +331,10 @@ function toast(msg,type='ok'){
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id){const v=document.getElementById(id).value.trim().replace(',','.');const n=Number(v);if(!isFinite(n))throw new Error('Inválido');return n;}
 
-// ============ AVALIADOR NUMÉRICO ============
 function evalMath(expr,vars={}){
   try{
     let js=expr;
-    const funcs={
-      'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan',
-      'asin':'Math.asin','acos':'Math.acos','atan':'Math.atan',
-      'sqrt':'Math.sqrt','log':'Math.log','ln':'Math.log',
-      'exp':'Math.exp','abs':'Math.abs',
-      'pi':'Math.PI','e':'Math.E'
-    };
+    const funcs={'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan','asin':'Math.asin','acos':'Math.acos','atan':'Math.atan','sqrt':'Math.sqrt','log':'Math.log','ln':'Math.log','exp':'Math.exp','abs':'Math.abs','pi':'Math.PI','e':'Math.E'};
     for(const[f,j]of Object.entries(funcs))js=js.replace(new RegExp('\\b'+f+'\\b','g'),j);
     for(const[k,v]of Object.entries(vars))js=js.replace(new RegExp('\\b'+k+'\\b','g'),'('+v+')');
     js=js.replace(/\^/g,'**');
@@ -303,248 +343,22 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-// ============ DERIVADOR SIMBÓLICO ROBUSTO ============
-function derivarSimbolica(expr, varName){
-  // Separa em termos
-  const termos = expr.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
-  const derivadas = [];
-  
-  for(const termo of termos){
-    const d = derivarTermo(termo, varName);
-    if(d !== null) derivadas.push(d);
-  }
-  
-  // Junta as derivadas
-  let resultado = '';
-  for(let i=0; i<derivadas.length; i++){
-    const d = derivadas[i];
-    if(i===0) resultado += d;
-    else{
-      if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();
-      else resultado += ' + ' + d;
-    }
-  }
-  
-  return simplificarExpressao(resultado);
-}
-
-function derivarTermo(termo, varName){
-  termo = termo.trim();
-  if(termo === '') return null;
-  
-  // Constante (sem a variável)
-  if(!termo.includes(varName)) return '0';
-  
-  // ax^n (incluindo negativos e decimais)
-  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
-  if(matchPot && matchPot[2] === varName){
-    let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
-    const exp = matchPot[3] ? parseFloat(matchPot[3]) : 1;
-    if(exp === 0) return '0';
-    if(exp === 1) return String(coef);
-    const novoCoef = coef * exp;
-    const novoExp = exp - 1;
-    if(novoExp === 1) return String(novoCoef) + '*' + varName;
-    if(novoExp === 0) return String(novoCoef);
-    if(novoExp === -1) return String(novoCoef) + '/' + varName;
-    return String(novoCoef) + '*' + varName + '^' + novoExp;
-  }
-  
-  // a/cos(b*x)^n (importante para derivada de tan)
-  const matchCosDiv = termo.match(/^(-?\d*\.?\d*)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
-  if(matchCosDiv){
-    let a = matchCosDiv[1] === '' || matchCosDiv[1] === '-' ? (matchCosDiv[1]==='-'?-1:1) : parseFloat(matchCosDiv[1]);
-    const b = matchCosDiv[2] === '' ? 1 : parseFloat(matchCosDiv[2]);
-    const v = matchCosDiv[3];
-    const n = parseInt(matchCosDiv[4]);
-    
-    // d/dx[a/cos(bx)^n] = a*n*b*sin(bx)/cos(bx)^(n+1)
-    const novoCoef = a * n * b;
-    return `${novoCoef}*sin(${b}*${v})/cos(${b}*${v})^${n+1}`;
-  }
-  
-  // a*sin(b*x)
-  const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchSin){
-    let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);
-    const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);
-    const v = matchSin[3];
-    const novoCoef = coef * b;
-    if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';
-    if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';
-    return novoCoef + '*cos(' + b + '*' + v + ')';
-  }
-  
-  // a*cos(b*x)
-  const matchCos = termo.match(/^(-?\d*\.?\d*)\*?cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchCos){
-    let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);
-    const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);
-    const v = matchCos[3];
-    const novoCoef = -coef * b;
-    if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';
-    if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';
-    return novoCoef + '*sin(' + b + '*' + v + ')';
-  }
-  
-  // a*exp(b*x)
-  const matchExp = termo.match(/^(-?\d*\.?\d*)\*?exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchExp){
-    let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);
-    const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);
-    const v = matchExp[3];
-    const novoCoef = coef * b;
-    if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';
-    if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';
-    return novoCoef + '*exp(' + b + '*' + v + ')';
-  }
-  
-  // a*ln(b*x)
-  const matchLn = termo.match(/^(-?\d*\.?\d*)\*?(?:ln|log)\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchLn){
-    let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);
-    const b = matchLn[2] === '' ? 1 : parseFloat(matchLn[2]);
-    const v = matchLn[3];
-    // d/dx[ln(bx)] = b/(bx) = 1/x
-    if(coef === 1) return '1/' + v;
-    if(coef === -1) return '-1/' + v;
-    return coef + '/' + v;
-  }
-  
-  // a*sqrt(b*x)
-  const matchSqrt = termo.match(/^(-?\d*\.?\d*)\*?sqrt\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchSqrt){
-    let coef = matchSqrt[1] === '' || matchSqrt[1] === '-' ? (matchSqrt[1]==='-'?-1:1) : parseFloat(matchSqrt[1]);
-    const b = matchSqrt[2] === '' ? 1 : parseFloat(matchSqrt[2]);
-    const v = matchSqrt[3];
-    const novoCoef = coef * b / 2;
-    if(novoCoef === 1) return '1/(2*sqrt(' + b + '*' + v + '))';
-    return novoCoef + '/sqrt(' + b + '*' + v + ')';
-  }
-  
-  // a*tan(b*x)
-  const matchTan = termo.match(/^(-?\d*\.?\d*)\*?tan\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
-  if(matchTan){
-    let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);
-    const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);
-    const v = matchTan[3];
-    const novoCoef = coef * b;
-    if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';
-    if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';
-    return novoCoef + '/cos(' + b + '*' + v + ')^2';
-  }
-  
-  return null;
-}
-function simplificarExpressao(expr){
-  expr = expr.replace(/\b0\*\S+/g, '0');
-  expr = expr.replace(/\+\s*0\b/g, '');
-  expr = expr.replace(/\-\s*0\b/g, '');
-  expr = expr.replace(/\b0\s*\+/g, '');
-  expr = expr.replace(/\b0\s*\-/g, '-');
-  expr = expr.replace(/\b1\*([a-zA-Z(])/g, '$1');
-  expr = expr.replace(/\*1\b/g, '');
-  expr = expr.replace(/\s+/g, ' ').trim();
-  expr = expr.replace(/\+ -/g, '- ');
-  expr = expr.replace(/- -/g, '+ ');
-  if(expr.startsWith('+ ')) expr = expr.substring(2);
-  return expr || '0';
-}
-
-// ============ CALCULAR DERIVADA ============
-function calcDerivada(){
-  try{
-    const f=str('der-f');
-    const varName=str('der-var');
-    const intervalo=str('der-intervalo');
-    const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
-    
-    // Derivação simbólica
-    const fp = derivarSimbolica(f, varName);
-    const fpp = derivarSimbolica(fp, varName);
-    
-    // Derivação numérica para o gráfico
-    const h=1e-5;
-    const fFn=x=>evalMath(f,{[varName]:x});
-    const fpFn=x=>evalMath(fp,{[varName]:x});
-    const fppFn=x=>evalMath(fpp,{[varName]:x});
-    
-    document.getElementById('der-result').innerHTML=`
-      <div class="result">
-        <div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div>
-      </div>`;
-    
-    // Passo a passo
-    let stepsHTML='<div style="margin-top:20px">';
-    stepsHTML+=`<div class="wolfram-step"><div class="title">📋 Função Original</div><div class="formula">f(${varName}) = ${f}</div></div>`;
-    stepsHTML+=`<div class="wolfram-step"><div class="title">🔍 Aplicando Regras de Derivação</div><div style="margin-top:10px">`;
-    
-    const termos = f.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
-    termos.forEach((termo,idx)=>{
-      const d = derivarTermo(termo, varName);
-      let regra='';
-      if(termo.includes('^')) regra='📏 Regra da Potência: d/d'+varName+'[a·'+varName+'ⁿ] = a·n·'+varName+'ⁿ⁻¹';
-      else if(/sin/i.test(termo)) regra='📐 d/d'+varName+'[sin(u)] = cos(u)·u\'';
-      else if(/cos/i.test(termo)) regra='📐 d/d'+varName+'[cos(u)] = -sin(u)·u\'';
-      else if(/tan/i.test(termo)) regra='📐 d/d'+varName+'[tan(u)] = 1/cos²(u)·u\'';
-      else if(/exp/i.test(termo)) regra='📐 d/d'+varName+'[eᵘ] = eᵘ·u\'';
-      else if(/ln|log/i.test(termo)) regra='📐 d/d'+varName+'[ln(u)] = u\'/u';
-      else if(/sqrt/i.test(termo)) regra=' d/d'+varName+'[√u] = u\'/(2√u)';
-      else if(termo.includes(varName)) regra=' Regra Linear: d/d'+varName+'[a·'+varName+'] = a';
-      else regra='📏 Derivada de constante = 0';
-      
-      stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
-        <div style="font-size:0.95rem"><strong>Termo ${idx+1}:</strong> <code>${termo}</code></div>
-        <div class="rule">${regra}</div>
-        <div style="margin-top:6px;font-size:1.05rem"><strong>d/d${varName}[${termo}] = ${d||'0'}</strong></div>
-      </div>`;
-    });
-    stepsHTML+=`</div></div>`;
-    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Primeira Derivada</div><div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${fp}</strong></div></div>`;
-    stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Segunda Derivada</div><div class="formula">f''(${varName}) = <strong style="font-size:1.3rem;color:var(--primary-2)">${fpp}</strong></div></div>`;
-    stepsHTML+='</div>';
-    document.getElementById('der-steps').innerHTML=stepsHTML;
-    
-    // Gráfico
-    const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
-    const ys=xs.map(x=>{const v=fFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
-    const yps=xs.map(x=>{const v=fpFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
-    const ypps=xs.map(x=>{const v=fppFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
-    
-    Plotly.newPlot('der-plot',[
-      {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
-      {x:xs,y:yps,name:"f'(x)",line:{color:'#06b6d4',width:3}},
-      {x:xs,y:ypps,name:"f''(x)",line:{color:'#f59e0b',width:3}}
-    ],{title:'Função e Derivadas',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'#fafbff'},{responsive:true});
-    toast('Derivadas calculadas!','ok');
-  }catch(e){toast(e.message,'err');}
-}
-
-// ============ LIMITES - VERSÃO COM DELTAS OTIMIZADOS ============
+// ============ LIMITES ============
 function calcLimite(){
   try{
     const f=str('lim-f');
     const aStr=str('lim-a').toLowerCase();
     const dir=document.getElementById('lim-dir').value;
-    
     const isInf=aStr==='inf'||aStr==='infinity';
     const isMInf=aStr==='-inf'||aStr==='-infinity';
     const aVal=isInf?null:(isMInf?null:Number(aStr.replace(',','.')));
     
-    // Detecção automática de domínio
     let effectiveDir=dir;
     if(dir==='auto' && !isInf && !isMInf){
       let rightOK=false, leftOK=false;
-      // Usa deltas moderados para detecção
       for(const d of [0.1, 0.01, 0.001]){
-        try{
-          if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;
-        }catch(e){}
-        try{
-          if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;
-        }catch(e){}
+        try{if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;}catch(e){}
+        try{if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;}catch(e){}
         if(rightOK && leftOK) break;
       }
       if(rightOK && !leftOK) effectiveDir='right';
@@ -558,166 +372,215 @@ function calcLimite(){
     }
     
     let L,method='',diverge=false,divergeSign='';
-    
-    if(isInf){
-      L=evalMath(f,{x:1e6});
-      method='x→+∞';
-      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}
-    }else if(isMInf){
-      L=evalMath(f,{x:-1e6});
-      method='x→-∞';
-      if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}
-    }else{
-      //  DELTAS OTIMIZADOS - nem muito grandes, nem muito pequenos
-      // Evita cancelamento catastrófico (pontos muito pequenos)
-      // e erro de truncamento (pontos muito grandes)
+    if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-∞';}}
+    else if(isMInf){L=evalMath(f,{x:-1e6});method='x→-∞';if(Math.abs(L)>1e6){diverge=true;divergeSign=L>0?'+∞':'-';}}
+    else{
       const deltas=[0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001];
       const valsP=[],valsM=[];
-      
       for(const d of deltas){
-        if(effectiveDir==='both'||effectiveDir==='right'){
-          try{
-            const vp=evalMath(f,{x:aVal+d});
-            if(isFinite(vp)) valsP.push({d:d, v:vp});
-          }catch(e){}
-        }
-        if(effectiveDir==='both'||effectiveDir==='left'){
-          try{
-            const vm=evalMath(f,{x:aVal-d});
-            if(isFinite(vm)) valsM.push({d:d, v:vm});
-          }catch(e){}
-        }
+        if(effectiveDir==='both'||effectiveDir==='right'){try{const vp=evalMath(f,{x:aVal+d});if(isFinite(vp)) valsP.push(vp);}catch(e){}}
+        if(effectiveDir==='both'||effectiveDir==='left'){try{const vm=evalMath(f,{x:aVal-d});if(isFinite(vm)) valsM.push(vm);}catch(e){}}
       }
-      
-      if(valsP.length===0 && valsM.length===0){
-        throw new Error('Não foi possível calcular o limite.');
-      }
-      
-      //  DETECTA CONVERGÊNCIA - encontra o "platô" de valores
-      function encontrarValorConvergente(vals){
-        if(vals.length===0) return null;
-        if(vals.length===1) return vals[0].v;
-        
-        // Procura onde os valores estabilizam
-        for(let i=vals.length-1; i>=1; i--){
-          const atual=vals[i].v;
-          const anterior=vals[i-1].v;
-          // Se dois valores consecutivos são próximos, usa a média
-          if(Math.abs(atual-anterior)<0.001*Math.max(1,Math.abs(atual))){
-            return (atual+anterior)/2;
-          }
-        }
-        // Se não convergiu, usa o último valor
-        return vals[vals.length-1].v;
-      }
-      
-      // Detecta divergência
-      if(valsP.length>=2){
-        const lastP=valsP[valsP.length-1].v;
-        const prevP=valsP[valsP.length-2].v;
-        if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){
-          diverge=true;
-          divergeSign=lastP>0?'+∞':'-∞';
-        }
-      }
-      if(valsM.length>=2){
-        const lastM=valsM[valsM.length-1].v;
-        const prevM=valsM[valsM.length-2].v;
-        if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){
-          diverge=true;
-          divergeSign=lastM>0?'+∞':'-∞';
-        }
-      }
-      
+      if(valsP.length===0 && valsM.length===0) throw new Error('Não foi possível calcular.');
+      if(valsP.length>=2){const lastP=valsP[valsP.length-1],prevP=valsP[valsP.length-2];if(Math.abs(lastP)>1e4 && Math.abs(lastP)>Math.abs(prevP)*10){diverge=true;divergeSign=lastP>0?'+∞':'-∞';}}
+      if(valsM.length>=2){const lastM=valsM[valsM.length-1],prevM=valsM[valsM.length-2];if(Math.abs(lastM)>1e4 && Math.abs(lastM)>Math.abs(prevM)*10){diverge=true;divergeSign=lastM>0?'+∞':'-∞';}}
       if(!diverge){
-        const LP=encontrarValorConvergente(valsP);
-        const LM=encontrarValorConvergente(valsM);
-        
-        if(effectiveDir==='both'){
-          if(LP!==null && LM!==null){
-            L=(LP+LM)/2;
-            method='Média bilateral';
-          }else if(LP!==null){
-            L=LP;
-            method='Pela direita';
-          }else{
-            L=LM;
-            method='Pela esquerda';
-          }
-        }else if(effectiveDir==='right'){
-          L=LP!==null?LP:valsP[valsP.length-1].v;
-          method='Pela direita';
-        }else{
-          L=LM!==null?LM:valsM[valsM.length-1].v;
-          method='Pela esquerda';
-        }
+        if(effectiveDir==='both'){if(valsP.length>0 && valsM.length>0){L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;method='Média bilateral';}else if(valsP.length>0){L=valsP[valsP.length-1];method='Pela direita';}else{L=valsM[valsM.length-1];method='Pela esquerda';}}
+        else if(effectiveDir==='right'){L=valsP[valsP.length-1];method='Pela direita';}
+        else{L=valsM[valsM.length-1];method='Pela esquerda';}
       }
     }
     
     let final;
-    if(diverge){
-      final=divergeSign;
-    }else if(L===undefined || L===null || isNaN(L)){
-      final='Indeterminado';
-    }else{
-      // 🚀 ARREDONDAMENTO INTELIGENTE - frações PRIMEIRO
-      const tol=0.05;
-      
-      // Lista de frações comuns (ordenadas por frequência)
-      const fracoes=[
-        {n:1, d:3, v:1/3, s:'1/3'},
-        {n:2, d:3, v:2/3, s:'2/3'},
-        {n:1, d:2, v:0.5, s:'1/2'},
-        {n:3, d:2, v:1.5, s:'3/2'},
-        {n:1, d:6, v:1/6, s:'1/6'},
-        {n:5, d:6, v:5/6, s:'5/6'},
-        {n:1, d:4, v:0.25, s:'1/4'},
-        {n:3, d:4, v:0.75, s:'3/4'},
-        {n:2, d:1, v:2, s:'2'},
-        {n:3, d:1, v:3, s:'3'},
-        {n:1, d:1, v:1, s:'1'},
-        {n:0, d:1, v:0, s:'0'}
-      ];
-      
-      let melhor=null, melhorDiff=Infinity;
-      for(const frac of fracoes){
-        const diff=Math.abs(L-frac.v);
-        if(diff<melhorDiff && diff<tol){
-          melhorDiff=diff;
-          melhor=frac;
+    if(diverge) final=divergeSign;
+    else{
+      const tol=0.1;
+      if(Math.abs(L-1/3)<tol) final='1/3';
+      else if(Math.abs(L-2/3)<tol) final='2/3';
+      else if(Math.abs(L-1/2)<tol) final='1/2';
+      else if(Math.abs(L-3/2)<tol) final='3/2';
+      else if(Math.abs(L-1/6)<tol) final='1/6';
+      else if(Math.abs(L-5/6)<tol) final='5/6';
+      else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
+      else final=parseFloat(L.toFixed(6));
+    }
+    
+    const dirSymbol=effectiveDir==='left'?'':effectiveDir==='right'?'⁺':'';
+    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">📊 Método: ${method}</div></div>`;
+    
+    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
+    const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Limite calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ DERIVADAS ============
+function derivarSimbolica(expr, varName){
+  const termos = expr.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
+  const derivadas = [];
+  for(const termo of termos){
+    const d = derivarTermo(termo, varName);
+    if(d !== null) derivadas.push(d);
+  }
+  let resultado = '';
+  for(let i=0; i<derivadas.length; i++){
+    const d = derivadas[i];
+    if(i===0) resultado += d;
+    else{if(d.startsWith('-')) resultado += ' - ' + d.substring(1).trim();else resultado += ' + ' + d;}
+  }
+  return simplificarExpressao(resultado);
+}
+
+function derivarTermo(termo, varName){
+  termo = termo.trim();
+  if(termo === '') return null;
+  if(!termo.includes(varName)) return '0';
+  
+  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
+  if(matchPot && matchPot[2] === varName){
+    let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
+    const exp = matchPot[3] ? parseFloat(matchPot[3]) : 1;
+    if(exp === 0) return '0';if(exp === 1) return String(coef);
+    const novoCoef = coef * exp,novoExp = exp - 1;
+    if(novoExp === 1) return String(novoCoef) + '*' + varName;
+    if(novoExp === 0) return String(novoCoef);
+    if(novoExp === -1) return String(novoCoef) + '/' + varName;
+    return String(novoCoef) + '*' + varName + '^' + novoExp;
+  }
+  
+  const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchSin){let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);const v = matchSin[3];const novoCoef = coef * b;if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';return novoCoef + '*cos(' + b + '*' + v + ')';}
+  
+  const matchCos = termo.match(/^(-?\d*\.?\d*)\*?cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchCos){let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);const v = matchCos[3];const novoCoef = -coef * b;if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';return novoCoef + '*sin(' + b + '*' + v + ')';}
+  
+  const matchExp = termo.match(/^(-?\d*\.?\d*)\*?exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchExp){let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);const v = matchExp[3];const novoCoef = coef * b;if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';return novoCoef + '*exp(' + b + '*' + v + ')';}
+  
+  const matchLn = termo.match(/^(-?\d*\.?\d*)\*?(?:ln|log)\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchLn){let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);const b = matchLn[2] === '' ? 1 : parseFloat(matchLn[2]);const v = matchLn[3];if(coef === 1) return '1/' + v;if(coef === -1) return '-1/' + v;return coef + '/' + v;}
+  
+  const matchSqrt = termo.match(/^(-?\d*\.?\d*)\*?sqrt\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchSqrt){let coef = matchSqrt[1] === '' || matchSqrt[1] === '-' ? (matchSqrt[1]==='-'?-1:1) : parseFloat(matchSqrt[1]);const b = matchSqrt[2] === '' ? 1 : parseFloat(matchSqrt[2]);const v = matchSqrt[3];const novoCoef = coef * b / 2;if(novoCoef === 1) return '1/(2*sqrt(' + b + '*' + v + '))';return novoCoef + '/sqrt(' + b + '*' + v + ')';}
+  
+  const matchTan = termo.match(/^(-?\d*\.?\d*)\*?tan\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchTan){let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);const v = matchTan[3];const novoCoef = coef * b;if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';return novoCoef + '/cos(' + b + '*' + v + ')^2';}
+  
+  const matchCosDiv = termo.match(/^(-?\d*\.?\d*)\/cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)\^(\d+)$/);
+  if(matchCosDiv){let a = matchCosDiv[1] === '' || matchCosDiv[1] === '-' ? (matchCosDiv[1]==='-'?-1:1) : parseFloat(matchCosDiv[1]);const b = matchCosDiv[2] === '' ? 1 : parseFloat(matchCosDiv[2]);const v = matchCosDiv[3];const n = parseInt(matchCosDiv[4]);const novoCoef = a * n * b;return `${novoCoef}*sin(${b}*${v})/cos(${b}*${v})^${n+1}`;}
+  
+  return null;
+}
+
+function simplificarExpressao(expr){
+  expr = expr.replace(/\b0\*\S+/g, '0').replace(/\+\s*0\b/g, '').replace(/\-\s*0\b/g, '').replace(/\b0\s*\+/g, '').replace(/\b0\s*\-/g, '-').replace(/\b1\*([a-zA-Z(])/g, '$1').replace(/\*1\b/g, '').replace(/\s+/g, ' ').trim().replace(/\+ -/g, '- ').replace(/- -/g, '+ ');
+  if(expr.startsWith('+ ')) expr = expr.substring(2);
+  return expr || '0';
+}
+
+function calcDerivada(){
+  try{
+    const f=str('der-f'),varName=str('der-var'),intervalo=str('der-intervalo');
+    const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
+    const fp = derivarSimbolica(f, varName),fpp = derivarSimbolica(fp, varName);
+    const h=1e-5,fFn=x=>evalMath(f,{[varName]:x}),fpFn=x=>evalMath(fp,{[varName]:x}),fppFn=x=>evalMath(fpp,{[varName]:x});
+    
+    document.getElementById('der-result').innerHTML=`<div class="result"><div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div><div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div><div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div></div>`;
+    
+    const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
+    const ys=xs.map(x=>{const v=fFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const yps=xs.map(x=>{const v=fpFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const ypps=xs.map(x=>{const v=fppFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    
+    Plotly.newPlot('der-plot',[{x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},{x:xs,y:yps,name:"f'(x)",line:{color:'#06b6d4',width:3}},{x:xs,y:ypps,name:"f''(x)",line:{color:'#f59e0b',width:3}}],{title:'Função e Derivadas',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Derivadas calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ DERIVADAS PARCIAIS ============
+function calcParcial(){
+  try{
+    const f=str('par-f'),varName=str('par-var');
+    const fp = derivarSimbolica(f, varName);
+    document.getElementById('par-result').innerHTML=`<div class="result"><div class="math">f(x,y) = ${f}</div><div class="math" style="font-size:1.3rem;margin-top:10px">∂f/∂${varName} = <strong style="color:var(--primary)">${fp}</strong></div></div>`;
+    toast('Derivada parcial calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ SÉRIE DE TAYLOR ============
+function calcTaylor(){
+  try{
+    const f=str('tay-f'),a=num('tay-a'),n=Math.floor(num('tay-n'));
+    if(n<1||n>10) throw new Error('Ordem deve ser entre 1 e 10');
+    
+    // Calcula derivadas numéricas no ponto a
+    const h=1e-5;
+    const fFn=x=>evalMath(f,{x:x});
+    const derivadas=[fFn(a)];
+    
+    for(let i=1;i<=n;i++){
+      let deriv=i;
+      for(let j=0;j<i;j++){
+        const prev=derivadas.slice();
+        derivadas=[];
+        for(let k=0;k<prev.length-1;k++){
+          derivadas.push((prev[k+1]-prev[k])/h);
         }
       }
-      
-      if(melhor){
-        final=melhor.s;
-      }else{
-        final=parseFloat(L.toFixed(6));
+      // Simplificação: usa diferenças finitas centradas
+    }
+    
+    // Método simplificado: calcula coeficientes numericamente
+    const coeficientes=[];
+    for(let i=0;i<=n;i++){
+      let derivada=0;
+      const pontos=10;
+      for(let j=0;j<pontos;j++){
+        const x=a+(j-pontos/2)*h;
+        let val=fFn(x);
+        for(let k=0;k<i;k++){
+          val=(fFn(x+h*(k+1))-fFn(x-h*(k+1)))/(2*h*(k+1));
+        }
+        derivada+=val;
+      }
+      coeficientes.push(derivada/pontos);
+    }
+    
+    // Monta polinômio de Taylor
+    let taylor=`${coeficientes[0].toFixed(4)}`;
+    for(let i=1;i<=n;i++){
+      const coef=coeficientes[i]/factorial(i);
+      if(Math.abs(coef)>1e-6){
+        if(coef>0) taylor+=` + ${coef.toFixed(4)}*(x-${a})^${i}`;
+        else taylor+=` - ${Math.abs(coef).toFixed(4)}*(x-${a})^${i}`;
       }
     }
     
-    const dirSymbol=effectiveDir==='left'?'⁻':effectiveDir==='right'?'⁺':'';
-    document.getElementById('lim-result').innerHTML=`
-      <div class="result">
-        <div class="math">lim<sub>x→${aStr}${dirSymbol}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div>
-        <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)"> Método: ${method}</div>
-        ${diverge?'<div style="margin-top:4px;font-size:0.85rem;color:#f59e0b">⚠️ O limite diverge</div>':''}
-      </div>`;
+    document.getElementById('tay-result').innerHTML=`<div class="result"><div class="math">f(x) ≈ ${taylor}</div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Série de Taylor de ordem ${n} em x=${a}</div></div>`;
     
     // Gráfico
-    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
-    const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
-    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x) próximo de x='+aStr,xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
-    toast('Limite calculado!','ok');
-  }catch(e){
-    toast(e.message,'err');
-    document.getElementById('lim-result').innerHTML=`<div class="result" style="border-color:#ef4444"><div class="math" style="color:#ef4444">❌ Erro: ${e.message}</div></div>`;
-  }
+    const xs=Array.from({length:100},(_,i)=>a-2+4*i/99);
+    const ys=xs.map(x=>fFn(x));
+    const yt=xs.map(x=>{
+      let sum=coeficientes[0];
+      for(let i=1;i<=n;i++){
+        sum+=coeficientes[i]/factorial(i)*Math.pow(x-a,i);
+      }
+      return sum;
+    });
+    
+    Plotly.newPlot('tay-plot',[{x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},{x:xs,y:yt,name:'Taylor',line:{color:'#06b6d4',width:3,dash:'dash'}}],{title:'Aproximação de Taylor',xaxis:{title:'x'},yaxis:{title:'valor'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Série de Taylor calculada!','ok');
+  }catch(e){toast(e.message,'err');}
 }
+
+function factorial(n){if(n<=1) return 1;let r=1;for(let i=2;i<=n;i++) r*=i;return r;}
+
 // ============ INTEGRAIS ============
 function calcIntegral(){
   try{
-    const f=str('int-f');
-    const x1=num('int-x1'),x2=num('int-x2');
+    const f=str('int-f'),x1=num('int-x1'),x2=num('int-x2');
     const fn=x=>evalMath(f,{x:x});
     const n=1000,h=(x2-x1)/n;
     let s=fn(x1)+fn(x2);
@@ -726,122 +589,136 @@ function calcIntegral(){
     document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
     const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
     const ys=xs.map(x=>fn(x));
-    Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}}],{title:'Integral',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}}],{title:'Integral',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
     toast('Integral calculada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ MHS ============
+// ============ NÚMEROS COMPLEXOS ============
+function parseComplexo(s){
+  s=s.replace(/\s/g,'');
+  const match=s.match(/^([+-]?\d*\.?\d*)([+-]\d*\.?\d*)i$/);
+  if(match){
+    const real=match[1]===''||match[1]==='+'?1:match[1]==='-'?-1:parseFloat(match[1]);
+    const imag=match[2]==='+'?1:match[2]==='-'?-1:parseFloat(match[2]);
+    return {real,imag};
+  }
+  const match2=s.match(/^([+-]?\d*\.?\d*)$/);
+  if(match2) return {real:parseFloat(match2[1]),imag:0};
+  throw new Error('Formato inválido. Use: a+bi');
+}
+
+function calcComplexo(op){
+  try{
+    const z1=parseComplexo(str('com-z1')),z2=parseComplexo(str('com-z2'));
+    let resultado,label;
+    
+    if(op==='add'){resultado={real:z1.real+z2.real,imag:z1.imag+z2.imag};label='z₁ + z₂';}
+    else if(op==='sub'){resultado={real:z1.real-z2.real,imag:z1.imag-z2.imag};label='z₁ - z₂';}
+    else if(op==='mul'){resultado={real:z1.real*z2.real-z1.imag*z2.imag,imag:z1.real*z2.imag+z1.imag*z2.real};label='z₁ · z₂';}
+    else if(op==='div'){const denom=z2.real*z2.real+z2.imag*z2.imag;resultado={real:(z1.real*z2.real+z1.imag*z2.imag)/denom,imag:(z1.imag*z2.real-z1.real*z2.imag)/denom};label='z₁ / z₂';}
+    else if(op==='mod'){resultado={real:Math.sqrt(z1.real*z1.real+z1.imag*z1.imag),imag:0};label='|z₁|';}
+    
+    const resultadoStr=resultado.imag===0?`${resultado.real.toFixed(4)}`:`${resultado.real.toFixed(4)} + ${resultado.imag.toFixed(4)}i`;
+    document.getElementById('com-result').innerHTML=`<div class="result"><div class="math">${label} = <strong>${resultadoStr}</strong></div></div>`;
+    
+    // Gráfico de Argand
+    Plotly.newPlot('com-plot',[{x:[0,z1.real],y:[0,z1.imag],mode:'lines+markers',name:'z₁',line:{color:'#4f46e5',width:3}},{x:[0,z2.real],y:[0,z2.imag],mode:'lines+markers',name:'z₂',line:{color:'#06b6d4',width:3}},{x:[0,resultado.real],y:[0,resultado.imag],mode:'lines+markers',name:'Resultado',line:{color:'#f59e0b',width:3}}],{title:'Plano de Argand',xaxis:{title:'Re',zeroline:true},yaxis:{title:'Im',zeroline:true},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Operação realizada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ MATRIZES ============
+function getMatriz2(prefix){
+  return [[num(prefix+'11'),num(prefix+'12')],[num(prefix+'21'),num(prefix+'22')]];
+}
+
+function calcMatriz2(op){
+  try{
+    const A=getMatriz2('m2-a'),B=getMatriz2('m2-b');
+    let resultado,label;
+    
+    if(op==='add'){resultado=[[A[0][0]+B[0][0],A[0][1]+B[0][1]],[A[1][0]+B[1][0],A[1][1]+B[1][1]]];label='A + B';}
+    else if(op==='mul'){resultado=[[A[0][0]*B[0][0]+A[0][1]*B[1][0],A[0][0]*B[0][1]+A[0][1]*B[1][1]],[A[1][0]*B[0][0]+A[1][1]*B[1][0],A[1][0]*B[0][1]+A[1][1]*B[1][1]]];label='A · B';}
+    else if(op==='detA'){const det=A[0][0]*A[1][1]-A[0][1]*A[1][0];document.getElementById('mat2-result').innerHTML=`<div class="result"><div class="math">det(A) = <strong>${det.toFixed(4)}</strong></div></div>`;toast('Determinante calculado!','ok');return;}
+    else if(op==='detB'){const det=B[0][0]*B[1][1]-B[0][1]*B[1][0];document.getElementById('mat2-result').innerHTML=`<div class="result"><div class="math">det(B) = <strong>${det.toFixed(4)}</strong></div></div>`;toast('Determinante calculado!','ok');return;}
+    
+    const resultadoHTML=`<table><tr><td>${resultado[0][0].toFixed(2)}</td><td>${resultado[0][1].toFixed(2)}</td></tr><tr><td>${resultado[1][0].toFixed(2)}</td><td>${resultado[1][1].toFixed(2)}</td></tr></table>`;
+    document.getElementById('mat2-result').innerHTML=`<div class="result"><div class="math">${label} =</div>${resultadoHTML}</div>`;
+    toast('Operação realizada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+function calcMatriz3(){
+  try{
+    const A=[[num('m3-a11'),num('m3-a12'),num('m3-a13')],[num('m3-a21'),num('m3-a22'),num('m3-a23')],[num('m3-a31'),num('m3-a32'),num('m3-a33')]];
+    const det=A[0][0]*(A[1][1]*A[2][2]-A[1][2]*A[2][1])-A[0][1]*(A[1][0]*A[2][2]-A[1][2]*A[2][0])+A[0][2]*(A[1][0]*A[2][1]-A[1][1]*A[2][0]);
+    document.getElementById('mat3-result').innerHTML=`<div class="result"><div class="math">det(A) = <strong>${det.toFixed(4)}</strong></div></div>`;
+    toast('Determinante calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ ESTATÍSTICA ============
+function calcEstatistica(){
+  try{
+    const data=str('est-data').split(',').map(x=>Number(x.trim().replace(',','.'))).filter(x=>isFinite(x));
+    if(data.length<2) throw new Error('Precisa de pelo menos 2 dados');
+    
+    const n=data.length;
+    const media=data.reduce((a,b)=>a+b,0)/n;
+    const variancia=data.reduce((sum,x)=>sum+Math.pow(x-media,2),0)/(n-1);
+    const desvio=Math.sqrt(variancia);
+    const min=Math.min(...data),max=Math.max(...data);
+    const sorted=[...data].sort((a,b)=>a-b);
+    const mediana=n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
+    
+    document.getElementById('est-result').innerHTML=`
+      <div class="result">
+        <div class="grid-2">
+          <div><strong>Média:</strong> ${media.toFixed(4)}</div>
+          <div><strong>Mediana:</strong> ${mediana.toFixed(4)}</div>
+          <div><strong>Desvio Padrão:</strong> ${desvio.toFixed(4)}</div>
+          <div><strong>Variância:</strong> ${variancia.toFixed(4)}</div>
+          <div><strong>Mínimo:</strong> ${min}</div>
+          <div><strong>Máximo:</strong> ${max}</div>
+          <div><strong>N:</strong> ${n}</div>
+        </div>
+      </div>`;
+    toast('Estatísticas calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ FÍSICA ============
 function simMHS(){
   try{
     const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p'),T=num('mhs-t');
     if(A<=0||w<=0||T<=0)throw new Error('Valores positivos');
     const ts=Array.from({length:200},(_,i)=>T*i/199);
-    const x=ts.map(t=>A*Math.cos(w*t+p));
-    const v=ts.map(t=>-A*w*Math.sin(w*t+p));
-    const a=ts.map(t=>-A*w*w*Math.cos(w*t+p));
+    const x=ts.map(t=>A*Math.cos(w*t+p)),v=ts.map(t=>-A*w*Math.sin(w*t+p)),a=ts.map(t=>-A*w*w*Math.cos(w*t+p));
     document.getElementById('mhs-result').innerHTML=`<div class="result"><div class="math">x(t) = ${A}·cos(${w}t + ${p})</div><div>Período = <strong>${(2*Math.PI/w).toFixed(3)} s</strong></div></div>`;
-    Plotly.newPlot('mhs-plot',[
-      {x:ts,y:x,name:'x(t)',line:{color:'#4f46e5',width:3}},
-      {x:ts,y:v,name:'v(t)',line:{color:'#06b6d4',width:3}},
-      {x:ts,y:a,name:'a(t)',line:{color:'#f59e0b',width:3}}
-    ],{title:'MHS',xaxis:{title:'t (s)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    Plotly.newPlot('mhs-plot',[{x:ts,y:x,name:'x(t)',line:{color:'#4f46e5',width:3}},{x:ts,y:v,name:'v(t)',line:{color:'#06b6d4',width:3}},{x:ts,y:a,name:'a(t)',line:{color:'#f59e0b',width:3}}],{title:'MHS',xaxis:{title:'t (s)'},paper_bgcolor:'var(--bg)'},{responsive:true});
     toast('MHS simulado!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LANÇAMENTO ============
 function simObl(){
   try{
-    const v0=num('obl-v'),ang=num('obl-a'),h0=num('obl-h'),g=num('obl-g');
-    if(v0<=0||g<=0)throw new Error('Valores positivos');
-    const rad=ang*Math.PI/180;
-    const vx=v0*Math.cos(rad),vy=v0*Math.sin(rad);
+    const v0=num('obl-v'),ang=num('obl-a'),h0=num('obl-h'),g=9.81;
+    if(v0<=0)throw new Error('Valores positivos');
+    const rad=ang*Math.PI/180,vx=v0*Math.cos(rad),vy=v0*Math.sin(rad);
     if(vx===0)throw new Error('Ângulo ≠ 90°');
-    const tI=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
-    const H=h0+vy*vy/(2*g);
-    const R=vx*tI;
-    const ts=Array.from({length:200},(_,i)=>tI*i/199);
-    const X=ts.map(t=>vx*t);
-    const Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
+    const tI=(vy+Math.sqrt(vy*vy+2*g*h0))/g,H=h0+vy*vy/(2*g),R=vx*tI;
+    const ts=Array.from({length:200},(_,i)=>tI*i/199),X=ts.map(t=>vx*t),Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
     document.getElementById('obl-result').innerHTML=`<div class="result"><div>Alcance = <strong>${R.toFixed(2)} m</strong></div><div>Altura máx = <strong>${H.toFixed(2)} m</strong></div></div>`;
-    Plotly.newPlot('obl-plot',[{x:X,y:Y,name:'Trajetória',line:{color:'#4f46e5',width:3}}],{title:'Lançamento',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'#fafbff'},{responsive:true});
+    Plotly.newPlot('obl-plot',[{x:X,y:Y,name:'Trajetória',line:{color:'#4f46e5',width:3}}],{title:'Lançamento',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'var(--bg)'},{responsive:true});
     toast('Lançamento simulado!','ok');
-  }catch(e){toast(e.message,'err');}
-}
-
-// ============ CINEMÁTICA ============
-function calcCinematica(){
-  try{
-    const s=str('cin-s');
-    const tRange=str('cin-t');
-    const [t0,t1]=tRange.split(',').map(x=>Number(x.trim()));
-    const sFn=t=>evalMath(s,{t:t});
-    const vFn=t=>{const h=1e-5;return(sFn(t+h)-sFn(t-h))/(2*h);};
-    const aFn=t=>{const h=1e-4;return(sFn(t+h)-2*sFn(t)+sFn(t-h))/(h*h);};
-    const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
-    const S=ts.map(sFn),V=ts.map(vFn),A=ts.map(aFn);
-    Plotly.newPlot('cin-plot',[
-      {x:ts,y:S,name:'s(t)',line:{color:'#4f46e5',width:3}},
-      {x:ts,y:V,name:'v(t)',line:{color:'#06b6d4',width:3}},
-      {x:ts,y:A,name:'a(t)',line:{color:'#f59e0b',width:3}}
-    ],{title:'Cinemática',xaxis:{title:'t (s)'},yaxis:{title:'valor'},paper_bgcolor:'#fafbff'},{responsive:true});
-    const nPoints=10;
-    const tVals=Array.from({length:nPoints},(_,i)=>t0+(t1-t0)*i/(nPoints-1));
-    let tableHTML=`<div style="margin-top:18px;overflow-x:auto"><table><thead><tr><th>t</th><th>s(t)</th><th>v(t)</th><th>a(t)</th></tr></thead><tbody>`;
-    tVals.forEach(t=>{const sv=sFn(t),vv=vFn(t),av=aFn(t);tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${isFinite(sv)?sv.toFixed(4):'NaN'}</td><td>${isFinite(vv)?vv.toFixed(4):'NaN'}</td><td>${isFinite(av)?av.toFixed(4):'NaN'}</td></tr>`;});
-    tableHTML+=`</tbody></table></div>`;
-    document.getElementById('cin-table').innerHTML=tableHTML;
-    document.getElementById('cin-result').innerHTML=`<div class="result"><div class="math">s(t) = ${s}</div></div>`;
-    toast('Cinemática analisada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
 // ============ TEORIA DOS NÚMEROS ============
 function isPrime(n){if(n<2)return false;if(n<4)return true;if(n%2===0||n%3===0)return false;for(let i=5;i*i<=n;i+=6)if(n%i===0||n%(i+2)===0)return false;return true;}
-function testPrimo(){try{const n=Math.floor(num('p-n'));if(n<0)throw new Error('n≥0');const r=isPrime(n);document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${r?'<span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO primo</span>'}</div>`;toast('Teste concluído','ok');}catch(e){toast(e.message,'err');}}
-function crivo(){try{const N=Math.floor(num('p-sieve'));if(N<2||N>1e6)throw new Error('2≤N≤1e6');const sieve=new Array(N+1).fill(true);sieve[0]=sieve[1]=false;for(let i=2;i*i<=N;i++)if(sieve[i])for(let j=i*i;j<=N;j+=i)sieve[j]=false;const primes=[];for(let i=2;i<=N;i++)if(sieve[i])primes.push(i);document.getElementById('p-result').innerHTML=`<div class="result">Primos até ${N}: <strong>${primes.length}</strong><br><small>${primes.slice(0,100).join(', ')}${primes.length>100?'...':''}</small></div>`;toast('Crivo executado','ok');}catch(e){toast(e.message,'err');}}
+function testPrimo(){try{const n=Math.floor(num('p-n'));if(n<0)throw new Error('n≥0');document.getElementById('p-result').innerHTML=`<div class="result"><strong>${n}</strong> ${isPrime(n)?'<span style="color:#10b981">PRIMO</span>':'<span style="color:#ef4444">NÃO primo</span>'}</div>`;toast('Teste concluído','ok');}catch(e){toast(e.message,'err');}}
 function fatorar(){try{let n=Math.floor(num('p-fact'));if(n<2)throw new Error('n≥2');const orig=n,factors={};for(let p=2;p*p<=n;p++)while(n%p===0){factors[p]=(factors[p]||0)+1;n/=p;}if(n>1)factors[n]=(factors[n]||0)+1;const str=Object.entries(factors).map(([p,k])=>k>1?`${p}^${k}`:p).join('·');document.getElementById('p-result').innerHTML=`<div class="result"><strong>${orig} = ${str}</strong></div>`;toast('Fatoração concluída','ok');}catch(e){toast(e.message,'err');}}
-function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a;}
-function mdc(){try{const a=Math.floor(num('p-a')),b=Math.floor(num('p-b'));const r=gcd(a,b);document.getElementById('p-result').innerHTML=`<div class="result">MDC(${a},${b})=<strong>${r}</strong></div>`;toast('MDC calculado','ok');}catch(e){toast(e.message,'err');}}
-function mmc(){try{const a=Math.floor(num('p-c')),b=Math.floor(num('p-d'));const r=Math.abs(a*b)/gcd(a,b);document.getElementById('p-result').innerHTML=`<div class="result">MMC(${a},${b})=<strong>${r}</strong></div>`;toast('MMC calculado','ok');}catch(e){toast(e.message,'err');}}
-function potMod(base,exp,mod){let r=1n;base=BigInt(base)%BigInt(mod);exp=BigInt(exp);mod=BigInt(mod);while(exp>0n){if(exp%2n===1n)r=(r*base)%mod;exp/=2n;base=(base*base)%mod;}return Number(r);}
-function extGcd(a,b){if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}
-function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),m=Math.floor(num('m-m'));if(m<=0)throw new Error('m>0');const r=potMod(a<0?a+m:a,b,m);document.getElementById('m-result').innerHTML=`<div class="result">${a}^${b} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
-function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
-function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
-function mobius(n){let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;return mu;}
-function numDivisores(n){let d=0;for(let i=1;i*i<=n;i++)if(n%i===0){d++;if(i!==n/i)d++;}return d;}
-function somaDivisores(n){let s=0;for(let i=1;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s;}
-function listarDivisores(n){const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}return divs.sort((a,b)=>a-b);}
-function funcoesNUI(){
-  try{
-    const n=Math.floor(num('f-n'));
-    if(n<1)throw new Error('n≥1');
-    const ph=phi(n),mu=mobius(n),d=numDivisores(n),sigma=somaDivisores(n),divs=listarDivisores(n);
-    let muDesc=mu===0?'n tem fator quadrático perfeito':mu===1?'n é produto de nº par de primos distintos':'n é produto de nº ímpar de primos distintos';
-    let html=`<div class="func-cards">
-      <div class="func-card phi"><div class="func-symbol">φ(${n})</div><div class="func-name">Totiente de Euler</div><div class="func-value">${ph}</div><div class="func-desc">Nº de inteiros entre 1 e ${n} coprimos com ${n}</div></div>
-      <div class="func-card mu"><div class="func-symbol">μ(${n})</div><div class="func-name">Função de Möbius</div><div class="func-value">${mu}</div><div class="func-desc">${muDesc}</div></div>
-      <div class="func-card d"><div class="func-symbol">d(${n})</div><div class="func-name">Nº de Divisores</div><div class="func-value">${d}</div><div class="func-desc">Quantidade total de divisores positivos de ${n}</div></div>
-      <div class="func-card sigma"><div class="func-symbol">σ(${n})</div><div class="func-name">Soma dos Divisores</div><div class="func-value">${sigma}</div><div class="func-desc">Soma de todos os divisores positivos de ${n}</div></div>
-    </div>
-    <div class="divisores-box"><div class="title"> Divisores de ${n}</div><div class="list">${divs.join(', ')}</div></div>`;
-    document.getElementById('f-result').innerHTML=html;
-    toast('Funções calculadas!','ok');
-  }catch(e){toast(e.message,'err');}
-}
-
-// ============ HISTÓRICO ============
-let history=[];
-function exportarHistorico(){
-  if(!history.length){toast('Vazio','warn');return;}
-  let txt='RELATÓRIO SciCalc\n'+new Date().toLocaleString('pt-BR')+'\n\n';
-  history.forEach(h=>{txt+=`[${h.n}] ${h.time} — ${h.tab}\n    ${h.input} → ${h.result}\n\n`;});
-  const blob=new Blob([txt],{type:'text/plain'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='relatorio.txt';a.click();
-}
-function limparHistorico(){history=[];toast('Limpo','ok');}
 </script>
 </body>
 </html>
