@@ -60,6 +60,26 @@
   .chip{display:inline-block;padding:3px 10px;background:#eef2ff;color:var(--primary);border-radius:20px;font-size:.78rem;font-weight:600}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+  
+  /* 🎨 CARDS DAS FUNÇÕES DE TEORIA DOS NÚMEROS */
+  .func-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
+  .func-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 4px 12px rgba(0,0,0,.06);border-left:5px solid var(--primary);transition:transform .2s}
+  .func-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
+  .func-card.phi{border-left-color:#4f46e5}
+  .func-card.mu{border-left-color:#06b6d4}
+  .func-card.d{border-left-color:#f59e0b}
+  .func-card.sigma{border-left-color:#10b981}
+  .func-card .func-symbol{font-family:'Cambria Math',serif;font-size:2rem;font-weight:700;color:var(--primary);margin-bottom:4px}
+  .func-card.phi .func-symbol{color:#4f46e5}
+  .func-card.mu .func-symbol{color:#06b6d4}
+  .func-card.d .func-symbol{color:#f59e0b}
+  .func-card.sigma .func-symbol{color:#10b981}
+  .func-card .func-name{font-size:.85rem;color:var(--muted);margin-bottom:10px;font-weight:600}
+  .func-card .func-value{font-size:1.8rem;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .func-card .func-desc{font-size:.82rem;color:var(--muted);line-height:1.5;font-style:italic}
+  .divisores-box{margin-top:16px;padding:14px;background:#f0f9ff;border-radius:10px;border-left:4px solid #06b6d4}
+  .divisores-box .title{font-weight:700;color:#0891b2;margin-bottom:6px}
+  .divisores-box .list{font-family:monospace;background:#fff;padding:8px;border-radius:6px;word-break:break-all}
 </style>
 </head>
 <body>
@@ -73,7 +93,7 @@
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
   <button class="tab" data-tab="fisica">⚡ Física</button>
-  <button class="tab" data-tab="numeros"> Números</button>
+  <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="historico"> Histórico</button>
 </nav>
 
@@ -204,7 +224,7 @@
     </div>
     <div class="sub-panel" id="sub-funcoes">
       <div class="form-row">
-        <div><label>n</label><input id="f-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="funcoesNUI()">Calcular</button></div>
+        <div><label>n</label><input id="f-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="funcoesNUI()">Calcular Todas</button></div>
       </div>
       <div id="f-result"></div>
     </div>
@@ -213,10 +233,10 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2> Histórico</h2>
+    <h2>📋 Histórico</h2>
     <div class="history-actions">
-      <button class="btn accent" onclick="exportarHistorico()"> Exportar</button>
-      <button class="btn danger" onclick="limparHistorico()">️ Limpar</button>
+      <button class="btn accent" onclick="exportarHistorico()">📄 Exportar</button>
+      <button class="btn danger" onclick="limparHistorico()">🗑️ Limpar</button>
       <span class="chip" id="hist-count">0 registros</span>
     </div>
     <div id="hist-list"></div>
@@ -268,7 +288,6 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
-//  DERIVADA - USANDO .diff() DO OBJETO NERDAMER
 function calcDerivada(){
   try{
     const f=str('der-f');
@@ -277,67 +296,45 @@ function calcDerivada(){
     const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
     
     let stepsHTML='<div style="margin-top:20px">';
+    stepsHTML+=`<div class="wolfram-step"><div class="title">📋 Função Original</div><div class="formula">f(${varName}) = ${f}</div></div>`;
     
-    stepsHTML+=`<div class="wolfram-step">
-      <div class="title">📋 Função Original</div>
-      <div class="formula">f(${varName}) = ${f}</div>
-    </div>`;
-    
-    // 🚀 TENTA DERIVADA SIMBÓLICA COM .diff()
     let derivadaStr='';
     let derivadaOK=false;
     let metodo='';
     
     try{
-      // Método 1: Usar .diff() do objeto Nerdamer
       const expr = nerdamer(f);
       const deriv = expr.diff(varName);
       derivadaStr = deriv.toString();
-      
-      // Verifica se resolveu (não contém "diff")
       if(derivadaStr && !derivadaStr.includes('diff(') && !derivadaStr.includes('derivative(')){
         derivadaOK = true;
         metodo = 'Simbólica (Nerdamer)';
       }
-    }catch(e){
-      console.log('Erro simbólico:', e);
-    }
+    }catch(e){console.log('Erro simbólico:', e);}
     
-    // Se falhou, usa numérica
     if(!derivadaOK){
       metodo = 'Numérica (diferenças finitas)';
       derivadaStr = `d/d${varName}(${f}) [calculada numericamente]`;
     }
     
-    // SEMPRE mostra o resultado
     document.getElementById('der-result').innerHTML=`
       <div class="result">
         <div class="math">f'(${varName}) = <strong style="font-size:1.3rem">${derivadaOK ? derivadaStr : 'Calculada numericamente'}</strong></div>
         <div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Método: ${metodo}</div>
       </div>`;
     
-    // Passo a passo
     if(derivadaOK){
-      stepsHTML+=`<div class="wolfram-step">
-        <div class="title">🔍 Aplicando Regras</div>
-        <div style="margin-top:10px">`;
-      
+      stepsHTML+=`<div class="wolfram-step"><div class="title">🔍 Aplicando Regras</div><div style="margin-top:10px">`;
       const termos = f.split(/(?=[+-])/g).map(t=>t.trim()).filter(t=>t);
       termos.forEach((termo,idx)=>{
         try{
           const exprTermo = nerdamer(termo);
           const derivTermo = exprTermo.diff(varName).toString();
           let regra='';
-          if(termo.includes('^')){
-            regra=' Regra da Potência';
-          }else if(/sin|cos|tan/i.test(termo)){
-            regra='📐 Regra Trigonométrica';
-          }else if(termo.includes(varName)){
-            regra='📏 Regra Linear';
-          }else{
-            regra='📏 Constante';
-          }
-          
+          if(termo.includes('^'))regra='📏 Regra da Potência';
+          else if(/sin|cos|tan/i.test(termo))regra='📐 Regra Trigonométrica';
+          else if(termo.includes(varName))regra='📏 Regra Linear';
+          else regra='📏 Constante';
           stepsHTML+=`<div style="margin:10px 0;padding:10px;background:#fff;border-radius:6px;border-left:3px solid var(--primary)">
             <div style="font-size:0.95rem"><strong>Termo ${idx+1}:</strong> <code>${termo}</code></div>
             <div class="rule">${regra}</div>
@@ -345,61 +342,33 @@ function calcDerivada(){
           </div>`;
         }catch(e){}
       });
-      
       stepsHTML+=`</div></div>`;
-      
-      stepsHTML+=`<div class="wolfram-step">
-        <div class="title">✅ Resultado Final</div>
-        <div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${derivadaStr}</strong></div>
-      </div>`;
+      stepsHTML+=`<div class="wolfram-step"><div class="title">✅ Resultado Final</div><div class="formula">f'(${varName}) = <strong style="font-size:1.3rem;color:var(--primary)">${derivadaStr}</strong></div></div>`;
     }else{
-      stepsHTML+=`<div class="wolfram-step">
-        <div class="title"> Derivada Numérica</div>
-        <div style="color:var(--muted)">A derivada foi calculada numericamente usando diferenças finitas centradas: f'(x) ≈ [f(x+h) - f(x-h)] / (2h)</div>
-      </div>`;
+      stepsHTML+=`<div class="wolfram-step"><div class="title">📊 Derivada Numérica</div><div style="color:var(--muted)">Calculada usando diferenças finitas centradas: f'(x) ≈ [f(x+h) - f(x-h)] / (2h)</div></div>`;
     }
-    
     stepsHTML+='</div>';
     document.getElementById('der-steps').innerHTML=stepsHTML;
     
-    // Gráfico
     if(!isNaN(x1) && !isNaN(x2)){
       const xs=Array.from({length:200},(_,i)=>x1+(x2-x1)*i/199);
       const ys=xs.map(x=>evalMath(f,{[varName]:x}));
-      
       let yds=[];
       if(derivadaOK){
         yds=xs.map(x=>evalMath(derivadaStr,{[varName]:x}));
       }else{
-        // Derivada numérica para o gráfico
         const h=1e-5;
-        yds=xs.map(x=>{
-          const fp=evalMath(f,{[varName]:x+h});
-          const fm=evalMath(f,{[varName]:x-h});
-          return (fp-fm)/(2*h);
-        });
+        yds=xs.map(x=>{const fp=evalMath(f,{[varName]:x+h});const fm=evalMath(f,{[varName]:x-h});return (fp-fm)/(2*h);});
       }
-      
       Plotly.newPlot('der-plot',[
         {x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},
         {x:xs,y:yds,name:"f'(x)",line:{color:'#06b6d4',width:3,dash:'dash'}}
-      ],{
-        title:'Função e sua Derivada',
-        xaxis:{title:varName},
-        yaxis:{title:'valor'},
-        paper_bgcolor:'#fafbff',
-        plot_bgcolor:'#fafbff'
-      },{responsive:true});
+      ],{title:'Função e sua Derivada',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
     }
-    
     toast(derivadaOK?'Derivada simbólica calculada!':'Derivada numérica calculada!','ok');
-  }catch(e){
-    toast(e.message,'err');
-    document.getElementById('der-result').innerHTML=`<div class="result"><div class="math">Erro: ${e.message}</div></div>`;
-  }
+  }catch(e){toast(e.message,'err');document.getElementById('der-result').innerHTML=`<div class="result"><div class="math">Erro: ${e.message}</div></div>`;}
 }
 
-// Limite
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -407,7 +376,6 @@ function calcLimite(){
     const dir=document.getElementById('lim-dir').value;
     const isInf=aStr==='inf'||aStr==='infinity';
     const aVal=isInf?null:Number(aStr.replace(',','.'));
-    
     let L;
     if(isInf){
       const vals=[1e3,1e4,1e5,1e6].map(x=>evalMath(f,{x:x})).filter(v=>isFinite(v));
@@ -421,32 +389,22 @@ function calcLimite(){
         if(dir==='both'||dir==='left'){const vm=evalMath(f,{x:aVal-d});if(isFinite(vm))valsM.push(vm);}
       }
       if(valsP.length===0&&valsM.length===0)throw new Error('Não calculável');
-      if(dir==='both'){
-        const lastP=valsP[valsP.length-1],lastM=valsM[valsM.length-1];
-        L=(lastP+lastM)/2;
-      }else if(dir==='right'){L=valsP[valsP.length-1];}
+      if(dir==='both'){const lastP=valsP[valsP.length-1],lastM=valsM[valsM.length-1];L=(lastP+lastM)/2;}
+      else if(dir==='right'){L=valsP[valsP.length-1];}
       else{L=valsM[valsM.length-1];}
     }
-    
     const rounded=Math.round(L);
     const final=Math.abs(L-rounded)<1e-6?rounded:parseFloat(L.toFixed(8));
-    
-    document.getElementById('lim-result').innerHTML=`
-      <div class="result">
-        <div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong>${final}</strong></div>
-      </div>`;
-    
+    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong>${final}</strong></div></div>`;
     let xvals,yvals;
     if(isInf){xvals=Array.from({length:200},(_,i)=>i*0.5+0.1);}
     else{xvals=Array.from({length:200},(_,i)=>aVal-5+i*0.05);}
     yvals=xvals.map(x=>{try{return evalMath(f,{x:x})}catch{return null}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'Comportamento de f(x)',margin:{t:40},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
-    
     toast('Limite calculado!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// Integral
 function calcIntegral(){
   try{
     const f=str('int-f');
@@ -456,12 +414,7 @@ function calcIntegral(){
     let s=fn(x1)+fn(x2);
     for(let i=1;i<n;i++)s+=fn(x1+i*h)*(i%2?4:2);
     const W=s*h/3;
-    
-    document.getElementById('int-result').innerHTML=`
-      <div class="result">
-        <div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div>
-      </div>`;
-    
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
     const xs=Array.from({length:300},(_,i)=>x1+(x2-x1)*i/299);
     const ys=xs.map(x=>evalMath(f,{x:x}));
     const areaX=[...xs,xs[xs.length-1],xs[0]],areaY=[...ys,0,0];
@@ -469,48 +422,36 @@ function calcIntegral(){
       {x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}},
       {x:areaX,y:areaY,fill:'tozeroy',fillcolor:'rgba(79,70,229,.3)',name:'Área',line:{width:0}}
     ],{title:'Integral Definida',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
-    
     toast('Integral calculada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// Cinemática
 function calcCinematica(){
   try{
     const s=str('cin-s');
     const tRange=str('cin-t');
     const [t0,t1]=tRange.split(',').map(x=>Number(x.trim()));
-    
     const sFn=t=>evalMath(s,{t:t});
     const vFn=t=>{const h=1e-5;return(sFn(t+h)-sFn(t-h))/(2*h);};
     const aFn=t=>{const h=1e-4;return(sFn(t+h)-2*sFn(t)+sFn(t-h))/(h*h);};
-    
     const ts=Array.from({length:200},(_,i)=>t0+(t1-t0)*i/199);
     const S=ts.map(sFn),V=ts.map(vFn),A=ts.map(aFn);
-    
     Plotly.newPlot('cin-plot',[
       {x:ts,y:S,name:'s(t)',line:{color:'#4f46e5',width:3}},
       {x:ts,y:V,name:'v(t)',line:{color:'#06b6d4',width:3}},
       {x:ts,y:A,name:'a(t)',line:{color:'#f59e0b',width:3}}
     ],{title:'Cinemática',xaxis:{title:'t (s)'},yaxis:{title:'valor'},paper_bgcolor:'#fafbff',plot_bgcolor:'#fafbff'},{responsive:true});
-    
     const nPoints=10;
     const tVals=Array.from({length:nPoints},(_,i)=>t0+(t1-t0)*i/(nPoints-1));
     let tableHTML=`<div style="margin-top:18px;overflow-x:auto"><table><thead><tr><th>t</th><th>s(t)</th><th>v(t)</th><th>a(t)</th></tr></thead><tbody>`;
-    tVals.forEach(t=>{
-      const sv=sFn(t),vv=vFn(t),av=aFn(t);
-      tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${isFinite(sv)?sv.toFixed(4):'NaN'}</td><td>${isFinite(vv)?vv.toFixed(4):'NaN'}</td><td>${isFinite(av)?av.toFixed(4):'NaN'}</td></tr>`;
-    });
+    tVals.forEach(t=>{const sv=sFn(t),vv=vFn(t),av=aFn(t);tableHTML+=`<tr><td>${t.toFixed(2)}</td><td>${isFinite(sv)?sv.toFixed(4):'NaN'}</td><td>${isFinite(vv)?vv.toFixed(4):'NaN'}</td><td>${isFinite(av)?av.toFixed(4):'NaN'}</td></tr>`;});
     tableHTML+=`</tbody></table></div>`;
     document.getElementById('cin-table').innerHTML=tableHTML;
-    
     document.getElementById('cin-result').innerHTML=`<div class="result"><div class="math">s(t) = ${s}</div></div>`;
-    
     toast('Cinemática analisada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// MHS
 function simMHS(){
   try{
     const A=num('mhs-a'),w=num('mhs-w'),p=num('mhs-p'),T=num('mhs-t');
@@ -519,20 +460,16 @@ function simMHS(){
     const x=ts.map(t=>A*Math.cos(w*t+p));
     const v=ts.map(t=>-A*w*Math.sin(w*t+p));
     const a=ts.map(t=>-A*w*w*Math.cos(w*t+p));
-    
     document.getElementById('mhs-result').innerHTML=`<div class="result"><div class="math">x(t) = ${A}·cos(${w}t + ${p})</div><div>Período = <strong>${(2*Math.PI/w).toFixed(3)} s</strong></div></div>`;
-    
     Plotly.newPlot('mhs-plot',[
       {x:ts,y:x,name:'x(t)',line:{color:'#4f46e5',width:3}},
       {x:ts,y:v,name:'v(t)',line:{color:'#06b6d4',width:3}},
       {x:ts,y:a,name:'a(t)',line:{color:'#f59e0b',width:3}}
     ],{title:'MHS',xaxis:{title:'t (s)'},paper_bgcolor:'#fafbff'},{responsive:true});
-    
     toast('MHS simulado!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// Lançamento
 function simObl(){
   try{
     const v0=num('obl-v'),ang=num('obl-a'),h0=num('obl-h'),g=num('obl-g');
@@ -543,15 +480,11 @@ function simObl(){
     const tI=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
     const H=h0+vy*vy/(2*g);
     const R=vx*tI;
-    
     const ts=Array.from({length:300},(_,i)=>tI*i/299);
     const X=ts.map(t=>vx*t);
     const Y=ts.map(t=>h0+vy*t-0.5*g*t*t);
-    
     document.getElementById('obl-result').innerHTML=`<div class="result"><div>Alcance = <strong>${R.toFixed(2)} m</strong></div><div>Altura máx = <strong>${H.toFixed(2)} m</strong></div></div>`;
-    
     Plotly.newPlot('obl-plot',[{x:X,y:Y,name:'Trajetória',line:{color:'#4f46e5',width:3}}],{title:'Lançamento',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'#fafbff'},{responsive:true});
-    
     toast('Lançamento simulado!','ok');
   }catch(e){toast(e.message,'err');}
 }
@@ -568,8 +501,78 @@ function potMod(base,exp,mod){let r=1n;base=BigInt(base)%BigInt(mod);exp=BigInt(
 function extGcd(a,b){if(b===0)return[a,1,0];const[g,x,y]=extGcd(b,a%b);return[g,y,x-Math.floor(a/b)*y];}
 function potModUI(){try{const a=Math.floor(num('m-a')),b=Math.floor(num('m-b')),m=Math.floor(num('m-m'));if(m<=0)throw new Error('m>0');const r=potMod(a<0?a+m:a,b,m);document.getElementById('m-result').innerHTML=`<div class="result">${a}^${b} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
 function invModUI(){try{const a=Math.floor(num('m-ia')),m=Math.floor(num('m-im'));if(m<=0)throw new Error('m>0');const[g,x]=extGcd(a,m);if(g!==1)throw new Error('Inverso não existe');const r=((x%m)+m)%m;document.getElementById('m-result').innerHTML=`<div class="result">Inverso de ${a} mod ${m}=<strong>${r}</strong></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
+
+// 🎨 FUNÇÕES DE TEORIA DOS NÚMEROS - CARDS INDIVIDUAIS
 function phi(n){let r=n;for(let p=2;p*p<=n;p++)if(n%p===0){while(n%p===0)n/=p;r-=r/p;}if(n>1)r-=r/n;return r;}
-function funcoesNUI(){try{const n=Math.floor(num('f-n'));if(n<1)throw new Error('n≥1');const ph=phi(n);let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}divs.sort((a,b)=>a-b);const d=divs.length,sigma=divs.reduce((a,b)=>a+b,0);document.getElementById('f-result').innerHTML=`<div class="result"><div>φ(${n})=<strong>${ph}</strong></div><div>μ(${n})=<strong>${mu}</strong></div><div>d(${n})=<strong>${d}</strong></div><div>σ(${n})=<strong>${sigma}</strong></div><div>Divisores: ${divs.join(',')}</div></div>`;toast('Calculado','ok');}catch(e){toast(e.message,'err');}}
+function mobius(n){let nn=n,mu=1,sqf=true;for(let p=2;p*p<=nn;p++)if(nn%p===0){let c=0;while(nn%p===0){c++;nn/=p;}if(c>1){sqf=false;break;}mu=-mu;}if(nn>1)mu=-mu;if(!sqf)mu=0;return mu;}
+function numDivisores(n){let d=0;for(let i=1;i*i<=n;i++)if(n%i===0){d++;if(i!==n/i)d++;}return d;}
+function somaDivisores(n){let s=0;for(let i=1;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s;}
+function listarDivisores(n){const divs=[];for(let i=1;i*i<=n;i++)if(n%i===0){divs.push(i);if(i!==n/i)divs.push(n/i);}return divs.sort((a,b)=>a-b);}
+
+function funcoesNUI(){
+  try{
+    const n=Math.floor(num('f-n'));
+    if(n<1)throw new Error('n≥1');
+    
+    const ph=phi(n);
+    const mu=mobius(n);
+    const d=numDivisores(n);
+    const sigma=somaDivisores(n);
+    const divs=listarDivisores(n);
+    
+    // Descrição de cada função
+    let muDesc='';
+    if(mu===0)muDesc='n tem fator quadrático perfeito';
+    else if(mu===1)muDesc='n é produto de nº par de primos distintos';
+    else muDesc='n é produto de nº ímpar de primos distintos';
+    
+    // 🎨 Cards individuais para cada função
+    let html=`<div class="func-cards">`;
+    
+    // Card φ(n) - Totiente de Euler
+    html+=`<div class="func-card phi">
+      <div class="func-symbol">φ(${n})</div>
+      <div class="func-name">Totiente de Euler</div>
+      <div class="func-value">${ph}</div>
+      <div class="func-desc">Nº de inteiros entre 1 e ${n} coprimos com ${n}</div>
+    </div>`;
+    
+    // Card μ(n) - Função de Möbius
+    html+=`<div class="func-card mu">
+      <div class="func-symbol">μ(${n})</div>
+      <div class="func-name">Função de Möbius</div>
+      <div class="func-value">${mu}</div>
+      <div class="func-desc">${muDesc}</div>
+    </div>`;
+    
+    // Card d(n) - Número de divisores
+    html+=`<div class="func-card d">
+      <div class="func-symbol">d(${n})</div>
+      <div class="func-name">Nº de Divisores</div>
+      <div class="func-value">${d}</div>
+      <div class="func-desc">Quantidade total de divisores positivos de ${n}</div>
+    </div>`;
+    
+    // Card σ(n) - Soma dos divisores
+    html+=`<div class="func-card sigma">
+      <div class="func-symbol">σ(${n})</div>
+      <div class="func-name">Soma dos Divisores</div>
+      <div class="func-value">${sigma}</div>
+      <div class="func-desc">Soma de todos os divisores positivos de ${n}</div>
+    </div>`;
+    
+    html+=`</div>`;
+    
+    // Box com lista de divisores
+    html+=`<div class="divisores-box">
+      <div class="title">📋 Divisores de ${n}</div>
+      <div class="list">${divs.join(', ')}</div>
+    </div>`;
+    
+    document.getElementById('f-result').innerHTML=html;
+    toast('Funções calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
 
 // Histórico
 let history=[];
