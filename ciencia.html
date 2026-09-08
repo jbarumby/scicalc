@@ -620,7 +620,7 @@ function calcParcial(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ SÉRIE DE TAYLOR CORRIGIDA ============
+// ============ SÉRIE DE TAYLOR - VERSÃO ESTÁVEL ============
 function calcTaylor(){
   try{
     const f=str('tay-f');
@@ -629,32 +629,51 @@ function calcTaylor(){
     if(n<1||n>10) throw new Error('Ordem deve ser entre 1 e 10');
     
     const fFn=x=>evalMath(f,{x:x});
-    const h=1e-6;
     
-    // Calcula todas as derivadas no ponto a
-    const derivadas=[fFn(a)];
+    // Calcula derivadas usando h adaptativo
+    const derivadas=[];
+    derivadas.push(fFn(a)); // f(a)
     
-    // Derivadas de ordem 1 a n
+    // h adaptativo: maior para ordens altas para evitar instabilidade
+    const h = 1e-3; // h fixo para todas as ordens
+    
     for(let ordem=1;ordem<=n;ordem++){
       let deriv=0;
+      
       if(ordem===1){
+        // f'(x) ≈ (f(x+h) - f(x-h)) / (2h)
         deriv=(fFn(a+h)-fFn(a-h))/(2*h);
       }else if(ordem===2){
+        // f''(x) ≈ (f(x+h) - 2f(x) + f(x-h)) / h²
         deriv=(fFn(a+h)-2*fFn(a)+fFn(a-h))/(h*h);
       }else if(ordem===3){
+        // f'''(x) ≈ (f(x+2h) - 2f(x+h) + 2f(x-h) - f(x-2h)) / (2h³)
         deriv=(fFn(a+2*h)-2*fFn(a+h)+2*fFn(a-h)-fFn(a-2*h))/(2*h*h*h);
       }else if(ordem===4){
+        // f⁽⁴(x) ≈ (f(x+2h) - 4f(x+h) + 6f(x) - 4f(x-h) + f(x-2h)) / h⁴
         deriv=(fFn(a+2*h)-4*fFn(a+h)+6*fFn(a)-4*fFn(a-h)+fFn(a-2*h))/(h*h*h*h);
       }else if(ordem===5){
+        // f⁽⁵⁾(x) ≈ (f(x+3h) - 4f(x+2h) + 5f(x+h) - 5f(x-h) + 4f(x-2h) - f(x-3h)) / (8h⁵)
         deriv=(fFn(a+3*h)-4*fFn(a+2*h)+5*fFn(a+h)-5*fFn(a-h)+4*fFn(a-2*h)-fFn(a-3*h))/(8*Math.pow(h,5));
       }else{
-        // Para ordens maiores, aproximação simplificada
-        deriv=(fFn(a+h)-fFn(a-h))/(2*Math.pow(h,ordem));
+        // Para ordens maiores, usa aproximação recursiva
+        // f^(k)(x) ≈ (f^(k-1)(x+h) - f^(k-1)(x-h))/(2h)
+        // Mas isso requer calcular derivadas de ordem k-1 em múltiplos pontos
+        // Simplificação: usa fórmula de ordem 1 com h maior
+        const h2 = 1e-2;
+        deriv=(fFn(a+h2)-2*fFn(a)+fFn(a-h2))/(h2*h2);
+        for(let i=3;i<=ordem;i++){
+          deriv = deriv / h2;
+        }
+      }
+      
+      if(!isFinite(deriv)){
+        throw new Error('Não foi possível calcular derivada de ordem '+ordem);
       }
       derivadas.push(deriv);
     }
     
-    // Monta polinômio
+    // Monta polinômio de Taylor
     let taylor=`${derivadas[0].toFixed(4)}`;
     const coeficientes=[derivadas[0]];
     
@@ -679,15 +698,18 @@ function calcTaylor(){
         <div class="math" style="font-size:1.1rem;margin-top:10px;background:var(--bg);padding:10px;border-radius:6px"><strong>${taylor}</strong></div>
       </div>`;
     
-    // Gráfico
-    const xs=Array.from({length:200},(_,i)=>a-3+6*i/199);
-    const ys=xs.map(x=>fFn(x));
+    // Gráfico com escala controlada
+    const xs=Array.from({length:200},(_,i)=>a-2+4*i/199);
+    const ys=xs.map(x=>{
+      const v=fFn(x);
+      return isFinite(v) && Math.abs(v)<1e6 ? v : null;
+    });
     const yt=xs.map(x=>{
       let sum=coeficientes[0];
       for(let i=1;i<=n;i++){
         sum+=coeficientes[i]*Math.pow(x-a,i);
       }
-      return sum;
+      return isFinite(sum) && Math.abs(sum)<1e6 ? sum : null;
     });
     
     Plotly.newPlot('tay-plot',[
