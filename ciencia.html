@@ -9,8 +9,16 @@
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <style>
-  :root{--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
-  body.dark-mode{--bg:#1a1a2e;--panel:#16213e;--ink:#e4e4e7;--muted:#a1a1aa;--border:#2d2d44}
+  :root{
+    --primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;
+    --ok:#10b981;--warn:#f59e0b;--err:#ef4444;
+    --bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;
+    --border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px;
+  }
+  body.dark-mode{
+    --bg:#0f172a;--panel:#1e293b;--ink:#e2e8f0;--muted:#94a3b8;--border:#334155;
+    --shadow:0 8px 24px rgba(0,0,0,.4);
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;transition:all .3s}
   header{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;padding:22px 32px;box-shadow:var(--shadow);position:relative}
@@ -30,8 +38,8 @@
   label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--ink)}
   input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:inherit;background:var(--bg);color:var(--ink)}
   input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
-  .btn{padding:11px 22px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25)}
-  .btn:hover{transform:translateY(-1px)}
+  .btn{padding:11px 22px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25);transition:all .2s}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,70,229,.35)}
   .btn.small{padding:6px 12px;font-size:.82rem}
   .btn.search{background:linear-gradient(120deg,#f59e0b,#d97706);font-size:1.1rem;padding:14px 28px}
   .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--bg),var(--panel));border-left:4px solid var(--primary);font-size:1rem}
@@ -53,12 +61,8 @@
   .sub-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .sub-panel{display:none}
   .sub-panel.active{display:block}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
-  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
-  th{background:var(--bg);font-weight:600;color:var(--primary)}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
   .loading{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .search-box{display:flex;gap:10px;margin-bottom:14px}
@@ -70,6 +74,7 @@
   .history-item .time{font-size:.8rem;color:var(--muted)}
   .history-item .content{margin-top:4px;font-family:monospace}
   #pyodide-status{position:fixed;bottom:20px;left:20px;background:var(--panel);padding:10px 16px;border-radius:10px;box-shadow:var(--shadow);font-size:.85rem;z-index:100;display:flex;align-items:center;gap:10px}
+  .example-btn{margin:4px}
 </style>
 </head>
 <body>
@@ -89,9 +94,9 @@
   <button class="tab" data-tab="fourier">📡 Fourier</button>
   <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="limites">📐 Limites</button>
-  <button class="tab" data-tab="derivadas"> Derivadas</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="historico"> Histórico</button>
+  <button class="tab" data-tab="historico">📋 Histórico</button>
 </nav>
 
 <main>
@@ -99,19 +104,20 @@
 <section class="tab-content active" id="busca">
   <div class="panel">
     <h2>🔍 Busca Inteligente (NLP)</h2>
-    <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "integral of sin(x)", "Brazil capital"</p>
+    <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "Brazil", "capital of France"</p>
     <div class="search-box">
       <input id="nlp-input" placeholder='Ex: derivative of x^2 + 3*x + 1' onkeypress="if(event.key==='Enter')processarNLP()">
       <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
     </div>
     <div id="nlp-result"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:8px">💡 Exemplos para testar:</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:8px"> Exemplos para testar:</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='derivative of x^2';processarNLP()">derivative of x^2</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='integral of sin(x)';processarNLP()">integral of sin(x)</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='Brazil';processarNLP()">Brazil</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='capital of France';processarNLP()">capital of France</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('derivative of x^2')">derivative of x^2</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('integral of sin(x)')">integral of sin(x)</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('Brazil')">Brazil</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('France')">France</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('solve x^2 - 4 = 0')">solve x^2 - 4 = 0</button>
       </div>
     </div>
   </div>
@@ -120,7 +126,7 @@
 <section class="tab-content" id="grafico3d">
   <div class="panel">
     <h2>📊 Gráficos 3D</h2>
-    <p class="sub">Plote superfícies z = f(x,y)</p>
+    <p class="sub">Plote superfícies z = f(x,y). Use sintaxe Python: x**2, sin(x), exp(x)</p>
     <div class="form-row">
       <div><label>Função z = f(x,y)</label><input id="g3d-f" placeholder="Ex: sin(x)*cos(y)"></div>
       <div><label>x min</label><input id="g3d-xmin" value="-3.14"></div>
@@ -191,7 +197,7 @@
       <div><label>Variável</label>
         <select id="par-var">
           <option value="x">∂/∂x</option>
-          <option value="y">∂/∂y</option>
+          <option value="y">∂/y</option>
         </select>
       </div>
     </div>
@@ -203,7 +209,7 @@
 <section class="tab-content" id="edo">
   <div class="panel">
     <h2>🔁 Equações Diferenciais (EDOs)</h2>
-    <p class="sub">Resolva EDOs numericamente com método de Runge-Kutta</p>
+    <p class="sub">Resolva EDOs numericamente com método de Runge-Kutta 4ª ordem</p>
     <div class="form-row">
       <div><label>y' = f(x,y)</label><input id="edo-f" placeholder="Ex: -2*y + x"></div>
       <div><label>x inicial</label><input id="edo-x0" value="0"></div>
@@ -267,7 +273,7 @@
 
 <section class="tab-content" id="limites">
   <div class="panel">
-    <h2>📐 Limites</h2>
+    <h2> Limites</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -302,7 +308,7 @@
 
 <section class="tab-content" id="integrais">
   <div class="panel">
-    <h2> Integrais Definidas</h2>
+    <h2>∫ Integrais Definidas</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="int-f" placeholder="Ex: x^2"></div>
       <div><label>x₁</label><input id="int-x1" placeholder="0"></div>
@@ -358,7 +364,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toggleTheme(){
   document.body.classList.toggle('dark-mode');
   const btn=document.querySelector('.theme-toggle');
-  btn.textContent=document.body.classList.contains('dark-mode')?'️ Claro':'🌙 Escuro';
+  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
   localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
 }
 if(localStorage.getItem('theme')==='dark') toggleTheme();
@@ -366,13 +372,18 @@ if(localStorage.getItem('theme')==='dark') toggleTheme();
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=(type==='err'?'⚠️':'✅')+' '+msg;
+  el.innerHTML=(type==='err'?'️':'✅')+' '+msg;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
 
 function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
 function num(id){const v=document.getElementById(id).value.trim().replace(',','.');const n=Number(v);if(!isFinite(n))throw new Error('Inválido');return n;}
+
+function nlpExemplo(texto){
+  document.getElementById('nlp-input').value=texto;
+  processarNLP();
+}
 
 // ============ PYODIDE + SYMPY ============
 async function initPyodide(){
@@ -452,7 +463,7 @@ function waitForPyodide(){
   });
 }
 
-// ============ NLP BÁSICO (CORRIGIDO) ============
+// ============ NLP BÁSICO ============
 async function processarNLP(){
   const input=str('nlp-input').toLowerCase().trim();
   const resultDiv=document.getElementById('nlp-result');
@@ -521,7 +532,7 @@ async function processarNLP(){
   }
 }
 
-// ============ WIKIDATA (CORRIGIDO - PRIORIZA PAÍSES) ============
+// ============ WIKIDATA (CORREÇÃO FINAL) ============
 async function buscarWikidata(){
   const query=str('wiki-input');
   const resultDiv=document.getElementById('wiki-result');
@@ -531,48 +542,65 @@ async function buscarWikidata(){
 
 async function buscarWikidataDireto(query, resultDiv){
   try{
-    // Buscar primeiro em português, depois inglês
-    const searchPt=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`);
-    const searchDataPt=await searchPt.json();
+    const paisesDiretos = {
+      'brazil': 'Q155', 'brasil': 'Q155',
+      'france': 'Q142', 'frança': 'Q142',
+      'united states': 'Q30', 'usa': 'Q30',
+      'germany': 'Q183', 'alemanha': 'Q183',
+      'portugal': 'Q45', 'spain': 'Q29', 'espanha': 'Q29',
+      'italy': 'Q38', 'italia': 'Q38',
+      'japan': 'Q17', 'japão': 'Q17',
+      'china': 'Q148', 'argentina': 'Q414',
+      'mexico': 'Q96', 'canada': 'Q16',
+      'australia': 'Q408', 'india': 'Q668',
+      'russia': 'Q159', 'rússia': 'Q159'
+    };
     
-    let searchData=searchDataPt;
+    let entityId = null;
+    const queryLower = query.toLowerCase().trim();
     
-    // Se não achou em português, tenta em inglês
-    if(!searchDataPt.search || searchDataPt.search.length===0){
-      const searchEn=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`);
-      const searchDataEn=await searchEn.json();
-      if(searchDataEn.search && searchDataEn.search.length>0){
-        searchData=searchDataEn;
+    if(paisesDiretos[queryLower]){
+      entityId = paisesDiretos[queryLower];
+    }
+    
+    if(!entityId){
+      const searchPt=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`);
+      const searchDataPt=await searchPt.json();
+      
+      let searchData=searchDataPt;
+      
+      if(!searchDataPt.search || searchDataPt.search.length===0){
+        const searchEn=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`);
+        const searchDataEn=await searchEn.json();
+        if(searchDataEn.search && searchDataEn.search.length>0){
+          searchData=searchDataEn;
+        }
       }
-    }
-    
-    if(!searchData.search || searchData.search.length===0){
-      resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
-      return;
-    }
-    
-    // PRIORIZAR: Se for busca de país, procurar por "country"
-    let melhorResultado = searchData.search[0];
-    
-    // Se a busca parece ser sobre um país, procurar o item do tipo "country"
-    if(query.toLowerCase().includes('brazil') || query.toLowerCase().includes('brasil')){
-      // Procurar especificamente pelo Brasil (Q155)
+      
+      if(!searchData.search || searchData.search.length===0){
+        resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
+        return;
+      }
+      
+      let melhorResultado = searchData.search[0];
       for(const item of searchData.search){
-        if(item.id === 'Q155' || item.description?.toLowerCase().includes('country')){
+        if(item.description?.toLowerCase().includes('country') || 
+           item.description?.toLowerCase().includes('país')){
           melhorResultado = item;
           break;
         }
       }
+      
+      entityId = melhorResultado.id;
     }
-    
-    const entityId=melhorResultado.id;
-    const label=melhorResultado.label || query;
-    const description=melhorResultado.description || '';
     
     const entityUrl=`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`;
     const entityRes=await fetch(entityUrl);
     const entityData=await entityRes.json();
     const entity=entityData.entities[entityId];
+    
+    const label = entity.labels?.pt?.value || entity.labels?.en?.value || query;
+    const description = entity.descriptions?.pt?.value || entity.descriptions?.en?.value || '';
     
     let html=`<div class="result">
       <div class="math" style="font-size:1.3rem"><strong>${label}</strong></div>
@@ -590,7 +618,6 @@ async function buscarWikidataDireto(query, resultDiv){
       }catch(e){return id;}
     }
     
-    // Buscar fatos gerais
     if(claims.P1082){
       const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
       if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
@@ -648,10 +675,11 @@ async function buscarWikidataDireto(query, resultDiv){
   }
 }
 
-// ============ GRÁFICO 3D (CORRIGIDO) ============
+// ============ GRÁFICO 3D ============
 async function plotar3D(){
   try{
     await waitForPyodide();
+    
     const f=str('g3d-f');
     const xmin=num('g3d-xmin'),xmax=num('g3d-xmax');
     const ymin=num('g3d-ymin'),ymax=num('g3d-ymax');
@@ -665,43 +693,98 @@ async function plotar3D(){
     fNumpy=fNumpy.replace(/log\(/g,'np.log(');
     fNumpy=fNumpy.replace(/pi/g,'np.pi');
     
-    pyodide.runPython(`
+    const codigoPython=`
 import numpy as np
+import json
+
 x = np.linspace(${xmin}, ${xmax}, 50)
 y = np.linspace(${ymin}, ${ymax}, 50)
 X, Y = np.meshgrid(x, y)
+
 try:
     Z = ${fNumpy}
+    Z_list = Z.tolist()
+    for i in range(len(Z_list)):
+        for j in range(len(Z_list[i])):
+            if not np.isfinite(Z_list[i][j]):
+                Z_list[i][j] = None
+    
+    result = {
+        'success': True,
+        'Z': Z_list,
+        'X': X[0].tolist(),
+        'Y': Y[:,0].tolist()
+    }
 except Exception as e:
-    Z = np.zeros_like(X)
-    print(f"Error: {e}")
-`);
+    result = {
+        'success': False,
+        'error': str(e)
+    }
+
+json.dumps(result)
+`;
     
-    const Z=pyodide.runPython('Z.tolist()');
-    const X=pyodide.runPython('X.tolist()');
-    const Y=pyodide.runPython('Y.tolist()');
+    const resultadoJson=pyodide.runPython(codigoPython);
+    const resultado=JSON.parse(resultadoJson);
     
-    Plotly.newPlot('g3d-plot',[{
-      z:Z, 
-      x:X[0], 
-      y:Y.map(r=>r[0]),
+    if(!resultado.success){
+      throw new Error('Erro ao calcular: '+resultado.error);
+    }
+    
+    const {Z,X,Y}=resultado;
+    
+    let temDadosValidos=false;
+    for(let i=0;i<Z.length;i++){
+      for(let j=0;j<Z[i].length;j++){
+        if(Z[i][j]!==null){temDadosValidos=true;break;}
+      }
+      if(temDadosValidos) break;
+    }
+    
+    if(!temDadosValidos){
+      throw new Error('Função não gera valores válidos neste intervalo');
+    }
+    
+    const layout={
+      title:`z = ${f}`,
+      scene:{
+        xaxis:{title:'x',range:[xmin,xmax]},
+        yaxis:{title:'y',range:[ymin,ymax]},
+        zaxis:{title:'z'},
+        aspectmode:'auto'
+      },
+      margin:{t:40,l:0,r:0,b:0},
+      paper_bgcolor:'var(--bg)',
+      plot_bgcolor:'var(--bg)'
+    };
+    
+    const data=[{
+      z:Z, x:X, y:Y,
       type:'surface',
       colorscale:'Viridis',
       showscale:true
-    }],{
-      title:`z = ${f}`,
-      scene:{
-        xaxis:{title:'x'},
-        yaxis:{title:'y'},
-        zaxis:{title:'z'}
-      },
-      margin:{t:40}
-    },{responsive:true});
+    }];
+    
+    Plotly.newPlot('g3d-plot',data,layout,{responsive:true,displayModeBar:true});
     
     salvarHistorico('Gráfico 3D',`z=${f}`,'surface plot');
     toast('Gráfico 3D gerado!','ok');
   }catch(e){
+    console.error('Erro no gráfico 3D:',e);
     toast('Erro no gráfico 3D: '+e.message,'err');
+    document.getElementById('g3d-plot').innerHTML=`
+      <div style="padding:40px;text-align:center;color:var(--err)">
+        <div style="font-size:3rem;margin-bottom:10px">⚠️</div>
+        <div style="font-size:1.1rem;font-weight:600">Erro ao gerar gráfico</div>
+        <div style="margin-top:10px;color:var(--muted)">${e.message}</div>
+        <div style="margin-top:20px;font-size:0.9rem">
+          Dicas:<br>
+          • Use sintaxe Python: x**2, sin(x), exp(x)<br>
+          • Verifique o intervalo<br>
+          • Evite divisões por zero
+        </div>
+      </div>
+    `;
   }
 }
 
@@ -711,7 +794,7 @@ async function simDerivada(){
     await waitForPyodide();
     const f=str('sim-deriv-f'),varName=str('sim-deriv-var'),ord=parseInt(str('sim-deriv-ord'));
     const [latex,texto]=pyodide.runPython(`sym_derivative("${f}","${varName}",${ord})`).toJs();
-    document.getElementById('sim-deriv-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-sd"></div><div style="margin-top:8px;color:var(--muted)">f⁽${ord}⁾(${varName}) = ${texto}</div></div>`;
+    document.getElementById('sim-deriv-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-sd"></div><div style="margin-top:8px;color:var(--muted)">f${ord}⁾(${varName}) = ${texto}</div></div>`;
     if(window.katex) katex.render(`\\frac{d^{${ord}}}{d${varName}^{${ord}}} f = ${texto}`, document.getElementById('latex-sd'), {displayMode:true,throwOnError:false});
     salvarHistorico('Simbólico Derivada',`${f}, ordem ${ord}`,texto);
     toast('Derivada calculada!','ok');
@@ -758,7 +841,7 @@ async function calcParcial(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ EDOs (RUNGE-KUTTA) ============
+// ============ EDOs ============
 async function calcEDO(){
   try{
     await waitForPyodide();
@@ -790,7 +873,7 @@ async function calcEDO(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ TRANSFORMADA DE FOURIER ============
+// ============ FOURIER ============
 async function calcFourier(){
   try{
     await waitForPyodide();
@@ -810,7 +893,7 @@ async function testarPrimo(){
     const n=parseInt(str('num-teste'));
     if(n<2) throw new Error('n deve ser ≥ 2');
     const ehPrimo=pyodide.runPython(`import sympy as sp; sp.isprime(${n})`);
-    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)"> NÃO é primo</span>'}</div></div>`;
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)">✗ NÃO é primo</span>'}</div></div>`;
     salvarHistorico('Teoria dos Números',`Primalidade de ${n}`,ehPrimo?'PRIMO':'NÃO primo');
     toast('Teste concluído!','ok');
   }catch(e){toast(e.message,'err');}
@@ -939,7 +1022,7 @@ function calcLimite(){
       else effectiveDir='both';
     }
     let L,method='';
-    if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';}
+    if(isInf){L=evalMath(f,{x:1e6});method='x→+';}
     else{
       const deltas=[0.01, 0.001, 0.0001, 0.00001];
       const valsP=[],valsM=[];
