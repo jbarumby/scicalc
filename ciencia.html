@@ -75,16 +75,16 @@
 <header>
   <h1>🧮 SciCalc - Wolfram-Style</h1>
   <p>Cálculo simbólico, gráficos 3D, NLP e conhecimento</p>
-  <button class="theme-toggle" onclick="toggleTheme()"> Modo Escuro</button>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
 </header>
 
 <nav class="tabs">
   <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
-  <button class="tab" data-tab="grafico3d"> Gráficos 3D</button>
-  <button class="tab" data-tab="conhecimento">🌍 Conhecimento</button>
+  <button class="tab" data-tab="grafico3d">📊 Gráficos 3D</button>
+  <button class="tab" data-tab="conhecimento"> Conhecimento</button>
   <button class="tab" data-tab="simbolico"> Simbólico</button>
   <button class="tab" data-tab="numeros"> Números</button>
-  <button class="tab" data-tab="limites">📐 Limites</button>
+  <button class="tab" data-tab="limites"> Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
   <button class="tab" data-tab="historico">📋 Histórico</button>
@@ -102,7 +102,7 @@
     </div>
     <div id="nlp-result"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:8px">💡 Exemplos para testar:</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:8px"> Exemplos para testar:</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
         <button class="btn small" onclick="document.getElementById('nlp-input').value='derivative of x^2';processarNLP()">derivative of x^2</button>
         <button class="btn small" onclick="document.getElementById('nlp-input').value='integral of sin(x)';processarNLP()">integral of sin(x)</button>
@@ -133,11 +133,11 @@
 
 <section class="tab-content" id="conhecimento">
   <div class="panel">
-    <h2>🌍 Conhecimento (Wikidata)</h2>
+    <h2> Conhecimento (Wikidata)</h2>
     <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos...</p>
     <div class="search-box">
       <input id="wiki-input" placeholder="Ex: Brazil, Albert Einstein, Gold, Moon" onkeypress="if(event.key==='Enter')buscarWikidata()">
-      <button class="btn search" onclick="buscarWikidata()">🔍 Buscar</button>
+      <button class="btn search" onclick="buscarWikidata()"> Buscar</button>
     </div>
     <div id="wiki-result"></div>
   </div>
@@ -195,7 +195,7 @@
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="num-primos">🔍 Primos</button>
       <button class="sub-tab" data-sub="num-fator">🔨 Fatoração</button>
-      <button class="sub-tab" data-sub="num-func"> Funções</button>
+      <button class="sub-tab" data-sub="num-func">📊 Funções</button>
     </div>
     <div class="sub-panel active" id="sub-num-primos">
       <div class="form-row">
@@ -225,7 +225,7 @@
 
 <section class="tab-content" id="limites">
   <div class="panel">
-    <h2>📐 Limites</h2>
+    <h2> Limites</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -316,7 +316,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toggleTheme(){
   document.body.classList.toggle('dark-mode');
   const btn=document.querySelector('.theme-toggle');
-  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':' Escuro';
+  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
   localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
 }
 if(localStorage.getItem('theme')==='dark') toggleTheme();
@@ -324,7 +324,7 @@ if(localStorage.getItem('theme')==='dark') toggleTheme();
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=(type==='err'?'⚠️':'✅')+' '+msg;
+  el.innerHTML=(type==='err'?'️':'✅')+' '+msg;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
@@ -404,7 +404,7 @@ function waitForPyodide(){
   });
 }
 
-// ============ NLP BÁSICO ============
+// ============ NLP BÁSICO (CORRIGIDO) ============
 async function processarNLP(){
   const input=str('nlp-input').toLowerCase().trim();
   const resultDiv=document.getElementById('nlp-result');
@@ -426,7 +426,11 @@ async function processarNLP(){
     if(limMatch){tipo='limite';expressao=limMatch[1].replace(/\^/g,'**');variavel=limMatch[2];ponto=limMatch[3];}
     
     const eqMatch=input.match(/(?:solve|resolver)\s+(.+)$/);
-    if(eqMatch){tipo='equacao';expressao=eqMatch[1].replace(/\^/g,'**');}
+    if(eqMatch){
+      tipo='equacao';
+      expressao=eqMatch[1].trim().replace(/\^/g,'**');
+      expressao=expressao.replace(/^solve\s+/,'').trim();
+    }
     
     const simpMatch=input.match(/(?:simplify|simplificar|expand|expandir)\s+(.+)$/);
     if(simpMatch){tipo='simplificar';expressao=simpMatch[1].replace(/\^/g,'**');}
@@ -444,7 +448,7 @@ async function processarNLP(){
       }
       else if(tipo==='integral'){
         [latex,texto]=pyodide.runPython(`sym_integral("${expressao}","${variavel}")`).toJs();
-        html=`<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">f(${variavel})d${variavel} = ${texto} + C</div></div>`;
+        html=`<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">∫f(${variavel})d${variavel} = ${texto} + C</div></div>`;
         resultDiv.innerHTML=html;
         if(window.katex) katex.render(texto, document.getElementById('latex-integ'), {displayMode:true,throwOnError:false});
       }
@@ -478,7 +482,7 @@ async function processarNLP(){
   }
 }
 
-// ============ WIKIDATA ============
+// ============ WIKIDATA (CORRIGIDO) ============
 async function buscarWikidata(){
   const query=str('wiki-input');
   const resultDiv=document.getElementById('wiki-result');
@@ -512,15 +516,15 @@ async function buscarWikidataDireto(query, resultDiv){
       }
     }
     
-    const searchUrl=`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=en&format=json&origin=*`;
+    const searchUrl=`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=pt&format=json&origin=*`;
     const searchRes=await fetch(searchUrl);
     const searchData=await searchRes.json();
     
     if(!searchData.search || searchData.search.length===0){
-      const searchPt=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=pt&format=json&origin=*`);
-      const searchDataPt=await searchPt.json();
-      if(searchDataPt.search && searchDataPt.search.length>0){
-        Object.assign(searchData, searchDataPt);
+      const searchEn=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=en&format=json&origin=*`);
+      const searchDataEn=await searchEn.json();
+      if(searchDataEn.search && searchDataEn.search.length>0){
+        Object.assign(searchData, searchDataEn);
       }else{
         resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
         return;
@@ -567,11 +571,12 @@ async function buscarWikidataDireto(query, resultDiv){
           }else{
             valorFormatado=JSON.stringify(valor.value);
           }
-          const labels={'P36':'🏛️ Capital','P1082':'👥 População','P2046':'📏 Área','P38':'💵 Moeda','P37':'🗣️ Língua','P35':'👔 Líder','P112':'👤 Fundador','P569':'📅 Nascimento','P570':'️ Morte'};
+          const labels={'P36':'🏛️ Capital','P1082':' População','P2046':'📏 Área','P38':'💵 Moeda','P37':'🗣️ Língua','P35':'👔 Líder','P112':'👤 Fundador','P569':'📅 Nascimento','P570':'⚰️ Morte'};
           fatos.push({label:labels[prop]||prop,value:valorFormatado});
         }
       }
     }else{
+      // Buscar fatos gerais
       if(claims.P1082){
         const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
         if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
@@ -594,16 +599,16 @@ async function buscarWikidataDireto(query, resultDiv){
           const lid=c.mainsnak.datavalue?.value?.id;
           if(lid){const l=await getLabel(lid);if(l) langs.push(l);}
         }
-        if(langs.length) fatos.push({label:'️ Línguas',value:langs.join(', ')});
+        if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
       }
       if(claims.P35){
         const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
-        if(presId){const presLabel=await getLabel(presId);fatos.push({label:'👔 Líder',value:presLabel});}
+        if(presId){const presLabel=await getLabel(presId);fatos.push({label:' Líder',value:presLabel});}
       }
       if(claims.P571||claims.P569){
         const dateClaim=claims.P571||claims.P569;
         const date=dateClaim[0].mainsnak.datavalue?.value?.time;
-        if(date) fatos.push({label:' Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
+        if(date) fatos.push({label:'📅 Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
       }
       if(claims.P625){
         const coord=claims.P625[0].mainsnak.datavalue?.value;
@@ -630,28 +635,61 @@ async function buscarWikidataDireto(query, resultDiv){
   }
 }
 
-// ============ GRÁFICO 3D ============
+// ============ GRÁFICO 3D (CORRIGIDO) ============
 async function plotar3D(){
   try{
+    await waitForPyodide();
     const f=str('g3d-f');
     const xmin=num('g3d-xmin'),xmax=num('g3d-xmax');
     const ymin=num('g3d-ymin'),ymax=num('g3d-ymax');
-    await waitForPyodide();
+    
+    let fNumpy=f.replace(/\^/g,'**');
+    fNumpy=fNumpy.replace(/sin\(/g,'np.sin(');
+    fNumpy=fNumpy.replace(/cos\(/g,'np.cos(');
+    fNumpy=fNumpy.replace(/tan\(/g,'np.tan(');
+    fNumpy=fNumpy.replace(/exp\(/g,'np.exp(');
+    fNumpy=fNumpy.replace(/sqrt\(/g,'np.sqrt(');
+    fNumpy=fNumpy.replace(/log\(/g,'np.log(');
+    fNumpy=fNumpy.replace(/pi/g,'np.pi');
+    
     pyodide.runPython(`
 import numpy as np
 x = np.linspace(${xmin}, ${xmax}, 50)
 y = np.linspace(${ymin}, ${ymax}, 50)
 X, Y = np.meshgrid(x, y)
+try:
+    Z = ${fNumpy}
+except Exception as e:
+    Z = np.zeros_like(X)
+    print(f"Error: {e}")
 `);
-    const fNumpy=f.replace(/\^/g,'**').replace(/sin/g,'np.sin').replace(/cos/g,'np.cos').replace(/tan/g,'np.tan').replace(/exp/g,'np.exp').replace(/sqrt/g,'np.sqrt').replace(/log/g,'np.log').replace(/pi/g,'np.pi');
-    pyodide.runPython(`Z = ${fNumpy}`);
+    
     const Z=pyodide.runPython('Z.tolist()');
     const X=pyodide.runPython('X.tolist()');
     const Y=pyodide.runPython('Y.tolist()');
-    Plotly.newPlot('g3d-plot',[{z:Z,x:X[0],y:Y.map(r=>r[0]),type:'surface',colorscale:'Viridis',showscale:true}],{title:`z = ${f}`,scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}},margin:{t:40}},{responsive:true});
+    
+    Plotly.newPlot('g3d-plot',[{
+      z:Z, 
+      x:X[0], 
+      y:Y.map(r=>r[0]),
+      type:'surface',
+      colorscale:'Viridis',
+      showscale:true
+    }],{
+      title:`z = ${f}`,
+      scene:{
+        xaxis:{title:'x'},
+        yaxis:{title:'y'},
+        zaxis:{title:'z'}
+      },
+      margin:{t:40}
+    },{responsive:true});
+    
     salvarHistorico('Gráfico 3D',`z=${f}`,'surface plot');
     toast('Gráfico 3D gerado!','ok');
-  }catch(e){toast(e.message,'err');}
+  }catch(e){
+    toast('Erro no gráfico 3D: '+e.message,'err');
+  }
 }
 
 // ============ CÁLCULO SIMBÓLICO ============
@@ -713,7 +751,7 @@ async function testarPrimo(){
     const n=parseInt(str('num-teste'));
     if(n<2) throw new Error('n deve ser ≥ 2');
     const ehPrimo=pyodide.runPython(`import sympy as sp; sp.isprime(${n})`);
-    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)">✗ NÃO é primo</span>'}</div></div>`;
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)"> NÃO é primo</span>'}</div></div>`;
     salvarHistorico('Teoria dos Números',`Primalidade de ${n}`,ehPrimo?'PRIMO':'NÃO primo');
     toast('Teste concluído!','ok');
   }catch(e){toast(e.message,'err');}
@@ -968,7 +1006,7 @@ function calcIntegral(){
     let s=fn(x1)+fn(x2);
     for(let i=1;i<n;i++)s+=fn(x1+i*h)*(i%2?4:2);
     const W=s*h/3;
-    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math"><sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
     salvarHistorico('Integral',`f=${f}, [${x1},${x2}]`,W.toFixed(6));
     const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
     const ys=xs.map(x=>fn(x));
