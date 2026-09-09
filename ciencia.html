@@ -417,26 +417,45 @@ async function processarNLP(){
       resultDiv.innerHTML = html;
       salvarHistorico('NLP Integral', input, `∫≈${integral.toFixed(6)}`);
     }
-    else if(tipo === 'equacao'){
-      // Encontrar todas as raízes reais com múltiplos pontos iniciais
-      const raizes = [];
+        else if(tipo === 'equacao'){
+      // Encontrar todas as raízes reais
+      const raizes = new Set();
+      
+      // Método 1: Verificar valores inteiros óbvios primeiro
+      for(let x = -10; x <= 10; x++){
+        try{
+          const val = evalMath(expressao, {x: x});
+          if(isFinite(val) && Math.abs(val) < 1e-10){
+            raizes.add(x);
+          }
+        }catch(e){}
+      }
+      
+      // Método 2: Newton-Raphson com múltiplos pontos iniciais
       const pontosIniciais = [-100, -50, -20, -10, -5, -2, -1, -0.5, 0.5, 1, 2, 5, 10, 20, 50, 100];
       
       for(const x0 of pontosIniciais){
         let x = x0;
         const h = 1e-7;
-        let convergiu = false;
         
         for(let iter=0; iter<200; iter++){
           try{
             const f = evalMath(expressao, {x: x});
             if(!isFinite(f)) break;
             
+            // Verificar se já encontrou raiz
+            if(Math.abs(f) < 1e-10){
+              // Arredondar para 6 casas decimais
+              const raizArred = Math.round(x * 1e6) / 1e6;
+              raizes.add(raizArred);
+              break;
+            }
+            
             const fPos = evalMath(expressao, {x: x + h});
             const fNeg = evalMath(expressao, {x: x - h});
             const df = (fPos - fNeg) / (2 * h);
             
-            if(Math.abs(df) < 1e-12) {
+            if(Math.abs(df) < 1e-12 || !isFinite(df)) {
               x += (Math.random() - 0.5) * 0.1;
               continue;
             }
@@ -447,15 +466,8 @@ async function processarNLP(){
             if(Math.abs(xNovo - x) < 1e-10){
               const fFinal = evalMath(expressao, {x: xNovo});
               if(Math.abs(fFinal) < 1e-6){
-                let duplicada = false;
-                for(const r of raizes){
-                  if(Math.abs(r - xNovo) < 1e-4){
-                    duplicada = true;
-                    break;
-                  }
-                }
-                if(!duplicada) raizes.push(xNovo);
-                convergiu = true;
+                const raizArred = Math.round(xNovo * 1e6) / 1e6;
+                raizes.add(raizArred);
               }
               break;
             }
@@ -464,31 +476,60 @@ async function processarNLP(){
         }
       }
       
+      // Método 3: Biseção em intervalos
+      for(let a = -20; a < 20; a += 0.5){
+        const b = a + 0.5;
+        try{
+          const fa = evalMath(expressao, {x: a});
+          const fb = evalMath(expressao, {x: b});
+          
+          if(!isFinite(fa) || !isFinite(fb)) continue;
+          
+          // Verificar se há mudança de sinal
+          if(fa * fb < 0){
+            // Aplicar biseção
+            let left = a, right = b;
+            for(let i=0; i<100; i++){
+              const mid = (left + right) / 2;
+              const fmid = evalMath(expressao, {x: mid});
+              
+              if(!isFinite(fmid)) break;
+              
+              if(Math.abs(fmid) < 1e-10 || (right - left) < 1e-10){
+                const raizArred = Math.round(mid * 1e6) / 1e6;
+                raizes.add(raizArred);
+                break;
+              }
+              
+              if(fa * fmid < 0){
+                right = mid;
+              }else{
+                left = mid;
+                fa = fmid;
+              }
+            }
+          }
+        }catch(e){}
+      }
+      
+      // Converter Set para array ordenado
+      const raizesArray = Array.from(raizes).sort((a,b)=>a-b);
+      
       let solucaoStr;
-      if(raizes.length === 0){
+      if(raizesArray.length === 0){
         solucaoStr = "Nenhuma raiz real encontrada";
       }else{
-        raizes.sort((a,b)=>a-b);
-        solucaoStr = raizes.map(r => `x ≈ ${r.toFixed(6)}`).join(', ');
+        solucaoStr = raizesArray.map(r => `x ≈ ${r.toFixed(6)}`).join(', ');
       }
       
       html = `<div class="result">
         <div class="math"><strong>Soluções de ${expressao}:</strong></div>
         <div class="math" style="font-size:1.3rem;margin-top:10px">${solucaoStr}</div>
-        <div style="margin-top:8px;color:var(--muted);font-size:0.9rem">💡 Encontradas ${raizes.length} raiz(es) real(is)</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:0.9rem">💡 Encontradas ${raizesArray.length} raiz(es) real(is)</div>
       </div>`;
       resultDiv.innerHTML = html;
       salvarHistorico('NLP Equação', input, solucaoStr);
     }
-    else{
-      await buscarWikidataDireto(input, resultDiv);
-    }
-  }catch(e){
-    console.error('Erro no NLP:', e);
-    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
-  }
-}
-
 // ============ WIKIDATA ============
 async function buscarWikidataDireto(query, resultDiv){
   try{
