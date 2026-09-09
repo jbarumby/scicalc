@@ -505,131 +505,83 @@ async function processarNLP(){
       ponto = limMatch[3];
     }
     
-    // Equação
+      // Equação
     const eqMatch = inputLower.match(/(?:solve|resolver)\s+(.+)$/);
     if(eqMatch){
       tipo = 'equacao';
       expressao = eqMatch[1].trim().replace(/\^/g,'**');
       expressao = expressao.replace(/^solve\s+/,'').trim();
-      // Converter "=" em "==" (mas não "==" já existente)
-      if(!expressao.includes('==')){
-        expressao = expressao.replace(/([^=!<>])=([^=])/g,'$1==$2');
-      }
     }
     
-    let html = '';
+    // ... (resto do código permanece igual até a parte de equação)
     
-    if(tipo === 'derivada' || tipo === 'integral' || tipo === 'limite' || tipo === 'equacao'){
-      await waitForPyodide();
+    else if(tipo === 'equacao'){
+      console.log('Resolvendo equação:', expressao);
       
-      // Passar variáveis de forma segura via globals
-      pyodide.globals.set('expr_str', expressao);
-      pyodide.globals.set('var_str', variavel);
-      pyodide.globals.set('point_str', ponto);
-      
-      if(tipo === 'derivada'){
-        const resultado = pyodide.runPython(`
+      // Tentar resolver de múltiplas formas
+      const resultado = pyodide.runPython(`
 import sympy as sp
 x = sp.symbols(var_str)
-expr = sp.sympify(expr_str)
-result = sp.diff(expr, x, 1)
-[sp.latex(result), str(result)]
-`);
-        const latex = resultado[0];
-        const texto = resultado[1];
-        html = `<div class="result"><div class="math"><strong>Derivada de ${expressao}:</strong></div><div class="latex" id="latex-deriv"></div><div style="margin-top:8px;color:var(--muted)">f'(${variavel}) = ${texto}</div></div>`;
-        resultDiv.innerHTML = html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-deriv'), {displayMode:true, throwOnError:false});
-        salvarHistorico('NLP Derivada', input, texto);
-      }
-      else if(tipo === 'integral'){
-        const resultado = pyodide.runPython(`
-import sympy as sp
-x = sp.symbols(var_str)
-expr = sp.sympify(expr_str)
-result = sp.integrate(expr, x)
-[sp.latex(result), str(result)]
-`);
-        const latex = resultado[0];
-        const texto = resultado[1];
-        html = `<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">∫f(${variavel})d${variavel} = ${texto} + C</div></div>`;
-        resultDiv.innerHTML = html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-integ'), {displayMode:true, throwOnError:false});
-        salvarHistorico('NLP Integral', input, texto);
-      }
-      else if(tipo === 'limite'){
-        const resultado = pyodide.runPython(`
-import sympy as sp
-x = sp.symbols(var_str)
-expr = sp.sympify(expr_str)
-point = sp.sympify(point_str)
-result = sp.limit(expr, x, point)
-[sp.latex(result), str(result)]
-`);
-        const latex = resultado[0];
-        const texto = resultado[1];
-        html = `<div class="result"><div class="math"><strong>Limite de ${expressao} quando ${variavel}→${ponto}:</strong></div><div class="latex" id="latex-lim"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
-        resultDiv.innerHTML = html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-lim'), {displayMode:true, throwOnError:false});
-        salvarHistorico('NLP Limite', input, texto);
-      }
-      else if(tipo === 'equacao'){
-        console.log('Resolvendo equação:', expressao);
-        const resultado = pyodide.runPython(`
-import sympy as sp
-x = sp.symbols(var_str)
+resultados = []
+
 try:
+    # Método 1: Se tem ==, separa em equação
     if '==' in expr_str:
         parts = expr_str.split('==')
-        lhs = parts[0].strip()
-        rhs = parts[1].strip()
-        eq_obj = sp.Eq(sp.sympify(lhs), sp.sympify(rhs))
-        sols = sp.solve(eq_obj, x)
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq, x)
+    # Método 2: Se tem = único, separa
+    elif '=' in expr_str and '==' not in expr_str:
+        parts = expr_str.split('=')
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq, x)
+    # Método 3: Expressão já é igual a zero
     else:
         expr = sp.sympify(expr_str)
         sols = sp.solve(expr, x)
-    if not sols:
-        ['Sem solução']
+    
+    if sols:
+        for s in sols:
+            resultados.append(str(s))
     else:
-        [str(s) for s in sols]
+        resultados.append('Sem solução')
+        
 except Exception as e:
-    ['Erro: ' + str(e)]
+    resultados.append('Erro: ' + str(e))
+
+resultados
 `);
-        const textos = resultado;
-        console.log('Resultado:', textos);
-        
-        html = `<div class="result"><div class="math"><strong>Soluções de ${expressao}:</strong></div><div style="margin-top:10px">`;
-        if(!textos || textos.length === 0 || textos[0] === 'Sem solução'){
-          html += '<div style="color:var(--muted)">Sem solução encontrada</div>';
-        } else if(textos[0].startsWith('Erro:')){
-          html += `<div style="color:var(--err)">${textos[0]}</div>`;
-        } else {
-          textos.forEach((s,i) => {
-            html += `<div class="latex" id="latex-eq${i}"></div>`;
-          });
-        }
-        html += '</div></div>';
-        resultDiv.innerHTML = html;
-        
-        if(textos && !textos[0].startsWith('Erro:') && textos[0] !== 'Sem solução'){
-          textos.forEach((s,i) => {
-            if(window.katex){
-              katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true, throwOnError:false});
-            }
-          });
-        }
-        salvarHistorico('NLP Equação', input, textos ? textos.join(', ') : 'sem solução');
+      
+      const textos = resultado;
+      console.log('Resultado:', textos);
+      
+      let html = `<div class="result"><div class="math"><strong>Soluções de ${expressao}:</strong></div><div style="margin-top:10px">`;
+      
+      if(!textos || textos.length === 0 || textos[0] === 'Sem solução'){
+        html += '<div style="color:var(--muted)">Sem solução encontrada</div>';
+      } else if(textos[0].startsWith('Erro:')){
+        html += `<div style="color:var(--err)">${textos[0]}</div>`;
+      } else {
+        textos.forEach((s,i) => {
+          html += `<div class="latex" id="latex-eq${i}"></div>`;
+        });
       }
-    }
-    else{
-      await buscarWikidataDireto(input, resultDiv);
-    }
-  }catch(e){
-    console.error('Erro no NLP:', e);
-    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)"> Erro: ${e.message}</div>`;
-  }
-}
-// ============ WIKIDATA ============
+      html += '</div></div>';
+      resultDiv.innerHTML = html;
+      
+      if(textos && !textos[0].startsWith('Erro:') && textos[0] !== 'Sem solução'){
+        textos.forEach((s,i) => {
+          if(window.katex){
+            katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true, throwOnError:false});
+          }
+        });
+      }
+      salvarHistorico('NLP Equação', input, textos ? textos.join(', ') : 'sem solução');
+    }// ============ WIKIDATA ============
 async function buscarWikidata(){
   const query=str('wiki-input');
   const resultDiv=document.getElementById('wiki-result');
