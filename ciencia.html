@@ -532,14 +532,6 @@ async function processarNLP(){
   }
 }
 
-// ============ WIKIDATA (CORREÇÃO FINAL) ============
-async function buscarWikidata(){
-  const query=str('wiki-input');
-  const resultDiv=document.getElementById('wiki-result');
-  resultDiv.innerHTML='<div class="result"><span class="loading"></span> Buscando...</div>';
-  await buscarWikidataDireto(query, resultDiv);
-}
-
 async function buscarWikidataDireto(query, resultDiv){
   try{
     const paisesDiretos = {
@@ -618,22 +610,60 @@ async function buscarWikidataDireto(query, resultDiv){
       }catch(e){return id;}
     }
     
+    // Função para pegar valor atual (sem data de fim ou data mais recente)
+    function getValorAtual(claim){
+      if(!claim || claim.length===0) return null;
+      
+      // Primeiro tenta encontrar sem data de fim (P582)
+      for(const c of claim){
+        const qualifiers = c.qualifiers || {};
+        if(!qualifiers.P582){
+          return c.mainsnak.datavalue?.value;
+        }
+      }
+      
+      // Se todos têm data de fim, pega o mais recente
+      let maisRecente = null;
+      let dataMaisRecente = null;
+      
+      for(const c of claim){
+        const qualifiers = c.qualifiers || {};
+        if(qualifiers.P580){
+          const dataInicio = qualifiers.P580[0].datavalue?.value?.time;
+          if(dataInicio && (!dataMaisRecente || dataInicio > dataMaisRecente)){
+            dataMaisRecente = dataInicio;
+            maisRecente = c.mainsnak.datavalue?.value;
+          }
+        }
+      }
+      
+      return maisRecente || claim[0].mainsnak.datavalue?.value;
+    }
+    
     if(claims.P1082){
       const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
       if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
     }
+    
+    // CAPITAL ATUAL (P36)
     if(claims.P36){
-      const capId=claims.P36[0].mainsnak.datavalue?.value?.id;
-      if(capId){const capLabel=await getLabel(capId);fatos.push({label:'🏛️ Capital',value:capLabel});}
+      const capValue = getValorAtual(claims.P36);
+      if(capValue?.id){
+        const capLabel=await getLabel(capValue.id);
+        fatos.push({label:'🏛️ Capital',value:capLabel});
+      }
     }
+    
     if(claims.P2046){
       const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
-      if(area) fatos.push({label:'📏 Área',value:parseFloat(area.replace('+',''))+' km²'});
+      if(area) fatos.push({label:' Área',value:parseFloat(area.replace('+',''))+' km²'});
     }
+    
     if(claims.P38){
       const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
       if(curId){const curLabel=await getLabel(curId);fatos.push({label:'💵 Moeda',value:curLabel});}
     }
+    
     if(claims.P37){
       const langs=[];
       for(const c of claims.P37.slice(0,3)){
@@ -642,19 +672,27 @@ async function buscarWikidataDireto(query, resultDiv){
       }
       if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
     }
+    
+    // LÍDER ATUAL (P35)
     if(claims.P35){
-      const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
-      if(presId){const presLabel=await getLabel(presId);fatos.push({label:'👔 Líder',value:presLabel});}
+      const liderValue = getValorAtual(claims.P35);
+      if(liderValue?.id){
+        const liderLabel=await getLabel(liderValue.id);
+        fatos.push({label:'👔 Líder',value:liderLabel});
+      }
     }
+    
     if(claims.P571||claims.P569){
       const dateClaim=claims.P571||claims.P569;
       const date=dateClaim[0].mainsnak.datavalue?.value?.time;
       if(date) fatos.push({label:'📅 Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
     }
+    
     if(claims.P625){
       const coord=claims.P625[0].mainsnak.datavalue?.value;
       if(coord) fatos.push({label:'🌍 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
     }
+    
     if(claims.P30){
       const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
       if(contId){const contLabel=await getLabel(contId);fatos.push({label:'🌎 Continente',value:contLabel});}
@@ -675,7 +713,6 @@ async function buscarWikidataDireto(query, resultDiv){
   }
 }
 
-// ============ GRÁFICO 3D ============
 async function plotar3D(){
   try{
     await waitForPyodide();
@@ -697,16 +734,25 @@ async function plotar3D(){
 import numpy as np
 import json
 
-x = np.linspace(${xmin}, ${xmax}, 50)
-y = np.linspace(${ymin}, ${ymax}, 50)
-X, Y = np.meshgrid(x, y)
-
 try:
+    x = np.linspace(${xmin}, ${xmax}, 50)
+    y = np.linspace(${ymin}, ${ymax}, 50)
+    X, Y = np.meshgrid(x, y)
+    
     Z = ${fNumpy}
+    
+    # Garantir que Z é uma matriz 2D
+    if np.isscalar(Z):
+        Z = np.full_like(X, Z)
+    elif Z.ndim == 1:
+        Z = Z.reshape(1, -1)
+    
+    # Converter para lista e tratar valores infinitos/nan
     Z_list = Z.tolist()
     for i in range(len(Z_list)):
         for j in range(len(Z_list[i])):
-            if not np.isfinite(Z_list[i][j]):
+            val = Z_list[i][j]
+            if val is None or (isinstance(val, float) and (np.isinf(val) or np.isnan(val))):
                 Z_list[i][j] = None
     
     result = {
@@ -733,6 +779,7 @@ json.dumps(result)
     
     const {Z,X,Y}=resultado;
     
+    // Verificar se temos dados válidos
     let temDadosValidos=false;
     for(let i=0;i<Z.length;i++){
       for(let j=0;j<Z[i].length;j++){
@@ -787,7 +834,6 @@ json.dumps(result)
     `;
   }
 }
-
 // ============ CÁLCULO SIMBÓLICO ============
 async function simDerivada(){
   try{
