@@ -77,15 +77,15 @@
 
 <nav class="tabs">
   <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
-  <button class="tab" data-tab="grafico3d">📊 Gráficos 3D</button>
-  <button class="tab" data-tab="parciais">∂ Parciais</button>
-  <button class="tab" data-tab="edo">🔁 EDOs</button>
+  <button class="tab" data-tab="grafico3d"> Gráficos 3D</button>
+  <button class="tab" data-tab="parciais"> Parciais</button>
+  <button class="tab" data-tab="edo"> EDOs</button>
   <button class="tab" data-tab="fourier">📡 Fourier</button>
   <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="historico">📋 Histórico</button>
+  <button class="tab" data-tab="historico"> Histórico</button>
 </nav>
 
 <main>
@@ -302,7 +302,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toggleTheme(){
   document.body.classList.toggle('dark-mode');
   const btn=document.querySelector('.theme-toggle');
-  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
+  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':' Escuro';
   localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
 }
 if(localStorage.getItem('theme')==='dark') toggleTheme();
@@ -323,17 +323,20 @@ function nlpExemplo(texto){
   processarNLP();
 }
 
-// ============ AVALIADOR MATH.JS ============
+// ============ AVALIADOR MATH.JS CORRIGIDO ============
 function evalMath(expr, vars={}){
   try{
-    let cleanExpr = expr.replace(/\^/g, '^');
+    if(!expr || expr.trim()==='') return NaN;
+    // Converter ^ para ** (math.js aceita ambos, mas ^ é mais seguro)
+    let cleanExpr = expr.replace(/\*\*/g, '^').trim();
     return math.evaluate(cleanExpr, vars);
   }catch(e){
+    console.error('Erro em evalMath:', e, 'Expressão:', expr);
     return NaN;
   }
 }
 
-// ============ NLP ============
+// ============ NLP CORRIGIDO ============
 async function processarNLP(){
   const inputEl = document.getElementById('nlp-input');
   const input = inputEl.value.trim();
@@ -353,21 +356,21 @@ async function processarNLP(){
     const derivMatch = inputLower.match(/(?:derivative|derivada|derive|differentiate)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
     if(derivMatch){
       tipo = 'derivada';
-      expressao = derivMatch[1].replace(/\^/g,'**');
+      expressao = derivMatch[1].replace(/\^/g,'^');
       if(derivMatch[2]) variavel = derivMatch[2];
     }
     
     const integMatch = inputLower.match(/(?:integral|integrate|antiderivative)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
     if(integMatch){
       tipo = 'integral';
-      expressao = integMatch[1].replace(/\^/g,'**');
+      expressao = integMatch[1].replace(/\^/g,'^');
       if(integMatch[2]) variavel = integMatch[2];
     }
     
     const eqMatch = inputLower.match(/(?:solve|resolver)\s+(.+)$/);
     if(eqMatch){
       tipo = 'equacao';
-      expressao = eqMatch[1].trim().replace(/\^/g,'**');
+      expressao = eqMatch[1].trim().replace(/\^/g,'^');
       expressao = expressao.replace(/^solve\s+/, '').trim();
     }
     
@@ -375,16 +378,25 @@ async function processarNLP(){
     
     if(tipo === 'derivada'){
       const h = 1e-7;
-      const fPos = evalMath(expressao, {[variavel]: h});
-      const fNeg = evalMath(expressao, {[variavel]: -h});
-      const derivada = (fPos - fNeg) / (2 * h);
+      const varsPlus = {[variavel]: h};
+      const varsMinus = {[variavel]: -h};
+      const fPos = evalMath(expressao, varsPlus);
+      const fNeg = evalMath(expressao, varsMinus);
       
-      html = `<div class="result">
-        <div class="math"><strong>Derivada de ${expressao} em ${variavel}=0:</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">f'(0) ≈ <strong style="color:var(--primary)">${derivada.toFixed(6)}</strong></div>
-      </div>`;
+      if(!isFinite(fPos) || !isFinite(fNeg)){
+        html = `<div class="result" style="border-color:var(--err)">
+          <div class="math"><strong>Erro ao calcular derivada</strong></div>
+          <div style="margin-top:8px;color:var(--muted)">Verifique se a função está correta</div>
+        </div>`;
+      }else{
+        const derivada = (fPos - fNeg) / (2 * h);
+        html = `<div class="result">
+          <div class="math"><strong>Derivada de ${expressao} em ${variavel}=0:</strong></div>
+          <div class="math" style="font-size:1.3rem;margin-top:10px">f'(0) ≈ <strong style="color:var(--primary)">${derivada.toFixed(6)}</strong></div>
+        </div>`;
+      }
       resultDiv.innerHTML = html;
-      salvarHistorico('NLP Derivada', input, `f'(0)≈${derivada.toFixed(6)}`);
+      salvarHistorico('NLP Derivada', input, html);
     }
     else if(tipo === 'integral'){
       const n = 1000;
@@ -406,30 +418,67 @@ async function processarNLP(){
       salvarHistorico('NLP Integral', input, `∫≈${integral.toFixed(6)}`);
     }
     else if(tipo === 'equacao'){
-      // Newton-Raphson
-      let x = 0;
-      const h = 1e-7;
-      let solucao = "Não convergiu";
-      for(let i=0; i<100; i++){
-        const f = evalMath(expressao, {x: x});
-        const fPos = evalMath(expressao, {x: x + h});
-        const fNeg = evalMath(expressao, {x: x - h});
-        const df = (fPos - fNeg) / (2 * h);
-        if(Math.abs(df) < 1e-10) break;
-        const xNovo = x - f/df;
-        if(Math.abs(xNovo - x) < 1e-10) {
-          solucao = xNovo.toFixed(6);
-          break;
+      // Encontrar todas as raízes reais com múltiplos pontos iniciais
+      const raizes = [];
+      const pontosIniciais = [-100, -50, -20, -10, -5, -2, -1, -0.5, 0.5, 1, 2, 5, 10, 20, 50, 100];
+      
+      for(const x0 of pontosIniciais){
+        let x = x0;
+        const h = 1e-7;
+        let convergiu = false;
+        
+        for(let iter=0; iter<200; iter++){
+          try{
+            const f = evalMath(expressao, {x: x});
+            if(!isFinite(f)) break;
+            
+            const fPos = evalMath(expressao, {x: x + h});
+            const fNeg = evalMath(expressao, {x: x - h});
+            const df = (fPos - fNeg) / (2 * h);
+            
+            if(Math.abs(df) < 1e-12) {
+              x += (Math.random() - 0.5) * 0.1;
+              continue;
+            }
+            
+            const xNovo = x - f/df;
+            if(!isFinite(xNovo)) break;
+            
+            if(Math.abs(xNovo - x) < 1e-10){
+              const fFinal = evalMath(expressao, {x: xNovo});
+              if(Math.abs(fFinal) < 1e-6){
+                let duplicada = false;
+                for(const r of raizes){
+                  if(Math.abs(r - xNovo) < 1e-4){
+                    duplicada = true;
+                    break;
+                  }
+                }
+                if(!duplicada) raizes.push(xNovo);
+                convergiu = true;
+              }
+              break;
+            }
+            x = xNovo;
+          }catch(e){break;}
         }
-        x = xNovo;
+      }
+      
+      let solucaoStr;
+      if(raizes.length === 0){
+        solucaoStr = "Nenhuma raiz real encontrada";
+      }else{
+        raizes.sort((a,b)=>a-b);
+        solucaoStr = raizes.map(r => `x ≈ ${r.toFixed(6)}`).join(', ');
       }
       
       html = `<div class="result">
-        <div class="math"><strong>Solução de ${expressao}:</strong></div>
-        <div class="math" style="font-size:1.3rem;margin-top:10px">x ≈ <strong style="color:var(--primary)">${solucao}</strong></div>
+        <div class="math"><strong>Soluções de ${expressao}:</strong></div>
+        <div class="math" style="font-size:1.3rem;margin-top:10px">${solucaoStr}</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:0.9rem">💡 Encontradas ${raizes.length} raiz(es) real(is)</div>
       </div>`;
       resultDiv.innerHTML = html;
-      salvarHistorico('NLP Equação', input, `x≈${solucao}`);
+      salvarHistorico('NLP Equação', input, solucaoStr);
     }
     else{
       await buscarWikidataDireto(input, resultDiv);
@@ -564,7 +613,7 @@ async function buscarWikidataDireto(query, resultDiv){
   }
 }
 
-// ============ GRÁFICO 3D (PURO JS) ============
+// ============ GRÁFICO 3D ============
 async function plotar3D(){
   try{
     const f=str('g3d-f');
@@ -608,7 +657,7 @@ async function plotar3D(){
   }
 }
 
-// ============ DERIVADAS PARCIAIS (NUMÉRICA) ============
+// ============ DERIVADAS PARCIAIS ============
 function calcParcial(){
   try{
     const f=str('par-f');
@@ -663,7 +712,7 @@ function calcEDO(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ FOURIER (DFT NUMÉRICA) ============
+// ============ FOURIER ============
 function calcFourier(){
   try{
     const f=str('four-f');
@@ -671,19 +720,15 @@ function calcFourier(){
     const N=Math.floor(num('four-n'));
     
     const dt = (tmax-tmin)/N;
-    const real = new Array(N).fill(0);
-    const imag = new Array(N).fill(0);
     const mag = new Array(N/2).fill(0);
     const freqs = new Array(N/2).fill(0);
     
-    // Amostrar sinal
     const signal = [];
     for(let n=0; n<N; n++){
       const t = tmin + n*dt;
       signal.push(evalMath(f, {t: t}) || 0);
     }
     
-    // DFT
     for(let k=0; k<N/2; k++){
       let sumReal = 0, sumImag = 0;
       for(let n=0; n<N; n++){
@@ -703,7 +748,7 @@ function calcFourier(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ TEORIA DOS NÚMEROS (PURO JS) ============
+// ============ TEORIA DOS NÚMEROS CORRIGIDA ============
 function testarPrimo(){
   try{
     const n=parseInt(str('num-teste'));
@@ -775,12 +820,15 @@ function fatorarNumero(){
 
 function calcularFuncoesAritmeticas(){
   try{
-    const n=parseInt(str('num-func-n'));
-    if(n<1) throw new Error('n deve ser ≥ 1');
+    const inputVal = document.getElementById('num-func-n').value.trim();
+    if(!inputVal) throw new Error('Digite um valor');
+    const n = parseInt(inputVal);
+    if(isNaN(n) || n<1) throw new Error('n deve ser ≥ 1');
+    if(n > 10000000) throw new Error('n muito grande (máx: 10.000.000)');
     
-    // Phi (Totiente)
-    let phi=n, temp=n;
-    for(let p=2;p*p<=temp;p++){
+    // Phi (Totiente de Euler)
+    let phi = n, temp = n;
+    for(let p=2; p*p<=temp; p++){
       if(temp%p===0){
         while(temp%p===0) temp/=p;
         phi -= phi/p;
@@ -789,22 +837,22 @@ function calcularFuncoesAritmeticas(){
     if(temp>1) phi -= phi/temp;
     
     // Mobius
-    let mu=1, tempM=n, sqf=true;
-    for(let p=2;p*p<=tempM;p++){
+    let mu = 1, tempM = n, sqf = true;
+    for(let p=2; p*p<=tempM; p++){
       if(tempM%p===0){
         let c=0;
-        while(tempM%p===0){c++;tempM/=p;}
-        if(c>1){sqf=false;break;}
-        mu=-mu;
+        while(tempM%p===0){c++; tempM/=p;}
+        if(c>1){sqf=false; break;}
+        mu = -mu;
       }
     }
-    if(tempM>1) mu=-mu;
-    if(!sqf) mu=0;
+    if(tempM>1) mu = -mu;
+    if(!sqf) mu = 0;
     
-    // Divisores
-    let d=0, sigma=0;
-    const divisores=[];
-    for(let i=1;i*i<=n;i++){
+    // Divisores e soma
+    let d = 0, sigma = 0;
+    const divisores = [];
+    for(let i=1; i*i<=n; i++){
       if(n%i===0){
         d++; sigma+=i; divisores.push(i);
         if(i!==n/i){d++; sigma+=n/i; divisores.push(n/i);}
@@ -812,25 +860,57 @@ function calcularFuncoesAritmeticas(){
     }
     divisores.sort((a,b)=>a-b);
     
-    let muDesc = mu===0?'n tem fator quadrático perfeito':(mu===1?'n é produto de nº par de primos distintos':'n é produto de nº ímpar de primos distintos');
+    // Número de fatores primos distintos
+    let numFatoresPrimos = 0;
+    let tempF = n;
+    for(let p=2; p*p<=tempF; p++){
+      if(tempF%p===0){
+        numFatoresPrimos++;
+        while(tempF%p===0) tempF/=p;
+      }
+    }
+    if(tempF>1) numFatoresPrimos++;
     
-    document.getElementById('num-func-result').innerHTML=`
+    let muDesc = '';
+    if(mu===0) muDesc = 'n tem fator quadrático perfeito';
+    else if(mu===1) muDesc = `Produto de ${numFatoresPrimos} primos distintos (par)`;
+    else muDesc = `Produto de ${numFatoresPrimos} primos distintos (ímpar)`;
+    
+    document.getElementById('num-func-result').innerHTML = `
       <div class="result">
         <div class="math" style="font-size:1.2rem"><strong>Funções Aritméticas de ${n}</strong></div>
         <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-          <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">φ(n) - Totiente de Euler</div><div class="value" style="font-size:1.5rem;color:var(--primary)">${phi}</div></div>
-          <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">μ(n) - Função de Möbius</div><div class="value" style="font-size:1.5rem;color:var(--accent)">${mu}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">${muDesc}</div></div>
-          <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">d(n) - Nº de divisores</div><div class="value" style="font-size:1.5rem;color:var(--warn)">${d}</div></div>
-          <div class="fact-card" style="border-left-color:#10b981"><div class="label">σ(n) - Soma dos divisores</div><div class="value" style="font-size:1.5rem;color:var(--ok)">${sigma}</div></div>
+          <div class="fact-card" style="border-left-color:#4f46e5">
+            <div class="label">φ(n) - Totiente de Euler</div>
+            <div class="value" style="font-size:1.5rem;color:var(--primary)">${phi}</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Números coprimos com ${n} até ${n}</div>
+          </div>
+          <div class="fact-card" style="border-left-color:#06b6d4">
+            <div class="label">μ(n) - Função de Möbius</div>
+            <div class="value" style="font-size:1.5rem;color:var(--accent)">${mu}</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">${muDesc}</div>
+          </div>
+          <div class="fact-card" style="border-left-color:#f59e0b">
+            <div class="label">d(n) - Nº de divisores</div>
+            <div class="value" style="font-size:1.5rem;color:var(--warn)">${d}</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Divisores positivos</div>
+          </div>
+          <div class="fact-card" style="border-left-color:#10b981">
+            <div class="label">σ(n) - Soma dos divisores</div>
+            <div class="value" style="font-size:1.5rem;color:var(--ok)">${sigma}</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Soma de todos divisores</div>
+          </div>
         </div>
         <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
-          <div style="font-weight:600;margin-bottom:8px">📋 Divisores de ${n}:</div>
-          <div style="font-family:monospace">${divisores.join(', ')}</div>
+          <div style="font-weight:600;margin-bottom:8px">📋 Divisores de ${n} (${d} total):</div>
+          <div style="font-family:monospace;word-break:break-all">${divisores.join(', ')}</div>
         </div>
       </div>`;
-    salvarHistorico('Teoria dos Números',`Funções de ${n}`,`φ=${phi}, μ=${mu}, d=${d}`);
+    salvarHistorico('Teoria dos Números', `Funções de ${n}`, `φ=${phi}, μ=${mu}, d=${d}, σ=${sigma}`);
     toast('Funções calculadas!','ok');
-  }catch(e){toast(e.message,'err');}
+  }catch(e){
+    toast(e.message,'err');
+  }
 }
 
 // ============ LIMITES ============
@@ -890,7 +970,7 @@ function calcLimite(){
 
 // ============ DERIVADAS (SIMBÓLICA BÁSICA + NUMÉRICA) ============
 function derivarSimbolica(expr, varName){
-  expr = expr.replace(/\s+/g, '').replace(/\^/g,'**');
+  expr = expr.replace(/\s+/g, '').replace(/\*\*/g,'^');
   const termos = expr.match(/([+-]?[^+-]+)/g) || [];
   const derivadas = [];
   for(const termo of termos){
