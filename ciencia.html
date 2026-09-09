@@ -8,6 +8,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <style>
   :root{--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
   body.dark-mode{--bg:#0f172a;--panel:#1e293b;--ink:#e2e8f0;--muted:#94a3b8;--border:#334155;--shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -73,7 +74,7 @@
 </head>
 <body>
 <header>
-  <h1> SciCalc</h1>
+  <h1>🧮 SciCalc</h1>
   <p>Calculadora científica ultra-rápida</p>
   <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
 </header>
@@ -81,11 +82,9 @@
 <nav class="tabs">
   <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
   <button class="tab" data-tab="grafico3d">📊 Gráficos 3D</button>
-  <button class="tab" data-tab="conhecimento">🌍 Conhecimento</button>
-  <button class="tab" data-tab="simbolico">🧠 Simbólico</button>
   <button class="tab" data-tab="parciais">∂ Parciais</button>
-  <button class="tab" data-tab="edo"> EDOs</button>
-  <button class="tab" data-tab="fourier"> Fourier</button>
+  <button class="tab" data-tab="edo">🔁 EDOs</button>
+  <button class="tab" data-tab="fourier">📡 Fourier</button>
   <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
@@ -101,7 +100,7 @@
     <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "Brazil", "solve x^2 - 4 = 0"</p>
     <div class="search-box">
       <input id="nlp-input" placeholder='Ex: derivative of x^2 + 3*x + 1' onkeypress="if(event.key==='Enter')processarNLP()">
-      <button class="btn search" onclick="processarNLP()"> Buscar</button>
+      <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
     </div>
     <div id="nlp-result"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
@@ -130,55 +129,6 @@
     </div>
     <button class="btn" onclick="plotar3D()">Gerar Gráfico 3D</button>
     <div id="g3d-plot" class="plot" style="height:500px"></div>
-  </div>
-</section>
-
-<section class="tab-content" id="conhecimento">
-  <div class="panel">
-    <h2>🌍 Conhecimento (Wikidata)</h2>
-    <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos...</p>
-    <div class="search-box">
-      <input id="wiki-input" placeholder="Ex: Brazil, France, Albert Einstein" onkeypress="if(event.key==='Enter')buscarWikidata()">
-      <button class="btn search" onclick="buscarWikidata()"> Buscar</button>
-    </div>
-    <div id="wiki-result"></div>
-  </div>
-</section>
-
-<section class="tab-content" id="simbolico">
-  <div class="panel">
-    <h2>🧠 Cálculo Simbólico (SymPy)</h2>
-    <p class="sub">Derivadas, integrais e equações com SymPy</p>
-    <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="sim-deriv">Derivada</button>
-      <button class="sub-tab" data-sub="sim-integ">Integral</button>
-      <button class="sub-tab" data-sub="sim-eq">Equação</button>
-    </div>
-    <div class="sub-panel active" id="sub-sim-deriv">
-      <div class="form-row">
-        <div><label>Função f(x)</label><input id="sim-deriv-f" placeholder="Ex: x^3 + 2*x^2 + x"></div>
-        <div><label>Variável</label><input id="sim-deriv-var" value="x"></div>
-        <div><label>Ordem</label><input id="sim-deriv-ord" value="1"></div>
-      </div>
-      <button class="btn" onclick="simDerivada()">Calcular Derivada</button>
-      <div id="sim-deriv-result"></div>
-    </div>
-    <div class="sub-panel" id="sub-sim-integ">
-      <div class="form-row">
-        <div><label>Função f(x)</label><input id="sim-integ-f" placeholder="Ex: x^2 + sin(x)"></div>
-        <div><label>Variável</label><input id="sim-integ-var" value="x"></div>
-      </div>
-      <button class="btn" onclick="simIntegral()">Calcular Integral</button>
-      <div id="sim-integ-result"></div>
-    </div>
-    <div class="sub-panel" id="sub-sim-eq">
-      <div class="form-row">
-        <div><label>Equação</label><input id="sim-eq-expr" placeholder="Ex: x^2 - 4 = 0"></div>
-        <div><label>Variável</label><input id="sim-eq-var" value="x"></div>
-      </div>
-      <button class="btn" onclick="simEquacao()">Resolver</button>
-      <div id="sim-eq-result"></div>
-    </div>
   </div>
 </section>
 
@@ -267,7 +217,7 @@
 
 <section class="tab-content" id="limites">
   <div class="panel">
-    <h2> Limites</h2>
+    <h2>📐 Limites</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -392,7 +342,7 @@ function nlpExemplo(texto){
 
 // ============ PYODIDE COM PROGRESSO ============
 async function initPyodide(){
-  if(pyodideLoading) return;
+  if(pyodideLoading || pyodideReady) return;
   pyodideLoading = true;
   
   const statusDiv = document.getElementById('pyodide-status');
@@ -404,7 +354,6 @@ async function initPyodide(){
   progressFill.style.width = '0%';
   
   try{
-    // Simular progresso enquanto carrega
     let progress = 0;
     const progressInterval = setInterval(() => {
       if(progress < 90) {
@@ -503,7 +452,6 @@ def sym_fourier(expr_str, var_str='t'):
   }
 }
 
-// Carregar Pyodide em background após 2 segundos
 setTimeout(initPyodide, 2000);
 
 function waitForPyodide(){
@@ -559,9 +507,7 @@ async function processarNLP(){
     let html = '';
     
     if(tipo === 'derivada' || tipo === 'integral' || tipo === 'equacao'){
-      // Usar math.js para resposta instantânea
       if(tipo === 'derivada'){
-        // Derivada numérica em x=0
         const h = 1e-7;
         const fPos = math.evaluate(expressao.replace(/\*\*/g,'^'), {[variavel]: h});
         const fNeg = math.evaluate(expressao.replace(/\*\*/g,'^'), {[variavel]: -h});
@@ -570,7 +516,7 @@ async function processarNLP(){
         html = `<div class="result">
           <div class="math"><strong>Derivada de ${expressao} em ${variavel}=0:</strong></div>
           <div class="math" style="font-size:1.3rem;margin-top:10px">f'(0) ≈ <strong style="color:var(--primary)">${derivada.toFixed(6)}</strong></div>
-          <div style="margin-top:8px;color:var(--muted);font-size:0.9rem"> Resposta instantânea. Aguarde Python para resultado simbólico exato.</div>
+          <div style="margin-top:8px;color:var(--muted);font-size:0.9rem">💡 Resposta instantânea. Aguarde Python para resultado simbólico exato.</div>
         </div>`;
         resultDiv.innerHTML = html;
         salvarHistorico('NLP Derivada', input, `f'(0)≈${derivada.toFixed(6)}`);
@@ -578,7 +524,6 @@ async function processarNLP(){
       }
       
       if(tipo === 'integral'){
-        // Integral numérica de 0 a 1
         const n = 1000;
         const a = 0, b = 1;
         const h = (b - a) / n;
@@ -602,14 +547,12 @@ async function processarNLP(){
       }
       
       if(tipo === 'equacao'){
-        // Tentar resolver numericamente
         html = `<div class="result" style="border-color:var(--warn)">
           <div class="math"><strong>Equação:</strong> ${expressao}</div>
           <div style="margin-top:10px;color:var(--muted)">⏳ Aguarde o Python carregar para resolver simbolicamente...</div>
         </div>`;
         resultDiv.innerHTML = html;
         
-        // Carregar Python em background e resolver
         await waitForPyodide();
         
         pyodide.globals.set('expr_str', expressao);
@@ -677,13 +620,6 @@ except Exception as e:
 }
 
 // ============ WIKIDATA ============
-async function buscarWikidata(){
-  const query=str('wiki-input');
-  const resultDiv=document.getElementById('wiki-result');
-  resultDiv.innerHTML='<div class="result"><span class="loading"></span> Buscando...</div>';
-  await buscarWikidataDireto(query, resultDiv);
-}
-
 async function buscarWikidataDireto(query, resultDiv){
   try{
     const paisesDiretos = {
@@ -826,7 +762,7 @@ async function buscarWikidataDireto(query, resultDiv){
     }
     if(claims.P625){
       const coord=claims.P625[0].mainsnak.datavalue?.value;
-      if(coord) fatos.push({label:' Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
+      if(coord) fatos.push({label:'🌍 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
     }
     if(claims.P30){
       const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
@@ -969,95 +905,6 @@ json.dumps(result)
         </div>
       </div>
     `;
-  }
-}
-
-// ============ CÁLCULO SIMBÓLICO ============
-async function simDerivada(){
-  try{
-    await waitForPyodide();
-    const f=str('sim-deriv-f').replace(/\^/g,'**'),varName=str('sim-deriv-var'),ord=parseInt(str('sim-deriv-ord'));
-    const [latex,texto]=pyodide.runPython(`sym_derivative("${f}","${varName}",${ord})`).toJs();
-    document.getElementById('sim-deriv-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-sd"></div><div style="margin-top:8px;color:var(--muted)">f⁽${ord}⁾(${varName}) = ${texto}</div></div>`;
-    if(window.katex) katex.render(`\\frac{d^{${ord}}}{d${varName}^{${ord}}} f = ${texto}`, document.getElementById('latex-sd'), {displayMode:true,throwOnError:false});
-    salvarHistorico('Simbólico Derivada',`${f}, ordem ${ord}`,texto);
-    toast('Derivada calculada!','ok');
-  }catch(e){toast(e.message,'err');}
-}
-
-async function simIntegral(){
-  try{
-    await waitForPyodide();
-    const f=str('sim-integ-f').replace(/\^/g,'**'),varName=str('sim-integ-var');
-    const [latex,texto]=pyodide.runPython(`sym_integral("${f}","${varName}")`).toJs();
-    document.getElementById('sim-integ-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-si"></div><div style="margin-top:8px;color:var(--muted)">∫f(${varName})d${varName} = ${texto} + C</div></div>`;
-    if(window.katex) katex.render(`\\int ${f}\\, d${varName} = ${texto}`, document.getElementById('latex-si'), {displayMode:true,throwOnError:false});
-    salvarHistorico('Simbólico Integral',f,texto);
-    toast('Integral calculada!','ok');
-  }catch(e){toast(e.message,'err');}
-}
-
-async function simEquacao(){
-  try{
-    await waitForPyodide();
-    const eq=str('sim-eq-expr').replace(/\^/g,'**'),varName=str('sim-eq-var');
-    
-    pyodide.globals.set('expr_str', eq);
-    pyodide.globals.set('var_str', varName);
-    
-    const resultado = pyodide.runPython(`
-import sympy as sp
-x = sp.symbols(var_str)
-try:
-    if '==' in expr_str:
-        parts = expr_str.split('==')
-        lhs = sp.sympify(parts[0].strip())
-        rhs = sp.sympify(parts[1].strip())
-        eq_obj = sp.Eq(lhs, rhs)
-        sols = sp.solve(eq_obj, x)
-    elif '=' in expr_str:
-        parts = expr_str.split('=')
-        lhs = sp.sympify(parts[0].strip())
-        rhs = sp.sympify(parts[1].strip())
-        eq_obj = sp.Eq(lhs, rhs)
-        sols = sp.solve(eq_obj, x)
-    else:
-        expr = sp.sympify(expr_str)
-        sols = sp.solve(expr, x)
-    if not sols:
-        ['Sem solução']
-    else:
-        [str(s) for s in sols]
-except Exception as e:
-    ['Erro: ' + str(e)]
-`);
-    
-    const textos = resultado;
-    
-    let html='<div class="result"><div class="math"><strong>Equação: '+eq+'</strong></div><div style="margin-top:10px">';
-    if(!textos || textos.length === 0 || textos[0] === 'Sem solução'){
-      html+='<div style="color:var(--muted)">Sem solução encontrada</div>';
-    } else if(textos[0].startsWith('Erro:')){
-      html+=`<div style="color:var(--err)">${textos[0]}</div>`;
-    } else {
-      textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-se${i}"></div>`;});
-    }
-    html+='</div></div>';
-    document.getElementById('sim-eq-result').innerHTML=html;
-    
-    if(textos && !textos[0].startsWith('Erro:') && textos[0] !== 'Sem solução'){
-      textos.forEach((s,i)=>{
-        if(window.katex){
-          katex.render(`${varName} = ${s}`, document.getElementById('latex-se'+i), {displayMode:true,throwOnError:false});
-        }
-      });
-    }
-    salvarHistorico('Simbólico Equação',eq,textos ? textos.join(', ') : 'sem solução');
-    toast('Equação resolvida!','ok');
-  }catch(e){
-    console.error('Erro na equação:',e);
-    toast('Erro: '+e.message,'err');
-    document.getElementById('sim-eq-result').innerHTML=`<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
   }
 }
 
@@ -1260,7 +1107,7 @@ function calcLimite(){
       else effectiveDir='both';
     }
     let L,method='';
-    if(isInf){L=evalMath(f,{x:1e6});method='x→+';}
+    if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';}
     else{
       const deltas=[0.01, 0.001, 0.0001, 0.00001];
       const valsP=[],valsM=[];
