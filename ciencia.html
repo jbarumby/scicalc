@@ -1,18 +1,3 @@
-Realizei uma auditoria completa na sua calculadora (SciCalc). O código base era excelente, mas havia áreas onde o poder das bibliotecas disponíveis (como **math.js** e **KaTeX**) não estava sendo totalmente explorado, além de alguns bugs numéricos.
-
-Aqui está o resumo das melhorias e implementações adicionadas:
-
-### 🛠️ Auditoria, Correções de Bugs e Melhorias:
-1. **KaTeX Verdadeiro**: O código carregava o KaTeX, mas usava apenas uma classe `.math` com fonte de texto para tentar simular matemática. Agora, todas as fórmulas usam o motor de renderização real do KaTeX (`katex.renderToString`) para gerar equações perfeitamente formatadas em LaTeX.
-2. **Derivadas Simbólicas (Adicionado)**: A antiga função de derivadas calculava o resultado apenas numericamente. Utilizando o `math.js`, implementei o cálculo simbólico. Agora a calculadora resolve a expressão algebraicamente e exibe **$f'(x)$** e **$f''(x)$** (ex: `3*x^2 -> 6*x`), e plota todas elas dinamicamente.
-3. **Integrais Indefinidas (Adicionado)**: Adicionei a biblioteca **Nerdamer** para processar Álgebra Computacional (CAS). Agora, a aba de integrais calcula a **Integral Indefinida simbólica** (ex: $\int x^2 dx = \frac{x^3}{3} + C$) e as integrais definidas numericamente.
-4. **Derivadas Parciais Simbólicas**: Melhorado para mostrar a equação exata da derivada parcial antes de calcular o valor no ponto especificado.
-5. **Busca Inteligente (NLP)**: Atualizada para responder com resultados simbólicos exatos para "derivative" e "integral", não mais apenas aproximações em x=0.
-6. **Gráficos e Modo Escuro**: Os gráficos do `Plotly` não estavam adaptando a cor dos eixos no Modo Escuro. Criei um layout dinâmico que altera os traços visuais dos gráficos conforme o tema em uso.
-
-Abaixo está o código completo (basta salvar em um arquivo `.html`).
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
