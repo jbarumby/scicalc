@@ -463,7 +463,6 @@ function waitForPyodide(){
   });
 }
 
-// ============ NLP BÁSICO ============
 async function processarNLP(){
   const input=str('nlp-input').toLowerCase().trim();
   const resultDiv=document.getElementById('nlp-result');
@@ -489,6 +488,8 @@ async function processarNLP(){
       tipo='equacao';
       expressao=eqMatch[1].trim().replace(/\^/g,'**');
       expressao=expressao.replace(/^solve\s+/,'').trim();
+      // CORREÇÃO: Converter "=" em "==" para equações
+      expressao=expressao.replace(/([^=])=([^=])/g,'$1==$2');
     }
     
     let html='';
@@ -515,14 +516,41 @@ async function processarNLP(){
         if(window.katex) katex.render(texto, document.getElementById('latex-lim'), {displayMode:true,throwOnError:false});
       }
       else if(tipo==='equacao'){
-        const [latexs,textos]=pyodide.runPython(`sym_solve("${expressao}","${variavel}")`).toJs();
+        console.log('Resolvendo equação:', expressao);
+        const [latexs,textos]=pyodide.runPython(`
+import sympy as sp
+x = sp.symbols('${variavel}')
+try:
+    if '==' in '${expressao}':
+        lhs, rhs = '${expressao}'.split('==')
+        eq_obj = sp.Eq(sp.sympify(lhs.strip()), sp.sympify(rhs.strip()))
+        sols = sp.solve(eq_obj, x)
+    else:
+        expr = sp.sympify('${expressao}')
+        sols = sp.solve(expr, x)
+    if not sols:
+        ['Sem solução']
+    else:
+        [str(s) for s in sols]
+except Exception as e:
+    [f'Erro: {str(e)}']
+`).toJs();
+        
         html=`<div class="result"><div class="math"><strong>Soluções de ${expressao}:</strong></div><div style="margin-top:10px">`;
-        textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-eq${i}"></div>`;});
+        if(textos.length===0 || textos[0]==='Sem solução' || textos[0].startsWith('Erro:')){
+          html+=`<div style="color:var(--muted)">${textos[0]||'Sem solução encontrada'}</div>`;
+        }else{
+          textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-eq${i}"></div>`;});
+        }
         html+=`</div></div>`;
         resultDiv.innerHTML=html;
-        textos.forEach((s,i)=>{if(window.katex) katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true,throwOnError:false});});
+        textos.forEach((s,i)=>{
+          if(!s.startsWith('Erro:') && window.katex){
+            katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true,throwOnError:false});
+          }
+        });
       }
-      salvarHistorico('NLP '+tipo,input,texto);
+      salvarHistorico('NLP '+tipo,input,textos?textos.join(', '):texto);
     }
     else{
       await buscarWikidataDireto(input, resultDiv);
@@ -531,7 +559,6 @@ async function processarNLP(){
     resultDiv.innerHTML=`<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
   }
 }
-
 // ============ WIKIDATA ============
 async function buscarWikidata(){
   const query=str('wiki-input');
