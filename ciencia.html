@@ -112,9 +112,9 @@
 <section class="tab-content active" id="busca">
   <div class="panel">
     <h2>🔍 Busca Inteligente (NLP)</h2>
-    <p class="sub">Digite em linguagem natural (Inglês ou Português). Suporta derivadas e integrais simbólicas ou dados reais.</p>
+    <p class="sub">Digite em linguagem natural (Inglês ou Português). Suporta cálculos simbólicos ou informações sobre matemáticos e cientistas.</p>
     <div class="search-box">
-      <input id="nlp-input" placeholder="Ex: derivative of x^2 + 3*x + 1" onkeydown="if(event.key==='Enter')processarNLP()">
+      <input id="nlp-input" placeholder="Ex: derivative of x^2, ou Isaac Newton" onkeydown="if(event.key==='Enter')processarNLP()">
       <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
     </div>
     <div id="nlp-result"></div>
@@ -123,7 +123,9 @@
       <div style="display:flex;flex-wrap:wrap;gap:8px">
         <button class="btn small example-btn" onclick="nlpExemplo('derivative of sin(x)*x^2')">derivative of sin(x)*x^2</button>
         <button class="btn small example-btn" onclick="nlpExemplo('integral of x^2 + 2*x')">integral of x^2</button>
-        <button class="btn small example-btn" onclick="nlpExemplo('Japan')">Japan</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('Alan Turing')">Alan Turing</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('Marie Curie')">Marie Curie</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('Leonhard Euler')">Leonhard Euler</button>
       </div>
     </div>
   </div>
@@ -430,7 +432,7 @@ async function processarNLP() {
       return;
     }
     
-    // Fallback: Wikidata
+    // Fallback: Wikidata (Agora focando em personalidades)
     await buscarWikidataDireto(input, resultDiv);
   } catch(e) {
     resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
@@ -440,8 +442,16 @@ async function processarNLP() {
 // ============ WIKIDATA ============
 async function buscarWikidataDireto(query, resultDiv) {
   try {
-    const paisesDiretos = {'brazil':'Q155','brasil':'Q155','france':'Q142','united states':'Q30','usa':'Q30','germany':'Q183','spain':'Q29','italy':'Q38','japan':'Q17','china':'Q148','argentina':'Q414','mexico':'Q96','canada':'Q16','india':'Q668','russia':'Q159'};
-    let entityId = paisesDiretos[query.toLowerCase().trim()];
+    // Mapa rápido com o QID de cientistas e matemáticos famosos para agilizar a pesquisa exata
+    const personalidadesDiretas = {
+        'isaac newton':'Q935', 'albert einstein':'Q937', 'marie curie':'Q7186', 
+        'galileu galilei':'Q307', 'leonhard euler':'Q7604', 'carl friedrich gauss':'Q6722', 
+        'alan turing':'Q7251', 'nikola tesla':'Q9036', 'stephen hawking':'Q17714', 
+        'ada lovelace':'Q7259', 'pitágoras':'Q10261', 'pitagoras':'Q10261',
+        'rene descartes':'Q939', 'rené descartes':'Q939', 'bernhard riemann':'Q42299'
+    };
+    
+    let entityId = personalidadesDiretas[query.toLowerCase().trim()];
     
     if(!entityId) {
       const resPt = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`).then(r=>r.json());
@@ -449,7 +459,7 @@ async function buscarWikidataDireto(query, resultDiv) {
       if(!res.search || res.search.length === 0) {
         res = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`).then(r=>r.json());
       }
-      if(!res.search || res.search.length === 0) throw new Error('Nenhum resultado de conhecimento geral encontrado.');
+      if(!res.search || res.search.length === 0) throw new Error('Nenhuma personalidade ou resultado encontrado.');
       entityId = res.search[0].id;
     }
     
@@ -467,6 +477,7 @@ async function buscarWikidataDireto(query, resultDiv) {
     const claims = entity.claims || {};
     const fatos = [];
     
+    // Helper para traduzir QIDs das propriedades
     async function resolveId(id) {
       try {
         const d = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${id}.json`).then(r=>r.json());
@@ -474,10 +485,38 @@ async function buscarWikidataDireto(query, resultDiv) {
       } catch(e) { return id; }
     }
     
-    if(claims.P1082) fatos.push({ l: '👥 População', v: parseInt(claims.P1082[0].mainsnak.datavalue?.value?.amount.replace('+','')).toLocaleString('pt-BR') });
-    if(claims.P2046) fatos.push({ l: '📏 Área (km²)', v: parseFloat(claims.P2046[0].mainsnak.datavalue?.value?.amount.replace('+','')).toLocaleString('pt-BR') });
-    if(claims.P36) { const cid = claims.P36[0].mainsnak.datavalue?.value?.id; if(cid) fatos.push({ l: '🏛️ Capital', v: await resolveId(cid) }); }
-    if(claims.P38) { const mid = claims.P38[0].mainsnak.datavalue?.value?.id; if(mid) fatos.push({ l: '💵 Moeda', v: await resolveId(mid) }); }
+    // Tratamento de Datas do Wikidata (considerando AC e DC)
+    function formatarData(timeStr) {
+      if(!timeStr) return '';
+      const isBCE = timeStr.startsWith('-');
+      const d = timeStr.replace(/^[+-]/, '').split('T')[0];
+      return d + (isBCE ? ' a.C.' : '');
+    }
+    
+    if(claims.P569) { // Data de nascimento
+      const d = claims.P569[0].mainsnak.datavalue?.value?.time;
+      if(d) fatos.push({ l: '🎂 Nascimento', v: formatarData(d) });
+    }
+    if(claims.P570) { // Data de falecimento
+      const d = claims.P570[0].mainsnak.datavalue?.value?.time;
+      if(d) fatos.push({ l: '🪦 Falecimento', v: formatarData(d) });
+    }
+    if(claims.P27) { // Nacionalidade
+      const cid = claims.P27[0].mainsnak.datavalue?.value?.id;
+      if(cid) fatos.push({ l: '🌍 Nacionalidade', v: await resolveId(cid) });
+    }
+    if(claims.P101) { // Campo de atuação / Ciência
+      const cid = claims.P101[0].mainsnak.datavalue?.value?.id;
+      if(cid) fatos.push({ l: '🔬 Campo / Estudo', v: await resolveId(cid) });
+    }
+    if(claims.P106) { // Ocupação
+      const cid = claims.P106[0].mainsnak.datavalue?.value?.id;
+      if(cid) fatos.push({ l: '💼 Ocupação', v: await resolveId(cid) });
+    }
+    if(claims.P800) { // Obra / Trabalho notável
+      const cid = claims.P800[0].mainsnak.datavalue?.value?.id;
+      if(cid) fatos.push({ l: '⭐ Obra Notável', v: await resolveId(cid) });
+    }
     
     if(fatos.length > 0) {
       html += '<div style="margin-top:14px">';
@@ -486,7 +525,7 @@ async function buscarWikidataDireto(query, resultDiv) {
     }
     html += '</div>';
     resultDiv.innerHTML = html;
-    salvarHistorico('Busca Wikidata', query, label);
+    salvarHistorico('Busca de Personalidade', query, label);
   } catch(e) {
     resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
   }
