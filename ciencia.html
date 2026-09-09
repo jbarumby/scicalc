@@ -2,390 +2,1347 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc - Rápido</title>
+<title>SciCalc - Completa</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <style>
+  :root{--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
+  body.dark-mode{--bg:#0f172a;--panel:#1e293b;--ink:#e2e8f0;--muted:#94a3b8;--border:#334155}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:system-ui,sans-serif;background:#f5f5f5;color:#333;line-height:1.6}
-  header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px;text-align:center}
-  nav{display:flex;flex-wrap:wrap;gap:5px;padding:10px;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-  .tab{padding:8px 15px;border:none;background:#f0f0f0;cursor:pointer;border-radius:5px;font-weight:600}
-  .tab.active{background:#667eea;color:#fff}
-  main{max-width:900px;margin:20px auto;padding:20px}
-  .panel{background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:20px;display:none}
-  .panel.active{display:block}
-  h2{color:#667eea;margin-bottom:10px}
-  input,select{width:100%;padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:5px;font-size:16px}
-  .btn{background:#667eea;color:#fff;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-size:16px;margin:5px}
-  .btn:hover{background:#764ba2}
-  .result{background:#f9f9f9;padding:15px;margin-top:15px;border-radius:5px;border-left:4px solid #667eea}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-  .toast{position:fixed;top:20px;right:20px;background:#4caf50;color:#fff;padding:15px;border-radius:5px;animation:slide 0.3s}
-  @keyframes slide{from{transform:translateX(400px)}to{transform:none}}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;transition:all .3s}
+  header{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;padding:22px 32px;box-shadow:var(--shadow);position:relative}
+  header h1{font-size:1.7rem}
+  header p{margin:4px 0 0;opacity:.9;font-size:.95rem}
+  .theme-toggle{position:absolute;top:20px;right:30px;background:rgba(255,255,255,.2);border:none;color:#fff;padding:8px 16px;border-radius:20px;cursor:pointer}
+  .theme-toggle:hover{background:rgba(255,255,255,.3)}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;padding:14px 24px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  .tab{padding:10px 18px;border:none;background:transparent;cursor:pointer;border-radius:10px;font-weight:600;color:var(--muted);font-size:.92rem;transition:all .2s}
+  .tab:hover{background:var(--bg);color:var(--primary)}
+  .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.3)}
+  main{padding:28px;max-width:1400px;margin:0 auto}
+  .panel{background:var(--panel);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;display:none}
+  .panel.active{display:block;animation:fade .3s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .panel h2{margin:0 0 6px;font-size:1.3rem;background:linear-gradient(90deg,var(--primary),var(--primary-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .panel .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
+  .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:14px}
+  label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px;color:var(--ink)}
+  input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:.95rem;font-family:inherit;background:var(--bg);color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+  .btn{padding:11px 22px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25);transition:all .2s}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(79,70,229,.35)}
+  .btn.small{padding:6px 12px;font-size:.82rem}
+  .btn.search{background:linear-gradient(120deg,#f59e0b,#d97706);font-size:1.1rem;padding:14px 28px}
+  .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--bg),var(--panel));border-left:4px solid var(--primary);font-size:1rem}
+  .result strong{color:var(--primary)}
+  .result .math{font-family:'Cambria Math',serif;font-size:1.15rem}
+  .result .latex{margin:10px 0;padding:10px;background:var(--panel);border-radius:6px;overflow-x:auto}
+  .plot{width:100%;height:400px;margin-top:14px;border-radius:12px;background:var(--bg)}
+  .sub-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  .sub-tab{padding:8px 14px;border:1.5px solid var(--border);background:var(--panel);border-radius:8px;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted)}
+  .sub-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .sub-panel{display:none}
+  .sub-panel.active{display:block}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+  .loading{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .search-box{display:flex;gap:10px;margin-bottom:14px}
+  .search-box input{flex:1;font-size:1.1rem;padding:14px}
+  .fact-card{background:var(--bg);padding:14px;border-radius:10px;margin-bottom:10px;border-left:4px solid var(--accent)}
+  .fact-card .label{font-size:.85rem;color:var(--muted);font-weight:600}
+  .fact-card .value{font-size:1.1rem;margin-top:4px}
+  .history-item{padding:12px;background:var(--bg);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--primary)}
+  .history-item .time{font-size:.8rem;color:var(--muted)}
+  .history-item .content{margin-top:4px;font-family:monospace}
+  #pyodide-status{position:fixed;bottom:20px;left:20px;background:var(--panel);padding:12px 20px;border-radius:12px;box-shadow:var(--shadow);font-size:.9rem;z-index:100;display:flex;align-items:center;gap:12px;border-left:4px solid var(--primary);max-width:400px}
+  .progress-bar{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));transition:width .3s}
+  .toast-wrap{position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:10px}
+  .toast{padding:12px 18px;border-radius:10px;color:#fff;font-weight:500;box-shadow:0 8px 20px rgba(0,0,0,.15);min-width:260px;animation:slide .3s}
+  .toast.err{background:linear-gradient(120deg,var(--err),#dc2626)}
+  .toast.warn{background:linear-gradient(120deg,var(--warn),#d97706)}
+  .toast.ok{background:linear-gradient(120deg,var(--ok),#059669)}
+  @keyframes slide{from{transform:translateX(120%)}to{transform:none}}
+  .example-btn{margin:4px}
 </style>
 </head>
 <body>
 <header>
   <h1>🧮 SciCalc</h1>
-  <p>Calculadora Científica Ultra-Rápida</p>
+  <p>Cálculo simbólico, gráficos 3D, NLP, EDOs e Fourier</p>
+  <button class="theme-toggle" onclick="toggleTheme()"> Modo Escuro</button>
 </header>
 
-<nav>
-  <button class="tab active" onclick="showTab('busca')"> Busca</button>
-  <button class="tab" onclick="showTab('derivadas')">📈 Derivadas</button>
-  <button class="tab" onclick="showTab('integrais')">∫ Integrais</button>
-  <button class="tab" onclick="showTab('equacoes')">🔢 Equações</button>
-  <button class="tab" onclick="showTab('numeros')"> Números</button>
-  <button class="tab" onclick="showTab('wikidata')">🌍 Conhecimento</button>
+<nav class="tabs">
+  <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
+  <button class="tab" data-tab="grafico3d"> Gráficos 3D</button>
+  <button class="tab" data-tab="conhecimento"> Conhecimento</button>
+  <button class="tab" data-tab="simbolico"> Simbólico</button>
+  <button class="tab" data-tab="parciais"> Parciais</button>
+  <button class="tab" data-tab="edo">🔁 EDOs</button>
+  <button class="tab" data-tab="fourier">📡 Fourier</button>
+  <button class="tab" data-tab="numeros">🔢 Números</button>
+  <button class="tab" data-tab="limites">📐 Limites</button>
+  <button class="tab" data-tab="derivadas">📈 Derivadas</button>
+  <button class="tab" data-tab="integrais">∫ Integrais</button>
+  <button class="tab" data-tab="historico"> Histórico</button>
 </nav>
 
 <main>
-  <!-- BUSCA INTELIGENTE -->
-  <div id="busca" class="panel active">
-    <h2>🔍 Busca Inteligente</h2>
-    <p>Digite: "derivative of x^2", "integral of sin(x)", "solve x^2-4=0", "Brazil"</p>
-    <input type="text" id="nlp-input" placeholder="Ex: derivative of x^2">
-    <button class="btn" onclick="processarNLP()">Buscar</button>
+
+<section class="tab-content active" id="busca">
+  <div class="panel active">
+    <h2>🔍 Busca Inteligente (NLP)</h2>
+    <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "Brazil", "solve x^2 - 4 = 0"</p>
+    <div class="search-box">
+      <input id="nlp-input" placeholder='Ex: derivative of x^2 + 3*x + 1' onkeypress="if(event.key==='Enter')processarNLP()">
+      <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
+    </div>
     <div id="nlp-result"></div>
-  </div>
-
-  <!-- DERIVADAS -->
-  <div id="derivadas" class="panel">
-    <h2>📈 Derivadas</h2>
-    <input type="text" id="der-f" placeholder="Função f(x), ex: x^2 + 3*x + 1">
-    <input type="text" id="der-var" value="x" placeholder="Variável">
-    <button class="btn" onclick="calcDerivada()">Calcular Derivada</button>
-    <div id="der-result"></div>
-  </div>
-
-  <!-- INTEGRAIS -->
-  <div id="integrais" class="panel">
-    <h2>∫ Integrais Definidas</h2>
-    <div class="grid">
-      <input type="text" id="int-f" placeholder="Função f(x)">
-      <input type="number" id="int-a" placeholder="x₁" value="0">
-      <input type="number" id="int-b" placeholder="x₂" value="1">
-    </div>
-    <button class="btn" onclick="calcIntegral()">Calcular Integral</button>
-    <div id="int-result"></div>
-  </div>
-
-  <!-- EQUAÇÕES -->
-  <div id="equacoes" class="panel">
-    <h2>🔢 Resolver Equações</h2>
-    <input type="text" id="eq-expr" placeholder="Ex: x^2 - 4 = 0">
-    <button class="btn" onclick="resolverEquacao()">Resolver</button>
-    <div id="eq-result"></div>
-  </div>
-
-  <!-- NÚMEROS -->
-  <div id="numeros" class="panel">
-    <h2>🔢 Teoria dos Números</h2>
-    <div class="grid">
-      <div>
-        <input type="number" id="num-teste" placeholder="Número">
-        <button class="btn" onclick="testarPrimo()">Testar Primo</button>
-      </div>
-      <div>
-        <input type="number" id="num-fatorar" placeholder="Fatorar">
-        <button class="btn" onclick="fatorar()">Fatorar</button>
+    <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
+      <div style="font-weight:700;color:var(--primary);margin-bottom:8px">💡 Exemplos para testar:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn small example-btn" onclick="nlpExemplo('derivative of x^2')">derivative of x^2</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('integral of sin(x)')">integral of sin(x)</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('Brazil')">Brazil</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('France')">France</button>
+        <button class="btn small example-btn" onclick="nlpExemplo('solve x^2 - 4 = 0')">solve x^2 - 4 = 0</button>
       </div>
     </div>
-    <div class="grid" style="margin-top:10px">
-      <div>
-        <input type="number" id="mdc-a" placeholder="a">
-        <input type="number" id="mdc-b" placeholder="b">
-        <button class="btn" onclick="calcMDC()">MDC</button>
-      </div>
-      <div>
-        <input type="number" id="mmc-a" placeholder="a">
-        <input type="number" id="mmc-b" placeholder="b">
-        <button class="btn" onclick="calcMMC()">MMC</button>
-      </div>
-    </div>
-    <div id="num-result"></div>
   </div>
+</section>
 
-  <!-- WIKIDATA -->
-  <div id="wikidata" class="panel">
-    <h2>🌍 Conhecimento</h2>
-    <input type="text" id="wiki-input" placeholder="Ex: Brazil, France, Paris">
-    <button class="btn" onclick="buscarWiki()">Buscar</button>
+<section class="tab-content" id="grafico3d">
+  <div class="panel">
+    <h2> Gráficos 3D</h2>
+    <p class="sub">Plote superfícies z = f(x,y). Use sintaxe: x^2, sin(x), exp(x)</p>
+    <div class="form-row">
+      <div><label>Função z = f(x,y)</label><input id="g3d-f" placeholder="Ex: sin(x)*cos(y)"></div>
+      <div><label>x min</label><input id="g3d-xmin" value="-3.14"></div>
+      <div><label>x max</label><input id="g3d-xmax" value="3.14"></div>
+      <div><label>y min</label><input id="g3d-ymin" value="-3.14"></div>
+      <div><label>y max</label><input id="g3d-ymax" value="3.14"></div>
+    </div>
+    <button class="btn" onclick="plotar3D()">Gerar Gráfico 3D</button>
+    <div id="g3d-plot" class="plot" style="height:500px"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="conhecimento">
+  <div class="panel">
+    <h2>🌍 Conhecimento (Wikidata)</h2>
+    <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos...</p>
+    <div class="search-box">
+      <input id="wiki-input" placeholder="Ex: Brazil, France, Albert Einstein" onkeypress="if(event.key==='Enter')buscarWikidata()">
+      <button class="btn search" onclick="buscarWikidata()">🔍 Buscar</button>
+    </div>
     <div id="wiki-result"></div>
   </div>
+</section>
+
+<section class="tab-content" id="simbolico">
+  <div class="panel">
+    <h2>🧠 Cálculo Simbólico (SymPy)</h2>
+    <p class="sub">Derivadas, integrais e equações com SymPy</p>
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="sim-deriv">Derivada</button>
+      <button class="sub-tab" data-sub="sim-integ">Integral</button>
+      <button class="sub-tab" data-sub="sim-eq">Equação</button>
+    </div>
+    <div class="sub-panel active" id="sub-sim-deriv">
+      <div class="form-row">
+        <div><label>Função f(x)</label><input id="sim-deriv-f" placeholder="Ex: x^3 + 2*x^2 + x"></div>
+        <div><label>Variável</label><input id="sim-deriv-var" value="x"></div>
+        <div><label>Ordem</label><input id="sim-deriv-ord" value="1"></div>
+      </div>
+      <button class="btn" onclick="simDerivada()">Calcular Derivada</button>
+      <div id="sim-deriv-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-sim-integ">
+      <div class="form-row">
+        <div><label>Função f(x)</label><input id="sim-integ-f" placeholder="Ex: x^2 + sin(x)"></div>
+        <div><label>Variável</label><input id="sim-integ-var" value="x"></div>
+      </div>
+      <button class="btn" onclick="simIntegral()">Calcular Integral</button>
+      <div id="sim-integ-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-sim-eq">
+      <div class="form-row">
+        <div><label>Equação</label><input id="sim-eq-expr" placeholder="Ex: x^2 - 4 = 0"></div>
+        <div><label>Variável</label><input id="sim-eq-var" value="x"></div>
+      </div>
+      <button class="btn" onclick="simEquacao()">Resolver</button>
+      <div id="sim-eq-result"></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="parciais">
+  <div class="panel">
+    <h2>∂ Derivadas Parciais</h2>
+    <p class="sub">Derivadas parciais de funções de várias variáveis</p>
+    <div class="form-row">
+      <div><label>Função f(x,y)</label><input id="par-f" placeholder="Ex: x^2*y + 3*x*y^2"></div>
+      <div><label>Variável</label>
+        <select id="par-var">
+          <option value="x">∂/∂x</option>
+          <option value="y">∂/∂y</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn" onclick="calcParcial()">Calcular Derivada Parcial</button>
+    <div id="par-result"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="edo">
+  <div class="panel">
+    <h2>🔁 Equações Diferenciais (EDOs)</h2>
+    <p class="sub">Resolva EDOs numericamente com método de Runge-Kutta 4ª ordem</p>
+    <div class="form-row">
+      <div><label>y' = f(x,y)</label><input id="edo-f" placeholder="Ex: -2*y + x"></div>
+      <div><label>x inicial</label><input id="edo-x0" value="0"></div>
+      <div><label>y(x₀)</label><input id="edo-y0" value="1"></div>
+      <div><label>x final</label><input id="edo-xf" value="5"></div>
+      <div><label>Passos</label><input id="edo-n" value="100"></div>
+    </div>
+    <button class="btn" onclick="calcEDO()">Resolver EDO</button>
+    <div id="edo-result"></div>
+    <div id="edo-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="fourier">
+  <div class="panel">
+    <h2>📡 Transformada de Fourier</h2>
+    <p class="sub">Calcule a transformada de Fourier de funções</p>
+    <div class="form-row">
+      <div><label>Função f(t)</label><input id="four-f" placeholder="Ex: exp(-t^2)"></div>
+      <div><label>Variável</label><input id="four-var" value="t"></div>
+    </div>
+    <button class="btn" onclick="calcFourier()">Calcular Transformada</button>
+    <div id="four-result"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="numeros">
+  <div class="panel">
+    <h2>🔢 Teoria dos Números</h2>
+    <p class="sub">Ferramentas de teoria dos números</p>
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="num-primos">🔍 Primos</button>
+      <button class="sub-tab" data-sub="num-fator">🔨 Fatoração</button>
+      <button class="sub-tab" data-sub="num-func">📊 Funções</button>
+    </div>
+    <div class="sub-panel active" id="sub-num-primos">
+      <div class="form-row">
+        <div><label>Testar primalidade</label><input id="num-teste" placeholder="97"><button class="btn" style="margin-top:8px" onclick="testarPrimo()">Testar</button></div>
+        <div><label>Primos até</label><input id="num-crivo" placeholder="100"><button class="btn" style="margin-top:8px" onclick="crivoEratostenes()">Gerar</button></div>
+      </div>
+      <div class="grid-2" style="margin-top:14px">
+        <div><label>MDC(a,b)</label><div style="display:flex;gap:6px"><input id="num-a" placeholder="a"><input id="num-b" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMDC()">Calcular</button></div>
+        <div><label>MMC(a,b)</label><div style="display:flex;gap:6px"><input id="num-c" placeholder="a"><input id="num-d" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMMC()">Calcular</button></div>
+      </div>
+      <div id="num-primos-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-num-fator">
+      <div class="form-row">
+        <div><label>Fatorar número</label><input id="num-fatorar" placeholder="360"><button class="btn" style="margin-top:8px" onclick="fatorarNumero()">Fatorar</button></div>
+      </div>
+      <div id="num-fator-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-num-func">
+      <div class="form-row">
+        <div><label>n</label><input id="num-func-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="calcularFuncoesAritmeticas()">Calcular</button></div>
+      </div>
+      <div id="num-func-result"></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab-content" id="limites">
+  <div class="panel">
+    <h2> Limites</h2>
+    <div class="form-row">
+      <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
+      <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
+      <div><label>Direção</label>
+        <select id="lim-dir">
+          <option value="auto">Automático</option>
+          <option value="both">Ambos os lados</option>
+          <option value="left">Esquerda</option>
+          <option value="right">Direita</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn" onclick="calcLimite()">Calcular</button>
+    <div id="lim-result"></div>
+    <div id="lim-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="derivadas">
+  <div class="panel">
+    <h2> Derivadas</h2>
+    <div class="form-row">
+      <div><label>Função f(x)</label><input id="der-f" placeholder="Ex: 3*x^2 + 2*x + 1"></div>
+      <div><label>Variável</label><input id="der-var" value="x"></div>
+      <div><label>Intervalo</label><input id="der-intervalo" placeholder="Ex: -5,5"></div>
+    </div>
+    <button class="btn" onclick="calcDerivada()">Calcular</button>
+    <div id="der-result"></div>
+    <div id="der-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="integrais">
+  <div class="panel">
+    <h2>∫ Integrais Definidas</h2>
+    <div class="form-row">
+      <div><label>Função f(x)</label><input id="int-f" placeholder="Ex: x^2"></div>
+      <div><label>x₁</label><input id="int-x1" placeholder="0"></div>
+      <div><label>x₂</label><input id="int-x2" placeholder="10"></div>
+    </div>
+    <button class="btn" onclick="calcIntegral()">Calcular</button>
+    <div id="int-result"></div>
+    <div id="int-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="historico">
+  <div class="panel">
+    <h2>📋 Histórico</h2>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn" onclick="limparHistorico()">🗑️ Limpar</button>
+      <button class="btn" onclick="exportarHistorico()">📄 Exportar JSON</button>
+    </div>
+    <div id="hist-list"></div>
+  </div>
+</section>
+
 </main>
 
-<script>
-// NAVEGAÇÃO
-function showTab(id){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
-}
+<div class="toast-wrap" id="toasts"></div>
+<div id="pyodide-status" style="display:none">
+  <div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="loading"></span>
+      <span id="pyodide-msg">Carregando...</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+</div>
 
-// TOAST
-function toast(msg){
+<script>
+// ============ ESTADO GLOBAL ============
+let pyodide = null;
+let pyodideReady = false;
+let pyodideLoading = false;
+
+// ============ NAVEGAÇÃO ============
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='historico') renderHistorico();
+  };
+});
+document.querySelectorAll('.sub-tab').forEach(t=>{
+  t.onclick=()=>{
+    const p=t.closest('.panel');
+    p.querySelectorAll('.sub-tab').forEach(x=>x.classList.remove('active'));
+    p.querySelectorAll('.sub-panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    p.querySelector('#sub-'+t.dataset.sub).classList.add('active');
+  };
+});
+
+function toggleTheme(){
+  document.body.classList.toggle('dark-mode');
+  const btn=document.querySelector('.theme-toggle');
+  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
+  localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
+}
+if(localStorage.getItem('theme')==='dark') toggleTheme();
+
+function toast(msg,type='ok'){
   const el=document.createElement('div');
-  el.className='toast';
-  el.textContent=msg;
-  document.body.appendChild(el);
+  el.className='toast '+type;
+  el.innerHTML=(type==='err'?'⚠️':'✅')+' '+msg;
+  document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
 
-// NLP
+function str(id){const v=document.getElementById(id).value.trim();if(!v)throw new Error('Campo vazio');return v;}
+function num(id){const v=document.getElementById(id).value.trim().replace(',','.');const n=Number(v);if(!isFinite(n))throw new Error('Inválido');return n;}
+
+function nlpExemplo(texto){
+  document.getElementById('nlp-input').value=texto;
+  processarNLP();
+}
+
+// ============ PYODIDE COM PROGRESSO ============
+async function initPyodide(){
+  if(pyodideLoading || pyodideReady) return;
+  pyodideLoading = true;
+  
+  const statusDiv = document.getElementById('pyodide-status');
+  const msgDiv = document.getElementById('pyodide-msg');
+  const progressFill = document.getElementById('progress-fill');
+  
+  statusDiv.style.display = 'flex';
+  
+  try{
+    msgDiv.textContent = 'Baixando Python...';
+    progressFill.style.width = '20%';
+    
+    pyodide = await loadPyodide({
+      indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/',
+      stdout: (text) => console.log('[Pyodide]', text),
+      stderr: (text) => console.error('[Pyodide]', text)
+    });
+    
+    progressFill.style.width = '50%';
+    msgDiv.textContent = 'Carregando SymPy...';
+    
+    await pyodide.loadPackage(['sympy', 'numpy']);
+    
+    progressFill.style.width = '80%';
+    msgDiv.textContent = 'Inicializando...';
+    
+    pyodide.runPython(`
+import sympy as sp
+import numpy as np
+
+def sym_derivative(expr_str, var_str='x', order=1):
+    x = sp.symbols(var_str)
+    expr = sp.sympify(expr_str)
+    result = sp.diff(expr, x, order)
+    return [sp.latex(result), str(result)]
+
+def sym_integral(expr_str, var_str='x'):
+    x = sp.symbols(var_str)
+    expr = sp.sympify(expr_str)
+    result = sp.integrate(expr, x)
+    return [sp.latex(result), str(result)]
+
+def sym_solve(expr_str, var_str='x'):
+    x = sp.symbols(var_str)
+    try:
+        if '==' in expr_str:
+            parts = expr_str.split('==')
+            lhs = sp.sympify(parts[0].strip())
+            rhs = sp.sympify(parts[1].strip())
+            eq = sp.Eq(lhs, rhs)
+            sols = sp.solve(eq, x)
+        elif '=' in expr_str:
+            parts = expr_str.split('=')
+            lhs = sp.sympify(parts[0].strip())
+            rhs = sp.sympify(parts[1].strip())
+            eq = sp.Eq(lhs, rhs)
+            sols = sp.solve(eq, x)
+        else:
+            expr = sp.sympify(expr_str)
+            sols = sp.solve(expr, x)
+        if not sols:
+            return ['Sem solução']
+        return [str(s) for s in sols]
+    except Exception as e:
+        return ['Erro: ' + str(e)]
+
+def sym_partial_derivative(expr_str, var_str='x'):
+    x, y = sp.symbols('x y')
+    expr = sp.sympify(expr_str)
+    result = sp.diff(expr, sp.symbols(var_str))
+    return [sp.latex(result), str(result)]
+
+def sym_fourier(expr_str, var_str='t'):
+    t, w = sp.symbols('t w')
+    expr = sp.sympify(expr_str)
+    result = sp.fourier_transform(expr, t, w)
+    return [sp.latex(result), str(result)]
+`);
+    
+    progressFill.style.width = '100%';
+    msgDiv.textContent = '✅ Pronto!';
+    
+    pyodideReady = true;
+    pyodideLoading = false;
+    
+    setTimeout(() => { statusDiv.style.display = 'none'; }, 2000);
+    toast('SymPy carregado!', 'ok');
+    
+  } catch(e){
+    console.error('Erro Pyodide:', e);
+    pyodideLoading = false;
+    msgDiv.textContent = '❌ Erro';
+    progressFill.style.background = 'var(--err)';
+    toast('Erro ao carregar Python', 'err');
+  }
+}
+
+// Carregar Pyodide em background
+setTimeout(initPyodide, 1000);
+
+function waitForPyodide(){
+  return new Promise(resolve=>{
+    if(pyodideReady) resolve();
+    else{
+      if(!pyodideLoading) initPyodide();
+      const check=setInterval(()=>{
+        if(pyodideReady){clearInterval(check);resolve();}
+      },500);
+    }
+  });
+}
+
+// ============ NLP ============
 async function processarNLP(){
-  const input=document.getElementById('nlp-input').value.trim();
-  const resultDiv=document.getElementById('nlp-result');
-  resultDiv.innerHTML='<div class="result">Processando...</div>';
-  
-  try{
-    // Derivada
-    if(input.match(/derivative|derivada/)){
-      const match=input.match(/derivative\s+of\s+(.+)/i) || input.match(/derivada\s+de\s+(.+)/i);
-      if(match){
-        const expr=match[1].trim();
-        const derivada=derivadaNumerica(expr,'x',0);
-        resultDiv.innerHTML=`<div class="result"><strong>Derivada de ${expr} em x=0:</strong><br>f'(0) ≈ ${derivada.toFixed(6)}</div>`;
-        return;
-      }
-    }
-    
-    // Integral
-    if(input.match(/integral/)){
-      const match=input.match(/integral\s+of\s+(.+)/i);
-      if(match){
-        const expr=match[1].trim();
-        const integral=integralNumerica(expr,'x',0,1);
-        resultDiv.innerHTML=`<div class="result"><strong>Integral de ${expr} de 0 a 1:</strong><br>≈ ${integral.toFixed(6)}</div>`;
-        return;
-      }
-    }
-    
-    // Equação
-    if(input.match(/solve|resolver/)){
-      const match=input.match(/solve\s+(.+)/i) || input.match(/resolver\s+(.+)/i);
-      if(match){
-        const expr=match[1].trim();
-        const solucao=resolverEquacaoNumerica(expr);
-        resultDiv.innerHTML=`<div class="result"><strong>Solução de ${expr}:</strong><br>x ≈ ${solucao.toFixed(6)}</div>`;
-        return;
-      }
-    }
-    
-    // Wikidata
-    await buscarWikiDireto(input,resultDiv);
-  }catch(e){
-    resultDiv.innerHTML=`<div class="result" style="border-left-color:red">Erro: ${e.message}</div>`;
-  }
-}
-
-// DERIVADA NUMÉRICA
-function derivadaNumerica(expr,varName,ponto,h=1e-7){
-  const fPos=math.evaluate(expr,{[varName]:ponto+h});
-  const fNeg=math.evaluate(expr,{[varName]:ponto-h});
-  return (fPos-fNeg)/(2*h);
-}
-
-// INTEGRAL NUMÉRICA
-function integralNumerica(expr,varName,a,b,n=1000){
-  const h=(b-a)/n;
-  let soma=math.evaluate(expr,{[varName]:a})+math.evaluate(expr,{[varName]:b});
-  for(let i=1;i<n;i++){
-    const x=a+i*h;
-    const coef=i%2===0?2:4;
-    soma+=coef*math.evaluate(expr,{[varName]:x});
-  }
-  return soma*h/3;
-}
-
-// RESOLVER EQUAÇÃO (Newton-Raphson)
-function resolverEquacaoNumerica(expr){
-  let x=0;
-  const h=1e-7;
-  for(let i=0;i<100;i++){
-    const f=math.evaluate(expr,{x:x});
-    const fPos=math.evaluate(expr,{x:x+h});
-    const fNeg=math.evaluate(expr,{x:x-h});
-    const df=(fPos-fNeg)/(2*h);
-    if(Math.abs(df)<1e-10) break;
-    const xNovo=x-f/df;
-    if(Math.abs(xNovo-x)<1e-10) break;
-    x=xNovo;
-  }
-  return x;
-}
-
-// DERIVADAS
-function calcDerivada(){
-  const expr=document.getElementById('der-f').value.trim();
-  const varName=document.getElementById('der-var').value.trim()||'x';
-  const resultDiv=document.getElementById('der-result');
-  
-  try{
-    // Derivada simbólica simplificada
-    const derivada=derivadaSimbolica(expr,varName);
-    resultDiv.innerHTML=`<div class="result"><strong>f'(${varName}) = ${derivada}</strong></div>`;
-    toast('Derivada calculada!');
-  }catch(e){
-    resultDiv.innerHTML=`<div class="result" style="border-left-color:red">Erro: ${e.message}</div>`;
-  }
-}
-
-function derivadaSimbolica(expr,varName){
-  // Regras básicas
-  expr=expr.replace(/\s+/g,'');
-  
-  // x^n -> n*x^(n-1)
-  expr=expr.replace(/(\d*)\*?x\^(\d+)/g,(match,coef,exp)=>{
-    coef=coef===''?1:parseInt(coef);
-    exp=parseInt(exp);
-    const novoCoef=coef*exp;
-    const novoExp=exp-1;
-    if(novoExp===0) return novoCoef.toString();
-    if(novoExp===1) return `${novoCoef}*x`;
-    return `${novoCoef}*x^${novoExp}`;
-  });
-  
-  // x -> 1
-  expr=expr.replace(/(\d*)\*?x(?!\^)/g,(match,coef)=>{
-    if(coef==='') return '1';
-    return coef;
-  });
-  
-  // Constantes -> 0
-  expr=expr.replace(/^(\d+)$/g,'0');
-  
-  return expr;
-}
-
-// INTEGRAIS
-function calcIntegral(){
-  const expr=document.getElementById('int-f').value.trim();
-  const a=parseFloat(document.getElementById('int-a').value)||0;
-  const b=parseFloat(document.getElementById('int-b').value)||1;
-  const resultDiv=document.getElementById('int-result');
-  
-  try{
-    const integral=integralNumerica(expr,'x',a,b);
-    resultDiv.innerHTML=`<div class="result"><strong>∫${expr}dx de ${a} a ${b} ≈ ${integral.toFixed(6)}</strong></div>`;
-    toast('Integral calculada!');
-  }catch(e){
-    resultDiv.innerHTML=`<div class="result" style="border-left-color:red">Erro: ${e.message}</div>`;
-  }
-}
-
-// EQUAÇÕES
-function resolverEquacao(){
-  const expr=document.getElementById('eq-expr').value.trim();
-  const resultDiv=document.getElementById('eq-result');
-  
-  try{
-    const solucao=resolverEquacaoNumerica(expr);
-    resultDiv.innerHTML=`<div class="result"><strong>Solução:</strong><br>x ≈ ${solucao.toFixed(6)}</div>`;
-    toast('Equação resolvida!');
-  }catch(e){
-    resultDiv.innerHTML=`<div class="result" style="border-left-color:red">Erro: ${e.message}</div>`;
-  }
-}
-
-// NÚMEROS
-function testarPrimo(){
-  const n=parseInt(document.getElementById('num-teste').value);
-  const resultDiv=document.getElementById('num-result');
-  
-  if(n<2){
-    resultDiv.innerHTML='<div class="result">Número deve ser ≥ 2</div>';
+  const inputEl = document.getElementById('nlp-input');
+  const input = inputEl.value.trim();
+  if(!input){
+    toast('Digite algo para buscar', 'warn');
     return;
   }
+  const inputLower = input.toLowerCase().trim();
+  const resultDiv = document.getElementById('nlp-result');
+  resultDiv.innerHTML = '<div class="result"><span class="loading"></span> Processando...</div>';
   
-  let ehPrimo=true;
-  for(let i=2;i<=Math.sqrt(n);i++){
-    if(n%i===0){ehPrimo=false;break;}
-  }
-  
-  resultDiv.innerHTML=`<div class="result"><strong>${n}</strong> é ${ehPrimo?'PRIMO ✓':'NÃO primo ✗'}</div>`;
-}
-
-function fatorar(){
-  const n=parseInt(document.getElementById('num-fatorar').value);
-  const resultDiv=document.getElementById('num-result');
-  
-  if(n<2){
-    resultDiv.innerHTML='<div class="result">Número deve ser ≥ 2</div>';
-    return;
-  }
-  
-  let fatores={};
-  let num=n;
-  for(let i=2;i*i<=num;i++){
-    while(num%i===0){
-      fatores[i]=(fatores[i]||0)+1;
-      num/=i;
+  try{
+    let tipo = 'desconhecido';
+    let expressao = '';
+    let variavel = 'x';
+    
+    const derivMatch = inputLower.match(/(?:derivative|derivada|derive|differentiate)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
+    if(derivMatch){
+      tipo = 'derivada';
+      expressao = derivMatch[1].replace(/\^/g,'**');
+      if(derivMatch[2]) variavel = derivMatch[2];
     }
+    
+    const integMatch = inputLower.match(/(?:integral|integrate|antiderivative)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
+    if(integMatch){
+      tipo = 'integral';
+      expressao = integMatch[1].replace(/\^/g,'**');
+      if(integMatch[2]) variavel = integMatch[2];
+    }
+    
+    const eqMatch = inputLower.match(/(?:solve|resolver)\s+(.+)$/);
+    if(eqMatch){
+      tipo = 'equacao';
+      expressao = eqMatch[1].trim().replace(/\^/g,'**');
+      expressao = expressao.replace(/^solve\s+/, '').trim();
+    }
+    
+    if(tipo === 'derivada' || tipo === 'integral' || tipo === 'equacao'){
+      await waitForPyodide();
+      
+      pyodide.globals.set('expr_str', expressao);
+      pyodide.globals.set('var_str', variavel);
+      
+      let html = '';
+      
+      if(tipo === 'derivada'){
+        const resultado = pyodide.runPython(`
+import sympy as sp
+x = sp.symbols(var_str)
+expr = sp.sympify(expr_str)
+result = sp.diff(expr, x, 1)
+[sp.latex(result), str(result)]
+`);
+        const texto = resultado[1];
+        html = `<div class="result"><div class="math"><strong>Derivada de ${expressao}:</strong></div><div class="latex" id="latex-deriv"></div><div style="margin-top:8px;color:var(--muted)">f'(${variavel}) = ${texto}</div></div>`;
+        resultDiv.innerHTML = html;
+        if(window.katex) katex.render(texto, document.getElementById('latex-deriv'), {displayMode:true, throwOnError:false});
+      }
+      else if(tipo === 'integral'){
+        const resultado = pyodide.runPython(`
+import sympy as sp
+x = sp.symbols(var_str)
+expr = sp.sympify(expr_str)
+result = sp.integrate(expr, x)
+[sp.latex(result), str(result)]
+`);
+        const texto = resultado[1];
+        html = `<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">∫f(${variavel})d${variavel} = ${texto} + C</div></div>`;
+        resultDiv.innerHTML = html;
+        if(window.katex) katex.render(texto, document.getElementById('latex-integ'), {displayMode:true, throwOnError:false});
+      }
+      else if(tipo === 'equacao'){
+        const resultado = pyodide.runPython(`
+import sympy as sp
+x = sp.symbols(var_str)
+try:
+    if '==' in expr_str:
+        parts = expr_str.split('==')
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq, x)
+    elif '=' in expr_str:
+        parts = expr_str.split('=')
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq, x)
+    else:
+        expr = sp.sympify(expr_str)
+        sols = sp.solve(expr, x)
+    if not sols:
+        ['Sem solução']
+    else:
+        [str(s) for s in sols]
+except Exception as e:
+    ['Erro: ' + str(e)]
+`);
+        const textos = resultado;
+        html = `<div class="result"><div class="math"><strong>Soluções de ${expressao}:</strong></div><div style="margin-top:10px">`;
+        if(!textos || textos.length === 0 || textos[0] === 'Sem solução'){
+          html += '<div style="color:var(--muted)">Sem solução encontrada</div>';
+        } else if(textos[0].startsWith('Erro:')){
+          html += `<div style="color:var(--err)">${textos[0]}</div>`;
+        } else {
+          textos.forEach((s,i) => {
+            html += `<div class="latex" id="latex-eq${i}"></div>`;
+          });
+        }
+        html += '</div></div>';
+        resultDiv.innerHTML = html;
+        
+        if(textos && !textos[0].startsWith('Erro:') && textos[0] !== 'Sem solução'){
+          textos.forEach((s,i) => {
+            if(window.katex){
+              katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true, throwOnError:false});
+            }
+          });
+        }
+      }
+      salvarHistorico('NLP '+tipo, input, textos ? textos.join(', ') : texto);
+    }
+    else{
+      await buscarWikidataDireto(input, resultDiv);
+    }
+  }catch(e){
+    console.error('Erro no NLP:', e);
+    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
   }
-  if(num>1) fatores[num]=(fatores[num]||0)+1;
-  
-  let str=Object.entries(fatores).map(([p,e])=>e>1?`${p}^${e}`:p).join(' × ');
-  resultDiv.innerHTML=`<div class="result"><strong>${n} = ${str}</strong></div>`;
 }
 
-function calcMDC(){
-  const a=parseInt(document.getElementById('mdc-a').value);
-  const b=parseInt(document.getElementById('mdc-b').value);
-  const resultDiv=document.getElementById('num-result');
-  
-  let x=a,y=b;
-  while(y!==0){
-    [x,y]=[y,x%y];
-  }
-  
-  resultDiv.innerHTML=`<div class="result"><strong>MDC(${a},${b}) = ${x}</strong></div>`;
-}
-
-function calcMMC(){
-  const a=parseInt(document.getElementById('mmc-a').value);
-  const b=parseInt(document.getElementById('mmc-b').value);
-  const resultDiv=document.getElementById('num-result');
-  
-  let x=a,y=b;
-  while(y!==0){
-    [x,y]=[y,x%y];
-  }
-  const mmc=Math.abs(a*b)/x;
-  
-  resultDiv.innerHTML=`<div class="result"><strong>MMC(${a},${b}) = ${mmc}</strong></div>`;
-}
-
-// WIKIDATA
-async function buscarWiki(){
-  const query=document.getElementById('wiki-input').value.trim();
+// ============ WIKIDATA ============
+async function buscarWikidata(){
+  const query=str('wiki-input');
   const resultDiv=document.getElementById('wiki-result');
-  await buscarWikiDireto(query,resultDiv);
+  resultDiv.innerHTML='<div class="result"><span class="loading"></span> Buscando...</div>';
+  await buscarWikidataDireto(query, resultDiv);
 }
 
-async function buscarWikiDireto(query,resultDiv){
+async function buscarWikidataDireto(query, resultDiv){
   try{
-    resultDiv.innerHTML='<div class="result">Buscando...</div>';
+    const paisesDiretos = {
+      'brazil': 'Q155', 'brasil': 'Q155',
+      'france': 'Q142', 'frança': 'Q142',
+      'united states': 'Q30', 'usa': 'Q30',
+      'germany': 'Q183', 'alemanha': 'Q183',
+      'portugal': 'Q45', 'spain': 'Q29', 'espanha': 'Q29',
+      'italy': 'Q38', 'italia': 'Q38',
+      'japan': 'Q17', 'japão': 'Q17',
+      'china': 'Q148', 'argentina': 'Q414',
+      'mexico': 'Q96', 'canada': 'Q16',
+      'australia': 'Q408', 'india': 'Q668',
+      'russia': 'Q159', 'rússia': 'Q159'
+    };
     
-    const res=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`);
-    const data=await res.json();
+    let entityId = null;
+    const queryLower = query.toLowerCase().trim();
     
-    if(!data.search||data.search.length===0){
-      resultDiv.innerHTML='<div class="result">Nenhum resultado</div>';
-      return;
+    if(paisesDiretos[queryLower]){
+      entityId = paisesDiretos[queryLower];
     }
     
-    const item=data.search[0];
-    let html=`<div class="result"><h3>${item.label||query}</h3>`;
-    if(item.description) html+=`<p>${item.description}</p>`;
-    html+=`</div>`;
+    if(!entityId){
+      const searchRes=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`);
+      const searchData=await searchRes.json();
+      
+      if(!searchData.search || searchData.search.length===0){
+        resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
+        return;
+      }
+      
+      let melhorResultado = searchData.search[0];
+      for(const item of searchData.search){
+        if(item.description?.toLowerCase().includes('country') || 
+           item.description?.toLowerCase().includes('país')){
+          melhorResultado = item;
+          break;
+        }
+      }
+      
+      entityId = melhorResultado.id;
+    }
     
+    const entityRes=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`);
+    const entityData=await entityRes.json();
+    const entity=entityData.entities[entityId];
+    
+    const label = entity.labels?.pt?.value || entity.labels?.en?.value || query;
+    const description = entity.descriptions?.pt?.value || entity.descriptions?.en?.value || '';
+    
+    let html=`<div class="result">
+      <div class="math" style="font-size:1.3rem"><strong>${label}</strong></div>
+      ${description ? `<div style="margin:8px 0;color:var(--muted)">${description}</div>` : ''}
+      <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">Wikidata: ${entityId}</div>`;
+    
+    const claims=entity.claims || {};
+    const fatos=[];
+    
+    async function getLabel(id){
+      try{
+        const res=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${id}.json`);
+        const data=await res.json();
+        return data.entities[id]?.labels?.pt?.value || data.entities[id]?.labels?.en?.value || id;
+      }catch(e){return id;}
+    }
+    
+    function getValorAtual(claim){
+      if(!claim || claim.length===0) return null;
+      for(const c of claim){
+        const qualifiers = c.qualifiers || {};
+        if(!qualifiers.P582){
+          return c.mainsnak.datavalue?.value;
+        }
+      }
+      return claim[0].mainsnak.datavalue?.value;
+    }
+    
+    if(claims.P1082){
+      const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
+      if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
+    }
+    if(claims.P36){
+      const capValue = getValorAtual(claims.P36);
+      if(capValue?.id){
+        const capLabel=await getLabel(capValue.id);
+        fatos.push({label:'🏛️ Capital',value:capLabel});
+      }
+    }
+    if(claims.P2046){
+      const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
+      if(area) fatos.push({label:'📏 Área',value:parseFloat(area.replace('+',''))+' km²'});
+    }
+    if(claims.P38){
+      const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
+      if(curId){const curLabel=await getLabel(curId);fatos.push({label:'💵 Moeda',value:curLabel});}
+    }
+    if(claims.P37){
+      const langs=[];
+      for(const c of claims.P37.slice(0,3)){
+        const lid=c.mainsnak.datavalue?.value?.id;
+        if(lid){const l=await getLabel(lid);if(l) langs.push(l);}
+      }
+      if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
+    }
+    if(claims.P35){
+      const liderValue = getValorAtual(claims.P35);
+      if(liderValue?.id){
+        const liderLabel=await getLabel(liderValue.id);
+        fatos.push({label:' Líder',value:liderLabel});
+      }
+    }
+    if(claims.P571||claims.P569){
+      const dateClaim=claims.P571||claims.P569;
+      const date=dateClaim[0].mainsnak.datavalue?.value?.time;
+      if(date) fatos.push({label:'📅 Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
+    }
+    
+    if(fatos.length===0){
+      html+='<div style="margin-top:10px;color:var(--muted)">Nenhum dado estruturado disponível.</div>';
+    }else{
+      html+='<div style="margin-top:14px">';
+      fatos.forEach(f=>{html+=`<div class="fact-card"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;});
+      html+='</div>';
+    }
+    html+='</div>';
     resultDiv.innerHTML=html;
+    salvarHistorico('Wikidata',query,label+' ('+fatos.length+' fatos)');
   }catch(e){
-    resultDiv.innerHTML=`<div class="result" style="border-left-color:red">Erro: ${e.message}</div>`;
+    resultDiv.innerHTML=`<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
   }
+}
+
+// ============ GRÁFICO 3D ============
+async function plotar3D(){
+  try{
+    await waitForPyodide();
+    
+    const f=str('g3d-f');
+    const xmin=num('g3d-xmin'),xmax=num('g3d-xmax');
+    const ymin=num('g3d-ymin'),ymax=num('g3d-ymax');
+    
+    let fNumpy=f.replace(/\^/g,'**');
+    fNumpy=fNumpy.replace(/sin\(/g,'np.sin(');
+    fNumpy=fNumpy.replace(/cos\(/g,'np.cos(');
+    fNumpy=fNumpy.replace(/tan\(/g,'np.tan(');
+    fNumpy=fNumpy.replace(/exp\(/g,'np.exp(');
+    fNumpy=fNumpy.replace(/sqrt\(/g,'np.sqrt(');
+    fNumpy=fNumpy.replace(/log\(/g,'np.log(');
+    fNumpy=fNumpy.replace(/pi/g,'np.pi');
+    
+    const codigoPython=`
+import numpy as np
+import json
+
+try:
+    x = np.linspace(${xmin}, ${xmax}, 50)
+    y = np.linspace(${ymin}, ${ymax}, 50)
+    X, Y = np.meshgrid(x, y)
+    
+    Z = ${fNumpy}
+    
+    if np.isscalar(Z):
+        Z = np.full_like(X, Z, dtype=float)
+    elif Z.ndim == 1:
+        Z = Z.reshape(1, -1)
+        Z = np.repeat(Z, X.shape[0], axis=0)
+    
+    Z_list = Z.tolist()
+    for i in range(len(Z_list)):
+        for j in range(len(Z_list[i])):
+            val = Z_list[i][j]
+            if val is None or (isinstance(val, float) and (np.isinf(val) or np.isnan(val))):
+                Z_list[i][j] = None
+    
+    X_list = X.tolist()
+    Y_list = Y.tolist()
+    
+    result = {
+        'success': True,
+        'Z': Z_list,
+        'X': X_list,
+        'Y': Y_list
+    }
+except Exception as e:
+    result = {
+        'success': False,
+        'error': str(e)
+    }
+
+json.dumps(result)
+`;
+    
+    const resultadoJson=pyodide.runPython(codigoPython);
+    const resultado=JSON.parse(resultadoJson);
+    
+    if(!resultado.success){
+      throw new Error('Erro ao calcular: '+resultado.error);
+    }
+    
+    const {Z,X,Y}=resultado;
+    
+    let temDadosValidos=false;
+    for(let i=0;i<Z.length;i++){
+      for(let j=0;j<Z[i].length;j++){
+        if(Z[i][j]!==null){temDadosValidos=true;break;}
+      }
+      if(temDadosValidos) break;
+    }
+    
+    if(!temDadosValidos){
+      throw new Error('Função não gera valores válidos neste intervalo');
+    }
+    
+    const layout={
+      title:`z = ${f}`,
+      scene:{
+        xaxis:{title:'x'},
+        yaxis:{title:'y'},
+        zaxis:{title:'z'},
+        aspectmode:'auto'
+      },
+      margin:{t:40,l:0,r:0,b:0},
+      paper_bgcolor:'var(--bg)',
+      plot_bgcolor:'var(--bg)'
+    };
+    
+    const data=[{
+      z:Z, x:X, y:Y,
+      type:'surface',
+      colorscale:'Viridis',
+      showscale:true
+    }];
+    
+    Plotly.newPlot('g3d-plot',data,layout,{responsive:true,displayModeBar:true});
+    
+    salvarHistorico('Gráfico 3D',`z=${f}`,'surface plot');
+    toast('Gráfico 3D gerado!','ok');
+  }catch(e){
+    console.error('Erro no gráfico 3D:',e);
+    toast('Erro no gráfico 3D: '+e.message,'err');
+    document.getElementById('g3d-plot').innerHTML=`
+      <div style="padding:40px;text-align:center;color:var(--err)">
+        <div style="font-size:3rem;margin-bottom:10px">⚠️</div>
+        <div style="font-size:1.1rem;font-weight:600">Erro ao gerar gráfico</div>
+        <div style="margin-top:10px;color:var(--muted)">${e.message}</div>
+      </div>
+    `;
+  }
+}
+
+// ============ CÁLCULO SIMBÓLICO ============
+async function simDerivada(){
+  try{
+    await waitForPyodide();
+    const f=str('sim-deriv-f').replace(/\^/g,'**'),varName=str('sim-deriv-var'),ord=parseInt(str('sim-deriv-ord'));
+    const [latex,texto]=pyodide.runPython(`sym_derivative("${f}","${varName}",${ord})`).toJs();
+    document.getElementById('sim-deriv-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-sd"></div><div style="margin-top:8px;color:var(--muted)">f⁽${ord}(${varName}) = ${texto}</div></div>`;
+    if(window.katex) katex.render(`\\frac{d^{${ord}}}{d${varName}^{${ord}}} f = ${texto}`, document.getElementById('latex-sd'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Simbólico Derivada',`${f}, ordem ${ord}`,texto);
+    toast('Derivada calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function simIntegral(){
+  try{
+    await waitForPyodide();
+    const f=str('sim-integ-f').replace(/\^/g,'**'),varName=str('sim-integ-var');
+    const [latex,texto]=pyodide.runPython(`sym_integral("${f}","${varName}")`).toJs();
+    document.getElementById('sim-integ-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-si"></div><div style="margin-top:8px;color:var(--muted)">f(${varName})d${varName} = ${texto} + C</div></div>`;
+    if(window.katex) katex.render(`\\int ${f}\\, d${varName} = ${texto}`, document.getElementById('latex-si'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Simbólico Integral',f,texto);
+    toast('Integral calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function simEquacao(){
+  try{
+    await waitForPyodide();
+    const eq=str('sim-eq-expr').replace(/\^/g,'**'),varName=str('sim-eq-var');
+    
+    pyodide.globals.set('expr_str', eq);
+    pyodide.globals.set('var_str', varName);
+    
+    const resultado = pyodide.runPython(`
+import sympy as sp
+x = sp.symbols(var_str)
+try:
+    if '==' in expr_str:
+        parts = expr_str.split('==')
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq_obj = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq_obj, x)
+    elif '=' in expr_str:
+        parts = expr_str.split('=')
+        lhs = sp.sympify(parts[0].strip())
+        rhs = sp.sympify(parts[1].strip())
+        eq_obj = sp.Eq(lhs, rhs)
+        sols = sp.solve(eq_obj, x)
+    else:
+        expr = sp.sympify(expr_str)
+        sols = sp.solve(expr, x)
+    if not sols:
+        ['Sem solução']
+    else:
+        [str(s) for s in sols]
+except Exception as e:
+    ['Erro: ' + str(e)]
+`);
+    
+    const textos = resultado;
+    
+    let html='<div class="result"><div class="math"><strong>Equação: '+eq+'</strong></div><div style="margin-top:10px">';
+    if(!textos || textos.length === 0 || textos[0] === 'Sem solução'){
+      html+='<div style="color:var(--muted)">Sem solução encontrada</div>';
+    } else if(textos[0].startsWith('Erro:')){
+      html+=`<div style="color:var(--err)">${textos[0]}</div>`;
+    } else {
+      textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-se${i}"></div>`;});
+    }
+    html+='</div></div>';
+    document.getElementById('sim-eq-result').innerHTML=html;
+    
+    if(textos && !textos[0].startsWith('Erro:') && textos[0] !== 'Sem solução'){
+      textos.forEach((s,i)=>{
+        if(window.katex){
+          katex.render(`${varName} = ${s}`, document.getElementById('latex-se'+i), {displayMode:true,throwOnError:false});
+        }
+      });
+    }
+    salvarHistorico('Simbólico Equação',eq,textos ? textos.join(', ') : 'sem solução');
+    toast('Equação resolvida!','ok');
+  }catch(e){
+    console.error('Erro na equação:',e);
+    toast('Erro: '+e.message,'err');
+    document.getElementById('sim-eq-result').innerHTML=`<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
+  }
+}
+
+// ============ DERIVADAS PARCIAIS ============
+async function calcParcial(){
+  try{
+    await waitForPyodide();
+    const f=str('par-f').replace(/\^/g,'**'),varName=str('par-var');
+    const [latex,texto]=pyodide.runPython(`sym_partial_derivative("${f}","${varName}")`).toJs();
+    document.getElementById('par-result').innerHTML=`<div class="result"><div class="math"><strong>f(x,y) = ${f}</strong></div><div class="latex" id="latex-par"></div><div style="margin-top:8px;color:var(--muted)">∂f/∂${varName} = ${texto}</div></div>`;
+    if(window.katex) katex.render(`\\frac{\\partial f}{\\partial ${varName}} = ${texto}`, document.getElementById('latex-par'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Derivada Parcial',`f=${f}, /${varName}`,texto);
+    toast('Derivada parcial calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ EDOs ============
+function calcEDO(){
+  try{
+    const f=str('edo-f');
+    const x0=num('edo-x0'),y0=num('edo-y0'),xf=num('edo-xf');
+    const N=Math.floor(num('edo-n'));
+    if(N<10) throw new Error('Mínimo 10 passos');
+    
+    const h=(xf-x0)/N;
+    const xs=[x0],ys=[y0];
+    let x=x0,y=y0;
+    
+    const evalFn=(expr,vars)=>{
+      try{
+        let js=expr;
+        const funcs={'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan','exp':'Math.exp','sqrt':'Math.sqrt','log':'Math.log'};
+        for(const[k,v]of Object.entries(funcs))js=js.replace(new RegExp('\\b'+k+'\\b','g'),v);
+        for(const[k,v]of Object.entries(vars))js=js.replace(new RegExp('\\b'+k+'\\b','g'),'('+v+')');
+        js=js.replace(/\^/g,'**');
+        return new Function('return '+js)();
+      }catch(e){return NaN;}
+    };
+    
+    for(let i=0;i<N;i++){
+      const k1=evalFn(f,{x:x,y:y});
+      const k2=evalFn(f,{x:x+h/2,y:y+h*k1/2});
+      const k3=evalFn(f,{x:x+h/2,y:y+h*k2/2});
+      const k4=evalFn(f,{x:x+h,y:y+h*k3});
+      y=y+(h/6)*(k1+2*k2+2*k3+k4);
+      x=x+h;
+      xs.push(x);
+      ys.push(y);
+    }
+    
+    document.getElementById('edo-result').innerHTML=`<div class="result"><div class="math">y' = ${f}</div><div class="math" style="margin-top:8px">y(${x0}) = ${y0}</div><div class="math" style="margin-top:8px">y(${xf.toFixed(2)}) ≈ <strong style="color:var(--primary)">${ys[ys.length-1].toFixed(6)}</strong></div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Método: Runge-Kutta 4ª ordem (N=${N})</div></div>`;
+    salvarHistorico('EDO',`y'=${f}, y(${x0})=${y0}`,`y(${xf})≈${ys[ys.length-1].toFixed(4)}`);
+    
+    Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'y(x)',line:{color:'#4f46e5',width:3},mode:'lines'}],{title:'Solução da EDO',xaxis:{title:'x'},yaxis:{title:'y'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('EDO resolvida!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ FOURIER ============
+async function calcFourier(){
+  try{
+    await waitForPyodide();
+    const f=str('four-f').replace(/\^/g,'**'),varName=str('four-var');
+    const [latex,texto]=pyodide.runPython(`sym_fourier("${f}","${varName}")`).toJs();
+    document.getElementById('four-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-four"></div><div style="margin-top:8px;color:var(--muted)">F(ω) = ${texto}</div></div>`;
+    if(window.katex) katex.render(`\\mathcal{F}\\{${f}\\} = ${texto}`, document.getElementById('latex-four'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Fourier',`f=${f}`,texto);
+    toast('Transformada calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ TEORIA DOS NÚMEROS ============
+async function testarPrimo(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-teste'));
+    if(n<2) throw new Error('n deve ser ≥ 2');
+    const ehPrimo=pyodide.runPython(`import sympy as sp; sp.isprime(${n})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)">✗ NÃO é primo</span>'}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Primalidade de ${n}`,ehPrimo?'PRIMO':'NÃO primo');
+    toast('Teste concluído!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function crivoEratostenes(){
+  try{
+    await waitForPyodide();
+    const N=parseInt(str('num-crivo'));
+    if(N<2||N>100000) throw new Error('2 ≤ N ≤ 100000');
+    const primos=pyodide.runPython(`import sympy as sp; list(sp.primerange(2, ${N+1}))`).toJs();
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>Primos até ${N}</strong></div><div style="margin-top:10px">Total: <strong>${primos.length}</strong> primos</div><div style="margin-top:10px;font-family:monospace;font-size:0.9rem;background:var(--bg);padding:10px;border-radius:6px;max-height:300px;overflow-y:auto">${primos.join(', ')}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Crivo até ${N}`,`${primos.length} primos`);
+    toast('Crivo calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularMDC(){
+  try{
+    await waitForPyodide();
+    const a=parseInt(str('num-a')),b=parseInt(str('num-b'));
+    const mdc=pyodide.runPython(`import math; math.gcd(${a}, ${b})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>MDC(${a}, ${b}) = ${mdc}</strong></div></div>`;
+    salvarHistorico('Teoria dos Números',`MDC(${a},${b})`,String(mdc));
+    toast('MDC calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularMMC(){
+  try{
+    await waitForPyodide();
+    const a=parseInt(str('num-c')),b=parseInt(str('num-d'));
+    const mmc=pyodide.runPython(`import math; math.lcm(${a}, ${b})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>MMC(${a}, ${b}) = ${mmc}</strong></div></div>`;
+    salvarHistorico('Teoria dos Números',`MMC(${a},${b})`,String(mmc));
+    toast('MMC calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function fatorarNumero(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-fatorar'));
+    if(n<2) throw new Error('n deve ser ≥ 2');
+    const fatores=pyodide.runPython(`import sympy as sp; sp.factorint(${n})`).toJs();
+    let fatoresStr=Object.entries(fatores).map(([p,e])=>e>1?`${p}^${e}`:p).join(' · ');
+    document.getElementById('num-fator-result').innerHTML=`<div class="result"><div class="math"><strong>${n} = ${fatoresStr}</strong></div><div style="margin-top:10px;color:var(--muted)">Fatores primos: ${Object.entries(fatores).map(([p,e])=>`${p}${e>1?' (expoente '+e+')':''}`).join(', ')}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Fatoração de ${n}`,fatoresStr);
+    toast('Fatoração calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularFuncoesAritmeticas(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-func-n'));
+    if(n<1) throw new Error('n deve ser ≥ 1');
+    const resultados=pyodide.runPython(`
+import sympy as sp
+n = ${n}
+phi = sp.totient(n)
+mu = sp.mobius(n)
+d = sp.divisor_count(n)
+sigma = sp.divisor_sigma(n)
+divisores = sp.divisors(n)
+{'phi': phi, 'mu': mu, 'd': d, 'sigma': sigma, 'divisores': divisores}
+`).toJs();
+    let muDesc='';
+    if(resultados.mu===0) muDesc='n tem fator quadrático perfeito';
+    else if(resultados.mu===1) muDesc='n é produto de número par de primos distintos';
+    else muDesc='n é produto de número ímpar de primos distintos';
+    document.getElementById('num-func-result').innerHTML=`
+      <div class="result">
+        <div class="math" style="font-size:1.2rem"><strong>Funções Aritméticas de ${n}</strong></div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">φ(n) - Totiente de Euler</div><div class="value" style="font-size:1.5rem;color:var(--primary)">${resultados.phi}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Números coprimos com ${n}</div></div>
+          <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">μ(n) - Função de Möbius</div><div class="value" style="font-size:1.5rem;color:var(--accent)">${resultados.mu}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">${muDesc}</div></div>
+          <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">d(n) - Nº de divisores</div><div class="value" style="font-size:1.5rem;color:var(--warn)">${resultados.d}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Divisores positivos</div></div>
+          <div class="fact-card" style="border-left-color:#10b981"><div class="label">σ(n) - Soma dos divisores</div><div class="value" style="font-size:1.5rem;color:var(--ok)">${resultados.sigma}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Soma de todos divisores</div></div>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
+          <div style="font-weight:600;margin-bottom:8px"> Divisores de ${n}:</div>
+          <div style="font-family:monospace">${resultados.divisores.join(', ')}</div>
+        </div>
+      </div>`;
+    salvarHistorico('Teoria dos Números',`Funções de ${n}`,`φ=${resultados.phi}, μ=${resultados.mu}, d=${resultados.d}`);
+    toast('Funções calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ AVALIADOR NUMÉRICO ============
+function evalMath(expr,vars={}){
+  try{
+    let js=expr;
+    const funcs={'sin':'Math.sin','cos':'Math.cos','tan':'Math.tan','asin':'Math.asin','acos':'Math.acos','atan':'Math.atan','sqrt':'Math.sqrt','log':'Math.log','ln':'Math.log','exp':'Math.exp','abs':'Math.abs','pi':'Math.PI','e':'Math.E'};
+    for(const[f,j]of Object.entries(funcs))js=js.replace(new RegExp('\\b'+f+'\\b','g'),j);
+    for(const[k,v]of Object.entries(vars))js=js.replace(new RegExp('\\b'+k+'\\b','g'),'('+v+')');
+    js=js.replace(/\^/g,'**');
+    const r=new Function('return '+js)();
+    return isFinite(r)?r:NaN;
+  }catch(e){return NaN;}
+}
+
+// ============ LIMITES ============
+function calcLimite(){
+  try{
+    const f=str('lim-f');
+    const aStr=str('lim-a').toLowerCase();
+    const dir=document.getElementById('lim-dir').value;
+    const isInf=aStr==='inf'||aStr==='infinity';
+    const aVal=isInf?null:Number(aStr.replace(',','.'));
+    let effectiveDir=dir;
+    if(dir==='auto' && !isInf){
+      let rightOK=false, leftOK=false;
+      for(const d of [0.1, 0.01, 0.001]){
+        try{if(isFinite(evalMath(f,{x:aVal+d}))) rightOK=true;}catch(e){}
+        try{if(isFinite(evalMath(f,{x:aVal-d}))) leftOK=true;}catch(e){}
+        if(rightOK && leftOK) break;
+      }
+      if(rightOK && !leftOK) effectiveDir='right';
+      else if(leftOK && !rightOK) effectiveDir='left';
+      else if(!rightOK && !leftOK){
+        if(f.includes('ln(')||f.includes('sqrt(')) effectiveDir='right';
+        else effectiveDir='both';
+      }
+      else effectiveDir='both';
+    }
+    let L,method='';
+    if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';}
+    else{
+      const deltas=[0.01, 0.001, 0.0001, 0.00001];
+      const valsP=[],valsM=[];
+      for(const d of deltas){
+        if(effectiveDir==='both'||effectiveDir==='right'){try{const vp=evalMath(f,{x:aVal+d});if(isFinite(vp)) valsP.push(vp);}catch(e){}}
+        if(effectiveDir==='both'||effectiveDir==='left'){try{const vm=evalMath(f,{x:aVal-d});if(isFinite(vm)) valsM.push(vm);}catch(e){}}
+      }
+      if(valsP.length===0 && valsM.length===0) throw new Error('Não calculável');
+      if(effectiveDir==='both'){L=(valsP[valsP.length-1]+valsM[valsM.length-1])/2;method='Média bilateral';}
+      else if(effectiveDir==='right'){L=valsP[valsP.length-1];method='Pela direita';}
+      else{L=valsM[valsM.length-1];method='Pela esquerda';}
+    }
+    let final;
+    const tol=0.1;
+    if(Math.abs(L-1/3)<tol) final='1/3';
+    else if(Math.abs(L-2/3)<tol) final='2/3';
+    else if(Math.abs(L-1/2)<tol) final='1/2';
+    else if(Math.abs(L-1/6)<tol) final='1/6';
+    else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
+    else final=parseFloat(L.toFixed(6));
+    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;color:var(--muted)">📊 Método: ${method}</div></div>`;
+    salvarHistorico('Limite',`f=${f}, x→${aStr}`,String(final));
+    const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
+    const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
+    Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Limite calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ DERIVADAS ============
+function derivarSimbolica(expr, varName){
+  expr = expr.replace(/\s+/g, '').replace(/\^/g,'**');
+  const termos = expr.match(/([+-]?[^+-]+)/g) || [];
+  const derivadas = [];
+  for(const termo of termos){
+    if(termo === '' || termo === '+' || termo === '-') continue;
+    const d = derivarTermo(termo, varName);
+    if(d !== null && d !== '0') derivadas.push(d);
+  }
+  if(derivadas.length === 0) return '0';
+  let resultado = derivadas[0];
+  for(let i=1; i<derivadas.length; i++){
+    const d = derivadas[i];
+    if(d.startsWith('-')) resultado += ' - ' + d.substring(1);
+    else resultado += ' + ' + d;
+  }
+  return resultado.replace(/\+ -/g,'- ').replace(/- -/g,'+ ').replace(/\s+/g,' ').trim() || '0';
+}
+
+function derivarTermo(termo, varName){
+  termo = termo.trim().replace(/^\+/,'');
+  if(termo === '') return null;
+  if(!termo.includes(varName)) return '0';
+  const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
+  if(matchPot && matchPot[2] === varName){
+    let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
+    const exp = matchPot[3] ? parseFloat(matchPot[3]) : 1;
+    if(exp === 0) return '0';if(exp === 1) return String(coef);
+    const novoCoef = coef * exp,novoExp = exp - 1;
+    if(novoExp === 1) return String(novoCoef) + '*' + varName;
+    if(novoExp === 0) return String(novoCoef);
+    return String(novoCoef) + '*' + varName + '^' + novoExp;
+  }
+  const matchProd = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?\*([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
+  if(matchProd){
+    const coefStr = matchProd[1];
+    const v1 = matchProd[2], exp1Str = matchProd[3];
+    const v2 = matchProd[4], exp2Str = matchProd[5];
+    const coef = coefStr === '' || coefStr === '+' ? 1 : (coefStr === '-' ? -1 : parseFloat(coefStr));
+    const exp1 = exp1Str ? parseFloat(exp1Str) : 1;
+    const exp2 = exp2Str ? parseFloat(exp2Str) : 1;
+    if(v1 === varName && v2 !== varName){
+      const novoCoef = coef * exp1;
+      const novoExp1 = exp1 - 1;
+      if(novoExp1 === 0) return (novoCoef===1?'':novoCoef+'*') + v2 + (exp2===1?'':'^'+exp2);
+      return (novoCoef===1?'':novoCoef+'*') + v1 + (novoExp1===1?'':'^'+novoExp1) + '*' + v2 + (exp2===1?'':'^'+exp2);
+    }else if(v2 === varName && v1 !== varName){
+      const novoCoef = coef * exp2;
+      const novoExp2 = exp2 - 1;
+      if(novoExp2 === 0) return (novoCoef===1?'':novoCoef+'*') + v1 + (exp1===1?'':'^'+exp1);
+      return (novoCoef===1?'':novoCoef+'*') + v1 + (exp1===1?'':'^'+exp1) + '*' + v2 + (novoExp2===1?'':'^'+novoExp2);
+    }
+  }
+  const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchSin){let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);const v = matchSin[3];const novoCoef = coef * b;if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';return novoCoef + '*cos(' + b + '*' + v + ')';}
+  const matchCos = termo.match(/^(-?\d*\.?\d*)\*?cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchCos){let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);const v = matchCos[3];const novoCoef = -coef * b;if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';return novoCoef + '*sin(' + b + '*' + v + ')';}
+  const matchExp = termo.match(/^(-?\d*\.?\d*)\*?exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchExp){let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);const v = matchExp[3];const novoCoef = coef * b;if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';return novoCoef + '*exp(' + b + '*' + v + ')';}
+  const matchLn = termo.match(/^(-?\d*\.?\d*)\*?(?:ln|log)\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchLn){let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);const v = matchLn[3];if(coef === 1) return '1/' + v;if(coef === -1) return '-1/' + v;return coef + '/' + v;}
+  const matchTan = termo.match(/^(-?\d*\.?\d*)\*?tan\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
+  if(matchTan){let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);const v = matchTan[3];const novoCoef = coef * b;if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';return novoCoef + '/cos(' + b + '*' + v + ')^2';}
+  return null;
+}
+
+function calcDerivada(){
+  try{
+    const f=str('der-f'),varName=str('der-var'),intervalo=str('der-intervalo');
+    const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
+    const fp = derivarSimbolica(f, varName);
+    const fpp = derivarSimbolica(fp, varName);
+    const fFn=x=>evalMath(f,{[varName]:x});
+    const fpFn=x=>evalMath(fp,{[varName]:x});
+    const fppFn=x=>evalMath(fpp,{[varName]:x});
+    document.getElementById('der-result').innerHTML=`<div class="result"><div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div><div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div><div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div></div>`;
+    salvarHistorico('Derivada',`f=${f}`,`f'=${fp}, f''=${fpp}`);
+    const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
+    const ys=xs.map(x=>{const v=fFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const yps=xs.map(x=>{const v=fpFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    const ypps=xs.map(x=>{const v=fppFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
+    Plotly.newPlot('der-plot',[{x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},{x:xs,y:yps,name:"f'(x)",line:{color:'#06b6d4',width:3}},{x:xs,y:ypps,name:"f''(x)",line:{color:'#f59e0b',width:3}}],{title:'Função e Derivadas',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Derivadas calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ INTEGRAIS ============
+function calcIntegral(){
+  try{
+    const f=str('int-f'),x1=num('int-x1'),x2=num('int-x2');
+    const fn=x=>evalMath(f,{x:x});
+    const n=1000,h=(x2-x1)/n;
+    let s=fn(x1)+fn(x2);
+    for(let i=1;i<n;i++)s+=fn(x1+i*h)*(i%2?4:2);
+    const W=s*h/3;
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
+    salvarHistorico('Integral',`f=${f}, [${x1},${x2}]`,W.toFixed(6));
+    const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
+    const ys=xs.map(x=>fn(x));
+    Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'F(x)',line:{color:'#4f46e5',width:3}}],{title:'Integral',xaxis:{title:'x'},yaxis:{title:'F(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('Integral calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ HISTÓRICO ============
+function salvarHistorico(tipo,entrada,saida){
+  let hist=JSON.parse(localStorage.getItem('scicalc_hist')||'[]');
+  hist.unshift({tipo,entrada,saida,data:new Date().toLocaleString('pt-BR')});
+  if(hist.length>100) hist=hist.slice(0,100);
+  localStorage.setItem('scicalc_hist',JSON.stringify(hist));
+}
+function renderHistorico(){
+  const hist=JSON.parse(localStorage.getItem('scicalc_hist')||'[]');
+  const div=document.getElementById('hist-list');
+  if(hist.length===0){div.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Nenhum cálculo.</p>';return;}
+  div.innerHTML=hist.map(h=>`<div class="history-item"><div class="time"><strong>${h.tipo}</strong> · ${h.data}</div><div class="content">Entrada: ${h.entrada}<br>Saída: ${h.saida}</div></div>`).join('');
+}
+function limparHistorico(){localStorage.removeItem('scicalc_hist');renderHistorico();toast('Histórico limpo','ok');}
+function exportarHistorico(){
+  const hist=JSON.parse(localStorage.getItem('scicalc_hist')||'[]');
+  if(hist.length===0){toast('Vazio','warn');return;}
+  const blob=new Blob([JSON.stringify(hist,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='scicalc_historico.json';a.click();
+  toast('Exportado!','ok');
 }
 </script>
 </body>
