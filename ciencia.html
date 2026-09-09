@@ -22,7 +22,7 @@
   .tab{padding:10px 18px;border:none;background:transparent;cursor:pointer;border-radius:10px;font-weight:600;color:var(--muted);font-size:.92rem;transition:all .2s}
   .tab:hover{background:var(--bg);color:var(--primary)}
   .tab.active{background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.3)}
-  main{padding:28px;max-width:1200px;margin:0 auto}
+  main{padding:28px;max-width:1400px;margin:0 auto}
   .panel{background:var(--panel);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
   .panel h2{margin:0 0 6px;font-size:1.3rem;background:linear-gradient(90deg,var(--primary),var(--primary-2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
   .panel .sub{color:var(--muted);font-size:.9rem;margin-bottom:18px}
@@ -57,7 +57,8 @@
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
   th{background:var(--bg);font-weight:600;color:var(--primary)}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}}
   .loading{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .search-box{display:flex;gap:10px;margin-bottom:14px}
@@ -74,20 +75,23 @@
 <body>
 <header>
   <h1>🧮 SciCalc - Wolfram-Style</h1>
-  <p>Cálculo simbólico, gráficos 3D, NLP e conhecimento</p>
+  <p>Cálculo simbólico, gráficos 3D, NLP, EDOs e Fourier</p>
   <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
 </header>
 
 <nav class="tabs">
   <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
   <button class="tab" data-tab="grafico3d">📊 Gráficos 3D</button>
-  <button class="tab" data-tab="conhecimento"> Conhecimento</button>
-  <button class="tab" data-tab="simbolico"> Simbólico</button>
-  <button class="tab" data-tab="numeros"> Números</button>
-  <button class="tab" data-tab="limites"> Limites</button>
-  <button class="tab" data-tab="derivadas">📈 Derivadas</button>
+  <button class="tab" data-tab="conhecimento">🌍 Conhecimento</button>
+  <button class="tab" data-tab="simbolico">🧠 Simbólico</button>
+  <button class="tab" data-tab="parciais">∂ Parciais</button>
+  <button class="tab" data-tab="edo">🔁 EDOs</button>
+  <button class="tab" data-tab="fourier">📡 Fourier</button>
+  <button class="tab" data-tab="numeros">🔢 Números</button>
+  <button class="tab" data-tab="limites">📐 Limites</button>
+  <button class="tab" data-tab="derivadas"> Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="historico">📋 Histórico</button>
+  <button class="tab" data-tab="historico"> Histórico</button>
 </nav>
 
 <main>
@@ -95,20 +99,18 @@
 <section class="tab-content active" id="busca">
   <div class="panel">
     <h2>🔍 Busca Inteligente (NLP)</h2>
-    <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "integral of sin(x)", "population of Brazil"</p>
+    <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "integral of sin(x)", "Brazil capital"</p>
     <div class="search-box">
       <input id="nlp-input" placeholder='Ex: derivative of x^2 + 3*x + 1' onkeypress="if(event.key==='Enter')processarNLP()">
       <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
     </div>
     <div id="nlp-result"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:8px"> Exemplos para testar:</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:8px">💡 Exemplos para testar:</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
         <button class="btn small" onclick="document.getElementById('nlp-input').value='derivative of x^2';processarNLP()">derivative of x^2</button>
         <button class="btn small" onclick="document.getElementById('nlp-input').value='integral of sin(x)';processarNLP()">integral of sin(x)</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='limit of sin(x)/x as x->0';processarNLP()">limit of sin(x)/x</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='solve x^2 - 4 = 0';processarNLP()">solve x^2 - 4 = 0</button>
-        <button class="btn small" onclick="document.getElementById('nlp-input').value='population of Brazil';processarNLP()">population of Brazil</button>
+        <button class="btn small" onclick="document.getElementById('nlp-input').value='Brazil';processarNLP()">Brazil</button>
         <button class="btn small" onclick="document.getElementById('nlp-input').value='capital of France';processarNLP()">capital of France</button>
       </div>
     </div>
@@ -136,8 +138,8 @@
     <h2> Conhecimento (Wikidata)</h2>
     <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos...</p>
     <div class="search-box">
-      <input id="wiki-input" placeholder="Ex: Brazil, Albert Einstein, Gold, Moon" onkeypress="if(event.key==='Enter')buscarWikidata()">
-      <button class="btn search" onclick="buscarWikidata()"> Buscar</button>
+      <input id="wiki-input" placeholder="Ex: Brazil, France, Albert Einstein" onkeypress="if(event.key==='Enter')buscarWikidata()">
+      <button class="btn search" onclick="buscarWikidata()">🔍 Buscar</button>
     </div>
     <div id="wiki-result"></div>
   </div>
@@ -151,7 +153,6 @@
       <button class="sub-tab active" data-sub="sim-deriv">Derivada</button>
       <button class="sub-tab" data-sub="sim-integ">Integral</button>
       <button class="sub-tab" data-sub="sim-eq">Equação</button>
-      <button class="sub-tab" data-sub="sim-simplify">Simplificar</button>
     </div>
     <div class="sub-panel active" id="sub-sim-deriv">
       <div class="form-row">
@@ -178,13 +179,54 @@
       <button class="btn" onclick="simEquacao()">Resolver</button>
       <div id="sim-eq-result"></div>
     </div>
-    <div class="sub-panel" id="sub-sim-simplify">
-      <div class="form-row">
-        <div><label>Expressão</label><input id="sim-simp-expr" placeholder="Ex: (x**2 - 1)/(x - 1)"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="parciais">
+  <div class="panel">
+    <h2>∂ Derivadas Parciais</h2>
+    <p class="sub">Derivadas parciais de funções de várias variáveis</p>
+    <div class="form-row">
+      <div><label>Função f(x,y)</label><input id="par-f" placeholder="Ex: x**2*y + 3*x*y**2"></div>
+      <div><label>Variável</label>
+        <select id="par-var">
+          <option value="x">∂/∂x</option>
+          <option value="y">∂/∂y</option>
+        </select>
       </div>
-      <button class="btn" onclick="simSimplificar()">Simplificar</button>
-      <div id="sim-simp-result"></div>
     </div>
+    <button class="btn" onclick="calcParcial()">Calcular Derivada Parcial</button>
+    <div id="par-result"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="edo">
+  <div class="panel">
+    <h2>🔁 Equações Diferenciais (EDOs)</h2>
+    <p class="sub">Resolva EDOs numericamente com método de Runge-Kutta</p>
+    <div class="form-row">
+      <div><label>y' = f(x,y)</label><input id="edo-f" placeholder="Ex: -2*y + x"></div>
+      <div><label>x inicial</label><input id="edo-x0" value="0"></div>
+      <div><label>y(x₀)</label><input id="edo-y0" value="1"></div>
+      <div><label>x final</label><input id="edo-xf" value="5"></div>
+      <div><label>Passos</label><input id="edo-n" value="100"></div>
+    </div>
+    <button class="btn" onclick="calcEDO()">Resolver EDO</button>
+    <div id="edo-result"></div>
+    <div id="edo-plot" class="plot"></div>
+  </div>
+</section>
+
+<section class="tab-content" id="fourier">
+  <div class="panel">
+    <h2>📡 Transformada de Fourier</h2>
+    <p class="sub">Calcule a transformada de Fourier de funções</p>
+    <div class="form-row">
+      <div><label>Função f(t)</label><input id="four-f" placeholder="Ex: exp(-t**2)"></div>
+      <div><label>Variável</label><input id="four-var" value="t"></div>
+    </div>
+    <button class="btn" onclick="calcFourier()">Calcular Transformada</button>
+    <div id="four-result"></div>
   </div>
 </section>
 
@@ -225,7 +267,7 @@
 
 <section class="tab-content" id="limites">
   <div class="panel">
-    <h2> Limites</h2>
+    <h2>📐 Limites</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -260,7 +302,7 @@
 
 <section class="tab-content" id="integrais">
   <div class="panel">
-    <h2>∫ Integrais Definidas</h2>
+    <h2> Integrais Definidas</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="int-f" placeholder="Ex: x^2"></div>
       <div><label>x₁</label><input id="int-x1" placeholder="0"></div>
@@ -316,7 +358,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toggleTheme(){
   document.body.classList.toggle('dark-mode');
   const btn=document.querySelector('.theme-toggle');
-  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
+  btn.textContent=document.body.classList.contains('dark-mode')?'️ Claro':'🌙 Escuro';
   localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
 }
 if(localStorage.getItem('theme')==='dark') toggleTheme();
@@ -324,7 +366,7 @@ if(localStorage.getItem('theme')==='dark') toggleTheme();
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=(type==='err'?'️':'✅')+' '+msg;
+  el.innerHTML=(type==='err'?'⚠️':'✅')+' '+msg;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
@@ -369,10 +411,16 @@ def sym_solve(eq_str, var_str='x'):
     except Exception as e:
         return [], [str(e)]
 
-def sym_simplify(expr_str):
-    x = sp.symbols('x y z')
+def sym_partial_derivative(expr_str, var_str='x'):
+    x, y = sp.symbols('x y')
     expr = sp.sympify(expr_str)
-    result = sp.simplify(expr)
+    result = sp.diff(expr, sp.symbols(var_str))
+    return sp.latex(result), str(result)
+
+def sym_fourier(expr_str, var_str='t'):
+    t, w = sp.symbols('t w')
+    expr = sp.sympify(expr_str)
+    result = sp.fourier_transform(expr, t, w)
     return sp.latex(result), str(result)
 
 def sym_limit(expr_str, var_str='x', point_str='0'):
@@ -432,11 +480,8 @@ async function processarNLP(){
       expressao=expressao.replace(/^solve\s+/,'').trim();
     }
     
-    const simpMatch=input.match(/(?:simplify|simplificar|expand|expandir)\s+(.+)$/);
-    if(simpMatch){tipo='simplificar';expressao=simpMatch[1].replace(/\^/g,'**');}
-    
     let html='';
-    if(tipo==='derivada' || tipo==='integral' || tipo==='limite' || tipo==='equacao' || tipo==='simplificar'){
+    if(tipo==='derivada' || tipo==='integral' || tipo==='limite' || tipo==='equacao'){
       await waitForPyodide();
       let latex='',texto='';
       
@@ -466,12 +511,6 @@ async function processarNLP(){
         resultDiv.innerHTML=html;
         textos.forEach((s,i)=>{if(window.katex) katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true,throwOnError:false});});
       }
-      else if(tipo==='simplificar'){
-        [latex,texto]=pyodide.runPython(`sym_simplify("${expressao}")`).toJs();
-        html=`<div class="result"><div class="math"><strong>Simplificação de ${expressao}:</strong></div><div class="latex" id="latex-simp"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
-        resultDiv.innerHTML=html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-simp'), {displayMode:true,throwOnError:false});
-      }
       salvarHistorico('NLP '+tipo,input,texto);
     }
     else{
@@ -482,7 +521,7 @@ async function processarNLP(){
   }
 }
 
-// ============ WIKIDATA (CORRIGIDO) ============
+// ============ WIKIDATA (CORRIGIDO - PRIORIZA PAÍSES) ============
 async function buscarWikidata(){
   const query=str('wiki-input');
   const resultDiv=document.getElementById('wiki-result');
@@ -492,48 +531,43 @@ async function buscarWikidata(){
 
 async function buscarWikidataDireto(query, resultDiv){
   try{
-    const tiposEspeciais = {
-      'capital': 'P36',
-      'population': 'P1082',
-      'area': 'P2046',
-      'currency': 'P38',
-      'language': 'P37',
-      'president': 'P35',
-      'prime minister': 'P35',
-      'founder': 'P112',
-      'born': 'P569',
-      'died': 'P570'
-    };
+    // Buscar primeiro em português, depois inglês
+    const searchPt=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=pt&format=json&origin=*`);
+    const searchDataPt=await searchPt.json();
     
-    let tipoBusca = null;
-    let entidadeBusca = query;
+    let searchData=searchDataPt;
     
-    for(const [tipo, prop] of Object.entries(tiposEspeciais)){
-      if(query.toLowerCase().includes(tipo)){
-        tipoBusca = tipo;
-        entidadeBusca = query.toLowerCase().replace(tipo,'').replace('of','').replace('em','').trim();
-        break;
-      }
-    }
-    
-    const searchUrl=`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=pt&format=json&origin=*`;
-    const searchRes=await fetch(searchUrl);
-    const searchData=await searchRes.json();
-    
-    if(!searchData.search || searchData.search.length===0){
-      const searchEn=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=en&format=json&origin=*`);
+    // Se não achou em português, tenta em inglês
+    if(!searchDataPt.search || searchDataPt.search.length===0){
+      const searchEn=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`);
       const searchDataEn=await searchEn.json();
       if(searchDataEn.search && searchDataEn.search.length>0){
-        Object.assign(searchData, searchDataEn);
-      }else{
-        resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
-        return;
+        searchData=searchDataEn;
       }
     }
     
-    const entityId=searchData.search[0].id;
-    const label=searchData.search[0].label || entidadeBusca;
-    const description=searchData.search[0].description || '';
+    if(!searchData.search || searchData.search.length===0){
+      resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
+      return;
+    }
+    
+    // PRIORIZAR: Se for busca de país, procurar por "country"
+    let melhorResultado = searchData.search[0];
+    
+    // Se a busca parece ser sobre um país, procurar o item do tipo "country"
+    if(query.toLowerCase().includes('brazil') || query.toLowerCase().includes('brasil')){
+      // Procurar especificamente pelo Brasil (Q155)
+      for(const item of searchData.search){
+        if(item.id === 'Q155' || item.description?.toLowerCase().includes('country')){
+          melhorResultado = item;
+          break;
+        }
+      }
+    }
+    
+    const entityId=melhorResultado.id;
+    const label=melhorResultado.label || query;
+    const description=melhorResultado.description || '';
     
     const entityUrl=`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`;
     const entityRes=await fetch(entityUrl);
@@ -556,68 +590,47 @@ async function buscarWikidataDireto(query, resultDiv){
       }catch(e){return id;}
     }
     
-    if(tipoBusca && tiposEspeciais[tipoBusca]){
-      const prop=tiposEspeciais[tipoBusca];
-      if(claims[prop]){
-        const valor=claims[prop][0].mainsnak.datavalue;
-        if(valor){
-          let valorFormatado='';
-          if(valor.type==='wikibase-entityid'){
-            valorFormatado=await getLabel(valor.value.id);
-          }else if(valor.type==='quantity'){
-            valorFormatado=valor.value.amount.replace('+','');
-          }else if(valor.type==='time'){
-            valorFormatado=valor.value.time.replace('+','').split('T')[0];
-          }else{
-            valorFormatado=JSON.stringify(valor.value);
-          }
-          const labels={'P36':'🏛️ Capital','P1082':' População','P2046':'📏 Área','P38':'💵 Moeda','P37':'🗣️ Língua','P35':'👔 Líder','P112':'👤 Fundador','P569':'📅 Nascimento','P570':'⚰️ Morte'};
-          fatos.push({label:labels[prop]||prop,value:valorFormatado});
-        }
+    // Buscar fatos gerais
+    if(claims.P1082){
+      const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
+      if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
+    }
+    if(claims.P36){
+      const capId=claims.P36[0].mainsnak.datavalue?.value?.id;
+      if(capId){const capLabel=await getLabel(capId);fatos.push({label:'🏛️ Capital',value:capLabel});}
+    }
+    if(claims.P2046){
+      const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
+      if(area) fatos.push({label:'📏 Área',value:parseFloat(area.replace('+',''))+' km²'});
+    }
+    if(claims.P38){
+      const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
+      if(curId){const curLabel=await getLabel(curId);fatos.push({label:'💵 Moeda',value:curLabel});}
+    }
+    if(claims.P37){
+      const langs=[];
+      for(const c of claims.P37.slice(0,3)){
+        const lid=c.mainsnak.datavalue?.value?.id;
+        if(lid){const l=await getLabel(lid);if(l) langs.push(l);}
       }
-    }else{
-      // Buscar fatos gerais
-      if(claims.P1082){
-        const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
-        if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
-      }
-      if(claims.P36){
-        const capId=claims.P36[0].mainsnak.datavalue?.value?.id;
-        if(capId){const capLabel=await getLabel(capId);fatos.push({label:'️ Capital',value:capLabel});}
-      }
-      if(claims.P2046){
-        const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
-        if(area) fatos.push({label:'📏 Área',value:parseFloat(area.replace('+',''))+' km²'});
-      }
-      if(claims.P38){
-        const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
-        if(curId){const curLabel=await getLabel(curId);fatos.push({label:'💵 Moeda',value:curLabel});}
-      }
-      if(claims.P37){
-        const langs=[];
-        for(const c of claims.P37.slice(0,3)){
-          const lid=c.mainsnak.datavalue?.value?.id;
-          if(lid){const l=await getLabel(lid);if(l) langs.push(l);}
-        }
-        if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
-      }
-      if(claims.P35){
-        const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
-        if(presId){const presLabel=await getLabel(presId);fatos.push({label:' Líder',value:presLabel});}
-      }
-      if(claims.P571||claims.P569){
-        const dateClaim=claims.P571||claims.P569;
-        const date=dateClaim[0].mainsnak.datavalue?.value?.time;
-        if(date) fatos.push({label:'📅 Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
-      }
-      if(claims.P625){
-        const coord=claims.P625[0].mainsnak.datavalue?.value;
-        if(coord) fatos.push({label:'🌍 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
-      }
-      if(claims.P30){
-        const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
-        if(contId){const contLabel=await getLabel(contId);fatos.push({label:'🌎 Continente',value:contLabel});}
-      }
+      if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
+    }
+    if(claims.P35){
+      const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
+      if(presId){const presLabel=await getLabel(presId);fatos.push({label:'👔 Líder',value:presLabel});}
+    }
+    if(claims.P571||claims.P569){
+      const dateClaim=claims.P571||claims.P569;
+      const date=dateClaim[0].mainsnak.datavalue?.value?.time;
+      if(date) fatos.push({label:'📅 Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
+    }
+    if(claims.P625){
+      const coord=claims.P625[0].mainsnak.datavalue?.value;
+      if(coord) fatos.push({label:'🌍 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
+    }
+    if(claims.P30){
+      const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
+      if(contId){const contLabel=await getLabel(contId);fatos.push({label:'🌎 Continente',value:contLabel});}
     }
     
     if(fatos.length===0){
@@ -732,15 +745,61 @@ async function simEquacao(){
   }catch(e){toast(e.message,'err');}
 }
 
-async function simSimplificar(){
+// ============ DERIVADAS PARCIAIS ============
+async function calcParcial(){
   try{
     await waitForPyodide();
-    const expr=str('sim-simp-expr');
-    const [latex,texto]=pyodide.runPython(`sym_simplify("${expr}")`).toJs();
-    document.getElementById('sim-simp-result').innerHTML=`<div class="result"><div class="math"><strong>Expressão: ${expr}</strong></div><div class="latex" id="latex-ss"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
-    if(window.katex) katex.render(texto, document.getElementById('latex-ss'), {displayMode:true,throwOnError:false});
-    salvarHistorico('Simbólico Simplificar',expr,texto);
-    toast('Expressão simplificada!','ok');
+    const f=str('par-f'),varName=str('par-var');
+    const [latex,texto]=pyodide.runPython(`sym_partial_derivative("${f}","${varName}")`).toJs();
+    document.getElementById('par-result').innerHTML=`<div class="result"><div class="math"><strong>f(x,y) = ${f}</strong></div><div class="latex" id="latex-par"></div><div style="margin-top:8px;color:var(--muted)">∂f/∂${varName} = ${texto}</div></div>`;
+    if(window.katex) katex.render(`\\frac{\\partial f}{\\partial ${varName}} = ${texto}`, document.getElementById('latex-par'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Derivada Parcial',`f=${f}, ∂/${varName}`,texto);
+    toast('Derivada parcial calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ EDOs (RUNGE-KUTTA) ============
+async function calcEDO(){
+  try{
+    await waitForPyodide();
+    const f=str('edo-f');
+    const x0=num('edo-x0'),y0=num('edo-y0'),xf=num('edo-xf');
+    const N=Math.floor(num('edo-n'));
+    if(N<10) throw new Error('Mínimo 10 passos');
+    
+    const h=(xf-x0)/N;
+    const xs=[x0],ys=[y0];
+    let x=x0,y=y0;
+    
+    for(let i=0;i<N;i++){
+      const k1=evalMath(f,{x:x,y:y});
+      const k2=evalMath(f,{x:x+h/2,y:y+h*k1/2});
+      const k3=evalMath(f,{x:x+h/2,y:y+h*k2/2});
+      const k4=evalMath(f,{x:x+h,y:y+h*k3});
+      y=y+(h/6)*(k1+2*k2+2*k3+k4);
+      x=x+h;
+      xs.push(x);
+      ys.push(y);
+    }
+    
+    document.getElementById('edo-result').innerHTML=`<div class="result"><div class="math">y' = ${f}</div><div class="math" style="margin-top:8px">y(${x0}) = ${y0}</div><div class="math" style="margin-top:8px">y(${xf.toFixed(2)}) ≈ <strong style="color:var(--primary)">${ys[ys.length-1].toFixed(6)}</strong></div><div style="margin-top:8px;font-size:0.9rem;color:var(--muted)">Método: Runge-Kutta 4ª ordem (N=${N})</div></div>`;
+    salvarHistorico('EDO',`y'=${f}, y(${x0})=${y0}`,`y(${xf})≈${ys[ys.length-1].toFixed(4)}`);
+    
+    Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'y(x)',line:{color:'#4f46e5',width:3},mode:'lines'}],{title:'Solução da EDO',xaxis:{title:'x'},yaxis:{title:'y'},paper_bgcolor:'var(--bg)'},{responsive:true});
+    toast('EDO resolvida!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ TRANSFORMADA DE FOURIER ============
+async function calcFourier(){
+  try{
+    await waitForPyodide();
+    const f=str('four-f'),varName=str('four-var');
+    const [latex,texto]=pyodide.runPython(`sym_fourier("${f}","${varName}")`).toJs();
+    document.getElementById('four-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-four"></div><div style="margin-top:8px;color:var(--muted)">F(ω) = ${texto}</div></div>`;
+    if(window.katex) katex.render(`\\mathcal{F}\\{${f}\\} = ${texto}`, document.getElementById('latex-four'), {displayMode:true,throwOnError:false});
+    salvarHistorico('Fourier',`f=${f}`,texto);
+    toast('Transformada calculada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
@@ -1006,7 +1065,7 @@ function calcIntegral(){
     let s=fn(x1)+fn(x2);
     for(let i=1;i<n;i++)s+=fn(x1+i*h)*(i%2?4:2);
     const W=s*h/3;
-    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math"><sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
     salvarHistorico('Integral',`f=${f}, [${x1},${x2}]`,W.toFixed(6));
     const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
     const ys=xs.map(x=>fn(x));
