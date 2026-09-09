@@ -659,12 +659,14 @@ result = sp.limit(expr, x, point)
         if(window.katex) katex.render(texto, document.getElementById('latex-lim'), {displayMode:true, throwOnError:false});
         salvarHistorico('NLP Limite', input, texto);
       }
-      else if(tipo === 'equacao'){
-        console.log('Resolvendo:', expressao);
+          else if(tipo === 'equacao'){
+        console.log('Resolvendo:', expressao, 'variável:', variavel);
+        
         const resultado = pyodide.runPython(`
 import sympy as sp
-x = sp.symbols(var_str)
+x = sp.symbols('${variavel}')
 try:
+    expr_str = '${expressao}'
     if '==' in expr_str:
         parts = expr_str.split('==')
         lhs = sp.sympify(parts[0].strip())
@@ -712,16 +714,6 @@ except Exception as e:
         }
         salvarHistorico('NLP Equação', input, textos ? textos.join(', ') : 'sem solução');
       }
-    }
-    else{
-      await buscarWikidataDireto(input, resultDiv);
-    }
-  }catch(e){
-    console.error('Erro no NLP:', e);
-    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
-  }
-}
-
 // ============ WIKIDATA ============
 async function buscarWikidata(){
   const query=str('wiki-input');
