@@ -6,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <style>
   :root{--primary:#4f46e5;--primary-2:#7c3aed;--accent:#06b6d4;--ok:#10b981;--warn:#f59e0b;--err:#ef4444;--bg:#f4f6fb;--panel:#fff;--ink:#1a2238;--muted:#6b7390;--border:#e5e7eb;--shadow:0 8px 24px rgba(30,41,80,.08);--radius:14px}
@@ -35,7 +33,6 @@
   .btn{padding:11px 22px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:.95rem;background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 4px 12px rgba(79,70,229,.25)}
   .btn:hover{transform:translateY(-1px)}
   .btn.small{padding:6px 12px;font-size:.82rem}
-  .btn.export{background:linear-gradient(120deg,#10b981,#059669);margin-top:10px}
   .btn.search{background:linear-gradient(120deg,#f59e0b,#d97706);font-size:1.1rem;padding:14px 28px}
   .result{margin-top:18px;padding:16px;border-radius:12px;background:linear-gradient(135deg,var(--bg),var(--panel));border-left:4px solid var(--primary);font-size:1rem}
   .result strong{color:var(--primary)}
@@ -60,8 +57,7 @@
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
   th{background:var(--bg);font-weight:600;color:var(--primary)}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  @media(max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr}}
+  @media(max-width:720px){.grid-2{grid-template-columns:1fr}}
   .loading{display:inline-block;width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .search-box{display:flex;gap:10px;margin-bottom:14px}
@@ -79,18 +75,19 @@
 <header>
   <h1>🧮 SciCalc - Wolfram-Style</h1>
   <p>Cálculo simbólico, gráficos 3D, NLP e conhecimento</p>
-  <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
+  <button class="theme-toggle" onclick="toggleTheme()"> Modo Escuro</button>
 </header>
 
 <nav class="tabs">
   <button class="tab active" data-tab="busca">🔍 Busca Inteligente</button>
   <button class="tab" data-tab="grafico3d"> Gráficos 3D</button>
   <button class="tab" data-tab="conhecimento">🌍 Conhecimento</button>
-  <button class="tab" data-tab="simbolico">🧠 Simbólico</button>
+  <button class="tab" data-tab="simbolico"> Simbólico</button>
+  <button class="tab" data-tab="numeros"> Números</button>
   <button class="tab" data-tab="limites">📐 Limites</button>
   <button class="tab" data-tab="derivadas">📈 Derivadas</button>
   <button class="tab" data-tab="integrais">∫ Integrais</button>
-  <button class="tab" data-tab="historico"> Histórico</button>
+  <button class="tab" data-tab="historico">📋 Histórico</button>
 </nav>
 
 <main>
@@ -100,8 +97,8 @@
     <h2>🔍 Busca Inteligente (NLP)</h2>
     <p class="sub">Digite em linguagem natural. Ex: "derivative of x^2", "integral of sin(x)", "population of Brazil"</p>
     <div class="search-box">
-      <input id="nlp-input" placeholder="Ex: derivative of x^2 + 3*x + 1" onkeypress="if(event.key==='Enter')processarNLP()">
-      <button class="btn search" onclick="processarNLP()"> Buscar</button>
+      <input id="nlp-input" placeholder='Ex: derivative of x^2 + 3*x + 1' onkeypress="if(event.key==='Enter')processarNLP()">
+      <button class="btn search" onclick="processarNLP()">🔍 Buscar</button>
     </div>
     <div id="nlp-result"></div>
     <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
@@ -137,7 +134,7 @@
 <section class="tab-content" id="conhecimento">
   <div class="panel">
     <h2>🌍 Conhecimento (Wikidata)</h2>
-    <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos químicos...</p>
+    <p class="sub">Consulte fatos sobre países, cidades, pessoas, elementos...</p>
     <div class="search-box">
       <input id="wiki-input" placeholder="Ex: Brazil, Albert Einstein, Gold, Moon" onkeypress="if(event.key==='Enter')buscarWikidata()">
       <button class="btn search" onclick="buscarWikidata()">🔍 Buscar</button>
@@ -156,7 +153,6 @@
       <button class="sub-tab" data-sub="sim-eq">Equação</button>
       <button class="sub-tab" data-sub="sim-simplify">Simplificar</button>
     </div>
-    
     <div class="sub-panel active" id="sub-sim-deriv">
       <div class="form-row">
         <div><label>Função f(x)</label><input id="sim-deriv-f" placeholder="Ex: x**3 + 2*x**2 + x"></div>
@@ -166,7 +162,6 @@
       <button class="btn" onclick="simDerivada()">Calcular Derivada</button>
       <div id="sim-deriv-result"></div>
     </div>
-    
     <div class="sub-panel" id="sub-sim-integ">
       <div class="form-row">
         <div><label>Função f(x)</label><input id="sim-integ-f" placeholder="Ex: x**2 + sin(x)"></div>
@@ -175,7 +170,6 @@
       <button class="btn" onclick="simIntegral()">Calcular Integral</button>
       <div id="sim-integ-result"></div>
     </div>
-    
     <div class="sub-panel" id="sub-sim-eq">
       <div class="form-row">
         <div><label>Equação (use ==)</label><input id="sim-eq-expr" placeholder="Ex: x**2 - 4 == 0"></div>
@@ -184,7 +178,6 @@
       <button class="btn" onclick="simEquacao()">Resolver</button>
       <div id="sim-eq-result"></div>
     </div>
-    
     <div class="sub-panel" id="sub-sim-simplify">
       <div class="form-row">
         <div><label>Expressão</label><input id="sim-simp-expr" placeholder="Ex: (x**2 - 1)/(x - 1)"></div>
@@ -195,9 +188,44 @@
   </div>
 </section>
 
+<section class="tab-content" id="numeros">
+  <div class="panel">
+    <h2>🔢 Teoria dos Números</h2>
+    <p class="sub">Ferramentas de teoria dos números com SymPy</p>
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="num-primos">🔍 Primos</button>
+      <button class="sub-tab" data-sub="num-fator">🔨 Fatoração</button>
+      <button class="sub-tab" data-sub="num-func"> Funções</button>
+    </div>
+    <div class="sub-panel active" id="sub-num-primos">
+      <div class="form-row">
+        <div><label>Testar primalidade</label><input id="num-teste" placeholder="97"><button class="btn" style="margin-top:8px" onclick="testarPrimo()">Testar</button></div>
+        <div><label>Primos até</label><input id="num-crivo" placeholder="100"><button class="btn" style="margin-top:8px" onclick="crivoEratostenes()">Gerar</button></div>
+      </div>
+      <div class="grid-2" style="margin-top:14px">
+        <div><label>MDC(a,b)</label><div style="display:flex;gap:6px"><input id="num-a" placeholder="a"><input id="num-b" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMDC()">Calcular</button></div>
+        <div><label>MMC(a,b)</label><div style="display:flex;gap:6px"><input id="num-c" placeholder="a"><input id="num-d" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMMC()">Calcular</button></div>
+      </div>
+      <div id="num-primos-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-num-fator">
+      <div class="form-row">
+        <div><label>Fatorar número</label><input id="num-fatorar" placeholder="360"><button class="btn" style="margin-top:8px" onclick="fatorarNumero()">Fatorar</button></div>
+      </div>
+      <div id="num-fator-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-num-func">
+      <div class="form-row">
+        <div><label>n</label><input id="num-func-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="calcularFuncoesAritmeticas()">Calcular</button></div>
+      </div>
+      <div id="num-func-result"></div>
+    </div>
+  </div>
+</section>
+
 <section class="tab-content" id="limites">
   <div class="panel">
-    <h2>📐 Limites (Numérico)</h2>
+    <h2>📐 Limites</h2>
     <div class="form-row">
       <div><label>Função f(x)</label><input id="lim-f" placeholder="Ex: sin(x)/x"></div>
       <div><label>x tende a</label><input id="lim-a" placeholder="Ex: 0, inf"></div>
@@ -246,7 +274,7 @@
 
 <section class="tab-content" id="historico">
   <div class="panel">
-    <h2> Histórico</h2>
+    <h2>📋 Histórico</h2>
     <div style="display:flex;gap:10px;margin-bottom:14px">
       <button class="btn" onclick="limparHistorico()">🗑️ Limpar</button>
       <button class="btn" onclick="exportarHistorico()">📄 Exportar JSON</button>
@@ -288,7 +316,7 @@ document.querySelectorAll('.sub-tab').forEach(t=>{
 function toggleTheme(){
   document.body.classList.toggle('dark-mode');
   const btn=document.querySelector('.theme-toggle');
-  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':'🌙 Escuro';
+  btn.textContent=document.body.classList.contains('dark-mode')?'☀️ Claro':' Escuro';
   localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');
 }
 if(localStorage.getItem('theme')==='dark') toggleTheme();
@@ -296,7 +324,7 @@ if(localStorage.getItem('theme')==='dark') toggleTheme();
 function toast(msg,type='ok'){
   const el=document.createElement('div');
   el.className='toast '+type;
-  el.innerHTML=(type==='err'?'️':'✅')+' '+msg;
+  el.innerHTML=(type==='err'?'⚠️':'✅')+' '+msg;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>el.remove(),3000);
 }
@@ -327,10 +355,19 @@ def sym_integral(expr_str, var_str='x'):
 
 def sym_solve(eq_str, var_str='x'):
     x = sp.symbols(var_str)
-    lhs, rhs = eq_str.split('==')
-    eq = sp.Eq(sp.sympify(lhs), sp.sympify(rhs))
-    sols = sp.solve(eq, x)
-    return [sp.latex(s) for s in sols], [str(s) for s in sols]
+    try:
+        if '==' in eq_str:
+            lhs, rhs = eq_str.split('==')
+            eq = sp.Eq(sp.sympify(lhs.strip()), sp.sympify(rhs.strip()))
+            sols = sp.solve(eq, x)
+        else:
+            expr = sp.sympify(eq_str)
+            sols = sp.solve(expr, x)
+        if not sols:
+            return [], ['Sem solução']
+        return [sp.latex(s) for s in sols], [str(s) for s in sols]
+    except Exception as e:
+        return [], [str(e)]
 
 def sym_simplify(expr_str):
     x = sp.symbols('x y z')
@@ -374,82 +411,48 @@ async function processarNLP(){
   resultDiv.innerHTML='<div class="result"><span class="loading"></span> Processando...</div>';
   
   try{
-    // Detectar intenção
     let tipo='desconhecido';
     let expressao='';
     let variavel='x';
     let ponto='0';
     
-    // Derivada
     const derivMatch=input.match(/(?:derivative|derivada|derive|differentiate)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
-    if(derivMatch){
-      tipo='derivada';
-      expressao=derivMatch[1].replace(/\^/g,'**');
-      if(derivMatch[2]) variavel=derivMatch[2];
-    }
+    if(derivMatch){tipo='derivada';expressao=derivMatch[1].replace(/\^/g,'**');if(derivMatch[2]) variavel=derivMatch[2];}
     
-    // Integral
     const integMatch=input.match(/(?:integral|integrate|antiderivative)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
-    if(integMatch){
-      tipo='integral';
-      expressao=integMatch[1].replace(/\^/g,'**');
-      if(integMatch[2]) variavel=integMatch[2];
-    }
+    if(integMatch){tipo='integral';expressao=integMatch[1].replace(/\^/g,'**');if(integMatch[2]) variavel=integMatch[2];}
     
-    // Limite
     const limMatch=input.match(/(?:limit|lim)\s+(?:of\s+)?(.+?)\s+as\s+(\w+)\s*->\s*(.+)$/);
-    if(limMatch){
-      tipo='limite';
-      expressao=limMatch[1].replace(/\^/g,'**');
-      variavel=limMatch[2];
-      ponto=limMatch[3];
-    }
+    if(limMatch){tipo='limite';expressao=limMatch[1].replace(/\^/g,'**');variavel=limMatch[2];ponto=limMatch[3];}
     
-    // Equação
-    const eqMatch=input.match(/(?:solve|resolver|roots?|raízes?)\s+(.+)$/);
-    if(eqMatch){
-      tipo='equacao';
-      expressao=eqMatch[1].replace(/\^/g,'**');
-    }
+    const eqMatch=input.match(/(?:solve|resolver)\s+(.+)$/);
+    if(eqMatch){tipo='equacao';expressao=eqMatch[1].replace(/\^/g,'**');}
     
-    // Simplificar
     const simpMatch=input.match(/(?:simplify|simplificar|expand|expandir)\s+(.+)$/);
-    if(simpMatch){
-      tipo='simplificar';
-      expressao=simpMatch[1].replace(/\^/g,'**');
-    }
+    if(simpMatch){tipo='simplificar';expressao=simpMatch[1].replace(/\^/g,'**');}
     
-    // Fato (Wikidata)
-    const factMatch=input.match(/^(?:population|capital|area|currency|language|president|prime\s+minister|founder|born|died)\s+(?:of\s+)?(.+)$/);
-    if(factMatch || (!derivMatch && !integMatch && !limMatch && !eqMatch && !simpMatch)){
-      tipo='fato';
-      expressao=input;
-    }
-    
-    // Processar
     let html='';
     if(tipo==='derivada' || tipo==='integral' || tipo==='limite' || tipo==='equacao' || tipo==='simplificar'){
       await waitForPyodide();
       let latex='',texto='';
       
       if(tipo==='derivada'){
-        const ordem=1;
-        [latex,texto]=pyodide.runPython(`sym_derivative("${expressao}","${variavel}",${ordem})`).toJs();
+        [latex,texto]=pyodide.runPython(`sym_derivative("${expressao}","${variavel}",1)`).toJs();
         html=`<div class="result"><div class="math"><strong>Derivada de ${expressao}:</strong></div><div class="latex" id="latex-deriv"></div><div style="margin-top:8px;color:var(--muted)">f'(${variavel}) = ${texto}</div></div>`;
         resultDiv.innerHTML=html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-deriv'), {displayMode:true});
+        if(window.katex) katex.render(texto, document.getElementById('latex-deriv'), {displayMode:true,throwOnError:false});
       }
       else if(tipo==='integral'){
         [latex,texto]=pyodide.runPython(`sym_integral("${expressao}","${variavel}")`).toJs();
-        html=`<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">∫f(${variavel})d${variavel} = ${texto} + C</div></div>`;
+        html=`<div class="result"><div class="math"><strong>Integral de ${expressao}:</strong></div><div class="latex" id="latex-integ"></div><div style="margin-top:8px;color:var(--muted)">f(${variavel})d${variavel} = ${texto} + C</div></div>`;
         resultDiv.innerHTML=html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-integ'), {displayMode:true});
+        if(window.katex) katex.render(texto, document.getElementById('latex-integ'), {displayMode:true,throwOnError:false});
       }
       else if(tipo==='limite'){
         [latex,texto]=pyodide.runPython(`sym_limit("${expressao}","${variavel}","${ponto}")`).toJs();
         html=`<div class="result"><div class="math"><strong>Limite de ${expressao} quando ${variavel}→${ponto}:</strong></div><div class="latex" id="latex-lim"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
         resultDiv.innerHTML=html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-lim'), {displayMode:true});
+        if(window.katex) katex.render(texto, document.getElementById('latex-lim'), {displayMode:true,throwOnError:false});
       }
       else if(tipo==='equacao'){
         const [latexs,textos]=pyodide.runPython(`sym_solve("${expressao}","${variavel}")`).toJs();
@@ -457,21 +460,18 @@ async function processarNLP(){
         textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-eq${i}"></div>`;});
         html+=`</div></div>`;
         resultDiv.innerHTML=html;
-        textos.forEach((s,i)=>{if(window.katex) katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true});});
+        textos.forEach((s,i)=>{if(window.katex) katex.render(`${variavel} = ${s}`, document.getElementById('latex-eq'+i), {displayMode:true,throwOnError:false});});
       }
       else if(tipo==='simplificar'){
         [latex,texto]=pyodide.runPython(`sym_simplify("${expressao}")`).toJs();
         html=`<div class="result"><div class="math"><strong>Simplificação de ${expressao}:</strong></div><div class="latex" id="latex-simp"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
         resultDiv.innerHTML=html;
-        if(window.katex) katex.render(texto, document.getElementById('latex-simp'), {displayMode:true});
+        if(window.katex) katex.render(texto, document.getElementById('latex-simp'), {displayMode:true,throwOnError:false});
       }
       salvarHistorico('NLP '+tipo,input,texto);
     }
-    else if(tipo==='fato'){
-      await buscarWikidataDireto(expressao, resultDiv);
-    }
     else{
-      resultDiv.innerHTML='<div class="result" style="border-color:var(--warn)">⚠️ Não entendi. Tente: "derivative of x^2", "integral of sin(x)", "population of Brazil"</div>';
+      await buscarWikidataDireto(input, resultDiv);
     }
   }catch(e){
     resultDiv.innerHTML=`<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
@@ -488,97 +488,130 @@ async function buscarWikidata(){
 
 async function buscarWikidataDireto(query, resultDiv){
   try{
-    // Buscar entidade no Wikidata
-    const searchUrl=`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`;
+    const tiposEspeciais = {
+      'capital': 'P36',
+      'population': 'P1082',
+      'area': 'P2046',
+      'currency': 'P38',
+      'language': 'P37',
+      'president': 'P35',
+      'prime minister': 'P35',
+      'founder': 'P112',
+      'born': 'P569',
+      'died': 'P570'
+    };
+    
+    let tipoBusca = null;
+    let entidadeBusca = query;
+    
+    for(const [tipo, prop] of Object.entries(tiposEspeciais)){
+      if(query.toLowerCase().includes(tipo)){
+        tipoBusca = tipo;
+        entidadeBusca = query.toLowerCase().replace(tipo,'').replace('of','').replace('em','').trim();
+        break;
+      }
+    }
+    
+    const searchUrl=`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=en&format=json&origin=*`;
     const searchRes=await fetch(searchUrl);
     const searchData=await searchRes.json();
     
     if(!searchData.search || searchData.search.length===0){
-      resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
-      return;
+      const searchPt=await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entidadeBusca)}&language=pt&format=json&origin=*`);
+      const searchDataPt=await searchPt.json();
+      if(searchDataPt.search && searchDataPt.search.length>0){
+        Object.assign(searchData, searchDataPt);
+      }else{
+        resultDiv.innerHTML='<div class="result">Nenhum resultado encontrado.</div>';
+        return;
+      }
     }
     
     const entityId=searchData.search[0].id;
-    const label=searchData.search[0].label || query;
+    const label=searchData.search[0].label || entidadeBusca;
+    const description=searchData.search[0].description || '';
     
-    // Buscar dados da entidade
     const entityUrl=`https://www.wikidata.org/wiki/Special:EntityData/${entityId}.json`;
     const entityRes=await fetch(entityUrl);
     const entityData=await entityRes.json();
     const entity=entityData.entities[entityId];
     
-    let html=`<div class="result"><div class="math" style="font-size:1.3rem"><strong>${label}</strong></div><div style="margin-top:8px;color:var(--muted)">Wikidata: ${entityId}</div>`;
+    let html=`<div class="result">
+      <div class="math" style="font-size:1.3rem"><strong>${label}</strong></div>
+      ${description ? `<div style="margin:8px 0;color:var(--muted)">${description}</div>` : ''}
+      <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">Wikidata: ${entityId}</div>`;
     
-    // Extrair fatos comuns
     const claims=entity.claims || {};
     const fatos=[];
     
-    // População (P1082)
-    if(claims.P1082){
-      const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
-      if(pop) fatos.push({label:'👥 População',value:parseInt(pop).toLocaleString('pt-BR')});
+    async function getLabel(id){
+      try{
+        const res=await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${id}.json`);
+        const data=await res.json();
+        return data.entities[id]?.labels?.pt?.value || data.entities[id]?.labels?.en?.value || id;
+      }catch(e){return id;}
     }
-    // Capital (P36)
-    if(claims.P36){
-      const capId=claims.P36[0].mainsnak.datavalue?.value?.id;
-      if(capId){
-        const capLabel=entityData.entities[capId]?.labels?.en?.value || capId;
-        fatos.push({label:'🏛️ Capital',value:capLabel});
+    
+    if(tipoBusca && tiposEspeciais[tipoBusca]){
+      const prop=tiposEspeciais[tipoBusca];
+      if(claims[prop]){
+        const valor=claims[prop][0].mainsnak.datavalue;
+        if(valor){
+          let valorFormatado='';
+          if(valor.type==='wikibase-entityid'){
+            valorFormatado=await getLabel(valor.value.id);
+          }else if(valor.type==='quantity'){
+            valorFormatado=valor.value.amount.replace('+','');
+          }else if(valor.type==='time'){
+            valorFormatado=valor.value.time.replace('+','').split('T')[0];
+          }else{
+            valorFormatado=JSON.stringify(valor.value);
+          }
+          const labels={'P36':'🏛️ Capital','P1082':'👥 População','P2046':'📏 Área','P38':'💵 Moeda','P37':'🗣️ Língua','P35':'👔 Líder','P112':'👤 Fundador','P569':'📅 Nascimento','P570':'️ Morte'};
+          fatos.push({label:labels[prop]||prop,value:valorFormatado});
+        }
       }
-    }
-    // Área (P2046)
-    if(claims.P2046){
-      const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
-      if(area) fatos.push({label:' Área',value:parseFloat(area)+' km²'});
-    }
-    // Moeda (P38)
-    if(claims.P38){
-      const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
-      if(curId){
-        const curLabel=entityData.entities[curId]?.labels?.en?.value || curId;
-        fatos.push({label:' Moeda',value:curLabel});
+    }else{
+      if(claims.P1082){
+        const pop=claims.P1082[0].mainsnak.datavalue?.value?.amount;
+        if(pop) fatos.push({label:'👥 População',value:parseInt(pop.replace('+','')).toLocaleString('pt-BR')});
       }
-    }
-    // Língua oficial (P37)
-    if(claims.P37){
-      const langs=claims.P37.slice(0,3).map(c=>{
-        const lid=c.mainsnak.datavalue?.value?.id;
-        return entityData.entities[lid]?.labels?.en?.value || lid;
-      }).filter(Boolean);
-      if(langs.length) fatos.push({label:'🗣️ Línguas',value:langs.join(', ')});
-    }
-    // Presidente (P35) ou chefe de governo
-    if(claims.P35){
-      const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
-      if(presId){
-        const presLabel=entityData.entities[presId]?.labels?.en?.value || presId;
-        fatos.push({label:'👔 Presidente',value:presLabel});
+      if(claims.P36){
+        const capId=claims.P36[0].mainsnak.datavalue?.value?.id;
+        if(capId){const capLabel=await getLabel(capId);fatos.push({label:'️ Capital',value:capLabel});}
       }
-    }
-    // Fundador (P112)
-    if(claims.P112){
-      const fundId=claims.P112[0].mainsnak.datavalue?.value?.id;
-      if(fundId){
-        const fundLabel=entityData.entities[fundId]?.labels?.en?.value || fundId;
-        fatos.push({label:'👤 Fundador',value:fundLabel});
+      if(claims.P2046){
+        const area=claims.P2046[0].mainsnak.datavalue?.value?.amount;
+        if(area) fatos.push({label:'📏 Área',value:parseFloat(area.replace('+',''))+' km²'});
       }
-    }
-    // Data de fundação (P571)
-    if(claims.P571){
-      const date=claims.P571[0].mainsnak.datavalue?.value?.time;
-      if(date) fatos.push({label:'📅 Fundação',value:date.replace('+','').split('T')[0]});
-    }
-    // Coordenadas (P625)
-    if(claims.P625){
-      const coord=claims.P625[0].mainsnak.datavalue?.value;
-      if(coord) fatos.push({label:'🌐 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
-    }
-    // Continente (P30)
-    if(claims.P30){
-      const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
-      if(contId){
-        const contLabel=entityData.entities[contId]?.labels?.en?.value || contId;
-        fatos.push({label:'🌍 Continente',value:contLabel});
+      if(claims.P38){
+        const curId=claims.P38[0].mainsnak.datavalue?.value?.id;
+        if(curId){const curLabel=await getLabel(curId);fatos.push({label:'💵 Moeda',value:curLabel});}
+      }
+      if(claims.P37){
+        const langs=[];
+        for(const c of claims.P37.slice(0,3)){
+          const lid=c.mainsnak.datavalue?.value?.id;
+          if(lid){const l=await getLabel(lid);if(l) langs.push(l);}
+        }
+        if(langs.length) fatos.push({label:'️ Línguas',value:langs.join(', ')});
+      }
+      if(claims.P35){
+        const presId=claims.P35[0].mainsnak.datavalue?.value?.id;
+        if(presId){const presLabel=await getLabel(presId);fatos.push({label:'👔 Líder',value:presLabel});}
+      }
+      if(claims.P571||claims.P569){
+        const dateClaim=claims.P571||claims.P569;
+        const date=dateClaim[0].mainsnak.datavalue?.value?.time;
+        if(date) fatos.push({label:' Fundação/Nascimento',value:date.replace('+','').split('T')[0]});
+      }
+      if(claims.P625){
+        const coord=claims.P625[0].mainsnak.datavalue?.value;
+        if(coord) fatos.push({label:'🌍 Coordenadas',value:`${coord.latitude}, ${coord.longitude}`});
+      }
+      if(claims.P30){
+        const contId=claims.P30[0].mainsnak.datavalue?.value?.id;
+        if(contId){const contLabel=await getLabel(contId);fatos.push({label:'🌎 Continente',value:contLabel});}
       }
     }
     
@@ -586,9 +619,7 @@ async function buscarWikidataDireto(query, resultDiv){
       html+='<div style="margin-top:10px;color:var(--muted)">Nenhum dado estruturado disponível.</div>';
     }else{
       html+='<div style="margin-top:14px">';
-      fatos.forEach(f=>{
-        html+=`<div class="fact-card"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;
-      });
+      fatos.forEach(f=>{html+=`<div class="fact-card"><div class="label">${f.label}</div><div class="value">${f.value}</div></div>`;});
       html+='</div>';
     }
     html+='</div>';
@@ -605,40 +636,19 @@ async function plotar3D(){
     const f=str('g3d-f');
     const xmin=num('g3d-xmin'),xmax=num('g3d-xmax');
     const ymin=num('g3d-ymin'),ymax=num('g3d-ymax');
-    
     await waitForPyodide();
-    
-    // Gerar dados via Python/NumPy
     pyodide.runPython(`
 import numpy as np
 x = np.linspace(${xmin}, ${xmax}, 50)
 y = np.linspace(${ymin}, ${ymax}, 50)
 X, Y = np.meshgrid(x, y)
 `);
-    
-    // Converter função para sintaxe numpy
     const fNumpy=f.replace(/\^/g,'**').replace(/sin/g,'np.sin').replace(/cos/g,'np.cos').replace(/tan/g,'np.tan').replace(/exp/g,'np.exp').replace(/sqrt/g,'np.sqrt').replace(/log/g,'np.log').replace(/pi/g,'np.pi');
-    
     pyodide.runPython(`Z = ${fNumpy}`);
     const Z=pyodide.runPython('Z.tolist()');
     const X=pyodide.runPython('X.tolist()');
     const Y=pyodide.runPython('Y.tolist()');
-    
-    Plotly.newPlot('g3d-plot',[{
-      z:Z, x:X[0], y:Y.map(r=>r[0]),
-      type:'surface',
-      colorscale:'Viridis',
-      showscale:true
-    }],{
-      title:`z = ${f}`,
-      scene:{
-        xaxis:{title:'x'},
-        yaxis:{title:'y'},
-        zaxis:{title:'z'}
-      },
-      margin:{t:40}
-    },{responsive:true});
-    
+    Plotly.newPlot('g3d-plot',[{z:Z,x:X[0],y:Y.map(r=>r[0]),type:'surface',colorscale:'Viridis',showscale:true}],{title:`z = ${f}`,scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}},margin:{t:40}},{responsive:true});
     salvarHistorico('Gráfico 3D',`z=${f}`,'surface plot');
     toast('Gráfico 3D gerado!','ok');
   }catch(e){toast(e.message,'err');}
@@ -651,7 +661,7 @@ async function simDerivada(){
     const f=str('sim-deriv-f'),varName=str('sim-deriv-var'),ord=parseInt(str('sim-deriv-ord'));
     const [latex,texto]=pyodide.runPython(`sym_derivative("${f}","${varName}",${ord})`).toJs();
     document.getElementById('sim-deriv-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-sd"></div><div style="margin-top:8px;color:var(--muted)">f⁽${ord}⁾(${varName}) = ${texto}</div></div>`;
-    if(window.katex) katex.render(`\\frac{d^{${ord}}}{d${varName}^{${ord}}} f = ${texto}`, document.getElementById('latex-sd'), {displayMode:true});
+    if(window.katex) katex.render(`\\frac{d^{${ord}}}{d${varName}^{${ord}}} f = ${texto}`, document.getElementById('latex-sd'), {displayMode:true,throwOnError:false});
     salvarHistorico('Simbólico Derivada',`${f}, ordem ${ord}`,texto);
     toast('Derivada calculada!','ok');
   }catch(e){toast(e.message,'err');}
@@ -663,7 +673,7 @@ async function simIntegral(){
     const f=str('sim-integ-f'),varName=str('sim-integ-var');
     const [latex,texto]=pyodide.runPython(`sym_integral("${f}","${varName}")`).toJs();
     document.getElementById('sim-integ-result').innerHTML=`<div class="result"><div class="math"><strong>f(${varName}) = ${f}</strong></div><div class="latex" id="latex-si"></div><div style="margin-top:8px;color:var(--muted)">∫f(${varName})d${varName} = ${texto} + C</div></div>`;
-    if(window.katex) katex.render(`\\int ${f}\\, d${varName} = ${texto}`, document.getElementById('latex-si'), {displayMode:true});
+    if(window.katex) katex.render(`\\int ${f}\\, d${varName} = ${texto}`, document.getElementById('latex-si'), {displayMode:true,throwOnError:false});
     salvarHistorico('Simbólico Integral',f,texto);
     toast('Integral calculada!','ok');
   }catch(e){toast(e.message,'err');}
@@ -675,12 +685,10 @@ async function simEquacao(){
     const eq=str('sim-eq-expr'),varName=str('sim-eq-var');
     const [latexs,textos]=pyodide.runPython(`sym_solve("${eq}","${varName}")`).toJs();
     let html='<div class="result"><div class="math"><strong>Equação: '+eq+'</strong></div><div style="margin-top:10px">';
-    textos.forEach((s,i)=>{
-      html+=`<div class="latex" id="latex-se${i}"></div>`;
-    });
+    textos.forEach((s,i)=>{html+=`<div class="latex" id="latex-se${i}"></div>`;});
     html+='</div></div>';
     document.getElementById('sim-eq-result').innerHTML=html;
-    textos.forEach((s,i)=>{if(window.katex) katex.render(`${varName} = ${s}`, document.getElementById('latex-se'+i), {displayMode:true});});
+    textos.forEach((s,i)=>{if(window.katex) katex.render(`${varName} = ${s}`, document.getElementById('latex-se'+i), {displayMode:true,throwOnError:false});});
     salvarHistorico('Simbólico Equação',eq,textos.join(', '));
     toast('Equação resolvida!','ok');
   }catch(e){toast(e.message,'err');}
@@ -692,13 +700,111 @@ async function simSimplificar(){
     const expr=str('sim-simp-expr');
     const [latex,texto]=pyodide.runPython(`sym_simplify("${expr}")`).toJs();
     document.getElementById('sim-simp-result').innerHTML=`<div class="result"><div class="math"><strong>Expressão: ${expr}</strong></div><div class="latex" id="latex-ss"></div><div style="margin-top:8px;color:var(--muted)">= ${texto}</div></div>`;
-    if(window.katex) katex.render(texto, document.getElementById('latex-ss'), {displayMode:true});
+    if(window.katex) katex.render(texto, document.getElementById('latex-ss'), {displayMode:true,throwOnError:false});
     salvarHistorico('Simbólico Simplificar',expr,texto);
     toast('Expressão simplificada!','ok');
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ LIMITES (Numérico) ============
+// ============ TEORIA DOS NÚMEROS ============
+async function testarPrimo(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-teste'));
+    if(n<2) throw new Error('n deve ser ≥ 2');
+    const ehPrimo=pyodide.runPython(`import sympy as sp; sp.isprime(${n})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>${n}</strong></div><div style="margin-top:10px;font-size:1.2rem">${ehPrimo?'<span style="color:var(--ok)">✓ É PRIMO</span>':'<span style="color:var(--err)">✗ NÃO é primo</span>'}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Primalidade de ${n}`,ehPrimo?'PRIMO':'NÃO primo');
+    toast('Teste concluído!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function crivoEratostenes(){
+  try{
+    await waitForPyodide();
+    const N=parseInt(str('num-crivo'));
+    if(N<2||N>100000) throw new Error('2 ≤ N ≤ 100000');
+    const primos=pyodide.runPython(`import sympy as sp; list(sp.primerange(2, ${N+1}))`).toJs();
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>Primos até ${N}</strong></div><div style="margin-top:10px">Total: <strong>${primos.length}</strong> primos</div><div style="margin-top:10px;font-family:monospace;font-size:0.9rem;background:var(--bg);padding:10px;border-radius:6px;max-height:300px;overflow-y:auto">${primos.join(', ')}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Crivo até ${N}`,`${primos.length} primos`);
+    toast('Crivo calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularMDC(){
+  try{
+    await waitForPyodide();
+    const a=parseInt(str('num-a')),b=parseInt(str('num-b'));
+    const mdc=pyodide.runPython(`import math; math.gcd(${a}, ${b})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>MDC(${a}, ${b}) = ${mdc}</strong></div></div>`;
+    salvarHistorico('Teoria dos Números',`MDC(${a},${b})`,String(mdc));
+    toast('MDC calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularMMC(){
+  try{
+    await waitForPyodide();
+    const a=parseInt(str('num-c')),b=parseInt(str('num-d'));
+    const mmc=pyodide.runPython(`import math; math.lcm(${a}, ${b})`);
+    document.getElementById('num-primos-result').innerHTML=`<div class="result"><div class="math"><strong>MMC(${a}, ${b}) = ${mmc}</strong></div></div>`;
+    salvarHistorico('Teoria dos Números',`MMC(${a},${b})`,String(mmc));
+    toast('MMC calculado!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function fatorarNumero(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-fatorar'));
+    if(n<2) throw new Error('n deve ser ≥ 2');
+    const fatores=pyodide.runPython(`import sympy as sp; sp.factorint(${n})`).toJs();
+    let fatoresStr=Object.entries(fatores).map(([p,e])=>e>1?`${p}^${e}`:p).join(' · ');
+    document.getElementById('num-fator-result').innerHTML=`<div class="result"><div class="math"><strong>${n} = ${fatoresStr}</strong></div><div style="margin-top:10px;color:var(--muted)">Fatores primos: ${Object.entries(fatores).map(([p,e])=>`${p}${e>1?' (expoente '+e+')':''}`).join(', ')}</div></div>`;
+    salvarHistorico('Teoria dos Números',`Fatoração de ${n}`,fatoresStr);
+    toast('Fatoração calculada!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+async function calcularFuncoesAritmeticas(){
+  try{
+    await waitForPyodide();
+    const n=parseInt(str('num-func-n'));
+    if(n<1) throw new Error('n deve ser ≥ 1');
+    const resultados=pyodide.runPython(`
+import sympy as sp
+n = ${n}
+phi = sp.totient(n)
+mu = sp.mobius(n)
+d = sp.divisor_count(n)
+sigma = sp.divisor_sigma(n)
+divisores = sp.divisors(n)
+{'phi': phi, 'mu': mu, 'd': d, 'sigma': sigma, 'divisores': divisores}
+`).toJs();
+    let muDesc='';
+    if(resultados.mu===0) muDesc='n tem fator quadrático perfeito';
+    else if(resultados.mu===1) muDesc='n é produto de número par de primos distintos';
+    else muDesc='n é produto de número ímpar de primos distintos';
+    document.getElementById('num-func-result').innerHTML=`
+      <div class="result">
+        <div class="math" style="font-size:1.2rem"><strong>Funções Aritméticas de ${n}</strong></div>
+        <div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">φ(n) - Totiente de Euler</div><div class="value" style="font-size:1.5rem;color:var(--primary)">${resultados.phi}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Números coprimos com ${n}</div></div>
+          <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">μ(n) - Função de Möbius</div><div class="value" style="font-size:1.5rem;color:var(--accent)">${resultados.mu}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">${muDesc}</div></div>
+          <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">d(n) - Nº de divisores</div><div class="value" style="font-size:1.5rem;color:var(--warn)">${resultados.d}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Divisores positivos</div></div>
+          <div class="fact-card" style="border-left-color:#10b981"><div class="label">σ(n) - Soma dos divisores</div><div class="value" style="font-size:1.5rem;color:var(--ok)">${resultados.sigma}</div><div style="font-size:0.85rem;color:var(--muted);margin-top:4px">Soma de todos divisores</div></div>
+        </div>
+        <div style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px">
+          <div style="font-weight:600;margin-bottom:8px">📋 Divisores de ${n}:</div>
+          <div style="font-family:monospace">${resultados.divisores.join(', ')}</div>
+        </div>
+      </div>`;
+    salvarHistorico('Teoria dos Números',`Funções de ${n}`,`φ=${resultados.phi}, μ=${resultados.mu}, d=${resultados.d}`);
+    toast('Funções calculadas!','ok');
+  }catch(e){toast(e.message,'err');}
+}
+
+// ============ AVALIADOR NUMÉRICO ============
 function evalMath(expr,vars={}){
   try{
     let js=expr;
@@ -711,6 +817,7 @@ function evalMath(expr,vars={}){
   }catch(e){return NaN;}
 }
 
+// ============ LIMITES ============
 function calcLimite(){
   try{
     const f=str('lim-f');
@@ -718,7 +825,6 @@ function calcLimite(){
     const dir=document.getElementById('lim-dir').value;
     const isInf=aStr==='inf'||aStr==='infinity';
     const aVal=isInf?null:Number(aStr.replace(',','.'));
-    
     let effectiveDir=dir;
     if(dir==='auto' && !isInf){
       let rightOK=false, leftOK=false;
@@ -735,7 +841,6 @@ function calcLimite(){
       }
       else effectiveDir='both';
     }
-    
     let L,method='';
     if(isInf){L=evalMath(f,{x:1e6});method='x→+∞';}
     else{
@@ -750,7 +855,6 @@ function calcLimite(){
       else if(effectiveDir==='right'){L=valsP[valsP.length-1];method='Pela direita';}
       else{L=valsM[valsM.length-1];method='Pela esquerda';}
     }
-    
     let final;
     const tol=0.1;
     if(Math.abs(L-1/3)<tol) final='1/3';
@@ -759,10 +863,8 @@ function calcLimite(){
     else if(Math.abs(L-1/6)<tol) final='1/6';
     else if(Math.abs(L-Math.round(L))<tol) final=Math.round(L);
     else final=parseFloat(L.toFixed(6));
-    
-    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;color:var(--muted)">📊 Método: ${method}</div></div>`;
+    document.getElementById('lim-result').innerHTML=`<div class="result"><div class="math">lim<sub>x→${aStr}</sub> f(x) = <strong style="font-size:1.4rem">${final}</strong></div><div style="margin-top:8px;color:var(--muted)"> Método: ${method}</div></div>`;
     salvarHistorico('Limite',`f=${f}, x→${aStr}`,String(final));
-    
     const xvals=Array.from({length:100},(_,i)=>aVal-0.1+0.2*i/99);
     const yvals=xvals.map(x=>{try{const y=evalMath(f,{x:x});return isFinite(y)&&Math.abs(y)<1e4?y:null;}catch(e){return null;}});
     Plotly.newPlot('lim-plot',[{x:xvals,y:yvals,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5',width:2}}],{title:'f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'},paper_bgcolor:'var(--bg)'},{responsive:true});
@@ -770,7 +872,7 @@ function calcLimite(){
   }catch(e){toast(e.message,'err');}
 }
 
-// ============ DERIVADAS (Numéricas + Simbólicas básicas) ============
+// ============ DERIVADAS ============
 function derivarSimbolica(expr, varName){
   expr = expr.replace(/\s+/g, '');
   const termos = expr.match(/([+-]?[^+-]+)/g) || [];
@@ -794,7 +896,6 @@ function derivarTermo(termo, varName){
   termo = termo.trim().replace(/^\+/,'');
   if(termo === '') return null;
   if(!termo.includes(varName)) return '0';
-  
   const matchPot = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchPot && matchPot[2] === varName){
     let coef = matchPot[1] === '' || matchPot[1] === '-' ? (matchPot[1]==='-'?-1:1) : parseFloat(matchPot[1]);
@@ -805,7 +906,6 @@ function derivarTermo(termo, varName){
     if(novoExp === 0) return String(novoCoef);
     return String(novoCoef) + '*' + varName + '^' + novoExp;
   }
-  
   const matchProd = termo.match(/^(-?\d*\.?\d*)\*?([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?\*([a-zA-Z]+)(?:\^(-?\d+\.?\d*))?$/);
   if(matchProd){
     const coefStr = matchProd[1];
@@ -814,7 +914,6 @@ function derivarTermo(termo, varName){
     const coef = coefStr === '' || coefStr === '+' ? 1 : (coefStr === '-' ? -1 : parseFloat(coefStr));
     const exp1 = exp1Str ? parseFloat(exp1Str) : 1;
     const exp2 = exp2Str ? parseFloat(exp2Str) : 1;
-    
     if(v1 === varName && v2 !== varName){
       const novoCoef = coef * exp1;
       const novoExp1 = exp1 - 1;
@@ -827,22 +926,16 @@ function derivarTermo(termo, varName){
       return (novoCoef===1?'':novoCoef+'*') + v1 + (exp1===1?'':'^'+exp1) + '*' + v2 + (novoExp2===1?'':'^'+novoExp2);
     }
   }
-  
   const matchSin = termo.match(/^(-?\d*\.?\d*)\*?sin\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchSin){let coef = matchSin[1] === '' || matchSin[1] === '-' ? (matchSin[1]==='-'?-1:1) : parseFloat(matchSin[1]);const b = matchSin[2] === '' ? 1 : parseFloat(matchSin[2]);const v = matchSin[3];const novoCoef = coef * b;if(novoCoef === 1) return 'cos(' + b + '*' + v + ')';if(novoCoef === -1) return '-cos(' + b + '*' + v + ')';return novoCoef + '*cos(' + b + '*' + v + ')';}
-  
   const matchCos = termo.match(/^(-?\d*\.?\d*)\*?cos\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchCos){let coef = matchCos[1] === '' || matchCos[1] === '-' ? (matchCos[1]==='-'?-1:1) : parseFloat(matchCos[1]);const b = matchCos[2] === '' ? 1 : parseFloat(matchCos[2]);const v = matchCos[3];const novoCoef = -coef * b;if(novoCoef === 1) return 'sin(' + b + '*' + v + ')';if(novoCoef === -1) return '-sin(' + b + '*' + v + ')';return novoCoef + '*sin(' + b + '*' + v + ')';}
-  
   const matchExp = termo.match(/^(-?\d*\.?\d*)\*?exp\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchExp){let coef = matchExp[1] === '' || matchExp[1] === '-' ? (matchExp[1]==='-'?-1:1) : parseFloat(matchExp[1]);const b = matchExp[2] === '' ? 1 : parseFloat(matchExp[2]);const v = matchExp[3];const novoCoef = coef * b;if(novoCoef === 1) return 'exp(' + b + '*' + v + ')';if(novoCoef === -1) return '-exp(' + b + '*' + v + ')';return novoCoef + '*exp(' + b + '*' + v + ')';}
-  
   const matchLn = termo.match(/^(-?\d*\.?\d*)\*?(?:ln|log)\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchLn){let coef = matchLn[1] === '' || matchLn[1] === '-' ? (matchLn[1]==='-'?-1:1) : parseFloat(matchLn[1]);const v = matchLn[3];if(coef === 1) return '1/' + v;if(coef === -1) return '-1/' + v;return coef + '/' + v;}
-  
   const matchTan = termo.match(/^(-?\d*\.?\d*)\*?tan\((-?\d*\.?\d*)\*?([a-zA-Z]+)\)$/);
   if(matchTan){let coef = matchTan[1] === '' || matchTan[1] === '-' ? (matchTan[1]==='-'?-1:1) : parseFloat(matchTan[1]);const b = matchTan[2] === '' ? 1 : parseFloat(matchTan[2]);const v = matchTan[3];const novoCoef = coef * b;if(novoCoef === 1) return '1/cos(' + b + '*' + v + ')^2';if(novoCoef === -1) return '-1/cos(' + b + '*' + v + ')^2';return novoCoef + '/cos(' + b + '*' + v + ')^2';}
-  
   return null;
 }
 
@@ -852,19 +945,15 @@ function calcDerivada(){
     const [x1,x2]=intervalo.split(',').map(x=>Number(x.trim()));
     const fp = derivarSimbolica(f, varName);
     const fpp = derivarSimbolica(fp, varName);
-    
     const fFn=x=>evalMath(f,{[varName]:x});
     const fpFn=x=>evalMath(fp,{[varName]:x});
     const fppFn=x=>evalMath(fpp,{[varName]:x});
-    
     document.getElementById('der-result').innerHTML=`<div class="result"><div class="math" style="font-size:1.1rem">f(${varName}) = ${f}</div><div class="math" style="font-size:1.3rem;margin-top:10px">f'(${varName}) = <strong style="color:var(--primary)">${fp}</strong></div><div class="math" style="font-size:1.3rem;margin-top:10px">f''(${varName}) = <strong style="color:var(--primary-2)">${fpp}</strong></div></div>`;
     salvarHistorico('Derivada',`f=${f}`,`f'=${fp}, f''=${fpp}`);
-    
     const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
     const ys=xs.map(x=>{const v=fFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
     const yps=xs.map(x=>{const v=fpFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
     const ypps=xs.map(x=>{const v=fppFn(x);return isFinite(v)&&Math.abs(v)<1e6?v:null;});
-    
     Plotly.newPlot('der-plot',[{x:xs,y:ys,name:'f(x)',line:{color:'#4f46e5',width:3}},{x:xs,y:yps,name:"f'(x)",line:{color:'#06b6d4',width:3}},{x:xs,y:ypps,name:"f''(x)",line:{color:'#f59e0b',width:3}}],{title:'Função e Derivadas',xaxis:{title:varName},yaxis:{title:'valor'},paper_bgcolor:'var(--bg)'},{responsive:true});
     toast('Derivadas calculadas!','ok');
   }catch(e){toast(e.message,'err');}
@@ -879,7 +968,7 @@ function calcIntegral(){
     let s=fn(x1)+fn(x2);
     for(let i=1;i<n;i++)s+=fn(x1+i*h)*(i%2?4:2);
     const W=s*h/3;
-    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math"><sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
+    document.getElementById('int-result').innerHTML=`<div class="result"><div class="math">∫<sub>${x1}</sub><sup>${x2}</sup> ${f} dx = <strong>${W.toFixed(6)}</strong></div></div>`;
     salvarHistorico('Integral',`f=${f}, [${x1},${x2}]`,W.toFixed(6));
     const xs=Array.from({length:100},(_,i)=>x1+(x2-x1)*i/99);
     const ys=xs.map(x=>fn(x));
