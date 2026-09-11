@@ -50,6 +50,22 @@
   
   .result {margin-top:18px; padding:16px; border-radius:12px; background:linear-gradient(135deg,var(--bg),var(--panel)); border-left:4px solid var(--primary); font-size:1rem; overflow-x:auto;}
   .result strong {color:var(--primary);}
+  .didactic-toggle {display:flex; align-items:center; gap:8px; margin:0 0 14px; color:var(--muted); font-size:.9rem; cursor:pointer; user-select:none;}
+  .didactic-toggle input {width:auto; accent-color:var(--primary);}
+  details.didactic {margin-top:16px; border:1px solid var(--border); border-radius:12px; background:var(--panel); overflow:hidden;}
+  details.didactic summary {padding:13px 15px; cursor:pointer; color:var(--primary); font-weight:700; background:var(--bg);}
+  .didactic-body {padding:14px 15px;}
+  .didactic-intro {color:var(--muted); margin:0 0 12px; line-height:1.5;}
+  .step-list {display:grid; gap:10px; counter-reset:steps;}
+  .step {position:relative; padding:11px 12px 11px 46px; border-radius:10px; background:var(--bg); border-left:3px solid var(--accent); min-width:0;}
+  .step::before {counter-increment:steps; content:counter(steps); position:absolute; left:12px; top:11px; width:24px; height:24px; display:grid; place-items:center; border-radius:50%; color:#fff; background:var(--primary); font-size:.78rem; font-weight:700;}
+  .step-title {font-weight:700; margin-bottom:5px;}
+  .step-note {margin-top:6px; color:var(--muted); font-size:.9rem; line-height:1.45;}
+  .step-table {width:100%; border-collapse:collapse; font-size:.9rem; margin-top:8px;}
+  .step-table th,.step-table td {padding:7px 8px; border-bottom:1px solid var(--border); text-align:right; white-space:nowrap;}
+  .step-table th:first-child,.step-table td:first-child {text-align:left;}
+  .limit-sides {display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-top:10px;}
+  .limit-side {padding:10px; border-radius:10px; background:var(--bg);}
   
   .plot {width:100%; height:400px; margin-top:14px; border-radius:12px; background:var(--bg);}
   .tab-content {display:none; animation:fade .3s;}
@@ -85,15 +101,6 @@
   
   /* Ajuste no KaTeX para renderizar corretamente no tema escuro/claro */
   .katex { color: var(--ink) !important; font-size: 1.15em !important; }
-
-  /* Passo a passo */
-  .step-by-step {margin-top:16px; padding:16px; border-radius:12px; background:var(--panel); border:1px solid var(--border);}
-  .step-by-step h3 {margin:0 0 12px; color:var(--primary);}
-  .math-step {padding:10px 12px; margin:8px 0; border-left:3px solid var(--primary-2); background:var(--bg); border-radius:8px; overflow-x:auto;}
-  .math-step .step-title {font-weight:700; margin-bottom:5px;}
-  .step-note {font-size:.88rem; color:var(--muted); margin-top:8px;}
-  .step-toggle {display:flex; align-items:center; gap:8px; margin:10px 0 14px; font-size:.9rem; color:var(--muted);}
-  .step-toggle input {width:auto;}
 </style>
 </head>
 <body>
@@ -149,9 +156,9 @@
       <div><label>Variável</label><input id="der-var" value="x"></div>
       <div><label>Intervalo Plot</label><input id="der-intervalo" value="-5, 5" placeholder="Ex: -5,5"></div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="der-steps" checked> Mostrar passo a passo da derivação</label>
+    <label class="didactic-toggle"><input id="der-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcDerivada()">Calcular e Plotar</button>
-    <div id="der-result"></div>
+    <div id="der-result" aria-live="polite"></div>
     <div id="der-plot" class="plot"></div>
   </div>
 </section>
@@ -166,9 +173,9 @@
       <div><label>Limite Inferior x₁ (Opcional)</label><input id="int-x1" placeholder="Ex: 0"></div>
       <div><label>Limite Superior x₂ (Opcional)</label><input id="int-x2" placeholder="Ex: 10"></div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="int-steps" checked> Mostrar passo a passo da integral indefinida</label>
+    <label class="didactic-toggle"><input id="int-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcIntegral()">Calcular Integral</button>
-    <div id="int-result"></div>
+    <div id="int-result" aria-live="polite"></div>
     <div id="int-plot" class="plot"></div>
   </div>
 </section>
@@ -188,9 +195,9 @@
         </select>
       </div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="lim-steps" checked> Mostrar passo a passo do limite</label>
+    <label class="didactic-toggle"><input id="lim-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcLimite()">Calcular Limite</button>
-    <div id="lim-result"></div>
+    <div id="lim-result" aria-live="polite"></div>
     <div id="lim-plot" class="plot"></div>
   </div>
 </section>
@@ -209,9 +216,9 @@
       </div>
       <div><label>Avaliar Ponto (x,y) Opcional</label><input id="par-pt" placeholder="Ex: 1, 2" value="1, 2"></div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="par-steps" checked> Mostrar passo a passo das derivadas parciais</label>
+    <label class="didactic-toggle"><input id="par-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcParcial()">Calcular Parcial</button>
-    <div id="par-result"></div>
+    <div id="par-result" aria-live="polite"></div>
   </div>
 </section>
 
@@ -244,25 +251,25 @@
       <div><label>x final</label><input id="edo-xf" value="5"></div>
       <div><label>Passos (N)</label><input id="edo-n" value="100"></div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="edo-steps" checked> Mostrar passo a passo do método RK4</label>
+    <label class="didactic-toggle"><input id="edo-steps" type="checkbox" checked> Mostrar os primeiros passos do RK4</label>
     <button class="btn" onclick="calcEDO()">Resolver EDO</button>
-    <div id="edo-result"></div>
+    <div id="edo-result" aria-live="polite"></div>
     <div id="edo-plot" class="plot"></div>
   </div>
 </section>
 
 <section class="tab-content" id="fourier">
   <div class="panel">
-    <h2>📡 Transformada Rápida de Fourier (Numérica)</h2>
+    <h2>📡 Transformada Discreta de Fourier (Numérica)</h2>
     <div class="form-row">
       <div><label>Sinal f(t)</label><input id="four-f" value="sin(2*t) + 0.5*cos(5*t)"></div>
       <div><label>t inicial</label><input id="four-tmin" value="0"></div>
       <div><label>t final</label><input id="four-tmax" value="10"></div>
       <div><label>Qtd Amostras</label><input id="four-n" value="256"></div>
     </div>
-    <label class="step-toggle"><input type="checkbox" id="four-steps" checked> Mostrar passo a passo da DFT</label>
+    <label class="didactic-toggle"><input id="four-steps" type="checkbox" checked> Mostrar amostras e coeficientes iniciais</label>
     <button class="btn" onclick="calcFourier()">Calcular Espectro</button>
-    <div id="four-result"></div>
+    <div id="four-result" aria-live="polite"></div>
     <div id="four-plot" class="plot"></div>
   </div>
 </section>
@@ -340,13 +347,11 @@ document.querySelectorAll('.sub-tab').forEach(t => {
 
 // KaTeX Helper
 function tex(latex) {
-  try { return katex.renderToString(latex, { throwOnError: false, displayMode: true }); } 
-  catch(e) { return latex; }
+  return scicalcRenderTex(latex, true);
 }
 
 function texInline(latex) {
-  try { return katex.renderToString(latex, { throwOnError: false, displayMode: false }); } 
-  catch(e) { return latex; }
+  return scicalcRenderTex(latex, false);
 }
 
 // Tema e Gráficos
@@ -450,7 +455,7 @@ async function processarNLP() {
     // Fallback: Wikidata (Agora focando em personalidades)
     await buscarWikidataDireto(input, resultDiv);
   } catch(e) {
-    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
+    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${scicalcEscape(e.message)}</div>`;
   }
 }
 
@@ -483,11 +488,13 @@ async function buscarWikidataDireto(query, resultDiv) {
     
     const label = entity.labels?.pt?.value || entity.labels?.en?.value || query;
     const desc = entity.descriptions?.pt?.value || entity.descriptions?.en?.value || '';
+    const safeLabel = scicalcEscape(label);
+    const safeDesc = scicalcEscape(desc);
     
     let html = `<div class="result">
-      <div style="font-size:1.3rem; font-weight:bold; color:var(--primary)">${label}</div>
-      ${desc ? `<div style="margin:8px 0;color:var(--muted)">${desc}</div>` : ''}
-      <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">ID Wikidata: ${entityId}</div>`;
+      <div style="font-size:1.3rem; font-weight:bold; color:var(--primary)">${safeLabel}</div>
+      ${desc ? `<div style="margin:8px 0;color:var(--muted)">${safeDesc}</div>` : ''}
+      <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">ID Wikidata: ${scicalcEscape(entityId)}</div>`;
     
     const claims = entity.claims || {};
     const fatos = [];
@@ -535,176 +542,221 @@ async function buscarWikidataDireto(query, resultDiv) {
     
     if(fatos.length > 0) {
       html += '<div style="margin-top:14px">';
-      fatos.forEach(f => { html += `<div class="fact-card"><div class="label">${f.l}</div><div class="value">${f.v}</div></div>`; });
+      fatos.forEach(f => { html += `<div class="fact-card"><div class="label">${scicalcEscape(f.l)}</div><div class="value">${scicalcEscape(f.v)}</div></div>`; });
       html += '</div>';
     }
     html += '</div>';
     resultDiv.innerHTML = html;
     salvarHistorico('Busca de Personalidade', query, label);
   } catch(e) {
-    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${e.message}</div>`;
+    resultDiv.innerHTML = `<div class="result" style="border-color:var(--err)">❌ Erro: ${scicalcEscape(e.message)}</div>`;
   }
-}
-
-// ============ PASSO A PASSO: CÁLCULO ============
-function stepBox(title, steps, note='') {
-  if (!Array.isArray(steps) || steps.length === 0) return '';
-  return `<div class="step-by-step"><h3>📘 ${title}</h3>${steps.map((s,i)=>`<div class="math-step"><div class="step-title">Passo ${i+1}</div><div>${s}</div></div>`).join('')}${note ? `<div class="step-note">${note}</div>` : ''}</div>`;
-}
-function safeTex(node) {
-  try { return node.toTex(); } catch(e) { return String(node); }
-}
-function fmt(v, digits=6) {
-  return Number.isFinite(v) ? Number(v).toFixed(digits) : String(v);
-}
-function derivativeSteps(fNode, varName, d1Node, d2Node) {
-  const f = fNode.toString();
-  const steps = [
-    tex(`\\text{Função dada: } f(${varName})=${safeTex(fNode)}`),
-    tex(`\\text{Identificamos a variável de derivação: }${varName}`)
-  ];
-  if (f.includes('*') && !/^[-+]?\\d*\\.?\\d*\\*?${varName}/.test(f)) {
-    steps.push(tex(`\\text{Se houver produto, usamos: }(uv)'=u'v+uv'`));
-  } else if (f.includes('/')) {
-    steps.push(tex(`\\text{Se houver quociente, usamos: }\\left(\\frac{u}{v}\\right)'=\\frac{u'v-uv'}{v^2}`));
-  } else if (f.includes('^')) {
-    steps.push(tex(`\\text{Para uma potência, usamos: }\\frac{d}{d${varName}}(${varName}^n)=n${varName}^{n-1}`));
-  } else {
-    steps.push(tex(`\\text{Aplicamos as regras básicas de derivação termo a termo.}`));
-  }
-  steps.push(tex(`f'(${varName})=${safeTex(d1Node)}`));
-  if (d2Node) steps.push(tex(`f''(${varName})=${safeTex(d2Node)}`));
-  return steps;
-}
-function integralSteps(fNode, indefTex) {
-  const f = fNode.toString().toLowerCase();
-  const steps = [tex(`\\text{Integral dada: }\\int ${safeTex(fNode)}\\,dx`)];
-  if (f.includes('^')) steps.push(tex(`\\text{Regra da potência: }\\int x^n dx=\\frac{x^{n+1}}{n+1}+C,\\quad n\\ne-1`));
-  if (f.includes('sin')) steps.push(tex(`\\text{Usamos: }\\int \\sin(x)dx=-\\cos(x)+C`));
-  if (f.includes('cos')) steps.push(tex(`\\text{Usamos: }\\int \\cos(x)dx=\\sin(x)+C`));
-  if (f.includes('exp') || f.includes('e^')) steps.push(tex(`\\text{Usamos: }\\int e^x dx=e^x+C`));
-  if (steps.length === 1) steps.push(tex(`\\text{Reconhecemos a primitiva pela integração simbólica.}`));
-  steps.push(tex(`\\text{Resultado da integração simbólica: }${indefTex}`));
-  steps.push(tex(`\\text{Acrescentamos a constante: }F(x)=${indefTex}+C`));
-  return steps;
-}
-function partialSteps(fNode, varName, dfNode, point) {
-  const other = varName === 'x' ? 'y' : 'x';
-  const steps = [
-    tex(`f(x,y)=${safeTex(fNode)}`),
-    tex(`\\text{Derivamos em relação a }${varName};\\text{ ${other} é tratado como constante.}`),
-    tex(`\\frac{\\partial f}{\\partial ${varName}}=${safeTex(dfNode)}`)
-  ];
-  if (point) steps.push(tex(`\\text{Agora substituímos o ponto indicado: }(x,y)=(${point})`));
-  return steps;
-}
-function limitSteps(fNode, aText, dir, directValue, finalValue) {
-  const steps = [tex(`\\lim_{x\\to ${aText}}${safeTex(fNode)}`)];
-  steps.push(tex(`\\text{1. Tentativa de substituição direta: }x=${aText}`));
-  if (Number.isFinite(directValue)) steps.push(tex(`\\text{2. Valor obtido por substituição: }${fmt(directValue,6)}`));
-  else steps.push(tex(`\\text{2. A substituição direta não produz um valor finito; analisamos a vizinhança.}`));
-  if (dir === 'left') steps.push(tex(`\\text{3. Aproximação pela esquerda: }x\\to ${aText}^{-}`));
-  else if (dir === 'right') steps.push(tex(`\\text{3. Aproximação pela direita: }x\\to ${aText}^{+}`));
-  else steps.push(tex(`\\text{3. Comparamos os valores dos dois lados.}`));
-  steps.push(tex(`\\text{4. Resultado numérico aproximado: }${finalValue}`));
-  return steps;
 }
 
 // ============ DERIVADAS (SIMBÓLICA E PLOT) ============
 function calcDerivada() {
   try {
-    const fStr = str('der-f'), varName = str('der-var');
-    const intervalo = str('der-intervalo').split(',').map(x => Number(x.trim()));
-    if (intervalo.length !== 2 || intervalo.some(x => !Number.isFinite(x))) throw new Error('Intervalo do gráfico inválido. Use, por exemplo: -5,5');
-    const [x1,x2] = intervalo;
+    const fStr = str('der-f');
+    const varName = str('der-var');
+    const [x1, x2] = str('der-intervalo').split(',').map(x => Number(x.trim()));
+    
+    // Parse Simbólico
     const fNode = math.parse(fStr);
-    const d1Node = math.derivative(fNode,varName);
-    const d2Node = math.derivative(d1Node,varName);
-    let html = `<div class="result"><div>${tex(`f(${varName})=${safeTex(fNode)}`)}</div><div style="margin-top:10px;color:var(--primary)">${tex(`f'(${varName})=${safeTex(d1Node)}`)}</div><div style="margin-top:10px;color:var(--primary-2)">${tex(`f''(${varName})=${safeTex(d2Node)}`)}</div>`;
-    if (document.getElementById('der-steps')?.checked) html += stepBox('Derivação passo a passo', derivativeSteps(fNode,varName,d1Node,d2Node), 'O cálculo simbólico é feito pelo Math.js; as linhas acima explicam as regras aplicadas.');
-    html += '</div>';
+    const d1Node = math.derivative(fNode, varName);
+    const d2Node = math.derivative(d1Node, varName);
+    
+    // Geração LaTeX
+    let html = `<div class="result">
+      <div style="margin-bottom:12px">${tex(`f(${varName}) = ${fNode.toTex()}`)}</div>
+      <div style="margin-bottom:12px; color:var(--primary)">${tex(`f'(${varName}) = ${d1Node.toTex()}`)}</div>
+      <div style="color:var(--primary-2)">${tex(`f''(${varName}) = ${d2Node.toTex()}`)}</div>
+    </div>`;
     document.getElementById('der-result').innerHTML = html;
-    const fCode=fNode.compile(), d1Code=d1Node.compile(), d2Code=d2Node.compile();
-    const xs=[],ys=[],yps=[],ypps=[];
-    for(let i=0;i<=100;i++){
-      const x=x1+(x2-x1)*i/100; xs.push(x);
-      try{ys.push(fCode.evaluate({[varName]:x}));}catch(e){ys.push(null);}
-      try{yps.push(d1Code.evaluate({[varName]:x}));}catch(e){yps.push(null);}
-      try{ypps.push(d2Code.evaluate({[varName]:x}));}catch(e){ypps.push(null);}
+    
+    // Compilação para Plot Rápido
+    const fCode = fNode.compile();
+    const d1Code = d1Node.compile();
+    const d2Code = d2Node.compile();
+    
+    const xs = [], ys = [], yps = [], ypps = [];
+    for(let i=0; i<=100; i++) {
+      let x = x1 + (x2 - x1) * (i/100);
+      xs.push(x);
+      try { ys.push(fCode.evaluate({ [varName]: x })); } catch(e) { ys.push(null); }
+      try { yps.push(d1Code.evaluate({ [varName]: x })); } catch(e) { yps.push(null); }
+      try { ypps.push(d2Code.evaluate({ [varName]: x })); } catch(e) { ypps.push(null); }
     }
-    Plotly.newPlot('der-plot',[{x:xs,y:ys,name:'f(x)'},{x:xs,y:yps,name:"f'(x)"},{x:xs,y:ypps,name:"f''(x)"}],getPlotLayout({title:'Função e suas Derivadas',xaxis:{title:varName},yaxis:{title:'y'}}),{responsive:true});
-    salvarHistorico('Derivadas',fStr,d1Node.toString()); toast('Derivadas calculadas simbolicamente!','ok');
-  } catch(e){ toast(e.message,'err'); }
+    
+    Plotly.newPlot('der-plot', [
+      { x:xs, y:ys, name:'f(x)', line:{color:'#4f46e5', width:3} },
+      { x:xs, y:yps, name:"f'(x)", line:{color:'#06b6d4', width:3} },
+      { x:xs, y:ypps, name:"f''(x)", line:{color:'#f59e0b', width:3} }
+    ], getPlotLayout({title:'Função e suas Derivadas', xaxis:{title:varName}, yaxis:{title:'y'}}), {responsive:true});
+    
+    salvarHistorico('Derivadas', fStr, d1Node.toString());
+    toast('Derivadas calculadas simbolicamene!','ok');
+  } catch(e) { toast(e.message, 'err'); }
 }
 
 // ============ INTEGRAIS (INDEFINIDA SIMBÓLICA E DEFINIDA NUMÉRICA) ============
 function calcIntegral() {
   try {
-    const fStr=str('int-f'), x1Raw=document.getElementById('int-x1').value.trim(), x2Raw=document.getElementById('int-x2').value.trim();
-    const fNode=math.parse(fStr); let indefTex='';
-    try { indefTex=nerdamer(`integrate(${fStr}, x)`).toTeX(); } catch(e) { indefTex='\\text{Não foi possível integrar analiticamente}'; }
-    let html=`<div class="result"><div><strong>Integral Indefinida (Simbólica):</strong></div><div style="color:var(--primary);margin-top:8px">${tex(`\\int (${safeTex(fNode)})dx=${indefTex}+C`)}</div>`;
-    if(document.getElementById('int-steps')?.checked) html += stepBox('Integral indefinida — passo a passo',integralSteps(fNode,indefTex),'A constante C é necessária porque duas primitivas da mesma função diferem por uma constante.');
-    html+='</div>';
-    const plotData=[], fCode=fNode.compile();
-    const hasX1=!!x1Raw, hasX2=!!x2Raw;
-    if(hasX1 !== hasX2) throw new Error('Informe os dois limites x₁ e x₂, ou deixe os dois em branco.');
-    if(hasX1 && hasX2){
-      const x1=Number(x1Raw.replace(',','.')),x2=Number(x2Raw.replace(',','.'));
-      if(!Number.isFinite(x1)||!Number.isFinite(x2)) throw new Error('Limites de integração inválidos');
-      const n=1000,h=(x2-x1)/n; let sum=fCode.evaluate({x:x1})+fCode.evaluate({x:x2});
-      for(let i=1;i<n;i++) sum+=fCode.evaluate({x:x1+i*h})*(i%2?4:2);
-      const val=sum*h/3;
-      html+=`<div class="result"><strong>Integral Definida (Simpson):</strong><div style="color:var(--ok);margin-top:8px">${tex(`\\int_{${x1}}^{${x2}}(${safeTex(fNode)})dx\\approx${val.toFixed(6)}`)}</div></div>`;
-      salvarHistorico('Integral',`∫ ${fStr} dx [${x1},${x2}]`,val.toFixed(6));
-      const xs=[],ys=[]; for(let i=0;i<=100;i++){const x=x1+(x2-x1)*i/100;xs.push(x);try{ys.push(fCode.evaluate({x}));}catch(e){ys.push(null);}}
-      plotData.push({x:xs,y:ys,type:'scatter',mode:'lines',fill:'tozeroy',name:'Área f(x)'});
-    } else {
-      salvarHistorico('Integral',`∫ ${fStr} dx`,indefTex);
-      const xs=[],ys=[]; for(let i=0;i<=100;i++){const x=-5+10*i/100;xs.push(x);try{ys.push(fCode.evaluate({x}));}catch(e){ys.push(null);}}
-      plotData.push({x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)'});
+    const fStr = str('int-f');
+    const x1Raw = document.getElementById('int-x1').value.trim();
+    const x2Raw = document.getElementById('int-x2').value.trim();
+    
+    const fNode = math.parse(fStr);
+    
+    // 1. Integral Indefinida Simbólica (usando Nerdamer)
+    let indefTex = "";
+    try {
+      const integral = nerdamer(`integrate(${fStr}, x)`);
+      indefTex = integral.toTeX();
+    } catch(e) {
+      indefTex = "\\text{[Não foi possível integrar analiticamente]}";
     }
-    document.getElementById('int-result').innerHTML=html;
-    Plotly.newPlot('int-plot',plotData,getPlotLayout({title:'Visualização',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true}); toast('Integrais calculadas!','ok');
-  } catch(e){toast(e.message,'err');}
+    
+    let html = `<div class="result">
+      <div style="margin-bottom:8px"><strong>Integral Indefinida (Simbólica):</strong></div>
+      <div style="color:var(--primary)">${tex(`\\int (${fNode.toTex()}) dx = ${indefTex} + C`)}</div>
+    `;
+    
+    const plotData = [];
+    const fCode = fNode.compile();
+    
+    // 2. Integral Definida Numérica (se limites fornecidos)
+    if (x1Raw && x2Raw) {
+      const x1 = Number(x1Raw.replace(',','.'));
+      const x2 = Number(x2Raw.replace(',','.'));
+      if(isNaN(x1) || isNaN(x2)) throw new Error("Limites de integração inválidos");
+      
+      const n = 1000, h = (x2-x1)/n;
+      let s = (fCode.evaluate({x:x1}) || 0) + (fCode.evaluate({x:x2}) || 0);
+      for(let i=1; i<n; i++) s += (fCode.evaluate({x: x1 + i*h}) || 0) * (i%2 ? 4 : 2);
+      const definiteVal = s * h / 3;
+      
+      html += `
+        <hr style="margin:16px 0; border:none; border-top:1px solid var(--border)">
+        <div style="margin-bottom:8px"><strong>Integral Definida:</strong></div>
+        <div style="color:var(--ok)">${tex(`\\int_{${x1}}^{${x2}} (${fNode.toTex()}) dx \\approx ${definiteVal.toFixed(6)}`)}</div>
+      `;
+      salvarHistorico('Integral', `∫ ${fStr} dx [${x1},${x2}]`, definiteVal.toFixed(6));
+      
+      // Criar array para preencher a área sob a curva
+      const xs = [], ys = [];
+      for(let i=0; i<=100; i++) {
+        let x = x1 + (x2-x1)*(i/100);
+        xs.push(x);
+        try { ys.push(fCode.evaluate({x:x})); } catch(e){ys.push(null);}
+      }
+      plotData.push({ x:xs, y:ys, type:'scatter', mode:'lines', fill:'tozeroy', name:'Área f(x)', line:{color:'#4f46e5'} });
+    } else {
+      salvarHistorico('Integral', `∫ ${fStr} dx`, indefTex);
+      // Sem limites numéricos, plota só a função f(x)
+      const xs = [], ys = [];
+      for(let i=0; i<=100; i++) {
+        let x = -5 + 10*(i/100);
+        xs.push(x);
+        try { ys.push(fCode.evaluate({x:x})); } catch(e){ys.push(null);}
+      }
+      plotData.push({ x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'} });
+    }
+    
+    html += `</div>`;
+    document.getElementById('int-result').innerHTML = html;
+    
+    Plotly.newPlot('int-plot', plotData, getPlotLayout({title:'Visualização', xaxis:{title:'x'}, yaxis:{title:'y'}}), {responsive:true});
+    toast('Integrais calculadas!', 'ok');
+  } catch(e) { toast(e.message, 'err'); }
 }
 
 // ============ DERIVADAS PARCIAIS (SIMBÓLICA) ============
-function calcParcial(){
-  try{
-    const fStr=str('par-f'),varName=str('par-var'),ptRaw=document.getElementById('par-pt').value.trim();
-    const fNode=math.parse(fStr),dfNode=math.derivative(fNode,varName);
-    let html=`<div class="result"><div>${tex(`f(x,y)=${safeTex(fNode)}`)}</div><div style="margin-top:10px;color:var(--primary)">${tex(`\\frac{\\partial f}{\\partial ${varName}}=${safeTex(dfNode)}`)}</div>`;
-    if(ptRaw){const pt=ptRaw.split(',').map(x=>Number(x.trim()));if(pt.length===2&&pt.every(Number.isFinite)){const val=dfNode.compile().evaluate({x:pt[0],y:pt[1]});html+=`<div style="margin-top:10px;color:var(--ok)">${tex(`\\left.\\frac{\\partial f}{\\partial ${varName}}\\right|_{(${pt[0]},${pt[1]})}=${val.toFixed(6)}`)}</div>`;}}
-    if(document.getElementById('par-steps')?.checked)html+=stepBox('Derivadas parciais — passo a passo',partialSteps(fNode,varName,dfNode,ptRaw));
-    html+='</div>'; document.getElementById('par-result').innerHTML=html; salvarHistorico('Parcial',`∂/∂${varName} (${fStr})`,dfNode.toString()); toast('Derivada parcial processada!','ok');
-  }catch(e){toast(e.message,'err');}
+function calcParcial() {
+  try {
+    const fStr = str('par-f');
+    const varName = str('par-var');
+    const ptRaw = document.getElementById('par-pt').value.trim();
+    
+    const fNode = math.parse(fStr);
+    const dfNode = math.derivative(fNode, varName);
+    
+    let html = `<div class="result">
+      <div style="margin-bottom:12px">${tex(`f(x,y) = ${fNode.toTex()}`)}</div>
+      <div style="margin-bottom:12px; color:var(--primary)">${tex(`\\frac{\\partial f}{\\partial ${varName}} = ${dfNode.toTex()}`)}</div>
+    `;
+    
+    if (ptRaw) {
+      const pt = ptRaw.split(',').map(x => Number(x.trim()));
+      if(pt.length === 2 && !isNaN(pt[0]) && !isNaN(pt[1])) {
+        const val = dfNode.compile().evaluate({x: pt[0], y: pt[1]});
+        html += `<div style="color:var(--ok)">${tex(`\\left. \\frac{\\partial f}{\\partial ${varName}} \\right|_{(x=${pt[0]}, y=${pt[1]})} = ${val.toFixed(6)}`)}</div>`;
+      }
+    }
+    html += `</div>`;
+    document.getElementById('par-result').innerHTML = html;
+    salvarHistorico('Parcial', `∂/∂${varName} (${fStr})`, dfNode.toString());
+    toast('Derivada parcial processada!','ok');
+  } catch(e) { toast(e.message, 'err'); }
 }
 
 // ============ LIMITES ============
-function calcLimite(){
-  try{
-    const fStr=str('lim-f'),aStr=str('lim-a').trim().toLowerCase(),dir=document.getElementById('lim-dir').value;
-    if(!aStr) throw new Error('Informe o ponto para o qual x tende.');
-    const isInf=(aStr==='inf'||aStr==='+inf'||aStr==='infinito'||aStr==='+infinito');
-    const aVal=isInf?null:Number(aStr.replace(',','.'));
-    if(!isInf&&!Number.isFinite(aVal)) throw new Error('Ponto do limite inválido. Use, por exemplo, 0 ou inf.');
-    const fNode=math.parse(fStr),fCode=fNode.compile(); let valL=NaN,directValue=NaN;
-    if(isInf){ valL=fCode.evaluate({x:1e6}); }
-    else {
-      try{directValue=fCode.evaluate({x:aVal});}catch(e){directValue=NaN;}
-      const h=1e-6,vR=fCode.evaluate({x:aVal+h}),vL=fCode.evaluate({x:aVal-h});
-      if(dir==='right')valL=vR; else if(dir==='left')valL=vL; else valL=(vR+vL)/2;
+function calcLimite() {
+  try {
+    const fStr = str('lim-f');
+    const aStr = str('lim-a').toLowerCase();
+    const dir = document.getElementById('lim-dir').value;
+    const isInf = aStr.includes('inf');
+    const aVal = isInf ? null : Number(aStr.replace(',','.'));
+    
+    const fCode = math.parse(fStr).compile();
+    let valL = NaN;
+    let limitTex = isInf ? "\\infty" : aVal;
+    
+    // Aproximação numérica 
+    if(isInf) {
+      valL = fCode.evaluate({x: 1e6});
+    } else {
+      const h = 1e-6;
+      const vRight = fCode.evaluate({x: aVal + h});
+      const vLeft = fCode.evaluate({x: aVal - h});
+      
+      if(dir === 'right') valL = vRight;
+      else if (dir === 'left') valL = vLeft;
+      else valL = (vRight + vLeft) / 2; 
     }
-    let finalL='Indefinido';
-    if(Number.isFinite(valL)){ if(Math.abs(valL)>1e5) finalL=valL>0?'\\infty':'-\\infty'; else {const rnd=Math.round(valL);finalL=Math.abs(valL-rnd)<1e-4?String(rnd):valL.toFixed(4);} }
-    let html=`<div class="result"><div>${tex(`\\lim_{x\\to ${isInf?'\\infty':aVal}}(${safeTex(fNode)})\\approx${finalL}`)}</div><div class="step-note">Cálculo numérico por aproximação na vizinhança do ponto.</div>`;
-    if(document.getElementById('lim-steps')?.checked) html+=stepBox('Limite — passo a passo',limitSteps(fNode,isInf?'\\infty':aVal,dir,directValue,finalL),'Este módulo é numérico. Limites simbólicos indeterminados podem exigir fatoração, racionalização ou L’Hôpital.');
-    html+='</div>'; document.getElementById('lim-result').innerHTML=html;
-    const xs=[],ys=[];let start=isInf?0:aVal-2,end=isInf?100:aVal+2;
-    for(let i=0;i<=100;i++){const x=start+(end-start)*i/100;if(!isInf&&Math.abs(x-aVal)<1e-8)continue;xs.push(x);try{const y=fCode.evaluate({x});ys.push(Number.isFinite(y)&&Math.abs(y)<1e4?y:null);}catch(e){ys.push(null);}}
-    Plotly.newPlot('lim-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)'}],getPlotLayout({title:'Comportamento de f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true}); salvarHistorico('Limite',`x->${isInf?'∞':aVal} (${fStr})`,finalL);
-  }catch(e){toast(e.message,'err');}
+    
+    // Tratamento estético
+    let finalL = "Indefinido";
+    if(isFinite(valL)) {
+      if(Math.abs(valL) > 1e5) finalL = "\\infty";
+      else {
+        const rnd = Math.round(valL);
+        if(Math.abs(valL - rnd) < 1e-4) finalL = rnd.toString();
+        else finalL = valL.toFixed(4);
+      }
+    }
+    
+    document.getElementById('lim-result').innerHTML = `<div class="result">
+      <div>${tex(`\\lim_{x \\to ${limitTex}} \\left( ${math.parse(fStr).toTex()} \\right) \\approx ${finalL}`)}</div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-top:8px">Nota: Limite calculado por métodos numéricos.</div>
+    </div>`;
+    
+    // Plot ao redor do ponto
+    const xs = [], ys = [];
+    let start = isInf ? 0 : aVal - 2;
+    let end = isInf ? 100 : aVal + 2;
+    for(let i=0; i<=100; i++) {
+      let x = start + (end-start)*(i/100);
+      if(!isInf && Math.abs(x - aVal) < 1e-5) continue; // Pula a singularidade exata
+      xs.push(x);
+      try { 
+        let y = fCode.evaluate({x:x});
+        ys.push((Math.abs(y)<1e4) ? y : null); // Evitar plotar linhas pro infinito
+      } catch(e) { ys.push(null); }
+    }
+    Plotly.newPlot('lim-plot', [{x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'}}], getPlotLayout({title:'Comportamento de f(x)', xaxis:{title:'x'}, yaxis:{title:'f(x)'}}), {responsive:true});
+    salvarHistorico('Limite', `x->${limitTex} (${fStr})`, finalL);
+  } catch(e) { toast(e.message, 'err'); }
 }
 
 // ============ GRÁFICO 3D ============
@@ -743,40 +795,69 @@ function plotar3D() {
 }
 
 // ============ EDOs ============
-function calcEDO(){
-  try{
-    const fStr=str('edo-f'),fNode=math.parse(fStr),fCode=fNode.compile();
-    const x0=num('edo-x0'),y0=num('edo-y0'),xf=num('edo-xf'),N=Math.max(10,Math.floor(num('edo-n')));
-    if(![x0,y0,xf,N].every(Number.isFinite)) throw new Error('Parâmetros da EDO inválidos.');
-    const h=(xf-x0)/N,xs=[x0],ys=[y0],trace=[];let x=x0,y=y0;
-    for(let i=0;i<N;i++){
-      const k1=fCode.evaluate({x:x,y:y}),k2=fCode.evaluate({x:x+h/2,y:y+h*k1/2}),k3=fCode.evaluate({x:x+h/2,y:y+h*k2/2}),k4=fCode.evaluate({x:x+h,y:y+h*k3});
-      if(![k1,k2,k3,k4].every(Number.isFinite)) throw new Error(`A função da EDO produziu valor inválido no passo ${i+1}.`);
-      if(i<3)trace.push({i:i+1,x:x,y:y,k1:k1,k2:k2,k3:k3,k4:k4});
-      y += (h/6)*(k1+2*k2+2*k3+k4); x += h; xs.push(x); ys.push(y);
+function calcEDO() {
+  try {
+    const fStr = str('edo-f');
+    const fCode = math.parse(fStr).compile();
+    const x0 = num('edo-x0'), y0 = num('edo-y0'), xf = num('edo-xf');
+    const N = Math.max(10, Math.floor(num('edo-n')));
+    
+    const h = (xf-x0)/N;
+    const xs = [x0], ys = [y0];
+    let x = x0, y = y0;
+    
+    for(let i=0; i<N; i++) {
+      const k1 = fCode.evaluate({x:x, y:y});
+      const k2 = fCode.evaluate({x:x+h/2, y:y+h*k1/2});
+      const k3 = fCode.evaluate({x:x+h/2, y:y+h*k2/2});
+      const k4 = fCode.evaluate({x:x+h, y:y+h*k3});
+      y += (h/6)*(k1 + 2*k2 + 2*k3 + k4);
+      x += h;
+      xs.push(x); ys.push(y);
     }
-    let html=`<div class="result"><div>${tex(`y'=${safeTex(fNode)}`)}</div><div style="margin-top:8px">${texInline(`y(${x0})=${y0}`)} &nbsp;→&nbsp; <strong style="color:var(--primary)">${texInline(`y(${xf.toFixed(2)})\\approx${ys[ys.length-1].toFixed(6)}`)}</strong></div>`;
-    if(document.getElementById('edo-steps')?.checked){
-      const steps=[tex(`h=\\frac{x_f-x_0}{N}=\\frac{${xf}-${x0}}{${N}}=${h.toFixed(6)}`),tex(`k_1=f(x_n,y_n)`),tex(`k_2=f\\left(x_n+\\frac{h}{2},y_n+\\frac{hk_1}{2}\\right)`),tex(`k_3=f\\left(x_n+\\frac{h}{2},y_n+\\frac{hk_2}{2}\\right)`),tex(`k_4=f(x_n+h,y_n+hk_3)`),tex(`y_{n+1}=y_n+\\frac{h}{6}(k_1+2k_2+2k_3+k_4)` )];
-      trace.forEach(t=>steps.push(tex(`\\text{Passo ${t.i}: }x_n=${t.x.toFixed(4)},\\;y_n=${t.y.toFixed(6)},\\;k_1=${t.k1.toFixed(6)},\\;k_2=${t.k2.toFixed(6)},\\;k_3=${t.k3.toFixed(6)},\\;k_4=${t.k4.toFixed(6)}`)));
-      html+=stepBox('EDO — Runge–Kutta de 4ª ordem',steps,'São mostrados os três primeiros passos numéricos; os demais usam a mesma recorrência.');
-    }
-    html+='</div>';document.getElementById('edo-result').innerHTML=html;Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'Solução y(x)'}],getPlotLayout({title:'Solução EDO (RK4)',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true});salvarHistorico('EDO RK4',`y'=${fStr}`,`y(${xf}) ≈ ${ys[ys.length-1].toFixed(4)}`);
-  }catch(e){toast(e.message,'err');}
+    
+    document.getElementById('edo-result').innerHTML = `<div class="result">
+      <div>${tex(`y' = ${math.parse(fStr).toTex()}`)}</div>
+      <div style="margin-top:8px">${texInline(`y(${x0}) = ${y0}`)} &nbsp; ➡ &nbsp; <strong style="color:var(--primary)">${texInline(`y(${xf.toFixed(2)}) \\approx ${ys[ys.length-1].toFixed(6)}`)}</strong></div>
+    </div>`;
+    
+    Plotly.newPlot('edo-plot', [{x:xs, y:ys, name:'Solução y(x)', line:{color:'#4f46e5',width:3}}], getPlotLayout({title:'Solução EDO (RK4)', xaxis:{title:'x'}, yaxis:{title:'y'}}), {responsive:true});
+    salvarHistorico('EDO RK4', `y'=${fStr}`, `y(${xf}) ≈ ${ys[ys.length-1].toFixed(4)}`);
+  } catch(e) { toast(e.message,'err'); }
 }
 
 // ============ FOURIER ============
-function calcFourier(){
-  try{
-    const fStr=str('four-f'),fNode=math.parse(fStr),fCode=fNode.compile(),tmin=num('four-tmin'),tmax=num('four-tmax'),N=Math.floor(num('four-n'));
-    if(![tmin,tmax,N].every(Number.isFinite)||N<4||tmax===tmin) throw new Error('Parâmetros de Fourier inválidos. Use N ≥ 4 e t final diferente de t inicial.');
-    const dt=(tmax-tmin)/N,M=Math.floor(N/2),mag=new Array(M).fill(0),freqs=new Array(M).fill(0),signal=[];
-    for(let n=0;n<N;n++){const v=fCode.evaluate({t:tmin+n*dt});if(!Number.isFinite(v))throw new Error(`O sinal produziu valor inválido na amostra ${n}.`);signal.push(v);}
-    for(let k=0;k<M;k++){let sR=0,sI=0;for(let n=0;n<N;n++){const a=-2*Math.PI*k*n/N;sR+=signal[n]*Math.cos(a);sI+=signal[n]*Math.sin(a);}mag[k]=(2/N)*Math.hypot(sR,sI);freqs[k]=k/(N*dt);}
-    let html=`<div class="result"><div>Espectro de Magnitudes (DFT) calculado com sucesso para <strong>${N} amostras</strong>.</div>`;
-    if(document.getElementById('four-steps')?.checked){const steps=[tex(`\\Delta t=\\frac{t_{max}-t_{min}}{N}=\\frac{${tmax}-${tmin}}{${N}}=${dt.toFixed(6)}`),tex(`x_n=f(t_{min}+n\\Delta t),\\quad n=0,1,\\ldots,N-1`),tex(`X_k=\\sum_{n=0}^{N-1}x_n e^{-i2\\pi kn/N}`),tex(`|X_k|_{norm}=\\frac{2}{N}|X_k|`),tex(`f_k=\\frac{k}{N\\Delta t}`)];for(let k=0;k<Math.min(5,M);k++)steps.push(tex(`k=${k}:\\quad f_k=${freqs[k].toFixed(6)},\\quad |X_k|_{norm}=${mag[k].toFixed(6)}`));html+=stepBox('Fourier — passo a passo da DFT',steps,'Este cálculo usa a Transformada Discreta de Fourier (DFT); a visualização mostra os coeficientes de frequência.');}
-    html+='</div>';document.getElementById('four-result').innerHTML=html;Plotly.newPlot('four-plot',[{x:freqs,y:mag,type:'scatter',mode:'lines',name:'Magnitude',fill:'tozeroy'}],getPlotLayout({title:'Transformada Discreta de Fourier',xaxis:{title:'Frequência'},yaxis:{title:'Magnitude'}}),{responsive:true});
-  }catch(e){toast(e.message,'err');}
+function calcFourier() {
+  try {
+    const fStr = str('four-f');
+    const fCode = math.parse(fStr).compile();
+    const tmin = num('four-tmin'), tmax = num('four-tmax');
+    const N = Math.floor(num('four-n'));
+    
+    const dt = (tmax-tmin)/N;
+    const mag = new Array(N/2).fill(0);
+    const freqs = new Array(N/2).fill(0);
+    
+    const signal = [];
+    for(let n=0; n<N; n++) signal.push(fCode.evaluate({t: tmin + n*dt}) || 0);
+    
+    for(let k=0; k<N/2; k++) {
+      let sR = 0, sI = 0;
+      for(let n=0; n<N; n++) {
+        const a = -2 * Math.PI * k * n / N;
+        sR += signal[n] * Math.cos(a);
+        sI += signal[n] * Math.sin(a);
+      }
+      mag[k] = (2/N) * Math.sqrt(sR*sR + sI*sI);
+      freqs[k] = k / (N*dt);
+    }
+    
+    document.getElementById('four-result').innerHTML = `<div class="result">
+      <div>Espectro de Magnitudes (DFT) calculado com sucesso para <strong>${N} amostras</strong>.</div>
+    </div>`;
+    
+    Plotly.newPlot('four-plot', [{x:freqs, y:mag, type:'scatter', mode:'lines', name:'Magnitude', fill:'tozeroy', line:{color:'#06b6d4'}}], getPlotLayout({title:'Transformada Discreta de Fourier', xaxis:{title:'Frequência (Hz)'}, yaxis:{title:'Magnitude'}}), {responsive:true});
+  } catch(e) { toast(e.message,'err'); }
 }
 
 // ============ TEORIA DOS NÚMEROS ============
@@ -878,6 +959,770 @@ function exportarHistorico() {
   a.download = 'scicalc_historico.json'; a.click();
 }
 </script>
+<script>
+/* ========= REVISÃO TÉCNICA E CAMADA DIDÁTICA ========= */
+function scicalcEscape(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, function(char) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[char];
+  });
+}
+
+function scicalcRenderTex(latex, display) {
+  try {
+    if (typeof katex !== 'undefined') {
+      return katex.renderToString(String(latex), {throwOnError:false, displayMode:display !== false});
+    }
+  } catch (error) { /* A fórmula continua legível no modo de reserva. */ }
+  return '<code>' + scicalcEscape(latex) + '</code>';
+}
+
+function scicalcToast(message, type) {
+  var el = document.createElement('div');
+  el.className = 'toast ' + (type || 'ok');
+  el.textContent = (type === 'err' ? '⚠️ ' : type === 'warn' ? 'ℹ️ ' : '✅ ') + String(message);
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(function() { el.remove(); }, 3800);
+}
+function toast(message, type) { scicalcToast(message, type); }
+
+function scicalcRequire() {
+  for (var i = 0; i < arguments.length; i++) {
+    var name = arguments[i];
+    if (name === 'math' && typeof math === 'undefined') throw new Error('A biblioteca matemática não foi carregada. Verifique sua conexão e recarregue a página.');
+    if (name === 'plot' && typeof Plotly === 'undefined') throw new Error('A biblioteca de gráficos não foi carregada. Verifique sua conexão e recarregue a página.');
+    if (name === 'nerdamer' && typeof nerdamer === 'undefined') throw new Error('O motor de integrais simbólicas não foi carregado.');
+  }
+}
+
+function scicalcNumber(value, label) {
+  var normalized = String(value).trim().replace(',', '.');
+  if (!normalized) throw new Error((label || 'Valor') + ' não pode ficar vazio.');
+  var result = Number(normalized);
+  if (!Number.isFinite(result)) throw new Error((label || 'Valor') + ' deve ser um número finito.');
+  return result;
+}
+
+function scicalcInteger(id, label, min, max) {
+  var raw = document.getElementById(id).value.trim().replace(',', '.');
+  if (!/^[+-]?\d+$/.test(raw)) throw new Error(label + ' deve ser um número inteiro.');
+  var value = Number(raw);
+  if (value < min || value > max) throw new Error(label + ' deve estar entre ' + min + ' e ' + max + '.');
+  return value;
+}
+
+function scicalcVariable(id) {
+  var value = str(id);
+  if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value)) throw new Error('A variável deve começar com uma letra e conter apenas letras, números ou _.');
+  if (['pi','e','tau','Infinity','NaN'].indexOf(value) !== -1) throw new Error('Escolha um nome de variável que não seja uma constante matemática.');
+  return value;
+}
+
+function scicalcParseNode(expression, label) {
+  scicalcRequire('math');
+  try { return math.parse(expression); }
+  catch (error) { throw new Error((label || 'Expressão') + ' inválida: ' + error.message); }
+}
+
+function scicalcRange(raw, label) {
+  var separator = raw.indexOf(';') !== -1 ? ';' : ',';
+  var pieces = raw.split(separator);
+  if (pieces.length !== 2) throw new Error((label || 'Intervalo') + ' deve ter dois números, separados por vírgula (ou ; quando usar vírgula decimal).');
+  var left = scicalcNumber(pieces[0], label || 'Limite inicial');
+  var right = scicalcNumber(pieces[1], label || 'Limite final');
+  if (left >= right) throw new Error((label || 'Intervalo') + ' deve ter início menor que fim.');
+  return [left, right];
+}
+
+function scicalcPoint(raw) {
+  var separator = raw.indexOf(';') !== -1 ? ';' : ',';
+  var pieces = raw.split(separator);
+  if (pieces.length !== 2) throw new Error('O ponto deve ser informado como x, y (ou x; y com vírgula decimal).');
+  return [scicalcNumber(pieces[0], 'Coordenada x'), scicalcNumber(pieces[1], 'Coordenada y')];
+}
+
+function scicalcReal(value) {
+  var number = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function scicalcEvaluate(code, scope, context) {
+  var value;
+  try { value = scicalcReal(code.evaluate(scope)); }
+  catch (error) { throw new Error((context || 'A expressão') + ' não pôde ser avaliada.'); }
+  if (value === null) throw new Error((context || 'A expressão') + ' não produz um valor real finito neste ponto.');
+  return value;
+}
+
+function scicalcEvaluateOrNull(code, scope) {
+  try { return scicalcReal(code.evaluate(scope)); }
+  catch (error) { return null; }
+}
+
+function scicalcFormat(value, decimals) {
+  var digits = decimals === undefined ? 6 : decimals;
+  if (!Number.isFinite(value)) return '—';
+  if (Math.abs(value) > 0 && (Math.abs(value) >= 1e7 || Math.abs(value) < Math.pow(10, -digits))) return value.toExponential(Math.min(4, digits));
+  var rounded = Number(value.toFixed(digits));
+  return String(rounded);
+}
+
+function scicalcStep(title, latex, note) {
+  return '<div class="step"><div class="step-title">' + scicalcEscape(title) + '</div>' +
+    (latex ? scicalcRenderTex(latex, false) : '') +
+    (note ? '<div class="step-note">' + scicalcEscape(note) + '</div>' : '') + '</div>';
+}
+
+function scicalcDidactic(title, introduction, steps, extraHtml) {
+  return '<details class="didactic" open><summary>' + scicalcEscape(title) + '</summary><div class="didactic-body">' +
+    (introduction ? '<p class="didactic-intro">' + scicalcEscape(introduction) + '</p>' : '') +
+    '<div class="step-list">' + steps.join('') + '</div>' + (extraHtml || '') + '</div></details>';
+}
+
+function scicalcNodeTex(node) {
+  try { return node.toTex(); }
+  catch (error) { return scicalcEscape(String(node)); }
+}
+
+function scicalcDependsOn(node, variable) {
+  if (!node) return false;
+  if (node.type === 'SymbolNode') return node.name === variable;
+  var children = [];
+  if (Array.isArray(node.args)) children = node.args;
+  else if (node.content) children = [node.content];
+  else if (Array.isArray(node.items)) children = node.items;
+  for (var i = 0; i < children.length; i++) if (scicalcDependsOn(children[i], variable)) return true;
+  return false;
+}
+
+function scicalcSplitTerms(node, sign, target) {
+  var output = target || [];
+  var currentSign = sign === undefined ? 1 : sign;
+  if (node && node.type === 'OperatorNode' && node.op === '+' && node.args.length === 2) {
+    scicalcSplitTerms(node.args[0], currentSign, output);
+    scicalcSplitTerms(node.args[1], currentSign, output);
+  } else if (node && node.type === 'OperatorNode' && node.op === '-' && node.args.length === 2) {
+    scicalcSplitTerms(node.args[0], currentSign, output);
+    scicalcSplitTerms(node.args[1], -currentSign, output);
+  } else if (node && node.type === 'OperatorNode' && node.op === '-' && node.args.length === 1) {
+    scicalcSplitTerms(node.args[0], -currentSign, output);
+  } else {
+    output.push({node:node, sign:currentSign});
+  }
+  return output;
+}
+
+function scicalcDerivativeRule(node, variable, partial) {
+  var notation = partial ? '\\frac{\\partial}{\\partial ' + variable + '}' : '\\frac{d}{d' + variable + '}';
+  var base = scicalcNodeTex(node);
+  var exact = scicalcNodeTex(math.derivative(node, variable));
+  var args = node && node.args ? node.args : [];
+  var title = 'Regra aplicada';
+  var formula = notation + '\\left[' + base + '\\right] = ' + exact;
+  var note = '';
+
+  if (node.type === 'ConstantNode' || (node.type === 'SymbolNode' && node.name !== variable)) {
+    title = 'Constante';
+    note = 'Não depende de ' + variable + '; por isso, sua derivada é zero.';
+  } else if (node.type === 'SymbolNode') {
+    title = 'Derivada da variável';
+    note = 'A derivada de uma variável em relação a ela mesma é 1.';
+  } else if (node.type === 'OperatorNode' && (node.op === '+' || node.op === '-') && args.length === 2) {
+    title = node.op === '+' ? 'Regra da soma' : 'Regra da diferença';
+    formula = notation + '\\left[' + scicalcNodeTex(args[0]) + ' ' + node.op + ' ' + scicalcNodeTex(args[1]) + '\\right] = ' + notation + '\\left[' + scicalcNodeTex(args[0]) + '\\right] ' + node.op + ' ' + notation + '\\left[' + scicalcNodeTex(args[1]) + '\\right] = ' + exact;
+    note = 'Derivamos cada parcela separadamente.';
+  } else if (node.type === 'OperatorNode' && node.op === '*' && args.length === 2) {
+    title = 'Regra do produto';
+    formula = notation + '\\left[u\\,v\\right] = u\\,' + notation + '\\left[v\\right] + v\\,' + notation + '\\left[u\\right] = ' + exact;
+    note = 'Aqui u = ' + node.args[0].toString() + ' e v = ' + node.args[1].toString() + '.';
+  } else if (node.type === 'OperatorNode' && node.op === '/' && args.length === 2) {
+    title = 'Regra do quociente';
+    formula = notation + '\\left[\\frac{u}{v}\\right] = \\frac{v\\,' + notation + '\\left[u\\right]-u\\,' + notation + '\\left[v\\right]}{v^2} = ' + exact;
+    note = 'Derivamos numerador e denominador antes de simplificar.';
+  } else if (node.type === 'OperatorNode' && node.op === '^' && args.length === 2) {
+    if (scicalcDependsOn(args[0], variable) && !scicalcDependsOn(args[1], variable)) {
+      title = 'Regra da potência';
+      formula = notation + '\\left[u^n\\right] = n\\,u^{n-1}\\,' + notation + '\\left[u\\right] = ' + exact;
+      note = 'O expoente é constante; aplicamos a regra da potência e, se necessário, a cadeia.';
+    } else {
+      title = 'Potência com expoente variável';
+      formula = 'u^v = e^{v\\ln(u)}\\quad\\Rightarrow\\quad ' + notation + '\\left[' + base + '\\right] = ' + exact;
+      note = 'A forma exponencial permite diferenciar quando base e expoente variam.';
+    }
+  } else if (node.type === 'FunctionNode' && args.length >= 1) {
+    var name = String(node.name).toLowerCase();
+    var inner = scicalcNodeTex(args[0]);
+    var outer = {sin:'\\cos\\left(' + inner + '\\right)', cos:'-\\sin\\left(' + inner + '\\right)', tan:'\\sec^2\\left(' + inner + '\\right)', exp:'e^{' + inner + '}', log:'\\frac{1}{' + inner + '}', sqrt:'\\frac{1}{2\\sqrt{' + inner + '}}'}[name];
+    if (outer) {
+      title = 'Regra da cadeia';
+      formula = notation + '\\left[' + base + '\\right] = ' + outer + '\\,' + notation + '\\left[' + inner + '\\right] = ' + exact;
+      note = 'Derivamos a função externa e multiplicamos pela derivada da parte interna.';
+    }
+  }
+  return scicalcStep(title, formula, note);
+}
+
+function scicalcDerivativeSteps(node, variable, partial) {
+  var steps = [];
+  var seen = {};
+  function visit(current, depth) {
+    if (!current || depth > 3 || steps.length >= 7 || !scicalcDependsOn(current, variable)) return;
+    var key = current.toString();
+    if (!seen[key]) {
+      seen[key] = true;
+      steps.push(scicalcDerivativeRule(current, variable, partial));
+    }
+    var args = current.args || (current.content ? [current.content] : []);
+    for (var i = 0; i < args.length; i++) visit(args[i], depth + 1);
+  }
+  visit(node, 0);
+  return steps;
+}
+
+function calcDerivada() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('der-f');
+    var variable = scicalcVariable('der-var');
+    var range = scicalcRange(str('der-intervalo'), 'Intervalo do gráfico');
+    var fNode = scicalcParseNode(fStr, 'Função');
+    var d1Node = math.derivative(fNode, variable);
+    var d2Node = math.derivative(d1Node, variable);
+    var html = '<div class="result">' +
+      '<div>' + scicalcRenderTex('f(' + variable + ') = ' + scicalcNodeTex(fNode)) + '</div>' +
+      '<div style="margin-top:12px;color:var(--primary)">' + scicalcRenderTex("f'(" + variable + ') = ' + scicalcNodeTex(d1Node)) + '</div>' +
+      '<div style="margin-top:12px;color:var(--primary-2)">' + scicalcRenderTex("f''(" + variable + ') = ' + scicalcNodeTex(d2Node)) + '</div>';
+    if (document.getElementById('der-steps').checked) {
+      html += scicalcDidactic('Como a primeira derivada foi obtida', 'As regras são apresentadas da expressão maior para as partes que dependem da variável.', scicalcDerivativeSteps(fNode, variable, false));
+    }
+    html += '</div>';
+    document.getElementById('der-result').innerHTML = html;
+
+    var compiled = [fNode.compile(), d1Node.compile(), d2Node.compile()];
+    var xs = [], values = [[], [], []];
+    for (var i = 0; i <= 240; i++) {
+      var x = range[0] + (range[1] - range[0]) * i / 240;
+      xs.push(x);
+      for (var j = 0; j < compiled.length; j++) values[j].push(scicalcEvaluateOrNull(compiled[j], {[variable]:x}));
+    }
+    Plotly.newPlot('der-plot', [
+      {x:xs,y:values[0],name:'f(' + variable + ')',line:{color:'#4f46e5',width:3}},
+      {x:xs,y:values[1],name:"f'(" + variable + ')',line:{color:'#06b6d4',width:3}},
+      {x:xs,y:values[2],name:"f''(" + variable + ')',line:{color:'#f59e0b',width:3}}
+    ], getPlotLayout({title:'Função e suas derivadas',xaxis:{title:variable},yaxis:{title:'valor'}}), {responsive:true});
+    salvarHistorico('Derivadas', fStr, d1Node.toString());
+    toast('Derivadas calculadas.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function calcParcial() {
+  try {
+    scicalcRequire('math');
+    var fStr = str('par-f');
+    var variable = str('par-var');
+    var held = variable === 'x' ? 'y' : 'x';
+    var pointRaw = document.getElementById('par-pt').value.trim();
+    var fNode = scicalcParseNode(fStr, 'Função');
+    var dfNode = math.derivative(fNode, variable);
+    var html = '<div class="result">' +
+      '<div>' + scicalcRenderTex('f(x,y) = ' + scicalcNodeTex(fNode)) + '</div>' +
+      '<div style="margin-top:12px;color:var(--primary)">' + scicalcRenderTex('\\frac{\\partial f}{\\partial ' + variable + '} = ' + scicalcNodeTex(dfNode)) + '</div>';
+    if (pointRaw) {
+      var point = scicalcPoint(pointRaw);
+      var evaluated = scicalcEvaluate(dfNode.compile(), {x:point[0],y:point[1]}, 'A derivada parcial');
+      html += '<div style="margin-top:12px;color:var(--ok)">' + scicalcRenderTex('\\left.\\frac{\\partial f}{\\partial ' + variable + '}\\right|_{(x,y)=(' + scicalcFormat(point[0]) + ',' + scicalcFormat(point[1]) + ')} = ' + scicalcFormat(evaluated)) + '</div>';
+    }
+    if (document.getElementById('par-steps').checked) {
+      var terms = scicalcSplitTerms(fNode);
+      var constants = terms.filter(function(item) { return !scicalcDependsOn(item.node, variable); }).map(function(item) { return scicalcNodeTex(item.node); });
+      var intro = 'Ao derivar em relação a ' + variable + ', tratamos ' + held + ' como constante.';
+      var steps = [];
+      if (constants.length) steps.push(scicalcStep('Termos constantes em relação a ' + variable, '\\frac{\\partial}{\\partial ' + variable + '}\\left[' + constants.join(' + ') + '\\right] = 0', 'Esses termos não contêm ' + variable + '.'));
+      steps = steps.concat(scicalcDerivativeSteps(fNode, variable, true));
+      html += scicalcDidactic('Passo a passo da derivada parcial', intro, steps);
+    }
+    html += '</div>';
+    document.getElementById('par-result').innerHTML = html;
+    salvarHistorico('Derivada parcial', '∂/∂' + variable + ' (' + fStr + ')', dfNode.toString());
+    toast('Derivada parcial calculada.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+</script>
+<script>
+function scicalcNumericFactor(node) {
+  if (!node) return {coefficient:1, core:node};
+  if (node.type === 'ConstantNode') {
+    var direct = scicalcReal(node.value);
+    if (direct !== null) return {coefficient:direct, core:null};
+  }
+  if (node.type === 'OperatorNode' && node.op === '*' && node.args.length >= 2) {
+    var coefficient = 1;
+    var rest = [];
+    for (var i = 0; i < node.args.length; i++) {
+      var candidate = node.args[i];
+      var number = candidate.type === 'ConstantNode' ? scicalcReal(candidate.value) : null;
+      if (number === null) rest.push(candidate); else coefficient *= number;
+    }
+    if (rest.length === 1) return {coefficient:coefficient, core:rest[0]};
+  }
+  return {coefficient:1, core:node};
+}
+
+function scicalcIntegralTermStep(node, variable, sign) {
+  var factor = scicalcNumericFactor(node);
+  var coefficient = factor.coefficient * sign;
+  var core = factor.core;
+  var wholeTex = (sign < 0 ? '-' : '') + scicalcNodeTex(node);
+  var coefficientTex = scicalcFormat(coefficient);
+  if (core === null) {
+    return scicalcStep('Regra da constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable, 'A integral de uma constante é a constante multiplicada pela variável.');
+  }
+  if (core.type === 'SymbolNode' && core.name === variable) {
+    return scicalcStep('Regra da potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot\\frac{' + variable + '^2}{2}', 'Usamos ∫xⁿ dx = xⁿ⁺¹/(n+1), com n = 1.');
+  }
+  if (core.type === 'OperatorNode' && core.op === '^' && core.args.length === 2 && core.args[0].type === 'SymbolNode' && core.args[0].name === variable) {
+    var exponent = core.args[1].type === 'ConstantNode' ? scicalcReal(core.args[1].value) : null;
+    if (exponent !== null && exponent !== -1) {
+      return scicalcStep('Regra da potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot\\frac{' + variable + '^{' + scicalcFormat(exponent + 1) + '}}{' + scicalcFormat(exponent + 1) + '}', 'Somamos 1 ao expoente e dividimos pelo novo expoente.');
+    }
+    if (exponent === -1) {
+      return scicalcStep('Caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '|', 'Para 1/x, a regra da potência é substituída pelo logaritmo natural.');
+    }
+  }
+  if (core.type === 'FunctionNode' && core.args.length === 1 && core.args[0].type === 'SymbolNode' && core.args[0].name === variable) {
+    var name = String(core.name).toLowerCase();
+    var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}'}[name];
+    if (antiderivative) return scicalcStep('Primitiva elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative, 'Aplicamos uma primitiva conhecida da função trigonométrica ou exponencial.');
+  }
+  return scicalcStep('Integração simbólica', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela é enviada ao motor simbólico para encontrar uma primitiva, quando ela existir.');
+}
+
+function scicalcSimpson(code, lower, upper) {
+  var subdivisions = 1000;
+  var h = (upper - lower) / subdivisions;
+  var sum = scicalcEvaluate(code, {x:lower}, 'f(x₁)') + scicalcEvaluate(code, {x:upper}, 'f(x₂)');
+  for (var i = 1; i < subdivisions; i++) {
+    var x = lower + i * h;
+    var value = scicalcEvaluate(code, {x:x}, 'f(x) na integração numérica');
+    sum += (i % 2 === 0 ? 2 : 4) * value;
+  }
+  return {value:sum * h / 3, h:h, subdivisions:subdivisions};
+}
+
+function calcIntegral() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('int-f');
+    var lowerRaw = document.getElementById('int-x1').value.trim();
+    var upperRaw = document.getElementById('int-x2').value.trim();
+    if ((lowerRaw && !upperRaw) || (!lowerRaw && upperRaw)) throw new Error('Informe os dois limites para calcular uma integral definida.');
+    var fNode = scicalcParseNode(fStr, 'Função');
+    var fCode = fNode.compile();
+    var integralTex = null;
+    var integrationMessage = '';
+    try {
+      scicalcRequire('nerdamer');
+      var symbolic = nerdamer('integrate(' + fStr + ', x)');
+      var symbolicText = symbolic.text();
+      if (!/integrate\(/i.test(symbolicText)) integralTex = symbolic.toTeX();
+      else integrationMessage = 'O motor simbólico não encontrou uma primitiva elementar para esta expressão.';
+    } catch (error) {
+      integrationMessage = 'Não foi possível obter a integral indefinida simbólica: ' + error.message;
+    }
+
+    var html = '<div class="result"><div><strong>Integral indefinida:</strong></div>';
+    if (integralTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + integralTex + ' + C') + '</div>';
+    else html += '<div class="step-note">' + scicalcEscape(integrationMessage || 'Sem primitiva elementar identificada.') + '</div>';
+
+    var bounds = null;
+    var definite = null;
+    if (lowerRaw && upperRaw) {
+      bounds = [scicalcNumber(lowerRaw, 'Limite inferior'), scicalcNumber(upperRaw, 'Limite superior')];
+      definite = scicalcSimpson(fCode, bounds[0], bounds[1]);
+      html += '<hr style="margin:16px 0;border:none;border-top:1px solid var(--border)"><div><strong>Integral definida (Simpson):</strong></div>' +
+        '<div style="margin-top:8px;color:var(--ok)">' + scicalcRenderTex('\\int_{' + scicalcFormat(bounds[0]) + '}^{' + scicalcFormat(bounds[1]) + '} (' + scicalcNodeTex(fNode) + ')\\,dx \\approx ' + scicalcFormat(definite.value, 8)) + '</div>';
+    }
+    if (document.getElementById('int-steps').checked) {
+      var terms = scicalcSplitTerms(fNode);
+      var steps = terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); });
+      if (terms.length > 6) steps.push(scicalcStep('Demais parcelas', '', 'As demais parcelas foram integradas pelo motor simbólico.'));
+      if (definite) {
+        steps.push(scicalcStep('Regra de Simpson composta', '\\int_a^b f(x)\\,dx \\approx \\frac{h}{3}\\left[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)\\right]', 'Foram usados n = ' + definite.subdivisions + ' subintervalos pares e h = ' + scicalcFormat(definite.h, 8) + '.'));
+      }
+      html += scicalcDidactic('Passo a passo da integral', 'A constante C aparece porque todas as primitivas diferem por uma constante.', steps);
+    }
+    html += '</div>';
+    document.getElementById('int-result').innerHTML = html;
+
+    var start = bounds ? bounds[0] : -5;
+    var end = bounds ? bounds[1] : 5;
+    var xs = [], ys = [];
+    for (var i = 0; i <= 240; i++) {
+      var x = start + (end - start) * i / 240;
+      xs.push(x); ys.push(scicalcEvaluateOrNull(fCode, {x:x}));
+    }
+    Plotly.newPlot('int-plot', [{x:xs,y:ys,type:'scatter',mode:'lines',fill:bounds ? 'tozeroy' : 'none',name:bounds ? 'Área sob f(x)' : 'f(x)',line:{color:'#4f46e5',width:3}}], getPlotLayout({title:bounds ? 'Área integrada' : 'Função integranda',xaxis:{title:'x'},yaxis:{title:'f(x)'}}), {responsive:true});
+    salvarHistorico('Integral', bounds ? '∫ ' + fStr + ' dx [' + bounds.join(', ') + ']' : '∫ ' + fStr + ' dx', definite ? scicalcFormat(definite.value, 8) : (integralTex || 'sem forma elementar'));
+    toast('Integral calculada.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function scicalcLimitTarget(raw) {
+  var compact = String(raw).trim().toLowerCase().replace(/\s+/g, '').replace('∞', 'inf');
+  var match = compact.match(/^([+-]?)(?:inf|infinity)$/);
+  if (match) return {infinite:true, sign:match[1] === '-' ? -1 : 1, latex:match[1] === '-' ? '-\\infty' : '\\infty'};
+  return {infinite:false, value:scicalcNumber(raw, 'Ponto do limite'), latex:scicalcFormat(scicalcNumber(raw, 'Ponto do limite'))};
+}
+
+function scicalcLimitSamples(code, target, direction) {
+  var samples = [];
+  if (target.infinite) {
+    for (var exponent = 1; exponent <= 7; exponent++) {
+      var farX = target.sign * Math.pow(10, exponent);
+      samples.push({x:farX, value:scicalcEvaluateOrNull(code, {x:farX})});
+    }
+  } else {
+    var scale = Math.max(1, Math.abs(target.value));
+    for (var power = 1; power <= 8; power++) {
+      var h = scale * Math.pow(10, -power);
+      var x = target.value + direction * h;
+      samples.push({x:x, value:scicalcEvaluateOrNull(code, {x:x})});
+    }
+  }
+  return samples;
+}
+
+function scicalcAnalyzeLimit(samples) {
+  var values = samples.map(function(item) { return item.value; }).filter(function(value) { return value !== null; });
+  if (values.length < 3) return {kind:'unknown'};
+  var tail = values.slice(-3);
+  var last = tail[tail.length - 1];
+  var sameSign = tail.every(function(value) { return Math.sign(value) === Math.sign(last) && Math.sign(value) !== 0; });
+  var grows = Math.abs(tail[2]) > Math.abs(tail[1]) && Math.abs(tail[1]) > Math.abs(tail[0]);
+  if (Math.abs(last) > 1e5 && sameSign && grows) return {kind:last > 0 ? 'posinf' : 'neginf'};
+  var mean = (tail[0] + tail[1] + tail[2]) / 3;
+  var spread = Math.max(Math.abs(tail[0] - mean), Math.abs(tail[1] - mean), Math.abs(tail[2] - mean));
+  if (spread <= Math.max(1e-5, Math.abs(mean) * 2e-3)) return {kind:'finite', value:mean};
+  return {kind:'unknown'};
+}
+
+function scicalcEstimateTex(estimate) {
+  if (estimate.kind === 'finite') return scicalcFormat(estimate.value, 7);
+  if (estimate.kind === 'posinf') return '+\\infty';
+  if (estimate.kind === 'neginf') return '-\\infty';
+  if (estimate.kind === 'dne') return '\\text{não existe}';
+  return '\\text{indeterminado numericamente}';
+}
+
+function scicalcSameEstimate(left, right) {
+  if (left.kind === 'finite' && right.kind === 'finite') return Math.abs(left.value - right.value) <= Math.max(1e-4, Math.max(Math.abs(left.value), Math.abs(right.value)) * 2e-3);
+  return left.kind === right.kind && (left.kind === 'posinf' || left.kind === 'neginf');
+}
+
+function scicalcSampleTable(label, samples) {
+  var visible = samples.slice(-5).filter(function(item) { return item.value !== null; });
+  if (!visible.length) return '<div class="step-note">Não foi possível obter amostras reais para ' + scicalcEscape(label) + '.</div>';
+  return '<div class="limit-side"><strong>' + scicalcEscape(label) + '</strong><table class="step-table"><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody>' + visible.map(function(item) { return '<tr><td>' + scicalcEscape(scicalcFormat(item.x, 7)) + '</td><td>' + scicalcEscape(scicalcFormat(item.value, 7)) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+}
+
+function calcLimite() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('lim-f');
+    var selectedDirection = document.getElementById('lim-dir').value;
+    var target = scicalcLimitTarget(str('lim-a'));
+    var fNode = scicalcParseNode(fStr, 'Função');
+    var fCode = fNode.compile();
+    var leftSamples = target.infinite ? [] : scicalcLimitSamples(fCode, target, -1);
+    var rightSamples = target.infinite ? [] : scicalcLimitSamples(fCode, target, 1);
+    var infiniteSamples = target.infinite ? scicalcLimitSamples(fCode, target, target.sign) : [];
+    var left = target.infinite ? null : scicalcAnalyzeLimit(leftSamples);
+    var right = target.infinite ? null : scicalcAnalyzeLimit(rightSamples);
+    var overall;
+    if (target.infinite) overall = scicalcAnalyzeLimit(infiniteSamples);
+    else if (selectedDirection === 'left') overall = left;
+    else if (selectedDirection === 'right') overall = right;
+    else overall = scicalcSameEstimate(left, right) ? left : {kind:'dne'};
+    var direct = target.infinite ? null : scicalcEvaluateOrNull(fCode, {x:target.value});
+    var limitTex = scicalcEstimateTex(overall);
+    var html = '<div class="result"><div>' + scicalcRenderTex('\\lim_{x\\to ' + target.latex + '}\\left(' + scicalcNodeTex(fNode) + '\\right) = ' + limitTex) + '</div>';
+    if (!target.infinite) html += '<div class="step-note">Substituição direta: f(' + scicalcEscape(scicalcFormat(target.value)) + ') = ' + scicalcEscape(direct === null ? 'não definida' : scicalcFormat(direct, 7)) + '.</div>';
+    if (document.getElementById('lim-steps').checked) {
+      var steps = [];
+      if (target.infinite) {
+        steps.push(scicalcStep('Crescimento de x', 'x = ' + (target.sign < 0 ? '-10^m' : '10^m') + ',\\quad m=1,2,\\ldots', 'Avaliamos a função em valores cada vez mais distantes.'));
+      } else {
+        steps.push(scicalcStep('Aproximação bilateral', 'x=a\\pm h,\\quad h=10^{-1},10^{-2},\\ldots,10^{-8}', 'Comparamos as aproximações pela esquerda e pela direita sem usar o ponto singular.'));
+      }
+      steps.push(scicalcStep('Conclusão', '\\lim_{x\\to ' + target.latex + '}f(x) = ' + limitTex, overall.kind === 'dne' ? 'Os limites laterais não coincidem.' : 'As últimas aproximações estabilizam nesse valor.'));
+      var tables = '<div class="limit-sides">' + (target.infinite ? scicalcSampleTable('Amostras para x → ' + (target.sign < 0 ? '−∞' : '+∞'), infiniteSamples) : scicalcSampleTable('Pela esquerda (x → a⁻)', leftSamples) + scicalcSampleTable('Pela direita (x → a⁺)', rightSamples)) + '</div>';
+      html += scicalcDidactic('Passo a passo do limite', 'Este é um procedimento numérico: ele revela o comportamento da função, mas não substitui uma prova algébrica.', steps, tables);
+    }
+    html += '</div>';
+    document.getElementById('lim-result').innerHTML = html;
+
+    var traces = [];
+    if (target.infinite) {
+      traces.push({x:infiniteSamples.map(function(item) { return item.x; }),y:infiniteSamples.map(function(item) { return item.value; }),mode:'lines+markers',name:'f(x)',line:{color:'#4f46e5'}});
+    } else {
+      var scale = Math.max(1, Math.abs(target.value));
+      function makeTrace(side, name, color) {
+        var xs = [], ys = [];
+        for (var i = 0; i < 140; i++) {
+          var distance = scale * (2 - 1.999 * i / 139);
+          var x = target.value + side * distance;
+          xs.push(x); ys.push(scicalcEvaluateOrNull(fCode, {x:x}));
+        }
+        return {x:xs,y:ys,mode:'lines',name:name,line:{color:color}};
+      }
+      traces.push(makeTrace(-1, 'f(x), x < a', '#4f46e5'), makeTrace(1, 'f(x), x > a', '#06b6d4'));
+    }
+    Plotly.newPlot('lim-plot', traces, getPlotLayout({title:'Comportamento próximo ao limite',xaxis:{title:'x'},yaxis:{title:'f(x)'}}), {responsive:true});
+    salvarHistorico('Limite', 'x→' + (target.infinite ? (target.sign < 0 ? '-∞' : '∞') : target.value) + ' (' + fStr + ')', limitTex.replace(/\\/g, ''));
+    toast('Limite analisado.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+</script>
+<script>
+function calcEDO() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('edo-f');
+    var fNode = scicalcParseNode(fStr, 'Lado direito da EDO');
+    var fCode = fNode.compile();
+    var x0 = scicalcNumber(document.getElementById('edo-x0').value, 'x₀');
+    var y0 = scicalcNumber(document.getElementById('edo-y0').value, 'y(x₀)');
+    var xf = scicalcNumber(document.getElementById('edo-xf').value, 'x final');
+    var stepsCount = scicalcInteger('edo-n', 'Número de passos', 1, 10000);
+    if (x0 === xf) throw new Error('x final deve ser diferente de x₀.');
+    var h = (xf - x0) / stepsCount;
+    var xs = [x0], ys = [y0], sampleSteps = [];
+    var x = x0, y = y0;
+    for (var i = 0; i < stepsCount; i++) {
+      var k1 = scicalcEvaluate(fCode, {x:x,y:y}, 'k₁ no passo ' + (i + 1));
+      var k2 = scicalcEvaluate(fCode, {x:x + h / 2,y:y + h * k1 / 2}, 'k₂ no passo ' + (i + 1));
+      var k3 = scicalcEvaluate(fCode, {x:x + h / 2,y:y + h * k2 / 2}, 'k₃ no passo ' + (i + 1));
+      var k4 = scicalcEvaluate(fCode, {x:x + h,y:y + h * k3}, 'k₄ no passo ' + (i + 1));
+      var nextY = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+      if (!Number.isFinite(nextY)) throw new Error('A solução deixou de ser finita no passo ' + (i + 1) + '. Reduza o intervalo ou escolha mais passos.');
+      if (i < 3) sampleSteps.push({n:i,x:x,y:y,k1:k1,k2:k2,k3:k3,k4:k4,nextY:nextY});
+      x += h; y = nextY;
+      xs.push(x); ys.push(y);
+    }
+    var html = '<div class="result"><div>' + scicalcRenderTex("y' = " + scicalcNodeTex(fNode)) + '</div>' +
+      '<div style="margin-top:10px">' + scicalcRenderTex('y(' + scicalcFormat(x0) + ') = ' + scicalcFormat(y0) + '\\quad\\Longrightarrow\\quad y(' + scicalcFormat(xf) + ') \\approx ' + scicalcFormat(ys[ys.length - 1], 8)) + '</div>';
+    if (document.getElementById('edo-steps').checked) {
+      var didacticSteps = [
+        scicalcStep('Tamanho do passo', 'h = \\frac{x_f-x_0}{N} = \\frac{' + scicalcFormat(xf) + '-' + scicalcFormat(x0) + '}{' + stepsCount + '} = ' + scicalcFormat(h, 8), 'Cada passo avança h unidades em x.'),
+        scicalcStep('Inclinações intermediárias', 'k_1=f(x_n,y_n),\\; k_2=f(x_n+\\tfrac h2,y_n+\\tfrac h2k_1),\\; k_3=f(x_n+\\tfrac h2,y_n+\\tfrac h2k_2),\\; k_4=f(x_n+h,y_n+hk_3)', 'RK4 mede quatro inclinações para construir uma média ponderada.'),
+        scicalcStep('Atualização', 'y_{n+1}=y_n+\\frac h6(k_1+2k_2+2k_3+k_4)', 'Os valores k₂ e k₃ têm peso duplo por estimarem o meio do intervalo.')
+      ];
+      var table = '<table class="step-table"><thead><tr><th>n</th><th>xₙ</th><th>yₙ</th><th>k₁</th><th>k₂</th><th>k₃</th><th>k₄</th><th>yₙ₊₁</th></tr></thead><tbody>' + sampleSteps.map(function(row) { return '<tr><td>' + row.n + '</td><td>' + scicalcFormat(row.x, 6) + '</td><td>' + scicalcFormat(row.y, 6) + '</td><td>' + scicalcFormat(row.k1, 6) + '</td><td>' + scicalcFormat(row.k2, 6) + '</td><td>' + scicalcFormat(row.k3, 6) + '</td><td>' + scicalcFormat(row.k4, 6) + '</td><td>' + scicalcFormat(row.nextY, 6) + '</td></tr>'; }).join('') + '</tbody></table>';
+      html += scicalcDidactic('Passo a passo do método RK4', 'A tabela mostra os três primeiros passos numéricos; o gráfico usa todos os ' + stepsCount + ' passos.', didacticSteps, table);
+    }
+    html += '</div>';
+    document.getElementById('edo-result').innerHTML = html;
+    Plotly.newPlot('edo-plot', [{x:xs,y:ys,name:'Solução numérica y(x)',line:{color:'#4f46e5',width:3}}], getPlotLayout({title:'Solução da EDO por Runge–Kutta de 4ª ordem',xaxis:{title:'x'},yaxis:{title:'y'}}), {responsive:true});
+    salvarHistorico('EDO (RK4)', "y'=" + fStr, 'y(' + scicalcFormat(xf) + ') ≈ ' + scicalcFormat(ys[ys.length - 1], 8));
+    toast('EDO resolvida por RK4.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function calcFourier() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('four-f');
+    var fNode = scicalcParseNode(fStr, 'Sinal');
+    var fCode = fNode.compile();
+    var tmin = scicalcNumber(document.getElementById('four-tmin').value, 't inicial');
+    var tmax = scicalcNumber(document.getElementById('four-tmax').value, 't final');
+    var count = scicalcInteger('four-n', 'Quantidade de amostras', 8, 2048);
+    if (tmax <= tmin) throw new Error('t final deve ser maior que t inicial.');
+    var dt = (tmax - tmin) / count;
+    var times = [], signal = [];
+    for (var n = 0; n < count; n++) {
+      var time = tmin + n * dt;
+      times.push(time);
+      signal.push(scicalcEvaluate(fCode, {t:time}, 'O sinal na amostra n = ' + n));
+    }
+    var bins = Math.floor(count / 2) + 1;
+    var frequencies = [], magnitudes = [], coefficients = [];
+    for (var k = 0; k < bins; k++) {
+      var real = 0, imaginary = 0;
+      for (var index = 0; index < count; index++) {
+        var angle = -2 * Math.PI * k * index / count;
+        real += signal[index] * Math.cos(angle);
+        imaginary += signal[index] * Math.sin(angle);
+      }
+      var modulus = Math.hypot(real, imaginary);
+      var amplitude = (k === 0 || (count % 2 === 0 && k === count / 2)) ? modulus / count : 2 * modulus / count;
+      frequencies.push(k / (count * dt));
+      magnitudes.push(amplitude);
+      coefficients.push({k:k,real:real,imaginary:imaginary,amplitude:amplitude});
+    }
+    var peaks = coefficients.slice(1).sort(function(a, b) { return b.amplitude - a.amplitude; }).slice(0, 3);
+    if (!peaks.length) peaks = [coefficients[0]];
+    var peakText = peaks.map(function(item) { return scicalcFormat(frequencies[item.k], 5) + ' (' + scicalcFormat(item.amplitude, 5) + ')'; }).join(', ');
+    var html = '<div class="result"><div>DFT calculada com <strong>' + count + ' amostras</strong>; Δt = ' + scicalcEscape(scicalcFormat(dt, 8)) + ' e resolução em frequência Δf = ' + scicalcEscape(scicalcFormat(1 / (count * dt), 8)) + ' ciclos por unidade de t.</div>' +
+      '<div class="step-note">Picos mais intensos: ' + scicalcEscape(peakText) + ' — frequência (amplitude).</div>';
+    if (document.getElementById('four-steps').checked) {
+      var firstCoefficients = coefficients.slice(0, Math.min(6, coefficients.length));
+      var didacticSteps = [
+        scicalcStep('Amostragem uniforme', 't_n=t_{min}+n\\Delta t,\\quad \\Delta t=\\frac{t_{max}-t_{min}}{N}=' + scicalcFormat(dt, 8), 'São coletados N valores igualmente espaçados do sinal.'),
+        scicalcStep('Definição da DFT', 'X_k=\\sum_{n=0}^{N-1}x_n e^{-i2\\pi kn/N}', 'Cada coeficiente mede a presença da frequência k/(NΔt).'),
+        scicalcStep('Magnitude de amplitude única', 'A_k=\\frac{2}{N}|X_k|', 'Para k = 0 (e Nyquist, quando houver), a escala correta é |Xₖ|/N; isso evita dobrar a componente contínua.')
+      ];
+      var sampleRows = times.slice(0, 6).map(function(time, index) { return '<tr><td>' + index + '</td><td>' + scicalcFormat(time, 7) + '</td><td>' + scicalcFormat(signal[index], 7) + '</td></tr>'; }).join('');
+      var coeffRows = firstCoefficients.map(function(item) { return '<tr><td>' + item.k + '</td><td>' + scicalcFormat(frequencies[item.k], 6) + '</td><td>' + scicalcFormat(item.real, 6) + '</td><td>' + scicalcFormat(item.imaginary, 6) + '</td><td>' + scicalcFormat(item.amplitude, 6) + '</td></tr>'; }).join('');
+      var tables = '<div class="limit-sides"><div class="limit-side"><strong>Primeiras amostras</strong><table class="step-table"><thead><tr><th>n</th><th>tₙ</th><th>xₙ</th></tr></thead><tbody>' + sampleRows + '</tbody></table></div><div class="limit-side"><strong>Primeiros coeficientes</strong><table class="step-table"><thead><tr><th>k</th><th>fₖ</th><th>Re(Xₖ)</th><th>Im(Xₖ)</th><th>Aₖ</th></tr></thead><tbody>' + coeffRows + '</tbody></table></div></div>';
+      html += scicalcDidactic('Passo a passo da DFT', 'A DFT é calculada diretamente para tornar os coeficientes e a normalização transparentes.', didacticSteps, tables);
+    }
+    html += '</div>';
+    document.getElementById('four-result').innerHTML = html;
+    var plot = document.getElementById('four-plot');
+    plot.style.height = '620px';
+    Plotly.newPlot('four-plot', [
+      {x:times,y:signal,type:'scatter',mode:'lines',name:'Sinal amostrado',line:{color:'#4f46e5',width:2},xaxis:'x',yaxis:'y'},
+      {x:frequencies,y:magnitudes,type:'scatter',mode:'lines+markers',name:'Amplitude',line:{color:'#06b6d4',width:2},marker:{size:4},fill:'tozeroy',xaxis:'x2',yaxis:'y2'}
+    ], getPlotLayout({title:'Sinal e espectro de amplitude (DFT)',grid:{rows:2,columns:1,pattern:'independent'},height:620,xaxis:{title:'t'},yaxis:{title:'f(t)'},xaxis2:{title:'Frequência (ciclos/unidade de t)'},yaxis2:{title:'Amplitude'}}), {responsive:true});
+    salvarHistorico('Fourier (DFT)', fStr, count + ' amostras; picos: ' + peakText);
+    toast('Espectro DFT calculado.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function plotar3D() {
+  try {
+    scicalcRequire('math', 'plot');
+    var fStr = str('g3d-f');
+    var fCode = scicalcParseNode(fStr, 'Função da superfície').compile();
+    var xmin = scicalcNumber(document.getElementById('g3d-xmin').value, 'x mínimo');
+    var xmax = scicalcNumber(document.getElementById('g3d-xmax').value, 'x máximo');
+    var ymin = scicalcNumber(document.getElementById('g3d-ymin').value, 'y mínimo');
+    var ymax = scicalcNumber(document.getElementById('g3d-ymax').value, 'y máximo');
+    if (xmin >= xmax || ymin >= ymax) throw new Error('Cada intervalo do gráfico 3D deve ter mínimo menor que máximo.');
+    var divisions = 45, xValues = [], yValues = [], zValues = [];
+    for (var j = 0; j <= divisions; j++) xValues.push(xmin + (xmax - xmin) * j / divisions);
+    for (var i = 0; i <= divisions; i++) {
+      var y = ymin + (ymax - ymin) * i / divisions;
+      yValues.push(y);
+      var row = [];
+      for (var k = 0; k <= divisions; k++) row.push(scicalcEvaluateOrNull(fCode, {x:xValues[k],y:y}));
+      zValues.push(row);
+    }
+    Plotly.newPlot('g3d-plot', [{x:xValues,y:yValues,z:zValues,type:'surface',colorscale:'Viridis',connectgaps:false}], getPlotLayout({title:'z = ' + fStr,scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}}}), {responsive:true});
+    salvarHistorico('Gráfico 3D', fStr, 'superfície gerada');
+    toast('Gráfico 3D gerado.', 'ok');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function scicalcGcd(a, b) {
+  var left = Math.abs(a), right = Math.abs(b);
+  while (right !== 0) { var remainder = left % right; left = right; right = remainder; }
+  return left;
+}
+
+function testarPrimo() {
+  try {
+    var n = scicalcInteger('num-teste', 'n', 2, 2000000000);
+    var prime = true;
+    for (var i = 2; i * i <= n; i++) if (n % i === 0) { prime = false; break; }
+    document.getElementById('num-primos-result').innerHTML = '<div class="result">O número <strong>' + n + '</strong> ' + (prime ? '<span style="color:var(--ok)">é primo.</span>' : '<span style="color:var(--err)">não é primo.</span>') + '</div>';
+    salvarHistorico('Primalidade', String(n), prime ? 'primo' : 'não primo');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function crivoEratostenes() {
+  try {
+    var max = scicalcInteger('num-crivo', 'N', 2, 1000000);
+    var sieve = new Uint8Array(max + 1), primes = [];
+    for (var i = 2; i <= max; i++) if (!sieve[i]) {
+      primes.push(i);
+      if (i * i <= max) for (var multiple = i * i; multiple <= max; multiple += i) sieve[multiple] = 1;
+    }
+    document.getElementById('num-primos-result').innerHTML = '<div class="result"><div><strong>Primos até ' + max + ':</strong> ' + primes.length + ' encontrados</div><div style="margin-top:10px;font-family:monospace;font-size:.9rem;max-height:200px;overflow-y:auto;word-wrap:break-word;">' + primes.join(', ') + '</div></div>';
+    salvarHistorico('Crivo de Eratóstenes', 'N=' + max, primes.length + ' primos');
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function calcularMDC() {
+  try {
+    var a = scicalcInteger('num-a', 'a', -2000000000, 2000000000);
+    var b = scicalcInteger('num-b', 'b', -2000000000, 2000000000);
+    var result = scicalcGcd(a, b);
+    document.getElementById('num-primos-result').innerHTML = '<div class="result">MDC(' + a + ', ' + b + ') = <strong>' + result + '</strong></div>';
+    salvarHistorico('MDC', a + ', ' + b, String(result));
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function calcularMMC() {
+  try {
+    var a = scicalcInteger('num-c', 'a', -2000000000, 2000000000);
+    var b = scicalcInteger('num-d', 'b', -2000000000, 2000000000);
+    var result = a === 0 || b === 0 ? 0 : Math.abs((a / scicalcGcd(a, b)) * b);
+    if (!Number.isSafeInteger(result)) throw new Error('O MMC excede a precisão segura do JavaScript para esses valores.');
+    document.getElementById('num-primos-result').innerHTML = '<div class="result">MMC(' + a + ', ' + b + ') = <strong>' + result + '</strong></div>';
+    salvarHistorico('MMC', a + ', ' + b, String(result));
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function fatorarNumero() {
+  try {
+    var n = scicalcInteger('num-fatorar', 'N', 2, 2000000000);
+    var original = n, factors = {};
+    for (var p = 2; p * p <= n; p++) while (n % p === 0) { factors[p] = (factors[p] || 0) + 1; n /= p; }
+    if (n > 1) factors[n] = (factors[n] || 0) + 1;
+    var expression = Object.entries(factors).map(function(entry) { return entry[1] > 1 ? entry[0] + '^{' + entry[1] + '}' : entry[0]; }).join(' \\cdot ');
+    document.getElementById('num-fator-result').innerHTML = '<div class="result">' + scicalcRenderTex(original + ' = ' + expression) + '</div>';
+    salvarHistorico('Fatoração', String(original), expression);
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function calcularFuncoesAritmeticas() {
+  try {
+    var n = scicalcInteger('num-func-n', 'n', 1, 10000000);
+    var phi = n, work = n;
+    for (var p = 2; p * p <= work; p++) if (work % p === 0) { while (work % p === 0) work /= p; phi -= phi / p; }
+    if (work > 1) phi -= phi / work;
+    var mu = 1, muWork = n, squarefree = true;
+    for (var q = 2; q * q <= muWork; q++) if (muWork % q === 0) { var count = 0; while (muWork % q === 0) { count++; muWork /= q; } if (count > 1) { squarefree = false; break; } mu = -mu; }
+    if (muWork > 1) mu = -mu;
+    if (!squarefree) mu = 0;
+    var divisorCount = 0, sigma = 0, divisors = [];
+    for (var d = 1; d * d <= n; d++) if (n % d === 0) { divisorCount++; sigma += d; divisors.push(d); if (d !== n / d) { divisorCount++; sigma += n / d; divisors.push(n / d); } }
+    divisors.sort(function(left, right) { return left - right; });
+    document.getElementById('num-func-result').innerHTML = '<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;text-align:center;"><div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div><div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div><div class="fact-card"><div class="label">Divisores d(n)</div><div class="value">' + divisorCount + '</div></div><div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div></div><div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + divisors.join(', ') + '</div></div>';
+    salvarHistorico('Funções aritméticas', String(n), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
+  } catch (error) { toast(error.message, 'err'); }
+}
+
+function scicalcHistoryData() {
+  try {
+    var data = JSON.parse(localStorage.getItem('scicalc_hist') || '[]');
+    return Array.isArray(data) ? data : [];
+  } catch (error) { return []; }
+}
+
+function salvarHistorico(tipo, entrada, saida) {
+  var history = scicalcHistoryData();
+  history.unshift({tipo:String(tipo).slice(0,80),entrada:String(entrada).slice(0,500),saida:String(saida).slice(0,500),data:new Date().toLocaleString('pt-BR')});
+  localStorage.setItem('scicalc_hist', JSON.stringify(history.slice(0, 50)));
+}
+
+function renderHistorico() {
+  var history = scicalcHistoryData();
+  var destination = document.getElementById('hist-list');
+  if (!history.length) { destination.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Nenhum cálculo registrado.</p>'; return; }
+  destination.innerHTML = history.map(function(item) { return '<div class="history-item"><div class="time"><strong>' + scicalcEscape(item.tipo) + '</strong> · ' + scicalcEscape(item.data) + '</div><div class="content">In: ' + scicalcEscape(item.entrada) + '<br>Out: ' + scicalcEscape(item.saida) + '</div></div>'; }).join('');
+}
+
+function limparHistorico() { localStorage.removeItem('scicalc_hist'); renderHistorico(); toast('Histórico limpo.', 'ok'); }
+function exportarHistorico() {
+  var history = scicalcHistoryData();
+  if (!history.length) { toast('O histórico está vazio.', 'warn'); return; }
+  var url = URL.createObjectURL(new Blob([JSON.stringify(history, null, 2)], {type:'application/json'}));
+  var link = document.createElement('a');
+  link.href = url; link.download = 'scicalc_historico.json'; link.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 0);
+}
+</script>
 </body>
 </html>
-```
