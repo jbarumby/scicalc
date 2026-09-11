@@ -85,6 +85,15 @@
   
   /* Ajuste no KaTeX para renderizar corretamente no tema escuro/claro */
   .katex { color: var(--ink) !important; font-size: 1.15em !important; }
+
+  /* Passo a passo */
+  .step-by-step {margin-top:16px; padding:16px; border-radius:12px; background:var(--panel); border:1px solid var(--border);}
+  .step-by-step h3 {margin:0 0 12px; color:var(--primary);}
+  .math-step {padding:10px 12px; margin:8px 0; border-left:3px solid var(--primary-2); background:var(--bg); border-radius:8px; overflow-x:auto;}
+  .math-step .step-title {font-weight:700; margin-bottom:5px;}
+  .step-note {font-size:.88rem; color:var(--muted); margin-top:8px;}
+  .step-toggle {display:flex; align-items:center; gap:8px; margin:10px 0 14px; font-size:.9rem; color:var(--muted);}
+  .step-toggle input {width:auto;}
 </style>
 </head>
 <body>
@@ -140,6 +149,7 @@
       <div><label>Variável</label><input id="der-var" value="x"></div>
       <div><label>Intervalo Plot</label><input id="der-intervalo" value="-5, 5" placeholder="Ex: -5,5"></div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="der-steps" checked> Mostrar passo a passo da derivação</label>
     <button class="btn" onclick="calcDerivada()">Calcular e Plotar</button>
     <div id="der-result"></div>
     <div id="der-plot" class="plot"></div>
@@ -156,6 +166,7 @@
       <div><label>Limite Inferior x₁ (Opcional)</label><input id="int-x1" placeholder="Ex: 0"></div>
       <div><label>Limite Superior x₂ (Opcional)</label><input id="int-x2" placeholder="Ex: 10"></div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="int-steps" checked> Mostrar passo a passo da integral indefinida</label>
     <button class="btn" onclick="calcIntegral()">Calcular Integral</button>
     <div id="int-result"></div>
     <div id="int-plot" class="plot"></div>
@@ -177,6 +188,7 @@
         </select>
       </div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="lim-steps" checked> Mostrar passo a passo do limite</label>
     <button class="btn" onclick="calcLimite()">Calcular Limite</button>
     <div id="lim-result"></div>
     <div id="lim-plot" class="plot"></div>
@@ -197,6 +209,7 @@
       </div>
       <div><label>Avaliar Ponto (x,y) Opcional</label><input id="par-pt" placeholder="Ex: 1, 2" value="1, 2"></div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="par-steps" checked> Mostrar passo a passo das derivadas parciais</label>
     <button class="btn" onclick="calcParcial()">Calcular Parcial</button>
     <div id="par-result"></div>
   </div>
@@ -231,6 +244,7 @@
       <div><label>x final</label><input id="edo-xf" value="5"></div>
       <div><label>Passos (N)</label><input id="edo-n" value="100"></div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="edo-steps" checked> Mostrar passo a passo do método RK4</label>
     <button class="btn" onclick="calcEDO()">Resolver EDO</button>
     <div id="edo-result"></div>
     <div id="edo-plot" class="plot"></div>
@@ -246,6 +260,7 @@
       <div><label>t final</label><input id="four-tmax" value="10"></div>
       <div><label>Qtd Amostras</label><input id="four-n" value="256"></div>
     </div>
+    <label class="step-toggle"><input type="checkbox" id="four-steps" checked> Mostrar passo a passo da DFT</label>
     <button class="btn" onclick="calcFourier()">Calcular Espectro</button>
     <div id="four-result"></div>
     <div id="four-plot" class="plot"></div>
@@ -531,210 +546,165 @@ async function buscarWikidataDireto(query, resultDiv) {
   }
 }
 
+// ============ PASSO A PASSO: CÁLCULO ============
+function stepBox(title, steps, note='') {
+  if (!Array.isArray(steps) || steps.length === 0) return '';
+  return `<div class="step-by-step"><h3>📘 ${title}</h3>${steps.map((s,i)=>`<div class="math-step"><div class="step-title">Passo ${i+1}</div><div>${s}</div></div>`).join('')}${note ? `<div class="step-note">${note}</div>` : ''}</div>`;
+}
+function safeTex(node) {
+  try { return node.toTex(); } catch(e) { return String(node); }
+}
+function fmt(v, digits=6) {
+  return Number.isFinite(v) ? Number(v).toFixed(digits) : String(v);
+}
+function derivativeSteps(fNode, varName, d1Node, d2Node) {
+  const f = fNode.toString();
+  const steps = [
+    tex(`\\text{Função dada: } f(${varName})=${safeTex(fNode)}`),
+    tex(`\\text{Identificamos a variável de derivação: }${varName}`)
+  ];
+  if (f.includes('*') && !/^[-+]?\\d*\\.?\\d*\\*?${varName}/.test(f)) {
+    steps.push(tex(`\\text{Se houver produto, usamos: }(uv)'=u'v+uv'`));
+  } else if (f.includes('/')) {
+    steps.push(tex(`\\text{Se houver quociente, usamos: }\\left(\\frac{u}{v}\\right)'=\\frac{u'v-uv'}{v^2}`));
+  } else if (f.includes('^')) {
+    steps.push(tex(`\\text{Para uma potência, usamos: }\\frac{d}{d${varName}}(${varName}^n)=n${varName}^{n-1}`));
+  } else {
+    steps.push(tex(`\\text{Aplicamos as regras básicas de derivação termo a termo.}`));
+  }
+  steps.push(tex(`f'(${varName})=${safeTex(d1Node)}`));
+  if (d2Node) steps.push(tex(`f''(${varName})=${safeTex(d2Node)}`));
+  return steps;
+}
+function integralSteps(fNode, indefTex) {
+  const f = fNode.toString().toLowerCase();
+  const steps = [tex(`\\text{Integral dada: }\\int ${safeTex(fNode)}\\,dx`)];
+  if (f.includes('^')) steps.push(tex(`\\text{Regra da potência: }\\int x^n dx=\\frac{x^{n+1}}{n+1}+C,\\quad n\\ne-1`));
+  if (f.includes('sin')) steps.push(tex(`\\text{Usamos: }\\int \\sin(x)dx=-\\cos(x)+C`));
+  if (f.includes('cos')) steps.push(tex(`\\text{Usamos: }\\int \\cos(x)dx=\\sin(x)+C`));
+  if (f.includes('exp') || f.includes('e^')) steps.push(tex(`\\text{Usamos: }\\int e^x dx=e^x+C`));
+  if (steps.length === 1) steps.push(tex(`\\text{Reconhecemos a primitiva pela integração simbólica.}`));
+  steps.push(tex(`\\text{Resultado da integração simbólica: }${indefTex}`));
+  steps.push(tex(`\\text{Acrescentamos a constante: }F(x)=${indefTex}+C`));
+  return steps;
+}
+function partialSteps(fNode, varName, dfNode, point) {
+  const other = varName === 'x' ? 'y' : 'x';
+  const steps = [
+    tex(`f(x,y)=${safeTex(fNode)}`),
+    tex(`\\text{Derivamos em relação a }${varName};\\text{ ${other} é tratado como constante.}`),
+    tex(`\\frac{\\partial f}{\\partial ${varName}}=${safeTex(dfNode)}`)
+  ];
+  if (point) steps.push(tex(`\\text{Agora substituímos o ponto indicado: }(x,y)=(${point})`));
+  return steps;
+}
+function limitSteps(fNode, aText, dir, directValue, finalValue) {
+  const steps = [tex(`\\lim_{x\\to ${aText}}${safeTex(fNode)}`)];
+  steps.push(tex(`\\text{1. Tentativa de substituição direta: }x=${aText}`));
+  if (Number.isFinite(directValue)) steps.push(tex(`\\text{2. Valor obtido por substituição: }${fmt(directValue,6)}`));
+  else steps.push(tex(`\\text{2. A substituição direta não produz um valor finito; analisamos a vizinhança.}`));
+  if (dir === 'left') steps.push(tex(`\\text{3. Aproximação pela esquerda: }x\\to ${aText}^{-}`));
+  else if (dir === 'right') steps.push(tex(`\\text{3. Aproximação pela direita: }x\\to ${aText}^{+}`));
+  else steps.push(tex(`\\text{3. Comparamos os valores dos dois lados.}`));
+  steps.push(tex(`\\text{4. Resultado numérico aproximado: }${finalValue}`));
+  return steps;
+}
+
 // ============ DERIVADAS (SIMBÓLICA E PLOT) ============
 function calcDerivada() {
   try {
-    const fStr = str('der-f');
-    const varName = str('der-var');
-    const [x1, x2] = str('der-intervalo').split(',').map(x => Number(x.trim()));
-    
-    // Parse Simbólico
+    const fStr = str('der-f'), varName = str('der-var');
+    const intervalo = str('der-intervalo').split(',').map(x => Number(x.trim()));
+    if (intervalo.length !== 2 || intervalo.some(x => !Number.isFinite(x))) throw new Error('Intervalo do gráfico inválido. Use, por exemplo: -5,5');
+    const [x1,x2] = intervalo;
     const fNode = math.parse(fStr);
-    const d1Node = math.derivative(fNode, varName);
-    const d2Node = math.derivative(d1Node, varName);
-    
-    // Geração LaTeX
-    let html = `<div class="result">
-      <div style="margin-bottom:12px">${tex(`f(${varName}) = ${fNode.toTex()}`)}</div>
-      <div style="margin-bottom:12px; color:var(--primary)">${tex(`f'(${varName}) = ${d1Node.toTex()}`)}</div>
-      <div style="color:var(--primary-2)">${tex(`f''(${varName}) = ${d2Node.toTex()}`)}</div>
-    </div>`;
+    const d1Node = math.derivative(fNode,varName);
+    const d2Node = math.derivative(d1Node,varName);
+    let html = `<div class="result"><div>${tex(`f(${varName})=${safeTex(fNode)}`)}</div><div style="margin-top:10px;color:var(--primary)">${tex(`f'(${varName})=${safeTex(d1Node)}`)}</div><div style="margin-top:10px;color:var(--primary-2)">${tex(`f''(${varName})=${safeTex(d2Node)}`)}</div>`;
+    if (document.getElementById('der-steps')?.checked) html += stepBox('Derivação passo a passo', derivativeSteps(fNode,varName,d1Node,d2Node), 'O cálculo simbólico é feito pelo Math.js; as linhas acima explicam as regras aplicadas.');
+    html += '</div>';
     document.getElementById('der-result').innerHTML = html;
-    
-    // Compilação para Plot Rápido
-    const fCode = fNode.compile();
-    const d1Code = d1Node.compile();
-    const d2Code = d2Node.compile();
-    
-    const xs = [], ys = [], yps = [], ypps = [];
-    for(let i=0; i<=100; i++) {
-      let x = x1 + (x2 - x1) * (i/100);
-      xs.push(x);
-      try { ys.push(fCode.evaluate({ [varName]: x })); } catch(e) { ys.push(null); }
-      try { yps.push(d1Code.evaluate({ [varName]: x })); } catch(e) { yps.push(null); }
-      try { ypps.push(d2Code.evaluate({ [varName]: x })); } catch(e) { ypps.push(null); }
+    const fCode=fNode.compile(), d1Code=d1Node.compile(), d2Code=d2Node.compile();
+    const xs=[],ys=[],yps=[],ypps=[];
+    for(let i=0;i<=100;i++){
+      const x=x1+(x2-x1)*i/100; xs.push(x);
+      try{ys.push(fCode.evaluate({[varName]:x}));}catch(e){ys.push(null);}
+      try{yps.push(d1Code.evaluate({[varName]:x}));}catch(e){yps.push(null);}
+      try{ypps.push(d2Code.evaluate({[varName]:x}));}catch(e){ypps.push(null);}
     }
-    
-    Plotly.newPlot('der-plot', [
-      { x:xs, y:ys, name:'f(x)', line:{color:'#4f46e5', width:3} },
-      { x:xs, y:yps, name:"f'(x)", line:{color:'#06b6d4', width:3} },
-      { x:xs, y:ypps, name:"f''(x)", line:{color:'#f59e0b', width:3} }
-    ], getPlotLayout({title:'Função e suas Derivadas', xaxis:{title:varName}, yaxis:{title:'y'}}), {responsive:true});
-    
-    salvarHistorico('Derivadas', fStr, d1Node.toString());
-    toast('Derivadas calculadas simbolicamene!','ok');
-  } catch(e) { toast(e.message, 'err'); }
+    Plotly.newPlot('der-plot',[{x:xs,y:ys,name:'f(x)'},{x:xs,y:yps,name:"f'(x)"},{x:xs,y:ypps,name:"f''(x)"}],getPlotLayout({title:'Função e suas Derivadas',xaxis:{title:varName},yaxis:{title:'y'}}),{responsive:true});
+    salvarHistorico('Derivadas',fStr,d1Node.toString()); toast('Derivadas calculadas simbolicamente!','ok');
+  } catch(e){ toast(e.message,'err'); }
 }
 
 // ============ INTEGRAIS (INDEFINIDA SIMBÓLICA E DEFINIDA NUMÉRICA) ============
 function calcIntegral() {
   try {
-    const fStr = str('int-f');
-    const x1Raw = document.getElementById('int-x1').value.trim();
-    const x2Raw = document.getElementById('int-x2').value.trim();
-    
-    const fNode = math.parse(fStr);
-    
-    // 1. Integral Indefinida Simbólica (usando Nerdamer)
-    let indefTex = "";
-    try {
-      const integral = nerdamer(`integrate(${fStr}, x)`);
-      indefTex = integral.toTeX();
-    } catch(e) {
-      indefTex = "\\text{[Não foi possível integrar analiticamente]}";
-    }
-    
-    let html = `<div class="result">
-      <div style="margin-bottom:8px"><strong>Integral Indefinida (Simbólica):</strong></div>
-      <div style="color:var(--primary)">${tex(`\\int (${fNode.toTex()}) dx = ${indefTex} + C`)}</div>
-    `;
-    
-    const plotData = [];
-    const fCode = fNode.compile();
-    
-    // 2. Integral Definida Numérica (se limites fornecidos)
-    if (x1Raw && x2Raw) {
-      const x1 = Number(x1Raw.replace(',','.'));
-      const x2 = Number(x2Raw.replace(',','.'));
-      if(isNaN(x1) || isNaN(x2)) throw new Error("Limites de integração inválidos");
-      
-      const n = 1000, h = (x2-x1)/n;
-      let s = (fCode.evaluate({x:x1}) || 0) + (fCode.evaluate({x:x2}) || 0);
-      for(let i=1; i<n; i++) s += (fCode.evaluate({x: x1 + i*h}) || 0) * (i%2 ? 4 : 2);
-      const definiteVal = s * h / 3;
-      
-      html += `
-        <hr style="margin:16px 0; border:none; border-top:1px solid var(--border)">
-        <div style="margin-bottom:8px"><strong>Integral Definida:</strong></div>
-        <div style="color:var(--ok)">${tex(`\\int_{${x1}}^{${x2}} (${fNode.toTex()}) dx \\approx ${definiteVal.toFixed(6)}`)}</div>
-      `;
-      salvarHistorico('Integral', `∫ ${fStr} dx [${x1},${x2}]`, definiteVal.toFixed(6));
-      
-      // Criar array para preencher a área sob a curva
-      const xs = [], ys = [];
-      for(let i=0; i<=100; i++) {
-        let x = x1 + (x2-x1)*(i/100);
-        xs.push(x);
-        try { ys.push(fCode.evaluate({x:x})); } catch(e){ys.push(null);}
-      }
-      plotData.push({ x:xs, y:ys, type:'scatter', mode:'lines', fill:'tozeroy', name:'Área f(x)', line:{color:'#4f46e5'} });
+    const fStr=str('int-f'), x1Raw=document.getElementById('int-x1').value.trim(), x2Raw=document.getElementById('int-x2').value.trim();
+    const fNode=math.parse(fStr); let indefTex='';
+    try { indefTex=nerdamer(`integrate(${fStr}, x)`).toTeX(); } catch(e) { indefTex='\\text{Não foi possível integrar analiticamente}'; }
+    let html=`<div class="result"><div><strong>Integral Indefinida (Simbólica):</strong></div><div style="color:var(--primary);margin-top:8px">${tex(`\\int (${safeTex(fNode)})dx=${indefTex}+C`)}</div>`;
+    if(document.getElementById('int-steps')?.checked) html += stepBox('Integral indefinida — passo a passo',integralSteps(fNode,indefTex),'A constante C é necessária porque duas primitivas da mesma função diferem por uma constante.');
+    html+='</div>';
+    const plotData=[], fCode=fNode.compile();
+    const hasX1=!!x1Raw, hasX2=!!x2Raw;
+    if(hasX1 !== hasX2) throw new Error('Informe os dois limites x₁ e x₂, ou deixe os dois em branco.');
+    if(hasX1 && hasX2){
+      const x1=Number(x1Raw.replace(',','.')),x2=Number(x2Raw.replace(',','.'));
+      if(!Number.isFinite(x1)||!Number.isFinite(x2)) throw new Error('Limites de integração inválidos');
+      const n=1000,h=(x2-x1)/n; let sum=fCode.evaluate({x:x1})+fCode.evaluate({x:x2});
+      for(let i=1;i<n;i++) sum+=fCode.evaluate({x:x1+i*h})*(i%2?4:2);
+      const val=sum*h/3;
+      html+=`<div class="result"><strong>Integral Definida (Simpson):</strong><div style="color:var(--ok);margin-top:8px">${tex(`\\int_{${x1}}^{${x2}}(${safeTex(fNode)})dx\\approx${val.toFixed(6)}`)}</div></div>`;
+      salvarHistorico('Integral',`∫ ${fStr} dx [${x1},${x2}]`,val.toFixed(6));
+      const xs=[],ys=[]; for(let i=0;i<=100;i++){const x=x1+(x2-x1)*i/100;xs.push(x);try{ys.push(fCode.evaluate({x}));}catch(e){ys.push(null);}}
+      plotData.push({x:xs,y:ys,type:'scatter',mode:'lines',fill:'tozeroy',name:'Área f(x)'});
     } else {
-      salvarHistorico('Integral', `∫ ${fStr} dx`, indefTex);
-      // Sem limites numéricos, plota só a função f(x)
-      const xs = [], ys = [];
-      for(let i=0; i<=100; i++) {
-        let x = -5 + 10*(i/100);
-        xs.push(x);
-        try { ys.push(fCode.evaluate({x:x})); } catch(e){ys.push(null);}
-      }
-      plotData.push({ x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'} });
+      salvarHistorico('Integral',`∫ ${fStr} dx`,indefTex);
+      const xs=[],ys=[]; for(let i=0;i<=100;i++){const x=-5+10*i/100;xs.push(x);try{ys.push(fCode.evaluate({x}));}catch(e){ys.push(null);}}
+      plotData.push({x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)'});
     }
-    
-    html += `</div>`;
-    document.getElementById('int-result').innerHTML = html;
-    
-    Plotly.newPlot('int-plot', plotData, getPlotLayout({title:'Visualização', xaxis:{title:'x'}, yaxis:{title:'y'}}), {responsive:true});
-    toast('Integrais calculadas!', 'ok');
-  } catch(e) { toast(e.message, 'err'); }
+    document.getElementById('int-result').innerHTML=html;
+    Plotly.newPlot('int-plot',plotData,getPlotLayout({title:'Visualização',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true}); toast('Integrais calculadas!','ok');
+  } catch(e){toast(e.message,'err');}
 }
 
 // ============ DERIVADAS PARCIAIS (SIMBÓLICA) ============
-function calcParcial() {
-  try {
-    const fStr = str('par-f');
-    const varName = str('par-var');
-    const ptRaw = document.getElementById('par-pt').value.trim();
-    
-    const fNode = math.parse(fStr);
-    const dfNode = math.derivative(fNode, varName);
-    
-    let html = `<div class="result">
-      <div style="margin-bottom:12px">${tex(`f(x,y) = ${fNode.toTex()}`)}</div>
-      <div style="margin-bottom:12px; color:var(--primary)">${tex(`\\frac{\\partial f}{\\partial ${varName}} = ${dfNode.toTex()}`)}</div>
-    `;
-    
-    if (ptRaw) {
-      const pt = ptRaw.split(',').map(x => Number(x.trim()));
-      if(pt.length === 2 && !isNaN(pt[0]) && !isNaN(pt[1])) {
-        const val = dfNode.compile().evaluate({x: pt[0], y: pt[1]});
-        html += `<div style="color:var(--ok)">${tex(`\\left. \\frac{\\partial f}{\\partial ${varName}} \\right|_{(x=${pt[0]}, y=${pt[1]})} = ${val.toFixed(6)}`)}</div>`;
-      }
-    }
-    html += `</div>`;
-    document.getElementById('par-result').innerHTML = html;
-    salvarHistorico('Parcial', `∂/∂${varName} (${fStr})`, dfNode.toString());
-    toast('Derivada parcial processada!','ok');
-  } catch(e) { toast(e.message, 'err'); }
+function calcParcial(){
+  try{
+    const fStr=str('par-f'),varName=str('par-var'),ptRaw=document.getElementById('par-pt').value.trim();
+    const fNode=math.parse(fStr),dfNode=math.derivative(fNode,varName);
+    let html=`<div class="result"><div>${tex(`f(x,y)=${safeTex(fNode)}`)}</div><div style="margin-top:10px;color:var(--primary)">${tex(`\\frac{\\partial f}{\\partial ${varName}}=${safeTex(dfNode)}`)}</div>`;
+    if(ptRaw){const pt=ptRaw.split(',').map(x=>Number(x.trim()));if(pt.length===2&&pt.every(Number.isFinite)){const val=dfNode.compile().evaluate({x:pt[0],y:pt[1]});html+=`<div style="margin-top:10px;color:var(--ok)">${tex(`\\left.\\frac{\\partial f}{\\partial ${varName}}\\right|_{(${pt[0]},${pt[1]})}=${val.toFixed(6)}`)}</div>`;}}
+    if(document.getElementById('par-steps')?.checked)html+=stepBox('Derivadas parciais — passo a passo',partialSteps(fNode,varName,dfNode,ptRaw));
+    html+='</div>'; document.getElementById('par-result').innerHTML=html; salvarHistorico('Parcial',`∂/∂${varName} (${fStr})`,dfNode.toString()); toast('Derivada parcial processada!','ok');
+  }catch(e){toast(e.message,'err');}
 }
 
 // ============ LIMITES ============
-function calcLimite() {
-  try {
-    const fStr = str('lim-f');
-    const aStr = str('lim-a').toLowerCase();
-    const dir = document.getElementById('lim-dir').value;
-    const isInf = aStr.includes('inf');
-    const aVal = isInf ? null : Number(aStr.replace(',','.'));
-    
-    const fCode = math.parse(fStr).compile();
-    let valL = NaN;
-    let limitTex = isInf ? "\\infty" : aVal;
-    
-    // Aproximação numérica 
-    if(isInf) {
-      valL = fCode.evaluate({x: 1e6});
-    } else {
-      const h = 1e-6;
-      const vRight = fCode.evaluate({x: aVal + h});
-      const vLeft = fCode.evaluate({x: aVal - h});
-      
-      if(dir === 'right') valL = vRight;
-      else if (dir === 'left') valL = vLeft;
-      else valL = (vRight + vLeft) / 2; 
+function calcLimite(){
+  try{
+    const fStr=str('lim-f'),aStr=str('lim-a').trim().toLowerCase(),dir=document.getElementById('lim-dir').value;
+    if(!aStr) throw new Error('Informe o ponto para o qual x tende.');
+    const isInf=(aStr==='inf'||aStr==='+inf'||aStr==='infinito'||aStr==='+infinito');
+    const aVal=isInf?null:Number(aStr.replace(',','.'));
+    if(!isInf&&!Number.isFinite(aVal)) throw new Error('Ponto do limite inválido. Use, por exemplo, 0 ou inf.');
+    const fNode=math.parse(fStr),fCode=fNode.compile(); let valL=NaN,directValue=NaN;
+    if(isInf){ valL=fCode.evaluate({x:1e6}); }
+    else {
+      try{directValue=fCode.evaluate({x:aVal});}catch(e){directValue=NaN;}
+      const h=1e-6,vR=fCode.evaluate({x:aVal+h}),vL=fCode.evaluate({x:aVal-h});
+      if(dir==='right')valL=vR; else if(dir==='left')valL=vL; else valL=(vR+vL)/2;
     }
-    
-    // Tratamento estético
-    let finalL = "Indefinido";
-    if(isFinite(valL)) {
-      if(Math.abs(valL) > 1e5) finalL = "\\infty";
-      else {
-        const rnd = Math.round(valL);
-        if(Math.abs(valL - rnd) < 1e-4) finalL = rnd.toString();
-        else finalL = valL.toFixed(4);
-      }
-    }
-    
-    document.getElementById('lim-result').innerHTML = `<div class="result">
-      <div>${tex(`\\lim_{x \\to ${limitTex}} \\left( ${math.parse(fStr).toTex()} \\right) \\approx ${finalL}`)}</div>
-      <div style="font-size:0.85rem; color:var(--muted); margin-top:8px">Nota: Limite calculado por métodos numéricos.</div>
-    </div>`;
-    
-    // Plot ao redor do ponto
-    const xs = [], ys = [];
-    let start = isInf ? 0 : aVal - 2;
-    let end = isInf ? 100 : aVal + 2;
-    for(let i=0; i<=100; i++) {
-      let x = start + (end-start)*(i/100);
-      if(!isInf && Math.abs(x - aVal) < 1e-5) continue; // Pula a singularidade exata
-      xs.push(x);
-      try { 
-        let y = fCode.evaluate({x:x});
-        ys.push((Math.abs(y)<1e4) ? y : null); // Evitar plotar linhas pro infinito
-      } catch(e) { ys.push(null); }
-    }
-    Plotly.newPlot('lim-plot', [{x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'}}], getPlotLayout({title:'Comportamento de f(x)', xaxis:{title:'x'}, yaxis:{title:'f(x)'}}), {responsive:true});
-    salvarHistorico('Limite', `x->${limitTex} (${fStr})`, finalL);
-  } catch(e) { toast(e.message, 'err'); }
+    let finalL='Indefinido';
+    if(Number.isFinite(valL)){ if(Math.abs(valL)>1e5) finalL=valL>0?'\\infty':'-\\infty'; else {const rnd=Math.round(valL);finalL=Math.abs(valL-rnd)<1e-4?String(rnd):valL.toFixed(4);} }
+    let html=`<div class="result"><div>${tex(`\\lim_{x\\to ${isInf?'\\infty':aVal}}(${safeTex(fNode)})\\approx${finalL}`)}</div><div class="step-note">Cálculo numérico por aproximação na vizinhança do ponto.</div>`;
+    if(document.getElementById('lim-steps')?.checked) html+=stepBox('Limite — passo a passo',limitSteps(fNode,isInf?'\\infty':aVal,dir,directValue,finalL),'Este módulo é numérico. Limites simbólicos indeterminados podem exigir fatoração, racionalização ou L’Hôpital.');
+    html+='</div>'; document.getElementById('lim-result').innerHTML=html;
+    const xs=[],ys=[];let start=isInf?0:aVal-2,end=isInf?100:aVal+2;
+    for(let i=0;i<=100;i++){const x=start+(end-start)*i/100;if(!isInf&&Math.abs(x-aVal)<1e-8)continue;xs.push(x);try{const y=fCode.evaluate({x});ys.push(Number.isFinite(y)&&Math.abs(y)<1e4?y:null);}catch(e){ys.push(null);}}
+    Plotly.newPlot('lim-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)'}],getPlotLayout({title:'Comportamento de f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true}); salvarHistorico('Limite',`x->${isInf?'∞':aVal} (${fStr})`,finalL);
+  }catch(e){toast(e.message,'err');}
 }
 
 // ============ GRÁFICO 3D ============
@@ -773,69 +743,40 @@ function plotar3D() {
 }
 
 // ============ EDOs ============
-function calcEDO() {
-  try {
-    const fStr = str('edo-f');
-    const fCode = math.parse(fStr).compile();
-    const x0 = num('edo-x0'), y0 = num('edo-y0'), xf = num('edo-xf');
-    const N = Math.max(10, Math.floor(num('edo-n')));
-    
-    const h = (xf-x0)/N;
-    const xs = [x0], ys = [y0];
-    let x = x0, y = y0;
-    
-    for(let i=0; i<N; i++) {
-      const k1 = fCode.evaluate({x:x, y:y});
-      const k2 = fCode.evaluate({x:x+h/2, y:y+h*k1/2});
-      const k3 = fCode.evaluate({x:x+h/2, y:y+h*k2/2});
-      const k4 = fCode.evaluate({x:x+h, y:y+h*k3});
-      y += (h/6)*(k1 + 2*k2 + 2*k3 + k4);
-      x += h;
-      xs.push(x); ys.push(y);
+function calcEDO(){
+  try{
+    const fStr=str('edo-f'),fNode=math.parse(fStr),fCode=fNode.compile();
+    const x0=num('edo-x0'),y0=num('edo-y0'),xf=num('edo-xf'),N=Math.max(10,Math.floor(num('edo-n')));
+    if(![x0,y0,xf,N].every(Number.isFinite)) throw new Error('Parâmetros da EDO inválidos.');
+    const h=(xf-x0)/N,xs=[x0],ys=[y0],trace=[];let x=x0,y=y0;
+    for(let i=0;i<N;i++){
+      const k1=fCode.evaluate({x:x,y:y}),k2=fCode.evaluate({x:x+h/2,y:y+h*k1/2}),k3=fCode.evaluate({x:x+h/2,y:y+h*k2/2}),k4=fCode.evaluate({x:x+h,y:y+h*k3});
+      if(![k1,k2,k3,k4].every(Number.isFinite)) throw new Error(`A função da EDO produziu valor inválido no passo ${i+1}.`);
+      if(i<3)trace.push({i:i+1,x:x,y:y,k1:k1,k2:k2,k3:k3,k4:k4});
+      y += (h/6)*(k1+2*k2+2*k3+k4); x += h; xs.push(x); ys.push(y);
     }
-    
-    document.getElementById('edo-result').innerHTML = `<div class="result">
-      <div>${tex(`y' = ${math.parse(fStr).toTex()}`)}</div>
-      <div style="margin-top:8px">${texInline(`y(${x0}) = ${y0}`)} &nbsp; ➡ &nbsp; <strong style="color:var(--primary)">${texInline(`y(${xf.toFixed(2)}) \\approx ${ys[ys.length-1].toFixed(6)}`)}</strong></div>
-    </div>`;
-    
-    Plotly.newPlot('edo-plot', [{x:xs, y:ys, name:'Solução y(x)', line:{color:'#4f46e5',width:3}}], getPlotLayout({title:'Solução EDO (RK4)', xaxis:{title:'x'}, yaxis:{title:'y'}}), {responsive:true});
-    salvarHistorico('EDO RK4', `y'=${fStr}`, `y(${xf}) ≈ ${ys[ys.length-1].toFixed(4)}`);
-  } catch(e) { toast(e.message,'err'); }
+    let html=`<div class="result"><div>${tex(`y'=${safeTex(fNode)}`)}</div><div style="margin-top:8px">${texInline(`y(${x0})=${y0}`)} &nbsp;→&nbsp; <strong style="color:var(--primary)">${texInline(`y(${xf.toFixed(2)})\\approx${ys[ys.length-1].toFixed(6)}`)}</strong></div>`;
+    if(document.getElementById('edo-steps')?.checked){
+      const steps=[tex(`h=\\frac{x_f-x_0}{N}=\\frac{${xf}-${x0}}{${N}}=${h.toFixed(6)}`),tex(`k_1=f(x_n,y_n)`),tex(`k_2=f\\left(x_n+\\frac{h}{2},y_n+\\frac{hk_1}{2}\\right)`),tex(`k_3=f\\left(x_n+\\frac{h}{2},y_n+\\frac{hk_2}{2}\\right)`),tex(`k_4=f(x_n+h,y_n+hk_3)`),tex(`y_{n+1}=y_n+\\frac{h}{6}(k_1+2k_2+2k_3+k_4)` )];
+      trace.forEach(t=>steps.push(tex(`\\text{Passo ${t.i}: }x_n=${t.x.toFixed(4)},\\;y_n=${t.y.toFixed(6)},\\;k_1=${t.k1.toFixed(6)},\\;k_2=${t.k2.toFixed(6)},\\;k_3=${t.k3.toFixed(6)},\\;k_4=${t.k4.toFixed(6)}`)));
+      html+=stepBox('EDO — Runge–Kutta de 4ª ordem',steps,'São mostrados os três primeiros passos numéricos; os demais usam a mesma recorrência.');
+    }
+    html+='</div>';document.getElementById('edo-result').innerHTML=html;Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'Solução y(x)'}],getPlotLayout({title:'Solução EDO (RK4)',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true});salvarHistorico('EDO RK4',`y'=${fStr}`,`y(${xf}) ≈ ${ys[ys.length-1].toFixed(4)}`);
+  }catch(e){toast(e.message,'err');}
 }
 
 // ============ FOURIER ============
-function calcFourier() {
-  try {
-    const fStr = str('four-f');
-    const fCode = math.parse(fStr).compile();
-    const tmin = num('four-tmin'), tmax = num('four-tmax');
-    const N = Math.floor(num('four-n'));
-    
-    const dt = (tmax-tmin)/N;
-    const mag = new Array(N/2).fill(0);
-    const freqs = new Array(N/2).fill(0);
-    
-    const signal = [];
-    for(let n=0; n<N; n++) signal.push(fCode.evaluate({t: tmin + n*dt}) || 0);
-    
-    for(let k=0; k<N/2; k++) {
-      let sR = 0, sI = 0;
-      for(let n=0; n<N; n++) {
-        const a = -2 * Math.PI * k * n / N;
-        sR += signal[n] * Math.cos(a);
-        sI += signal[n] * Math.sin(a);
-      }
-      mag[k] = (2/N) * Math.sqrt(sR*sR + sI*sI);
-      freqs[k] = k / (N*dt);
-    }
-    
-    document.getElementById('four-result').innerHTML = `<div class="result">
-      <div>Espectro de Magnitudes (DFT) calculado com sucesso para <strong>${N} amostras</strong>.</div>
-    </div>`;
-    
-    Plotly.newPlot('four-plot', [{x:freqs, y:mag, type:'scatter', mode:'lines', name:'Magnitude', fill:'tozeroy', line:{color:'#06b6d4'}}], getPlotLayout({title:'Transformada Discreta de Fourier', xaxis:{title:'Frequência (Hz)'}, yaxis:{title:'Magnitude'}}), {responsive:true});
-  } catch(e) { toast(e.message,'err'); }
+function calcFourier(){
+  try{
+    const fStr=str('four-f'),fNode=math.parse(fStr),fCode=fNode.compile(),tmin=num('four-tmin'),tmax=num('four-tmax'),N=Math.floor(num('four-n'));
+    if(![tmin,tmax,N].every(Number.isFinite)||N<4||tmax===tmin) throw new Error('Parâmetros de Fourier inválidos. Use N ≥ 4 e t final diferente de t inicial.');
+    const dt=(tmax-tmin)/N,M=Math.floor(N/2),mag=new Array(M).fill(0),freqs=new Array(M).fill(0),signal=[];
+    for(let n=0;n<N;n++){const v=fCode.evaluate({t:tmin+n*dt});if(!Number.isFinite(v))throw new Error(`O sinal produziu valor inválido na amostra ${n}.`);signal.push(v);}
+    for(let k=0;k<M;k++){let sR=0,sI=0;for(let n=0;n<N;n++){const a=-2*Math.PI*k*n/N;sR+=signal[n]*Math.cos(a);sI+=signal[n]*Math.sin(a);}mag[k]=(2/N)*Math.hypot(sR,sI);freqs[k]=k/(N*dt);}
+    let html=`<div class="result"><div>Espectro de Magnitudes (DFT) calculado com sucesso para <strong>${N} amostras</strong>.</div>`;
+    if(document.getElementById('four-steps')?.checked){const steps=[tex(`\\Delta t=\\frac{t_{max}-t_{min}}{N}=\\frac{${tmax}-${tmin}}{${N}}=${dt.toFixed(6)}`),tex(`x_n=f(t_{min}+n\\Delta t),\\quad n=0,1,\\ldots,N-1`),tex(`X_k=\\sum_{n=0}^{N-1}x_n e^{-i2\\pi kn/N}`),tex(`|X_k|_{norm}=\\frac{2}{N}|X_k|`),tex(`f_k=\\frac{k}{N\\Delta t}`)];for(let k=0;k<Math.min(5,M);k++)steps.push(tex(`k=${k}:\\quad f_k=${freqs[k].toFixed(6)},\\quad |X_k|_{norm}=${mag[k].toFixed(6)}`));html+=stepBox('Fourier — passo a passo da DFT',steps,'Este cálculo usa a Transformada Discreta de Fourier (DFT); a visualização mostra os coeficientes de frequência.');}
+    html+='</div>';document.getElementById('four-result').innerHTML=html;Plotly.newPlot('four-plot',[{x:freqs,y:mag,type:'scatter',mode:'lines',name:'Magnitude',fill:'tozeroy'}],getPlotLayout({title:'Transformada Discreta de Fourier',xaxis:{title:'Frequência'},yaxis:{title:'Magnitude'}}),{responsive:true});
+  }catch(e){toast(e.message,'err');}
 }
 
 // ============ TEORIA DOS NÚMEROS ============
