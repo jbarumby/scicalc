@@ -301,7 +301,15 @@
     </div>
     <div class="sub-panel" id="sub-num-func">
       <div class="form-row">
-        <div><label>Número n</label><input id="num-func-n" placeholder="60"><button class="btn" style="margin-top:8px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button></div>
+        <div>
+          <label>Número n</label>
+          <input id="num-func-n" placeholder="60">
+          <button class="btn" style="margin-top:8px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button>
+          <label class="didactic-toggle">
+            <input id="num-func-steps" type="checkbox" checked>
+            Mostrar passo a passo didático
+          </label>
+        </div>
       </div>
       <div id="num-func-result"></div>
     </div>
@@ -908,31 +916,152 @@ function fatorarNumero() {
 
 function calcularFuncoesAritmeticas() {
   try {
-    const n = parseInt(str('num-func-n'));
-    if(isNaN(n) || n<1) throw new Error('n deve ser ≥ 1');
-    
-    let phi = n, temp = n;
-    for(let p=2; p*p<=temp; p++) if(temp%p===0) { while(temp%p===0) temp/=p; phi -= phi/p; }
-    if(temp>1) phi -= phi/temp;
-    
-    let mu = 1, tempM = n, sqf = true;
-    for(let p=2; p*p<=tempM; p++) if(tempM%p===0) { let c=0; while(tempM%p===0) {c++; tempM/=p;} if(c>1) {sqf=false; break;} mu = -mu; }
-    if(tempM>1) mu = -mu; if(!sqf) mu = 0;
-    
-    let d = 0, sigma = 0; const div = [];
-    for(let i=1; i*i<=n; i++) if(n%i===0) { d++; sigma+=i; div.push(i); if(i!==n/i) { d++; sigma+=n/i; div.push(n/i); } }
-    div.sort((a,b)=>a-b);
-    
-    document.getElementById('num-func-result').innerHTML = `<div class="result">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; text-align:center;">
-        <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">Totiente φ(n)</div><div class="value">${phi}</div></div>
-        <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">Möbius μ(n)</div><div class="value">${mu}</div></div>
-        <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">Divisores d(n)</div><div class="value">${d}</div></div>
-        <div class="fact-card" style="border-left-color:#10b981"><div class="label">Soma Div. σ(n)</div><div class="value">${sigma}</div></div>
-      </div>
-      <div style="margin-top:14px; font-family:monospace; word-break:break-all; font-size:0.9rem"><strong>Divisores:</strong> ${div.join(', ')}</div>
-    </div>`;
-  } catch(e) { toast(e.message,'err'); }
+    var n = scicalcInteger('num-func-n', 'n', 1, 10000000);
+    var original = n;
+    var fatores = [];
+    var work = n;
+
+    for (var p = 2; p * p <= work; p++) {
+      if (work % p === 0) {
+        var expoente = 0;
+        while (work % p === 0) {
+          work /= p;
+          expoente++;
+        }
+        fatores.push({p: p, e: expoente});
+      }
+    }
+    if (work > 1) fatores.push({p: work, e: 1});
+
+    var phi = n;
+    for (var i = 0; i < fatores.length; i++) {
+      phi = phi * (fatores[i].p - 1) / fatores[i].p;
+    }
+    phi = Math.round(phi);
+
+    var mu = 1;
+    var quadradoLivre = true;
+    for (var j = 0; j < fatores.length; j++) {
+      if (fatores[j].e > 1) {
+        quadradoLivre = false;
+        break;
+      }
+      mu *= -1;
+    }
+    if (!quadradoLivre) mu = 0;
+
+    var divisorCount = 1;
+    var sigma = 1;
+    for (var k = 0; k < fatores.length; k++) {
+      var pk = fatores[k].p;
+      var ek = fatores[k].e;
+      divisorCount *= (ek + 1);
+      var somaPotencias = 0;
+      var potencia = 1;
+      for (var t = 0; t <= ek; t++) {
+        somaPotencias += potencia;
+        potencia *= pk;
+      }
+      sigma *= somaPotencias;
+    }
+    divisorCount = Math.round(divisorCount);
+    sigma = Math.round(sigma);
+
+    var divisors = [];
+    for (var d = 1; d * d <= n; d++) {
+      if (n % d === 0) {
+        divisors.push(d);
+        if (d !== n / d) divisors.push(n / d);
+      }
+    }
+    divisors.sort(function(a, b) { return a - b; });
+
+    var fatoracao = fatores.map(function(item) {
+      return item.p + (item.e > 1 ? '^' + item.e : '');
+    }).join(' · ');
+
+    var fatoracaoTex = fatores.map(function(item) {
+      return item.e > 1 ? item.p + '^{' + item.e + '}' : String(item.p);
+    }).join('\\cdot ');
+
+    var html = '<div class="result">' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center;">' +
+      '<div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div>' +
+      '<div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div>' +
+      '<div class="fact-card"><div class="label">Divisores d(n)=τ(n)</div><div class="value">' + divisorCount + '</div></div>' +
+      '<div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Fatoração:</strong> ' + scicalcEscape(String(original) + ' = ' + fatoracao) + '</div>' +
+      '<div style="margin-top:10px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>' +
+      '</div>';
+
+    var mostrarPassos = document.getElementById('num-func-steps');
+    if (!mostrarPassos || mostrarPassos.checked) {
+      var steps = [];
+      steps.push(scicalcStep(
+        '1. Fatoração prima',
+        original + ' = ' + fatoracaoTex,
+        'Escrevemos n como produto de potências de primos. Os expoentes serão usados nas próximas fórmulas.'
+      ));
+
+      var phiFactors = fatores.map(function(item) {
+        return '\\left(1-\\frac{1}{' + item.p + '}\\right)';
+      }).join(' ');
+      steps.push(scicalcStep(
+        '2. Função totiente de Euler',
+        '\\varphi(' + original + ') = ' + original + ' ' + phiFactors + ' = ' + phi,
+        'φ(n) conta quantos inteiros de 1 até n são coprimos com n.'
+      ));
+
+      var muNota;
+      if (!quadradoLivre) {
+        muNota = 'Como pelo menos um primo aparece com expoente maior que 1, n não é livre de quadrados. Portanto, μ(n)=0.';
+      } else {
+        muNota = 'n é livre de quadrados. Como possui ' + fatores.length + ' fatores primos distintos, μ(n)=(-1)^' + fatores.length + ' = ' + mu + '.';
+      }
+      steps.push(scicalcStep(
+        '3. Função de Möbius',
+        '\\mu(' + original + ') = ' + mu,
+        muNota
+      ));
+
+      var divisorFactors = fatores.map(function(item) {
+        return '(' + (item.e + 1) + ')';
+      }).join('\\cdot ');
+      steps.push(scicalcStep(
+        '4. Número de divisores',
+        '\\tau(' + original + ') = ' + divisorFactors + ' = ' + divisorCount,
+        'Para n=p₁^a¹p₂^a²⋯pᵣ^aᵣ, usamos τ(n)=(a₁+1)(a₂+1)⋯(aᵣ+1).'
+      ));
+
+      var sigmaFactors = fatores.map(function(item) {
+        var termos = [];
+        var pot = 1;
+        for (var z = 0; z <= item.e; z++) {
+          termos.push(String(pot));
+          pot *= item.p;
+        }
+        return '(' + termos.join(' + ') + ')';
+      }).join('\\cdot ');
+      steps.push(scicalcStep(
+        '5. Soma dos divisores',
+        '\\sigma(' + original + ') = ' + sigmaFactors + ' = ' + sigma,
+        'Para cada fator p^a, somamos 1+p+p²+⋯+p^a e multiplicamos os resultados.'
+      ));
+
+      html += scicalcDidactic(
+        'Passo a passo das funções aritméticas',
+        'A partir da fatoração prima de n, calculamos φ(n), μ(n), τ(n) e σ(n).',
+        steps,
+        '<div class="step-note" style="margin-top:12px"><strong>Divisores de ' + original + ':</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>'
+      );
+    }
+
+    document.getElementById('num-func-result').innerHTML = html;
+    salvarHistorico('Funções aritméticas', String(original), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
+  } catch (error) {
+    toast(error.message, 'err');
+  }
 }
 
 // ============ HISTÓRICO ============
@@ -1679,19 +1808,151 @@ function fatorarNumero() {
 function calcularFuncoesAritmeticas() {
   try {
     var n = scicalcInteger('num-func-n', 'n', 1, 10000000);
-    var phi = n, work = n;
-    for (var p = 2; p * p <= work; p++) if (work % p === 0) { while (work % p === 0) work /= p; phi -= phi / p; }
-    if (work > 1) phi -= phi / work;
-    var mu = 1, muWork = n, squarefree = true;
-    for (var q = 2; q * q <= muWork; q++) if (muWork % q === 0) { var count = 0; while (muWork % q === 0) { count++; muWork /= q; } if (count > 1) { squarefree = false; break; } mu = -mu; }
-    if (muWork > 1) mu = -mu;
-    if (!squarefree) mu = 0;
-    var divisorCount = 0, sigma = 0, divisors = [];
-    for (var d = 1; d * d <= n; d++) if (n % d === 0) { divisorCount++; sigma += d; divisors.push(d); if (d !== n / d) { divisorCount++; sigma += n / d; divisors.push(n / d); } }
-    divisors.sort(function(left, right) { return left - right; });
-    document.getElementById('num-func-result').innerHTML = '<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;text-align:center;"><div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div><div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div><div class="fact-card"><div class="label">Divisores d(n)</div><div class="value">' + divisorCount + '</div></div><div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div></div><div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + divisors.join(', ') + '</div></div>';
-    salvarHistorico('Funções aritméticas', String(n), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
-  } catch (error) { toast(error.message, 'err'); }
+    var original = n;
+    var fatores = [];
+    var work = n;
+
+    for (var p = 2; p * p <= work; p++) {
+      if (work % p === 0) {
+        var expoente = 0;
+        while (work % p === 0) {
+          work /= p;
+          expoente++;
+        }
+        fatores.push({p: p, e: expoente});
+      }
+    }
+    if (work > 1) fatores.push({p: work, e: 1});
+
+    var phi = n;
+    for (var i = 0; i < fatores.length; i++) {
+      phi = phi * (fatores[i].p - 1) / fatores[i].p;
+    }
+    phi = Math.round(phi);
+
+    var mu = 1;
+    var quadradoLivre = true;
+    for (var j = 0; j < fatores.length; j++) {
+      if (fatores[j].e > 1) {
+        quadradoLivre = false;
+        break;
+      }
+      mu *= -1;
+    }
+    if (!quadradoLivre) mu = 0;
+
+    var divisorCount = 1;
+    var sigma = 1;
+    for (var k = 0; k < fatores.length; k++) {
+      var pk = fatores[k].p;
+      var ek = fatores[k].e;
+      divisorCount *= (ek + 1);
+      var somaPotencias = 0;
+      var potencia = 1;
+      for (var t = 0; t <= ek; t++) {
+        somaPotencias += potencia;
+        potencia *= pk;
+      }
+      sigma *= somaPotencias;
+    }
+    divisorCount = Math.round(divisorCount);
+    sigma = Math.round(sigma);
+
+    var divisors = [];
+    for (var d = 1; d * d <= n; d++) {
+      if (n % d === 0) {
+        divisors.push(d);
+        if (d !== n / d) divisors.push(n / d);
+      }
+    }
+    divisors.sort(function(a, b) { return a - b; });
+
+    var fatoracao = fatores.map(function(item) {
+      return item.p + (item.e > 1 ? '^' + item.e : '');
+    }).join(' · ');
+
+    var fatoracaoTex = fatores.map(function(item) {
+      return item.e > 1 ? item.p + '^{' + item.e + '}' : String(item.p);
+    }).join('\\cdot ');
+
+    var html = '<div class="result">' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center;">' +
+      '<div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div>' +
+      '<div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div>' +
+      '<div class="fact-card"><div class="label">Divisores d(n)=τ(n)</div><div class="value">' + divisorCount + '</div></div>' +
+      '<div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div>' +
+      '</div>' +
+      '<div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Fatoração:</strong> ' + scicalcEscape(String(original) + ' = ' + fatoracao) + '</div>' +
+      '<div style="margin-top:10px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>' +
+      '</div>';
+
+    var mostrarPassos = document.getElementById('num-func-steps');
+    if (!mostrarPassos || mostrarPassos.checked) {
+      var steps = [];
+      steps.push(scicalcStep(
+        '1. Fatoração prima',
+        original + ' = ' + fatoracaoTex,
+        'Escrevemos n como produto de potências de primos. Os expoentes serão usados nas próximas fórmulas.'
+      ));
+
+      var phiFactors = fatores.map(function(item) {
+        return '\\left(1-\\frac{1}{' + item.p + '}\\right)';
+      }).join(' ');
+      steps.push(scicalcStep(
+        '2. Função totiente de Euler',
+        '\\varphi(' + original + ') = ' + original + ' ' + phiFactors + ' = ' + phi,
+        'φ(n) conta quantos inteiros de 1 até n são coprimos com n.'
+      ));
+
+      var muNota;
+      if (!quadradoLivre) {
+        muNota = 'Como pelo menos um primo aparece com expoente maior que 1, n não é livre de quadrados. Portanto, μ(n)=0.';
+      } else {
+        muNota = 'n é livre de quadrados. Como possui ' + fatores.length + ' fatores primos distintos, μ(n)=(-1)^' + fatores.length + ' = ' + mu + '.';
+      }
+      steps.push(scicalcStep(
+        '3. Função de Möbius',
+        '\\mu(' + original + ') = ' + mu,
+        muNota
+      ));
+
+      var divisorFactors = fatores.map(function(item) {
+        return '(' + (item.e + 1) + ')';
+      }).join('\\cdot ');
+      steps.push(scicalcStep(
+        '4. Número de divisores',
+        '\\tau(' + original + ') = ' + divisorFactors + ' = ' + divisorCount,
+        'Para n=p₁^a¹p₂^a²⋯pᵣ^aᵣ, usamos τ(n)=(a₁+1)(a₂+1)⋯(aᵣ+1).'
+      ));
+
+      var sigmaFactors = fatores.map(function(item) {
+        var termos = [];
+        var pot = 1;
+        for (var z = 0; z <= item.e; z++) {
+          termos.push(String(pot));
+          pot *= item.p;
+        }
+        return '(' + termos.join(' + ') + ')';
+      }).join('\\cdot ');
+      steps.push(scicalcStep(
+        '5. Soma dos divisores',
+        '\\sigma(' + original + ') = ' + sigmaFactors + ' = ' + sigma,
+        'Para cada fator p^a, somamos 1+p+p²+⋯+p^a e multiplicamos os resultados.'
+      ));
+
+      html += scicalcDidactic(
+        'Passo a passo das funções aritméticas',
+        'A partir da fatoração prima de n, calculamos φ(n), μ(n), τ(n) e σ(n).',
+        steps,
+        '<div class="step-note" style="margin-top:12px"><strong>Divisores de ' + original + ':</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>'
+      );
+    }
+
+    document.getElementById('num-func-result').innerHTML = html;
+    salvarHistorico('Funções aritméticas', String(original), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
+  } catch (error) {
+    toast(error.message, 'err');
+  }
 }
 
 function scicalcHistoryData() {
