@@ -101,12 +101,33 @@
   
   /* Ajuste no KaTeX para renderizar corretamente no tema escuro/claro */
   .katex { color: var(--ink) !important; font-size: 1.15em !important; }
+
+  .physics-tabs {display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .physics-tab {padding:9px 13px;border:1.5px solid var(--border);background:var(--panel);border-radius:9px;cursor:pointer;font-size:.86rem;font-weight:700;color:var(--muted);}
+  .physics-tab.active {background:linear-gradient(120deg,var(--primary),var(--primary-2));color:#fff;border-color:var(--primary);}
+  .physics-panel {display:none;}
+  .physics-panel.active {display:block;}
+  .sim-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px;}
+  .sim-card {background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+  .sim-card h3 {margin-bottom:6px;color:var(--primary);}
+  .sim-card .sub {margin-bottom:12px;}
+  .sim-canvas {width:100%;height:360px;display:block;border-radius:12px;background:#0b1020;border:1px solid var(--border);}
+  .sim-controls {display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin:12px 0;}
+  .sim-controls label {font-size:.78rem;}
+  .sim-actions {display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .sim-readout {display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:10px;}
+  .sim-value {padding:9px;border-radius:9px;background:var(--bg);font-family:monospace;font-size:.82rem;}
+  .sim-value b {display:block;color:var(--primary);font-size:.72rem;font-family:inherit;margin-bottom:3px;}
+  .sim-plot {width:100%;height:280px;margin-top:12px;}
+  .vector-note {font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:8px;}
+  @media(max-width:760px){.sim-grid{grid-template-columns:1fr}.sim-canvas{height:300px}}
+
 </style>
 </head>
 <body>
 <header>
   <h1>🧮 SciCalc Avançada</h1>
-  <p>Cálculo Simbólico & Numérico de Alta Performance</p>
+  <p>Matemática, Física e Simulações Interativas</p>
   <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
 </header>
 
@@ -302,15 +323,7 @@
     </div>
     <div class="sub-panel" id="sub-num-func">
       <div class="form-row">
-        <div>
-          <label>Número n</label>
-          <input id="num-func-n" placeholder="60">
-          <button class="btn" style="margin-top:8px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button>
-          <label class="didactic-toggle">
-            <input id="num-func-steps" type="checkbox" checked>
-            Mostrar passo a passo didático
-          </label>
-        </div>
+        <div><label>Número n</label><input id="num-func-n" placeholder="60"><label class="didactic-toggle" style="margin-top:10px"><input id="num-func-steps" type="checkbox" checked> Mostrar passo a passo didático</label><button class="btn" style="margin-top:2px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button></div>
       </div>
       <div id="num-func-result"></div>
     </div>
@@ -318,165 +331,7 @@
 </section>
 
 
-<section class="tab-content" id="fisica">
-  <div class="panel">
-    <h2>⚛️ Laboratório de Física</h2>
-    <p class="sub">Calculadoras, fórmulas, interpretação física e passo a passo. Escolha um tema e resolva o problema com substituição numérica e unidades.</p>
-    <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="fis-cinematica">🏃 Cinemática</button>
-      <button class="sub-tab" data-sub="fis-dinamica">⚖️ Dinâmica</button>
-      <button class="sub-tab" data-sub="fis-energia">🔋 Energia</button>
-      <button class="sub-tab" data-sub="fis-momento">💥 Momento</button>
-      <button class="sub-tab" data-sub="fis-gravitacao">🌍 Gravitação</button>
-      <button class="sub-tab" data-sub="fis-eletricidade">⚡ Eletricidade</button>
-      <button class="sub-tab" data-sub="fis-magnetismo">🧲 Magnetismo</button>
-      <button class="sub-tab" data-sub="fis-ondas">🌊 Ondas/Óptica</button>
-      <button class="sub-tab" data-sub="fis-termica">🌡️ Termologia</button>
-      <button class="sub-tab" data-sub="fis-moderna">☢️ Moderna</button>
-    </div>
-
-    <div class="sub-panel active" id="sub-fis-cinematica">
-      <h3 style="margin-bottom:12px">Movimento uniforme e uniformemente variado</h3>
-      <div class="form-row">
-        <div><label>Velocidade inicial v₀ (m/s)</label><input id="fis-v0" value="0"></div>
-        <div><label>Aceleração a (m/s²)</label><input id="fis-a" value="2"></div>
-        <div><label>Tempo t (s)</label><input id="fis-t" value="5"></div>
-        <div><label>Posição inicial s₀ (m)</label><input id="fis-s0" value="0"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-cin-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisCinematica()">Calcular movimento</button>
-      <div id="fis-cin-result"></div>
-      <div id="fis-cin-plot" class="plot"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-dinamica">
-      <h3 style="margin-bottom:12px">Força resultante — 2ª Lei de Newton</h3>
-      <div class="form-row">
-        <div><label>Massa m (kg)</label><input id="fis-massa" value="5"></div>
-        <div><label>Força F₁ (N)</label><input id="fis-f1" value="20"></div>
-        <div><label>Força F₂ (N)</label><input id="fis-f2" value="5"></div>
-        <div><label>Coeficiente de atrito μ</label><input id="fis-mu" value="0"></div>
-        <div><label>g (m/s²)</label><input id="fis-g" value="9.8"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-din-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisDinamica()">Calcular dinâmica</button>
-      <div id="fis-din-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-energia">
-      <h3 style="margin-bottom:12px">Trabalho, energia cinética e potencial</h3>
-      <div class="form-row">
-        <div><label>Massa m (kg)</label><input id="fis-en-m" value="2"></div>
-        <div><label>Velocidade v (m/s)</label><input id="fis-en-v" value="10"></div>
-        <div><label>Altura h (m)</label><input id="fis-en-h" value="5"></div>
-        <div><label>Força F (N)</label><input id="fis-en-f" value="20"></div>
-        <div><label>Deslocamento d (m)</label><input id="fis-en-d" value="3"></div>
-        <div><label>Ângulo θ (graus)</label><input id="fis-en-ang" value="0"></div>
-        <div><label>g (m/s²)</label><input id="fis-en-g" value="9.8"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-en-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisEnergia()">Calcular energia</button>
-      <div id="fis-en-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-momento">
-      <h3 style="margin-bottom:12px">Quantidade de movimento e impulso</h3>
-      <div class="form-row">
-        <div><label>Massa m (kg)</label><input id="fis-mo-m" value="2"></div>
-        <div><label>Velocidade inicial vᵢ (m/s)</label><input id="fis-mo-vi" value="3"></div>
-        <div><label>Velocidade final v_f (m/s)</label><input id="fis-mo-vf" value="8"></div>
-        <div><label>Tempo Δt (s)</label><input id="fis-mo-dt" value="0.5"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-mo-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisMomento()">Calcular momento</button>
-      <div id="fis-mo-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-gravitacao">
-      <h3 style="margin-bottom:12px">Gravitação universal e órbita</h3>
-      <div class="form-row">
-        <div><label>Massa m₁ (kg)</label><input id="fis-gr-m1" value="5.972e24"></div>
-        <div><label>Massa m₂ (kg)</label><input id="fis-gr-m2" value="1000"></div>
-        <div><label>Distância r (m)</label><input id="fis-gr-r" value="6.371e6"></div>
-        <div><label>G (N·m²/kg²)</label><input id="fis-G" value="6.67430e-11"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-gr-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisGravitacao()">Calcular gravitação</button>
-      <div id="fis-gr-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-eletricidade">
-      <h3 style="margin-bottom:12px">Cargas, Lei de Coulomb, Ohm e potência</h3>
-      <div class="form-row">
-        <div><label>q₁ (μC)</label><input id="fis-el-q1" value="2"></div>
-        <div><label>q₂ (μC)</label><input id="fis-el-q2" value="3"></div>
-        <div><label>Distância r (m)</label><input id="fis-el-r" value="0.5"></div>
-        <div><label>k (N·m²/C²)</label><input id="fis-k" value="8.9875517923e9"></div>
-        <div><label>Tensão V (V)</label><input id="fis-el-v" value="12"></div>
-        <div><label>Resistência R (Ω)</label><input id="fis-el-R" value="6"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-el-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisEletricidade()">Calcular eletricidade</button>
-      <div id="fis-el-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-magnetismo">
-      <h3 style="margin-bottom:12px">Força magnética sobre uma carga</h3>
-      <div class="form-row">
-        <div><label>Carga q (μC)</label><input id="fis-ma-q" value="2"></div>
-        <div><label>Velocidade v (m/s)</label><input id="fis-ma-v" value="1000"></div>
-        <div><label>Campo B (T)</label><input id="fis-ma-B" value="0.2"></div>
-        <div><label>Ângulo θ (graus)</label><input id="fis-ma-ang" value="90"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-ma-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisMagnetismo()">Calcular força magnética</button>
-      <div id="fis-ma-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-ondas">
-      <h3 style="margin-bottom:12px">Ondas, frequência e óptica</h3>
-      <div class="form-row">
-        <div><label>Velocidade da onda v (m/s)</label><input id="fis-on-v" value="340"></div>
-        <div><label>Frequência f (Hz)</label><input id="fis-on-f" value="170"></div>
-        <div><label>Índice de refração n</label><input id="fis-on-n" value="1.5"></div>
-        <div><label>Ângulo de incidência θ₁ (graus)</label><input id="fis-on-ang" value="30"></div>
-        <div><label>Índice n₂</label><input id="fis-on-n2" value="1.0"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-on-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisOndas()">Calcular onda/óptica</button>
-      <div id="fis-on-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-termica">
-      <h3 style="margin-bottom:12px">Calor, temperatura e gases</h3>
-      <div class="form-row">
-        <div><label>Massa m (kg)</label><input id="fis-te-m" value="2"></div>
-        <div><label>Calor específico c (J/kg·K)</label><input id="fis-te-c" value="4186"></div>
-        <div><label>ΔT (K)</label><input id="fis-te-dT" value="10"></div>
-        <div><label>Pressão P (Pa)</label><input id="fis-te-P" value="101325"></div>
-        <div><label>Volume V (m³)</label><input id="fis-te-V" value="0.01"></div>
-        <div><label>Temperatura T (K)</label><input id="fis-te-T" value="300"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-te-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisTermica()">Calcular termologia</button>
-      <div id="fis-te-result"></div>
-    </div>
-
-    <div class="sub-panel" id="sub-fis-moderna">
-      <h3 style="margin-bottom:12px">Física moderna: relatividade e fótons</h3>
-      <div class="form-row">
-        <div><label>Massa m (kg)</label><input id="fis-mo2-m" value="0.001"></div>
-        <div><label>Velocidade v (m/s)</label><input id="fis-mo2-v" value="100000000"></div>
-        <div><label>Frequência do fóton f (Hz)</label><input id="fis-mo2-f" value="5e14"></div>
-        <div><label>h (J·s)</label><input id="fis-h" value="6.62607015e-34"></div>
-        <div><label>c (m/s)</label><input id="fis-c" value="299792458"></div>
-      </div>
-      <label class="didactic-toggle"><input id="fis-mo2-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
-      <button class="btn" onclick="fisModerna()">Calcular física moderna</button>
-      <div id="fis-mo2-result"></div>
-    </div>
-  </div>
-</section>
+<section class="tab-content" id="fisica"><div class="panel"><h2>⚛️ Calculadoras de Física</h2><p class="sub">Sem simulações. Escolha uma área, selecione uma fórmula e acompanhe a resolução passo a passo.</p><div class="physics-panel active" id="fis-calc"><div class="calc-toolbar"><label><strong>Área da Física</strong><select id="physics-area" onchange="renderPhysicsCalculator()"><option value="cin">🏃 Cinemática</option><option value="dyn">⚖️ Dinâmica</option><option value="grav">🌍 Gravitação</option><option value="termo">🌡️ Termologia</option><option value="termod">♨️ Termodinâmica</option><option value="ondas">〰️ Ondas</option><option value="opt">🔎 Óptica</option><option value="elec">⚡ Eletricidade</option><option value="mag">🧲 Magnetismo</option><option value="em">🔌 Eletromagnetismo</option><option value="mod">🚀 Física Moderna</option></select></label><label><strong>Calculadora</strong><select id="physics-formula" onchange="renderPhysicsForm()"></select></label></div><div id="physics-form" class="result"></div><div id="physics-result"></div></div></div></section>
 
 <section class="tab-content" id="historico">
   <div class="panel">
@@ -1078,246 +933,31 @@ function fatorarNumero() {
 
 function calcularFuncoesAritmeticas() {
   try {
-    var n = scicalcInteger('num-func-n', 'n', 1, 10000000);
-    var original = n;
-    var fatores = [];
-    var work = n;
-
-    for (var p = 2; p * p <= work; p++) {
-      if (work % p === 0) {
-        var expoente = 0;
-        while (work % p === 0) {
-          work /= p;
-          expoente++;
-        }
-        fatores.push({p: p, e: expoente});
-      }
-    }
-    if (work > 1) fatores.push({p: work, e: 1});
-
-    var phi = n;
-    for (var i = 0; i < fatores.length; i++) {
-      phi = phi * (fatores[i].p - 1) / fatores[i].p;
-    }
-    phi = Math.round(phi);
-
-    var mu = 1;
-    var quadradoLivre = true;
-    for (var j = 0; j < fatores.length; j++) {
-      if (fatores[j].e > 1) {
-        quadradoLivre = false;
-        break;
-      }
-      mu *= -1;
-    }
-    if (!quadradoLivre) mu = 0;
-
-    var divisorCount = 1;
-    var sigma = 1;
-    for (var k = 0; k < fatores.length; k++) {
-      var pk = fatores[k].p;
-      var ek = fatores[k].e;
-      divisorCount *= (ek + 1);
-      var somaPotencias = 0;
-      var potencia = 1;
-      for (var t = 0; t <= ek; t++) {
-        somaPotencias += potencia;
-        potencia *= pk;
-      }
-      sigma *= somaPotencias;
-    }
-    divisorCount = Math.round(divisorCount);
-    sigma = Math.round(sigma);
-
-    var divisors = [];
-    for (var d = 1; d * d <= n; d++) {
-      if (n % d === 0) {
-        divisors.push(d);
-        if (d !== n / d) divisors.push(n / d);
-      }
-    }
-    divisors.sort(function(a, b) { return a - b; });
-
-    var fatoracao = fatores.map(function(item) {
-      return item.p + (item.e > 1 ? '^' + item.e : '');
-    }).join(' · ');
-
-    var fatoracaoTex = fatores.map(function(item) {
-      return item.e > 1 ? item.p + '^{' + item.e + '}' : String(item.p);
-    }).join('\\cdot ');
-
-    var html = '<div class="result">' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center;">' +
-      '<div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div>' +
-      '<div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div>' +
-      '<div class="fact-card"><div class="label">Divisores d(n)=τ(n)</div><div class="value">' + divisorCount + '</div></div>' +
-      '<div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div>' +
-      '</div>' +
-      '<div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Fatoração:</strong> ' + scicalcEscape(String(original) + ' = ' + fatoracao) + '</div>' +
-      '<div style="margin-top:10px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>' +
-      '</div>';
-
-    var mostrarPassos = document.getElementById('num-func-steps');
-    if (!mostrarPassos || mostrarPassos.checked) {
-      var steps = [];
-      steps.push(scicalcStep(
-        '1. Fatoração prima',
-        original + ' = ' + fatoracaoTex,
-        'Escrevemos n como produto de potências de primos. Os expoentes serão usados nas próximas fórmulas.'
-      ));
-
-      var phiFactors = fatores.map(function(item) {
-        return '\\left(1-\\frac{1}{' + item.p + '}\\right)';
-      }).join(' ');
-      steps.push(scicalcStep(
-        '2. Função totiente de Euler',
-        '\\varphi(' + original + ') = ' + original + ' ' + phiFactors + ' = ' + phi,
-        'φ(n) conta quantos inteiros de 1 até n são coprimos com n.'
-      ));
-
-      var muNota;
-      if (!quadradoLivre) {
-        muNota = 'Como pelo menos um primo aparece com expoente maior que 1, n não é livre de quadrados. Portanto, μ(n)=0.';
-      } else {
-        muNota = 'n é livre de quadrados. Como possui ' + fatores.length + ' fatores primos distintos, μ(n)=(-1)^' + fatores.length + ' = ' + mu + '.';
-      }
-      steps.push(scicalcStep(
-        '3. Função de Möbius',
-        '\\mu(' + original + ') = ' + mu,
-        muNota
-      ));
-
-      var divisorFactors = fatores.map(function(item) {
-        return '(' + (item.e + 1) + ')';
-      }).join('\\cdot ');
-      steps.push(scicalcStep(
-        '4. Número de divisores',
-        '\\tau(' + original + ') = ' + divisorFactors + ' = ' + divisorCount,
-        'Para n=p₁^a¹p₂^a²⋯pᵣ^aᵣ, usamos τ(n)=(a₁+1)(a₂+1)⋯(aᵣ+1).'
-      ));
-
-      var sigmaFactors = fatores.map(function(item) {
-        var termos = [];
-        var pot = 1;
-        for (var z = 0; z <= item.e; z++) {
-          termos.push(String(pot));
-          pot *= item.p;
-        }
-        return '(' + termos.join(' + ') + ')';
-      }).join('\\cdot ');
-      steps.push(scicalcStep(
-        '5. Soma dos divisores',
-        '\\sigma(' + original + ') = ' + sigmaFactors + ' = ' + sigma,
-        'Para cada fator p^a, somamos 1+p+p²+⋯+p^a e multiplicamos os resultados.'
-      ));
-
-      html += scicalcDidactic(
-        'Passo a passo das funções aritméticas',
-        'A partir da fatoração prima de n, calculamos φ(n), μ(n), τ(n) e σ(n).',
-        steps,
-        '<div class="step-note" style="margin-top:12px"><strong>Divisores de ' + original + ':</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>'
-      );
-    }
-
-    document.getElementById('num-func-result').innerHTML = html;
-    salvarHistorico('Funções aritméticas', String(original), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
-  } catch (error) {
-    toast(error.message, 'err');
-  }
-}
-
-
-// ============ FÍSICA ==========
-function fisNum(id, label) { return scicalcNumber(document.getElementById(id).value, label); }
-function fisCard(label, value, unit) { return '<div class="fact-card"><div class="label">'+scicalcEscape(label)+'</div><div class="value">'+scicalcEscape(String(value))+(unit?' '+scicalcEscape(unit):'')+'</div></div>'; }
-function fisSteps(title, intro, steps) { return scicalcDidactic(title, intro, steps); }
-
-function fisCinematica() {
-  try {
-    const v0=fisNum('fis-v0','v₀'), a=fisNum('fis-a','a'), t=fisNum('fis-t','t'), s0=fisNum('fis-s0','s₀');
-    if(t<0) throw new Error('O tempo deve ser ≥ 0.');
-    const v=v0+a*t, s=s0+v0*t+0.5*a*t*t;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Velocidade final',v.toFixed(6),'m/s')+fisCard('Posição final',s.toFixed(6),'m')+fisCard('Deslocamento', (s-s0).toFixed(6),'m')+'</div>';
-    if(document.getElementById('fis-cin-steps').checked) html+=fisSteps('Passo a passo — Cinemática','Usamos as equações do movimento uniformemente variado.',[
-      scicalcStep('1. Velocidade final','v = v_0 + at = '+v0+' + ('+a+')('+t+') = '+v,'A aceleração altera a velocidade ao longo do tempo.'),
-      scicalcStep('2. Posição final','s = s_0 + v_0t + \\frac{1}{2}at^2 = '+s0+' + '+v0+'('+t+') + \\frac{1}{2}('+a+')('+t+')^2 = '+s,'A posição depende da posição inicial, velocidade e aceleração.'),
-      scicalcStep('3. Deslocamento','\\Delta s = s-s_0 = '+(s-s0),'O deslocamento é a diferença entre a posição final e inicial.')]);
-    html+='</div>'; document.getElementById('fis-cin-result').innerHTML=html;
-    if(typeof Plotly!=='undefined'){ const xs=[], ss=[], vs=[]; for(let i=0;i<=100;i++){const tt=t*i/100; xs.push(tt); ss.push(s0+v0*tt+0.5*a*tt*tt); vs.push(v0+a*tt);} Plotly.newPlot('fis-cin-plot',[{x:xs,y:ss,name:'s(t)',mode:'lines'},{x:xs,y:vs,name:'v(t)',mode:'lines',yaxis:'y2'}],getPlotLayout({title:'Cinemática: posição e velocidade',xaxis:{title:'Tempo (s)'},yaxis:{title:'Posição (m)'},yaxis2:{title:'Velocidade (m/s)',overlaying:'y',side:'right'}}),{responsive:true});}
-    salvarHistorico('Física — Cinemática',String(t)+' s','v='+v+' m/s, s='+s+' m');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisDinamica(){
-  try { const m=fisNum('fis-massa','m'), f1=fisNum('fis-f1','F₁'), f2=fisNum('fis-f2','F₂'), mu=fisNum('fis-mu','μ'), g=fisNum('fis-g','g'); if(m<=0||g<=0) throw new Error('Massa e g devem ser positivos.'); const normal=m*g, atrito=mu*normal, fres=f1-f2-atrito, a=fres/m;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Peso/normal',normal.toFixed(6),'N')+fisCard('Atrito',atrito.toFixed(6),'N')+fisCard('Força resultante',fres.toFixed(6),'N')+fisCard('Aceleração',a.toFixed(6),'m/s²')+'</div>';
-    if(document.getElementById('fis-din-steps').checked) html+=fisSteps('Passo a passo — Dinâmica','Adotamos F₁ como positiva e F₂ e o atrito no sentido oposto.',[scicalcStep('1. Força normal','N = mg = ('+m+')('+g+') = '+normal+' N','Em uma superfície horizontal, N=mg quando não há outras forças verticais.'),scicalcStep('2. Atrito','F_{at} = \\mu N = ('+mu+')('+normal+') = '+atrito+' N','O atrito cinético é modelado por μN neste cálculo.'),scicalcStep('3. Resultante','F_R = F_1-F_2-F_{at} = '+fres+' N','Somamos algebricamente as forças no eixo escolhido.'),scicalcStep('4. Aceleração','a = \\frac{F_R}{m} = \\frac{'+fres+'}{'+m+'} = '+a+'\\,m/s^2','Aplicação direta da segunda lei de Newton.')]);
-    html+='</div>'; document.getElementById('fis-din-result').innerHTML=html; salvarHistorico('Física — Dinâmica',String(m)+' kg','Fres='+fres+' N, a='+a+' m/s²');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisEnergia(){
-  try { const m=fisNum('fis-en-m','m'),v=fisNum('fis-en-v','v'),h=fisNum('fis-en-h','h'),F=fisNum('fis-en-f','F'),d=fisNum('fis-en-d','d'),ang=fisNum('fis-en-ang','θ'),g=fisNum('fis-en-g','g'); const ec=.5*m*v*v, ep=m*g*h, w=F*d*Math.cos(ang*Math.PI/180), et=ec+ep;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Energia cinética',ec.toFixed(6),'J')+fisCard('Energia potencial',ep.toFixed(6),'J')+fisCard('Trabalho da força',w.toFixed(6),'J')+fisCard('Ec + Ep',et.toFixed(6),'J')+'</div>';
-    if(document.getElementById('fis-en-steps').checked) html+=fisSteps('Passo a passo — Energia','Calculamos separadamente energia cinética, potencial e trabalho.',[scicalcStep('1. Energia cinética','E_c = \\frac{1}{2}mv^2 = \\frac{1}{2}('+m+')('+v+')^2 = '+ec+'\\,J','Depende do quadrado da velocidade.'),scicalcStep('2. Energia potencial gravitacional','E_p = mgh = ('+m+')('+g+')('+h+') = '+ep+'\\,J','É tomada em relação ao nível de referência escolhido.'),scicalcStep('3. Trabalho','W = Fd\\cos(\\theta) = ('+F+')('+d+')\\cos('+ang+'^\\circ) = '+w+'\\,J','O trabalho depende da componente da força na direção do deslocamento.')]);
-    html+='</div>'; document.getElementById('fis-en-result').innerHTML=html; salvarHistorico('Física — Energia',String(m)+' kg','Ec='+ec+' J, Ep='+ep+' J, W='+w+' J');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisMomento(){
-  try { const m=fisNum('fis-mo-m','m'),vi=fisNum('fis-mo-vi','vᵢ'),vf=fisNum('fis-mo-vf','v_f'),dt=fisNum('fis-mo-dt','Δt'); if(m<=0||dt<=0) throw new Error('Massa e Δt devem ser positivos.'); const pi=m*vi,pf=m*vf,imp=pf-pi,forca=imp/dt;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Momento inicial',pi.toFixed(6),'kg·m/s')+fisCard('Momento final',pf.toFixed(6),'kg·m/s')+fisCard('Impulso',imp.toFixed(6),'N·s')+fisCard('Força média',forca.toFixed(6),'N')+'</div>';
-    if(document.getElementById('fis-mo-steps').checked) html+=fisSteps('Passo a passo — Momento linear','Usamos p=mv e J=Δp.',[scicalcStep('1. Momento inicial','p_i = mv_i = ('+m+')('+vi+') = '+pi+'\\,kg\\cdot m/s'),scicalcStep('2. Momento final','p_f = mv_f = ('+m+')('+vf+') = '+pf+'\\,kg\\cdot m/s'),scicalcStep('3. Impulso','J = \\Delta p = p_f-p_i = '+imp+'\\,N\\cdot s'),scicalcStep('4. Força média','F_{méd} = \\frac{J}{\\Delta t} = \\frac{'+imp+'}{'+dt+'} = '+forca+'\\,N')]);
-    html+='</div>'; document.getElementById('fis-mo-result').innerHTML=html; salvarHistorico('Física — Momento',String(m)+' kg','J='+imp+' N·s');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisGravitacao(){
-  try { const m1=fisNum('fis-gr-m1','m₁'),m2=fisNum('fis-gr-m2','m₂'),r=fisNum('fis-gr-r','r'),G=fisNum('fis-G','G'); if(m1<=0||m2<=0||r<=0||G<=0) throw new Error('Massas, distância e G devem ser positivos.'); const F=G*m1*m2/(r*r),g=G*m1/(r*r),vorb=Math.sqrt(G*m1/r);
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Força gravitacional',F.toExponential(6),'N')+fisCard('Campo gravitacional',g.toExponential(6),'N/kg')+fisCard('Velocidade orbital ideal',vorb.toFixed(6),'m/s')+'</div>';
-    if(document.getElementById('fis-gr-steps').checked) html+=fisSteps('Passo a passo — Gravitação','Aplicamos a lei da gravitação universal e, como complemento, o campo e a velocidade orbital circular.',[scicalcStep('1. Força gravitacional','F = G\\frac{m_1m_2}{r^2} = '+F+'\\,N'),scicalcStep('2. Campo gravitacional','g = G\\frac{m_1}{r^2} = '+g+'\\,N/kg'),scicalcStep('3. Órbita circular','v = \\sqrt{\\frac{Gm_1}{r}} = '+vorb+'\\,m/s','Esta expressão supõe órbita circular ideal e ausência de outros efeitos.')]);
-    html+='</div>'; document.getElementById('fis-gr-result').innerHTML=html; salvarHistorico('Física — Gravitação',String(r)+' m','F='+F+' N');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisEletricidade(){
-  try { const q1=fisNum('fis-el-q1','q₁')*1e-6,q2=fisNum('fis-el-q2','q₂')*1e-6,r=fisNum('fis-el-r','r'),k=fisNum('fis-k','k'),V=fisNum('fis-el-v','V'),R=fisNum('fis-el-R','R'); if(r<=0||R<=0) throw new Error('r e R devem ser positivos.'); const F=k*Math.abs(q1*q2)/(r*r),I=V/R,P=V*I;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Força de Coulomb',F.toExponential(6),'N')+fisCard('Corrente elétrica',I.toFixed(6),'A')+fisCard('Potência elétrica',P.toFixed(6),'W')+'</div>';
-    if(document.getElementById('fis-el-steps').checked) html+=fisSteps('Passo a passo — Eletricidade','As cargas foram informadas em μC e convertidas para coulomb.',[scicalcStep('1. Conversão das cargas','q_1='+q1+'\\,C,\\quad q_2='+q2+'\\,C','1 μC = 10⁻⁶ C.'),scicalcStep('2. Lei de Coulomb','F = k\\frac{|q_1q_2|}{r^2} = '+F+'\\,N','A direção depende dos sinais das cargas; aqui calculamos o módulo.'),scicalcStep('3. Lei de Ohm','I = \\frac{V}{R} = \\frac{'+V+'}{'+R+'} = '+I+'\\,A'),scicalcStep('4. Potência','P = VI = ('+V+')('+I+') = '+P+'\\,W')]);
-    html+='</div>'; document.getElementById('fis-el-result').innerHTML=html; salvarHistorico('Física — Eletricidade',String(V)+' V','F='+F+' N, I='+I+' A');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisMagnetismo(){
-  try { const q=fisNum('fis-ma-q','q')*1e-6,v=fisNum('fis-ma-v','v'),B=fisNum('fis-ma-B','B'),ang=fisNum('fis-ma-ang','θ'); const F=Math.abs(q)*v*B*Math.sin(ang*Math.PI/180);
-    let html='<div class="result">'+fisCard('Força magnética',''+F.toExponential(6),'N')+'</div>';
-    if(document.getElementById('fis-ma-steps').checked) html+=fisSteps('Passo a passo — Magnetismo','Usamos o módulo da força magnética sobre uma carga em movimento.',[scicalcStep('1. Converter a carga','q = '+q+'\\,C','A entrada foi dada em μC.'),scicalcStep('2. Força magnética','F = |q|vB\\sin(\\theta) = '+F+'\\,N','A força é máxima para θ=90° e nula para θ=0°.')]);
-    document.getElementById('fis-ma-result').innerHTML=html; salvarHistorico('Física — Magnetismo',String(B)+' T','F='+F+' N');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisOndas(){
-  try { const v=fisNum('fis-on-v','v'),f=fisNum('fis-on-f','f'),n1=fisNum('fis-on-n','n₁'),ang=fisNum('fis-on-ang','θ₁'),n2=fisNum('fis-on-n2','n₂'); if(f<=0||n1<=0||n2<=0) throw new Error('Frequência e índices devem ser positivos.'); const lambda=v/f, sn=n1*Math.sin(ang*Math.PI/180)/n2; let refr='não definido'; if(Math.abs(sn)<=1) refr=(Math.asin(sn)*180/Math.PI).toFixed(6)+'°';
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Comprimento de onda',lambda.toFixed(6),'m')+fisCard('Ângulo refratado',refr,'')+'</div></div>';
-    if(document.getElementById('fis-on-steps').checked) html+=fisSteps('Passo a passo — Ondas e Óptica','Aplicamos v=λf e a lei de Snell.',[scicalcStep('1. Comprimento de onda','\\lambda = \\frac{v}{f} = \\frac{'+v+'}{'+f+'} = '+lambda+'\\,m'),scicalcStep('2. Lei de Snell','n_1\\sin(\\theta_1)=n_2\\sin(\\theta_2)','Relaciona os ângulos e os índices de refração.'),scicalcStep('3. Ângulo refratado','\\theta_2 = \\arcsin\\left(\\frac{n_1\\sin(\\theta_1)}{n_2}\\right) = '+refr,'Se o argumento do arco-seno for maior que 1, ocorre reflexão interna total neste modelo.')]);
-    document.getElementById('fis-on-result').innerHTML=html; salvarHistorico('Física — Ondas/Óptica',String(f)+' Hz','λ='+lambda+' m');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisTermica(){
-  try { const m=fisNum('fis-te-m','m'),c=fisNum('fis-te-c','c'),dT=fisNum('fis-te-dT','ΔT'),P=fisNum('fis-te-P','P'),V=fisNum('fis-te-V','V'),T=fisNum('fis-te-T','T'); if(m<=0||c<=0||P<=0||V<=0||T<=0) throw new Error('Os parâmetros positivos devem ser maiores que zero.'); const Q=m*c*dT,n=P*V/(8.314462618*T);
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Calor sensível',Q.toFixed(6),'J')+fisCard('Quantidade de matéria',n.toFixed(6),'mol')+'</div></div>';
-    if(document.getElementById('fis-te-steps').checked) html+=fisSteps('Passo a passo — Termologia','Usamos Q=mcΔT e a equação dos gases ideais PV=nRT.',[scicalcStep('1. Calor sensível','Q = mc\\Delta T = ('+m+')('+c+')('+dT+') = '+Q+'\\,J'),scicalcStep('2. Gás ideal','n = \\frac{PV}{RT} = \\frac{('+P+')('+V+')}{(8.314462618)('+T+')} = '+n+'\\,mol','R=8,314462618 J/(mol·K).')]);
-    document.getElementById('fis-te-result').innerHTML=html; salvarHistorico('Física — Termologia',String(dT)+' K','Q='+Q+' J');
-  } catch(e){toast(e.message,'err');}
-}
-
-function fisModerna(){
-  try { const m=fisNum('fis-mo2-m','m'),v=fisNum('fis-mo2-v','v'),f=fisNum('fis-mo2-f','f'),h=fisNum('fis-h','h'),c=fisNum('fis-c','c'); if(m<0||f<0||h<=0||c<=0||v<0||v>=c) throw new Error('Use 0 ≤ v < c e parâmetros físicos positivos.'); const gamma=1/Math.sqrt(1-(v*v)/(c*c)),E=m*c*c,Erel=gamma*m*c*c,Eph=h*f;
-    let html='<div class="result"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center">'+fisCard('Fator de Lorentz γ',gamma.toFixed(9),'')+fisCard('Energia de repouso',E.toExponential(6),'J')+fisCard('Energia relativística',Erel.toExponential(6),'J')+fisCard('Energia do fóton',Eph.toExponential(6),'J')+'</div></div>';
-    if(document.getElementById('fis-mo2-steps').checked) html+=fisSteps('Passo a passo — Física Moderna','Comparamos a energia de repouso, a energia relativística e a energia de um fóton.',[scicalcStep('1. Fator de Lorentz','\\gamma = \\frac{1}{\\sqrt{1-v^2/c^2}} = '+gamma),scicalcStep('2. Energia de repouso','E_0=mc^2 = ('+m+')('+c+')^2 = '+E+'\\,J'),scicalcStep('3. Energia relativística','E=\\gamma mc^2 = '+Erel+'\\,J'),scicalcStep('4. Energia do fóton','E=hf = ('+h+')('+f+') = '+Eph+'\\,J','A relação E=hf é a energia de um fóton de frequência f.')]);
-    document.getElementById('fis-mo2-result').innerHTML=html; salvarHistorico('Física — Moderna',String(v)+' m/s','γ='+gamma);
-  } catch(e){toast(e.message,'err');}
+    const n = parseInt(str('num-func-n'));
+    if(isNaN(n) || n<1) throw new Error('n deve ser ≥ 1');
+    
+    let phi = n, temp = n;
+    for(let p=2; p*p<=temp; p++) if(temp%p===0) { while(temp%p===0) temp/=p; phi -= phi/p; }
+    if(temp>1) phi -= phi/temp;
+    
+    let mu = 1, tempM = n, sqf = true;
+    for(let p=2; p*p<=tempM; p++) if(tempM%p===0) { let c=0; while(tempM%p===0) {c++; tempM/=p;} if(c>1) {sqf=false; break;} mu = -mu; }
+    if(tempM>1) mu = -mu; if(!sqf) mu = 0;
+    
+    let d = 0, sigma = 0; const div = [];
+    for(let i=1; i*i<=n; i++) if(n%i===0) { d++; sigma+=i; div.push(i); if(i!==n/i) { d++; sigma+=n/i; div.push(n/i); } }
+    div.sort((a,b)=>a-b);
+    
+    document.getElementById('num-func-result').innerHTML = `<div class="result">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; text-align:center;">
+        <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">Totiente φ(n)</div><div class="value">${phi}</div></div>
+        <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">Möbius μ(n)</div><div class="value">${mu}</div></div>
+        <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">Divisores d(n)</div><div class="value">${d}</div></div>
+        <div class="fact-card" style="border-left-color:#10b981"><div class="label">Soma Div. σ(n)</div><div class="value">${sigma}</div></div>
+      </div>
+      <div style="margin-top:14px; font-family:monospace; word-break:break-all; font-size:0.9rem"><strong>Divisores:</strong> ${div.join(', ')}</div>
+    </div>`;
+  } catch(e) { toast(e.message,'err'); }
 }
 
 // ============ HISTÓRICO ============
@@ -2063,152 +1703,45 @@ function fatorarNumero() {
 
 function calcularFuncoesAritmeticas() {
   try {
-    var n = scicalcInteger('num-func-n', 'n', 1, 10000000);
-    var original = n;
-    var fatores = [];
-    var work = n;
-
-    for (var p = 2; p * p <= work; p++) {
-      if (work % p === 0) {
-        var expoente = 0;
-        while (work % p === 0) {
-          work /= p;
-          expoente++;
+    var n = scicalcInteger('num-func-n', 'n', 1, 200000);
+    var original = n, temp = n, factors = [], division = [];
+    if (n === 1) {
+      factors = [];
+    } else {
+      for (var p = 2; p * p <= temp; p++) {
+        if (temp % p === 0) {
+          var e = 0;
+          while (temp % p === 0) { var before = temp; temp /= p; e++; division.push(before + ' ÷ ' + p + ' = ' + temp); }
+          factors.push([p, e]);
         }
-        fatores.push({p: p, e: expoente});
       }
+      if (temp > 1) { factors.push([temp, 1]); division.push(temp + ' é primo e permanece como fator.'); }
     }
-    if (work > 1) fatores.push({p: work, e: 1});
-
     var phi = n;
-    for (var i = 0; i < fatores.length; i++) {
-      phi = phi * (fatores[i].p - 1) / fatores[i].p;
-    }
-    phi = Math.round(phi);
-
-    var mu = 1;
-    var quadradoLivre = true;
-    for (var j = 0; j < fatores.length; j++) {
-      if (fatores[j].e > 1) {
-        quadradoLivre = false;
-        break;
-      }
-      mu *= -1;
-    }
-    if (!quadradoLivre) mu = 0;
-
-    var divisorCount = 1;
-    var sigma = 1;
-    for (var k = 0; k < fatores.length; k++) {
-      var pk = fatores[k].p;
-      var ek = fatores[k].e;
-      divisorCount *= (ek + 1);
-      var somaPotencias = 0;
-      var potencia = 1;
-      for (var t = 0; t <= ek; t++) {
-        somaPotencias += potencia;
-        potencia *= pk;
-      }
-      sigma *= somaPotencias;
-    }
-    divisorCount = Math.round(divisorCount);
-    sigma = Math.round(sigma);
-
-    var divisors = [];
-    for (var d = 1; d * d <= n; d++) {
-      if (n % d === 0) {
-        divisors.push(d);
-        if (d !== n / d) divisors.push(n / d);
-      }
-    }
-    divisors.sort(function(a, b) { return a - b; });
-
-    var fatoracao = fatores.map(function(item) {
-      return item.p + (item.e > 1 ? '^' + item.e : '');
-    }).join(' · ');
-
-    var fatoracaoTex = fatores.map(function(item) {
-      return item.e > 1 ? item.p + '^{' + item.e + '}' : String(item.p);
-    }).join('\\cdot ');
-
-    var html = '<div class="result">' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;text-align:center;">' +
-      '<div class="fact-card"><div class="label">Totiente φ(n)</div><div class="value">' + phi + '</div></div>' +
-      '<div class="fact-card"><div class="label">Möbius μ(n)</div><div class="value">' + mu + '</div></div>' +
-      '<div class="fact-card"><div class="label">Divisores d(n)=τ(n)</div><div class="value">' + divisorCount + '</div></div>' +
-      '<div class="fact-card"><div class="label">Soma σ(n)</div><div class="value">' + sigma + '</div></div>' +
-      '</div>' +
-      '<div style="margin-top:14px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Fatoração:</strong> ' + scicalcEscape(String(original) + ' = ' + fatoracao) + '</div>' +
-      '<div style="margin-top:10px;font-family:monospace;word-break:break-all;font-size:.9rem"><strong>Divisores:</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>' +
-      '</div>';
-
-    var mostrarPassos = document.getElementById('num-func-steps');
-    if (!mostrarPassos || mostrarPassos.checked) {
-      var steps = [];
-      steps.push(scicalcStep(
-        '1. Fatoração prima',
-        original + ' = ' + fatoracaoTex,
-        'Escrevemos n como produto de potências de primos. Os expoentes serão usados nas próximas fórmulas.'
-      ));
-
-      var phiFactors = fatores.map(function(item) {
-        return '\\left(1-\\frac{1}{' + item.p + '}\\right)';
-      }).join(' ');
-      steps.push(scicalcStep(
-        '2. Função totiente de Euler',
-        '\\varphi(' + original + ') = ' + original + ' ' + phiFactors + ' = ' + phi,
-        'φ(n) conta quantos inteiros de 1 até n são coprimos com n.'
-      ));
-
-      var muNota;
-      if (!quadradoLivre) {
-        muNota = 'Como pelo menos um primo aparece com expoente maior que 1, n não é livre de quadrados. Portanto, μ(n)=0.';
-      } else {
-        muNota = 'n é livre de quadrados. Como possui ' + fatores.length + ' fatores primos distintos, μ(n)=(-1)^' + fatores.length + ' = ' + mu + '.';
-      }
-      steps.push(scicalcStep(
-        '3. Função de Möbius',
-        '\\mu(' + original + ') = ' + mu,
-        muNota
-      ));
-
-      var divisorFactors = fatores.map(function(item) {
-        return '(' + (item.e + 1) + ')';
-      }).join('\\cdot ');
-      steps.push(scicalcStep(
-        '4. Número de divisores',
-        '\\tau(' + original + ') = ' + divisorFactors + ' = ' + divisorCount,
-        'Para n=p₁^a¹p₂^a²⋯pᵣ^aᵣ, usamos τ(n)=(a₁+1)(a₂+1)⋯(aᵣ+1).'
-      ));
-
-      var sigmaFactors = fatores.map(function(item) {
-        var termos = [];
-        var pot = 1;
-        for (var z = 0; z <= item.e; z++) {
-          termos.push(String(pot));
-          pot *= item.p;
-        }
-        return '(' + termos.join(' + ') + ')';
-      }).join('\\cdot ');
-      steps.push(scicalcStep(
-        '5. Soma dos divisores',
-        '\\sigma(' + original + ') = ' + sigmaFactors + ' = ' + sigma,
-        'Para cada fator p^a, somamos 1+p+p²+⋯+p^a e multiplicamos os resultados.'
-      ));
-
-      html += scicalcDidactic(
-        'Passo a passo das funções aritméticas',
-        'A partir da fatoração prima de n, calculamos φ(n), μ(n), τ(n) e σ(n).',
-        steps,
-        '<div class="step-note" style="margin-top:12px"><strong>Divisores de ' + original + ':</strong> ' + scicalcEscape(divisors.join(', ')) + '</div>'
-      );
-    }
-
-    document.getElementById('num-func-result').innerHTML = html;
-    salvarHistorico('Funções aritméticas', String(original), 'φ=' + phi + ', μ=' + mu + ', d=' + divisorCount + ', σ=' + sigma);
-  } catch (error) {
-    toast(error.message, 'err');
-  }
+    factors.forEach(function(f){ phi -= phi / f[0]; });
+    var mu = 1, squarefree = true;
+    factors.forEach(function(f){ if(f[1] > 1) squarefree = false; mu *= -1; });
+    if(!squarefree) mu = 0;
+    var tau = 1, sigma = 1;
+    factors.forEach(function(f){ tau *= (f[1] + 1); sigma *= (Math.pow(f[0], f[1]+1)-1)/(f[0]-1); });
+    if(n === 1){phi=1;mu=1;tau=1;sigma=1;}
+    var divisors=[];
+    for(var d=1; d*d<=n; d++) if(n%d===0){divisors.push(d); if(d!==n/d) divisors.push(n/d);}
+    divisors.sort(function(a,b){return a-b;});
+    var divisorSum=divisors.reduce(function(a,b){return a+b;},0);
+    var facText=factors.length?factors.map(function(f){return f[1]>1?f[0]+'^'+f[1]:String(f[0]);}).join(' · '):'1';
+    var html='<div class="result"><h3>🔢 Resolução aritmética detalhada</h3>';
+    html+='<div class="fact-card"><div class="label">Fatoração prima</div><div class="value">'+original+' = '+facText+'</div></div>';
+    html+='<div class="didactic-step"><div class="step-num">1</div><div><strong>Fatoração por divisões sucessivas</strong><div>'+(division.length?division.join('<br>'):'1 não possui fatores primos.')+'</div></div></div>';
+    html+='<div class="didactic-step"><div class="step-num">2</div><div><strong>Totiente de Euler</strong><div>φ(n) = n · ∏(1 − 1/p), usando os primos distintos p.</div><div>φ('+n+') = '+phi+'</div></div></div>';
+    html+='<div class="didactic-step"><div class="step-num">3</div><div><strong>Função de Möbius</strong><div>'+(squarefree?'n é livre de quadrados: μ(n)=(-1)^k, com k='+factors.length+'.':'Existe expoente maior que 1: μ(n)=0.')+'</div><div>μ('+n+') = '+mu+'</div></div></div>';
+    html+='<div class="didactic-step"><div class="step-num">4</div><div><strong>Número de divisores</strong><div>Se n = ∏pᵢ^aᵢ, então τ(n)=∏(aᵢ+1).</div><div>τ('+n+') = '+tau+'</div></div></div>';
+    html+='<div class="didactic-step"><div class="step-num">5</div><div><strong>Soma dos divisores</strong><div>σ(n)=∏(1+p+...+p^a).</div><div>σ('+n+') = '+sigma+'</div></div></div>';
+    html+='<div class="didactic-step"><div class="step-num">6</div><div><strong>Conferência direta</strong><div>Divisores: '+divisors.join(', ')+'</div><div>Quantidade = '+divisors.length+' e soma = '+divisorSum+'.</div></div></div>';
+    html+='<div class="check-pill">✓ Conferência: τ('+n+') = '+divisors.length+' e σ('+n+') = '+divisorSum+'.</div></div>';
+    document.getElementById('num-func-result').innerHTML=html;
+    salvarHistorico('Funções aritméticas',String(n),'φ='+phi+', μ='+mu+', τ='+tau+', σ='+sigma);
+  } catch(error) { toast(error.message,'err'); }
 }
 
 function scicalcHistoryData() {
@@ -2241,5 +1774,147 @@ function exportarHistorico() {
   setTimeout(function() { URL.revokeObjectURL(url); }, 0);
 }
 </script>
+
+<script>
+/* ================= FÍSICA: CALCULADORAS ================= */
+const physicsForms={
+ cin:{title:'Cinemática',items:[['MRU','mru',[['s0','s₀ (m)',0],['v','v (m/s)',10],['t','t (s)',5]]],['MRUV','mruv',[['s0','s₀ (m)',0],['v0','v₀ (m/s)',10],['a','a (m/s²)',2],['t','t (s)',5]]],['Queda livre','queda',[['h','h (m)',20],['g','g (m/s²)',9.81]]]]},
+ dyn:{title:'Dinâmica',items:[['2ª Lei de Newton','newton',[['F','F (N)',20],['m','m (kg)',5]]],['Atrito cinético','atrito',[['mu','μₖ',0.2],['m','m (kg)',5],['g','g (m/s²)',9.81]]],['Energia cinética','ec',[['m','m (kg)',2],['v','v (m/s)',10]]]]},
+ grav:{title:'Gravitação',items:[['Gravitação universal','grav',[['m1','m₁ (kg)',5.972e24],['m2','m₂ (kg)',1000],['r','r (m)',6.771e6]]],['Órbita circular','orbita',[['M','M (kg)',5.972e24],['r','r (m)',6.771e6]]]]},
+ termo:{title:'Termologia',items:[['Conversão de temperatura','temp',[['T','T (°C)',25]]],['Dilatação linear','dilat',[['L0','L₀ (m)',2],['alpha','α (1/K)',1.2e-5],['dT','ΔT (K)',80]]]]},
+ termod:{title:'Termodinâmica',items:[['Calor sensível','calor',[['m','m (kg)',2],['c','c (J/kg·K)',4186],['dT','ΔT (K)',20]]],['1ª Lei da Termodinâmica','primeira',[['Q','Q (J)',500],['W','W realizado pelo sistema (J)',200]]],['Rendimento','rendimento',[['Qin','Q₁ (J)',1000],['Qout','Q₂ (J)',400]]]]},
+ ondas:{title:'Ondas',items:[['Equação fundamental','onda',[['lambda','λ (m)',2],['f','f (Hz)',5]]],['Período','periodo',[['f','f (Hz)',2]]]]},
+ opt:{title:'Óptica',items:[['Lentes e espelhos','lente',[['f','f (cm)',20],['p','p (cm)',30]]],['Aumento linear','aumento',[['q','q (cm)',40],['p','p (cm)',20]]]]},
+ elec:{title:'Eletricidade',items:[['Lei de Ohm','ohm',[['V','V (V)',12],['R','R (Ω)',100]]],['Lei de Coulomb','coulomb',[['q1','q₁ (μC)',2],['q2','q₂ (μC)',3],['r','r (m)',0.5]]],['Capacitor','capacitor',[['C','C (F)',0.001],['V','V (V)',12]]]]},
+ mag:{title:'Magnetismo',items:[['Força sobre carga','fmag',[['q','q (C)',1e-6],['v','v (m/s)',1000],['B','B (T)',0.2],['theta','θ (graus)',90]]],['Força sobre fio','fio',[['I','I (A)',5],['L','L (m)',0.4],['B','B (T)',0.3],['theta','θ (graus)',90]]]]},
+ em:{title:'Eletromagnetismo',items:[['Lei de Faraday','faraday',[['N','N (espiras)',100],['dphi','ΔΦ (Wb)',0.02],['dt','Δt (s)',0.1]]],['Força de Lorentz','lorentz',[['q','q (C)',1e-6],['v','v (m/s)',1000],['B','B (T)',0.1],['theta','θ (graus)',90]]]]},
+ mod:{title:'Física Moderna',items:[['Fator de Lorentz','lorentzRel',[['beta','β=v/c',0.8],['t0','Δt₀ (s)',10],['L0','L₀ (m)',100]]],['Energia de repouso','repouso',[['m','m (kg)',1]]],['Fóton','foton',[['lambda','λ (m)',5e-7]]]]}
+};
+function physicsCalculate(id,v){const d={steps:[],result:''};const add=x=>d.steps.push(x);let r;
+switch(id){
+case'mru':r=v.s0+v.v*v.t;add('1. Equação: s = s₀ + vt.');add(`2. Substituição: s = ${v.s0} + ${v.v}·${v.t}.`);add(`3. Resultado: s = ${r.toFixed(6)} m.`);d.result=`Posição final: <strong>${r.toFixed(6)} m</strong>`;break;
+case'mruv':{let vf=v.v0+v.a*v.t,s=v.s0+v.v0*v.t+.5*v.a*v.t*v.t;add('1. v = v₀ + at.');add(`2. v = ${v.v0} + ${v.a}·${v.t} = ${vf.toFixed(6)} m/s.`);add('3. s = s₀ + v₀t + ½at².');add(`4. s = ${s.toFixed(6)} m.`);d.result=`v = <strong>${vf.toFixed(6)} m/s</strong> · s = <strong>${s.toFixed(6)} m</strong>`;break;}
+case'queda':{let t=Math.sqrt(2*v.h/v.g),vf=v.g*t;add('1. h = ½gt².');add('2. t = √(2h/g).');add(`3. t = √(2·${v.h}/${v.g}) = ${t.toFixed(6)} s.`);add(`4. v = gt = ${vf.toFixed(6)} m/s.`);d.result=`t = <strong>${t.toFixed(6)} s</strong> · v = <strong>${vf.toFixed(6)} m/s</strong>`;break;}
+case'newton':r=v.F/v.m;add('1. F = ma.');add(`2. a = F/m = ${v.F}/${v.m}.`);add(`3. a = ${r.toFixed(6)} m/s².`);d.result=`Aceleração: <strong>${r.toFixed(6)} m/s²</strong>`;break;
+case'atrito':r=v.mu*v.m*v.g;add('1. N = mg.');add(`2. N = ${ (v.m*v.g).toFixed(6)} N.`);add('3. Fₐ = μₖN.');add(`4. Fₐ = ${r.toFixed(6)} N.`);d.result=`Atrito: <strong>${r.toFixed(6)} N</strong>`;break;
+case'ec':r=.5*v.m*v.v*v.v;add('1. E_c = ½mv².');add(`2. E_c = ½·${v.m}·${v.v}².`);add(`3. E_c = ${r.toFixed(6)} J.`);d.result=`E_c = <strong>${r.toFixed(6)} J</strong>`;break;
+case'grav':r=6.67430e-11*v.m1*v.m2/(v.r*v.r);add('1. F = Gm₁m₂/r².');add(`2. G = 6,67430×10⁻¹¹ N·m²/kg².`);add(`3. F = ${r.toExponential(8)} N.`);d.result=`F = <strong>${r.toExponential(8)} N</strong>`;break;
+case'orbita':r=Math.sqrt(6.67430e-11*v.M/v.r);add('1. GMm/r² = mv²/r.');add('2. v = √(GM/r).');add(`3. v = ${r.toFixed(6)} m/s.`);d.result=`Velocidade orbital: <strong>${r.toFixed(6)} m/s</strong>`;break;
+case'temp':{let K=v.T+273.15,F=v.T*9/5+32;add('1. K = °C + 273,15.');add(`2. K = ${K.toFixed(6)} K.`);add('3. °F = 9°C/5 + 32.');add(`4. °F = ${F.toFixed(6)} °F.`);d.result=`<strong>${K.toFixed(6)} K</strong> · <strong>${F.toFixed(6)} °F</strong>`;break;}
+case'dilat':{let dl=v.alpha*v.L0*v.dT,L=v.L0+dl;add('1. ΔL = αL₀ΔT.');add(`2. ΔL = ${v.alpha}·${v.L0}·${v.dT} = ${dl.toExponential(6)} m.`);add(`3. L = L₀ + ΔL = ${L.toFixed(6)} m.`);d.result=`ΔL = <strong>${dl.toExponential(6)} m</strong> · L = <strong>${L.toFixed(6)} m</strong>`;break;}
+case'calor':r=v.m*v.c*v.dT;add('1. Q = mcΔT.');add(`2. Q = ${v.m}·${v.c}·${v.dT}.`);add(`3. Q = ${r.toFixed(6)} J.`);d.result=`Q = <strong>${r.toFixed(6)} J</strong>`;break;
+case'primeira':r=v.Q-v.W;add('1. ΔU = Q − W.');add(`2. ΔU = ${v.Q} − ${v.W}.`);add(`3. ΔU = ${r.toFixed(6)} J.`);d.result=`ΔU = <strong>${r.toFixed(6)} J</strong>`;break;
+case'rendimento':r=1-v.Qout/v.Qin;add('1. η = 1 − Q₂/Q₁.');add(`2. η = 1 − ${v.Qout}/${v.Qin}.`);add(`3. η = ${(100*r).toFixed(6)}%.`);d.result=`η = <strong>${(100*r).toFixed(6)}%</strong>`;break;
+case'onda':r=v.lambda*v.f;add('1. v = λf.');add(`2. v = ${v.lambda}·${v.f}.`);add(`3. v = ${r.toFixed(6)} m/s.`);d.result=`v = <strong>${r.toFixed(6)} m/s</strong>`;break;
+case'periodo':r=1/v.f;add('1. T = 1/f.');add(`2. T = 1/${v.f}.`);add(`3. T = ${r.toFixed(6)} s.`);d.result=`T = <strong>${r.toFixed(6)} s</strong>`;break;
+case'lente':r=1/(1/v.f-1/v.p);add('1. 1/f = 1/p + 1/q.');add('2. q = 1/(1/f − 1/p).');add(`3. q = ${r.toFixed(6)} cm.`);d.result=`q = <strong>${r.toFixed(6)} cm</strong>`;break;
+case'aumento':r=-v.q/v.p;add('1. A = −q/p.');add(`2. A = −${v.q}/${v.p}.`);add(`3. A = ${r.toFixed(6)}.`);d.result=`A = <strong>${r.toFixed(6)}</strong>`;break;
+case'ohm':{let I=v.V/v.R,P=v.V*I;add('1. I = V/R.');add(`2. I = ${I.toFixed(6)} A.`);add(`3. P = VI = ${P.toFixed(6)} W.`);d.result=`I = <strong>${I.toFixed(6)} A</strong> · P = <strong>${P.toFixed(6)} W</strong>`;break;}
+case'coulomb':r=8.9875517923e9*Math.abs(v.q1*v.q2)*1e-12/(v.r*v.r);add('1. Converter μC para C.');add('2. F = k|q₁q₂|/r².');add(`3. F = ${r.toExponential(8)} N.`);d.result=`F = <strong>${r.toExponential(8)} N</strong>`;break;
+case'capacitor':{let Q=v.C*v.V,E=.5*v.C*v.V*v.V;add(`1. Q = CV = ${Q.toExponential(6)} C.`);add('2. E = ½CV².');add(`3. E = ${E.toExponential(6)} J.`);d.result=`Q = <strong>${Q.toExponential(6)} C</strong> · E = <strong>${E.toExponential(6)} J</strong>`;break;}
+case'fmag':r=Math.abs(v.q)*v.v*v.B*Math.sin(v.theta*Math.PI/180);add('1. F = |q|vB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toExponential(6)} N.`);d.result=`F = <strong>${r.toExponential(6)} N</strong>`;break;
+case'fio':r=v.I*v.L*v.B*Math.sin(v.theta*Math.PI/180);add('1. F = ILB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toFixed(6)} N.`);d.result=`F = <strong>${r.toFixed(6)} N</strong>`;break;
+case'faraday':r=Math.abs(v.N*v.dphi/v.dt);add('1. |ε| = N|ΔΦ/Δt|.');add(`2. |ε| = ${v.N}·${v.dphi}/${v.dt}.`);add(`3. |ε| = ${r.toFixed(6)} V.`);d.result=`ε = <strong>${r.toFixed(6)} V</strong>`;break;
+case'lorentz':r=Math.abs(v.q)*v.v*v.B*Math.sin(v.theta*Math.PI/180);add('1. Para E=0: F = |q|vB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toExponential(6)} N.`);d.result=`F = <strong>${r.toExponential(6)} N</strong>`;break;
+case'lorentzRel':{if(Math.abs(v.beta)>=1)throw Error('β deve ter módulo menor que 1.');let g=1/Math.sqrt(1-v.beta*v.beta),t=g*v.t0,L=v.L0/g;add('1. γ = 1/√(1−β²).');add(`2. γ = ${g.toFixed(8)}.`);add(`3. Δt = γΔt₀ = ${t.toFixed(8)} s.`);add(`4. L = L₀/γ = ${L.toFixed(8)} m.`);d.result=`γ = <strong>${g.toFixed(8)}</strong> · Δt = <strong>${t.toFixed(8)} s</strong>`;break;}
+case'repouso':r=v.m*299792458**2;add('1. E₀ = mc².');add('2. c = 299.792.458 m/s.');add(`3. E₀ = ${r.toExponential(8)} J.`);d.result=`E₀ = <strong>${r.toExponential(8)} J</strong>`;break;
+case'foton':{let f=299792458/v.lambda,E=6.62607015e-34*f;add('1. f = c/λ.');add(`2. f = ${f.toExponential(6)} Hz.`);add('3. E = hf.');add(`4. E = ${E.toExponential(6)} J.`);d.result=`f = <strong>${f.toExponential(6)} Hz</strong> · E = <strong>${E.toExponential(6)} J</strong>`;break;}}
+return d;}
+function renderPhysicsCalculator(){let area=document.getElementById('physics-area').value,data=physicsForms[area],sel=document.getElementById('physics-formula');sel.innerHTML=data.items.map(x=>`<option value="${x[1]}">${x[0]}</option>`).join('');renderPhysicsForm();}
+function renderPhysicsForm(){let area=document.getElementById('physics-area').value,data=physicsForms[area],id=document.getElementById('physics-formula').value,item=data.items.find(x=>x[1]===id);if(!item)return;document.getElementById('physics-form').innerHTML=`<h3>${data.title} — ${item[0]}</h3><div class="sim-controls">${item[2].map(x=>`<div><label>${x[1]}</label><input type="number" step="any" id="pfx-${x[0]}" value="${x[2]}"></div>`).join('')}</div><button class="btn" onclick="runPhysicsCalculator()">🧮 Calcular passo a passo</button>`;document.getElementById('physics-result').innerHTML='';}
+function runPhysicsCalculator(){try{let area=document.getElementById('physics-area').value,id=document.getElementById('physics-formula').value,data=physicsForms[area],item=data.items.find(x=>x[1]===id),v={};item[2].forEach(x=>{let n=Number(document.getElementById('pfx-'+x[0]).value);if(!Number.isFinite(n))throw Error('Valor inválido em '+x[1]);v[x[0]]=n});let o=physicsCalculate(id,v),html='<div class="result"><h3>📚 Resolução passo a passo</h3>';o.steps.forEach((st,i)=>html+=`<div class="didactic-step"><div class="step-num">${i+1}</div><div><strong>Passo ${i+1}</strong><div>${st}</div></div></div>`);html+=`<div class="check-pill">✓ ${o.result}</div></div>`;document.getElementById('physics-result').innerHTML=html;salvarHistorico('Física — '+data.title,item[0],o.result.replace(/<[^>]+>/g,''));}catch(e){toast(e.message,'err')}}
+window.addEventListener('load',renderPhysicsCalculator);
+</script>
+
+<script>
+/* ===== CORREÇÃO FINAL V5: ARITMÉTICA + FÍSICA ===== */
+function fmtNum(x){
+  if(!Number.isFinite(x)) return '—';
+  if(Math.abs(x)>=1e7 || (Math.abs(x)>0 && Math.abs(x)<1e-5)) return x.toExponential(8);
+  return Number(x.toFixed(8)).toString();
+}
+function fatoracaoDidatica(n){
+  if(n===1) return {factors:[],lines:['1 não possui fatores primos.']};
+  let temp=n, factors=[], lines=[];
+  for(let p=2;p*p<=temp;p++){
+    if(temp%p===0){
+      let e=0;
+      while(temp%p===0){let before=temp;temp/=p;e++;lines.push(`${before} ÷ ${p} = ${temp}`);}
+      factors.push([p,e]);
+    }
+  }
+  if(temp>1){factors.push([temp,1]);lines.push(`${temp} é primo e permanece como fator.`);}
+  return {factors,lines};
+}
+function calcularFuncoesAritmeticas(){
+  try{
+    const n=scicalcInteger('num-func-n','n',1,200000), F=fatoracaoDidatica(n), factors=F.factors;
+    let phi=n; factors.forEach(([p])=>phi-=phi/p);
+    let mu=1, squarefree=true; factors.forEach(([p,e])=>{mu*=-1;if(e>1)squarefree=false;}); if(!squarefree)mu=0;
+    let tau=1,sigma=1;
+    factors.forEach(([p,e])=>{tau*=e+1;sigma*=(Math.pow(p,e+1)-1)/(p-1);});
+    if(n===1){phi=mu=tau=sigma=1;}
+    const divisors=[]; for(let d=1;d*d<=n;d++) if(n%d===0){divisors.push(d);if(d*d!==n)divisors.push(n/d);} divisors.sort((a,b)=>a-b);
+    const directSum=divisors.reduce((a,b)=>a+b,0), directCount=divisors.length;
+    const facText=factors.length?factors.map(([p,e])=>e>1?`${p}<sup>${e}</sup>`:`${p}`).join(' · '):'1';
+    const primeList=factors.map(([p])=>p).join(', ')||'nenhum';
+    const phiFormula=n===1?'φ(1)=1':`${n} · ${factors.map(([p])=>`(1 − 1/${p})`).join(' · ')}`;
+    const tauFormula=n===1?'1':factors.map(([p,e])=>`(${e}+1)`).join(' · ');
+    const sigmaFormula=n===1?'1':factors.map(([p,e])=>`(1+${p}+…+${p}<sup>${e}</sup>)`).join(' · ');
+    let html=`<div class="result"><h3>🔢 Resolução completa de n = ${n}</h3>
+      <div class="fact-card"><div class="label">Fatoração prima</div><div class="value">${n} = ${facText}</div></div>
+      <div class="didactic-step"><div class="step-num">1</div><div><strong>Fatoração por divisões sucessivas</strong><div>${F.lines.join('<br>')}</div><div style="margin-top:6px">Primos distintos: <strong>${primeList}</strong></div></div></div>
+      <div class="didactic-step"><div class="step-num">2</div><div><strong>Totiente de Euler φ(n)</strong><div>Fórmula: φ(n)=n∏(1−1/p).</div><div>${phiFormula} = <strong>${fmtNum(phi)}</strong></div><div>Logo, há <strong>${fmtNum(phi)}</strong> inteiros entre 1 e n coprimos com n.</div></div></div>
+      <div class="didactic-step"><div class="step-num">3</div><div><strong>Função de Möbius μ(n)</strong><div>${squarefree?'n é livre de quadrados. Como possui '+factors.length+' primos distintos, μ(n)=(-1)^'+factors.length+'.':'n possui fator primo repetido; portanto μ(n)=0.'}</div><div>μ(${n}) = <strong>${mu}</strong></div></div></div>
+      <div class="didactic-step"><div class="step-num">4</div><div><strong>Número de divisores τ(n)</strong><div>Se n=∏p<sup>a</sup>, então τ(n)=∏(a+1).</div><div>${tauFormula} = <strong>${tau}</strong></div></div></div>
+      <div class="didactic-step"><div class="step-num">5</div><div><strong>Soma dos divisores σ(n)</strong><div>σ(n)=∏(1+p+p²+…+p<sup>a</sup>).</div><div>${sigmaFormula} = <strong>${sigma}</strong></div></div></div>
+      <div class="didactic-step"><div class="step-num">6</div><div><strong>Conferência direta</strong><div>Divisores (${directCount}): ${divisors.join(', ')}</div><div>Contagem direta: <strong>${directCount}</strong> → τ(${n}) = <strong>${tau}</strong>.</div><div>Soma direta: <strong>${directSum}</strong> → σ(${n}) = <strong>${sigma}</strong>.</div></div></div>
+      <div class="check-pill">✓ Conferência ${directCount===tau && directSum===sigma?'confirmada':'requer revisão'}: τ e σ coincidem com os divisores calculados diretamente.</div><div style="margin-top:18px"><label><strong>Gráfico das funções aritméticas</strong></label><select id="arith-chart-select" onchange="plotArithmetic(Number(document.getElementById('num-func-n').value))"><option value="phi">φ(n) — Totiente</option><option value="tau">τ(n) — Divisores</option><option value="sigma">σ(n) — Soma dos divisores</option><option value="mu">μ(n) — Möbius</option></select><div id="num-arith-plot" style="height:360px;margin-top:10px"></div></div></div>`;
+    document.getElementById('num-func-result').innerHTML=html;
+    if(typeof plotArithmetic==='function') plotArithmetic(n);
+    salvarHistorico('Funções aritméticas',String(n),`φ=${phi}, μ=${mu}, τ=${tau}, σ=${sigma}`);
+  }catch(e){toast(e.message,'err');}
+}
+
+/* Corrige a inicialização e torna as calculadoras de Física independentes dos simuladores. */
+function renderPhysicsCalculator(){
+  const area=document.getElementById('physics-area').value, data=physicsForms[area];
+  if(!data){toast('Área de Física não encontrada.','err');return;}
+  const sel=document.getElementById('physics-formula');
+  sel.innerHTML=data.items.map(x=>`<option value="${x[1]}">${x[0]}</option>`).join('');
+  renderPhysicsForm();
+}
+function renderPhysicsForm(){
+  const area=document.getElementById('physics-area').value,data=physicsForms[area]; if(!data)return;
+  const id=document.getElementById('physics-formula').value,item=data.items.find(x=>x[1]===id); if(!item)return;
+  document.getElementById('physics-form').innerHTML=`<h3>${data.title} — ${item[0]}</h3><div class="sim-controls">${item[2].map(x=>`<div><label>${x[1]}</label><input type="number" step="any" id="pfx-${x[0]}" value="${x[2]}"></div>`).join('')}</div><button class="btn" type="button" onclick="runPhysicsCalculator()">🧮 Calcular passo a passo</button>`;
+  document.getElementById('physics-result').innerHTML='';
+}
+function runPhysicsCalculator(){
+  try{
+    const area=document.getElementById('physics-area').value,data=physicsForms[area]; if(!data)throw Error('Área de Física inválida.');
+    const id=document.getElementById('physics-formula').value,item=data.items.find(x=>x[1]===id); if(!item)throw Error('Calculadora não encontrada.');
+    const v={}; item[2].forEach(x=>{const el=document.getElementById('pfx-'+x[0]),n=Number(el.value);if(!Number.isFinite(n))throw Error('Valor inválido em '+x[1]);v[x[0]]=n;});
+    const o=physicsCalculate(id,v); let html='<div class="result"><h3>📚 Resolução passo a passo</h3>';
+    o.steps.forEach((st,i)=>html+=`<div class="didactic-step"><div class="step-num">${i+1}</div><div><strong>Passo ${i+1}</strong><div>${st}</div></div></div>`);
+    html+=`<div class="check-pill">✓ Resultado: ${o.result}</div></div>`;
+    document.getElementById('physics-result').innerHTML=html;
+    salvarHistorico('Física — '+data.title,item[0],o.result.replace(/<[^>]+>/g,''));
+  }catch(e){toast(e.message,'err');}
+}
+
+function plotArithmetic(n){
+  const target=document.getElementById('num-arith-plot'); if(!target || typeof Plotly==='undefined') return;
+  n=Math.max(1,Math.min(500,Math.floor(n)));
+  const xs=Array.from({length:n},(_,i)=>i+1), phi=[],tau=[],sigma=[],mu=[];
+  xs.forEach(k=>{const F=fatoracaoDidatica(k).factors;let ph=k,ta=1,si=1,m=1,sq=true;F.forEach(([p,e])=>{ph-=ph/p;ta*=e+1;si*=(Math.pow(p,e+1)-1)/(p-1);m*=-1;if(e>1)sq=false;});if(!sq)m=0;if(k===1){ph=ta=si=m=1;}phi.push(ph);tau.push(ta);sigma.push(si);mu.push(m);});
+  const sel=document.getElementById('arith-chart-select'); const key=sel?sel.value:'phi'; const names={phi:'φ(n) — Totiente de Euler',tau:'τ(n) — Número de divisores',sigma:'σ(n) — Soma dos divisores',mu:'μ(n) — Função de Möbius'};
+  const data={phi,tau,sigma,mu}[key]||phi;
+  Plotly.newPlot(target,[{x:xs,y:data,mode:'lines+markers',name:names[key]}],getPlotLayout({title:names[key]+' até '+n,xaxis:{title:'n'},yaxis:{title:key}}),{responsive:true,displaylogo:false});
+}
+
+window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){try{renderPhysicsCalculator();}catch(e){console.error(e);}},0);});
+</script>
+
 </body>
 </html>
