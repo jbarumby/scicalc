@@ -1,9 +1,18 @@
 <!DOCTYPE html>
+<!--
+  SciCalc Avançada
+  Copyright (c) 2026 João Carlos Barumby. Todos os direitos reservados.
+  Código original do projeto: João Carlos Barumby.
+  Bibliotecas de terceiros permanecem sujeitas às suas próprias licenças.
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc - Ultra Rápido e Simbólico</title>
+<title>SciCalc Avançada — Matemática, Física e Teoria dos Números</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="João Carlos Barumby">
+<meta name="copyright" content="© 2026 João Carlos Barumby — Todos os direitos reservados">
+<meta name="description" content="SciCalc — plataforma educacional de Matemática, Física e Teoria dos Números, desenvolvida por João Carlos Barumby.">
 <!-- KaTeX para renderização de equações em LaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -23,10 +32,20 @@
   body {font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; transition:background-color .3s, color .3s;}
   
   header {background:linear-gradient(120deg,var(--primary),var(--primary-2)); color:#fff; padding:22px 32px; box-shadow:var(--shadow); position:relative;}
-  header h1 {font-size:1.7rem;}
-  header p {margin:4px 0 0; opacity:.9; font-size:.95rem;}
-  .theme-toggle {position:absolute; top:20px; right:30px; background:rgba(255,255,255,.2); border:none; color:#fff; padding:8px 16px; border-radius:20px; cursor:pointer; font-size:.9rem; transition:background .2s;}
-  .theme-toggle:hover {background:rgba(255,255,255,.3);}
+  header h1 {font-size:1.7rem; padding-right:360px;}
+  header p {margin:4px 0 0; opacity:.9; font-size:.95rem; padding-right:360px;}
+  .header-actions {position:absolute; top:18px; right:28px; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; max-width:420px;}
+  .header-actions .theme-toggle, .header-actions .about-toggle {position:static; white-space:nowrap; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.22); color:#fff; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:.88rem; line-height:1.2; transition:background .2s, transform .15s;}
+  .header-actions .theme-toggle:hover, .header-actions .about-toggle:hover {background:rgba(255,255,255,.3); transform:translateY(-1px);}
+  @media(max-width:760px){
+    header {padding:18px 18px 76px;}
+    header h1, header p {padding-right:0;}
+    .header-actions {left:18px; right:18px; top:auto; bottom:14px; max-width:none; justify-content:flex-start;}
+  }
+  @media(max-width:460px){
+    .header-actions {gap:7px;}
+    .header-actions .theme-toggle, .header-actions .about-toggle {font-size:.8rem; padding:7px 10px;}
+  }
   
   .tabs {display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px; background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; transition:background-color .3s, border-color .3s;}
   .tab {padding:10px 18px; border:none; background:transparent; cursor:pointer; border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem; transition:all .2s;}
@@ -122,13 +141,31 @@
   .vector-note {font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:8px;}
   @media(max-width:760px){.sim-grid{grid-template-columns:1fr}.sim-canvas{height:300px}}
 
+  .copyright{margin:26px auto 0;max-width:1400px;padding:18px 28px;text-align:center;color:var(--muted);font-size:.84rem;border-top:1px solid var(--border);}
+  .copyright strong{color:var(--ink);}
+  .security-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:.82rem;color:var(--muted);}
+  .integral-rules{margin-top:16px;border:1px solid var(--border);border-radius:12px;background:var(--bg);overflow:hidden;}
+  .integral-rules summary{cursor:pointer;padding:13px 15px;font-weight:700;color:var(--primary);user-select:none;}
+  .integral-rules-content{padding:0 15px 15px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;}
+  .rule-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px;line-height:1.5;}
+  .rule-card strong{display:block;margin-bottom:5px;color:var(--primary);}
+  .rule-card .formula{font-family:Georgia,serif;font-size:1.02rem;margin:5px 0;}
+  .about-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+  .about-modal.open{display:flex;}
+  .about-box{max-width:900px;max-height:88vh;overflow:auto;background:var(--panel);color:var(--ink);border-radius:16px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;}
+  .about-box h2,.about-box h3{color:var(--primary);margin:0 0 10px;}
+  .about-box p,.about-box li{line-height:1.6;margin-bottom:8px;}
+  .about-close{position:sticky;top:0;float:right;border:0;border-radius:8px;padding:7px 11px;cursor:pointer;background:var(--primary);color:#fff;font-weight:700;}
 </style>
 </head>
 <body>
 <header>
   <h1>🧮 SciCalc Avançada</h1>
-  <p>Matemática, Física e Simulações Interativas</p>
-  <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
+  <p>Matemática, Física e Teoria dos Números · Desenvolvido por João Carlos Barumby</p>
+  <div class="header-actions" aria-label="Controles do programa">
+    <button class="theme-toggle" onclick="toggleTheme()">🌙 Modo Escuro</button>
+    <button class="about-toggle" onclick="abrirSobre()">ℹ️ Sobre / Direitos</button>
+  </div>
 </header>
 
 <nav class="tabs">
@@ -196,6 +233,21 @@
       <div><label>Limite Superior x₂ (Opcional)</label><input id="int-x2" placeholder="Ex: 10"></div>
     </div>
     <label class="didactic-toggle"><input id="int-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
+    <details class="integral-rules" open>
+      <summary>📚 Regras de Integração — consulte antes de calcular</summary>
+      <div class="integral-rules-content">
+        <div class="rule-card"><strong>1. Constante</strong><div class="formula">∫ k dx = kx + C</div>Uma constante é integrada multiplicando-a pela variável.</div>
+        <div class="rule-card"><strong>2. Soma e diferença</strong><div class="formula">∫(f ± g)dx = ∫f dx ± ∫g dx</div>Integramos cada parcela separadamente.</div>
+        <div class="rule-card"><strong>3. Fator constante</strong><div class="formula">∫ kf(x)dx = k∫f(x)dx</div>O fator constante pode sair da integral.</div>
+        <div class="rule-card"><strong>4. Regra da potência</strong><div class="formula">∫xⁿdx = xⁿ⁺¹/(n+1)+C, n≠−1</div>Somamos 1 ao expoente e dividimos pelo novo expoente.</div>
+        <div class="rule-card"><strong>5. Caso n = −1</strong><div class="formula">∫ dx/x = ln|x| + C</div>O caso 1/x é a exceção à regra da potência.</div>
+        <div class="rule-card"><strong>6. Exponencial</strong><div class="formula">∫eˣdx = eˣ + C</div>Mais geralmente, ∫eᵏˣdx = eᵏˣ/k + C, k≠0.</div>
+        <div class="rule-card"><strong>7. Seno</strong><div class="formula">∫sin(x)dx = −cos(x)+C</div>Com argumento linear: ∫sin(kx)dx = −cos(kx)/k + C.</div>
+        <div class="rule-card"><strong>8. Cosseno</strong><div class="formula">∫cos(x)dx = sin(x)+C</div>Com argumento linear: ∫cos(kx)dx = sin(kx)/k + C.</div>
+        <div class="rule-card"><strong>9. Substituição</strong><div class="formula">u=g(x), du=g′(x)dx</div>Usada quando aparece uma função composta acompanhada de sua derivada.</div>
+        <div class="rule-card"><strong>10. Integração por partes</strong><div class="formula">∫u dv = uv − ∫v du</div>Útil especialmente em produtos de funções, como x·eˣ ou x·sin(x).</div>
+      </div>
+    </details>
     <button class="btn" onclick="calcIntegral()">Calcular Integral</button>
     <div id="int-result" aria-live="polite"></div>
     <div id="int-plot" class="plot"></div>
@@ -331,7 +383,7 @@
 </section>
 
 
-<section class="tab-content" id="fisica"><div class="panel"><h2>⚛️ Calculadoras de Física</h2><p class="sub">Sem simulações. Escolha uma área, selecione uma fórmula e acompanhe a resolução passo a passo.</p><div class="physics-panel active" id="fis-calc"><div class="calc-toolbar"><label><strong>Área da Física</strong><select id="physics-area" onchange="renderPhysicsCalculator()"><option value="cin">🏃 Cinemática</option><option value="dyn">⚖️ Dinâmica</option><option value="grav">🌍 Gravitação</option><option value="termo">🌡️ Termologia</option><option value="termod">♨️ Termodinâmica</option><option value="ondas">〰️ Ondas</option><option value="opt">🔎 Óptica</option><option value="elec">⚡ Eletricidade</option><option value="mag">🧲 Magnetismo</option><option value="em">🔌 Eletromagnetismo</option><option value="mod">🚀 Física Moderna</option></select></label><label><strong>Calculadora</strong><select id="physics-formula" onchange="renderPhysicsForm()"></select></label></div><div id="physics-form" class="result"></div><div id="physics-result"></div></div></div></section>
+<section class="tab-content" id="fisica"><div class="panel"><h2>⚛️ Calculadoras de Física</h2><p class="sub">Sem simulações: escolha uma área, selecione uma fórmula e acompanhe a resolução passo a passo.</p><div class="physics-panel active" id="fis-calc"><div class="calc-toolbar"><label><strong>Área da Física</strong><select id="physics-area" onchange="renderPhysicsCalculator()"><option value="cin">🏃 Cinemática</option><option value="dyn">⚖️ Dinâmica</option><option value="grav">🌍 Gravitação</option><option value="termo">🌡️ Termologia</option><option value="termod">♨️ Termodinâmica</option><option value="ondas">〰️ Ondas</option><option value="opt">🔎 Óptica</option><option value="elec">⚡ Eletricidade</option><option value="mag">🧲 Magnetismo</option><option value="em">🔌 Eletromagnetismo</option><option value="mod">🚀 Física Moderna</option></select></label><label><strong>Calculadora</strong><select id="physics-formula" onchange="renderPhysicsForm()"></select></label></div><div id="physics-form" class="result"></div><div id="physics-result"></div></div></div></section>
 
 <section class="tab-content" id="historico">
   <div class="panel">
@@ -346,9 +398,39 @@
 
 </main>
 
+<footer class="copyright" aria-label="Direitos autorais">
+  <strong>© 2026 João Carlos Barumby — SciCalc</strong><br>
+  Todos os direitos reservados, salvo componentes de terceiros sujeitos às respectivas licenças.
+  <div class="security-note">O código deste projeto é público para consulta e execução no GitHub Pages. A publicação pública não constitui, por si só, autorização geral para copiar, modificar, redistribuir ou comercializar o código-fonte. Consulte o arquivo LICENSE do repositório.</div>
+</footer>
+
+<div class="about-modal" id="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" onclick="if(event.target===this)fecharSobre()">
+  <div class="about-box">
+    <button class="about-close" onclick="fecharSobre()">Fechar ✕</button>
+    <h2 id="about-title">🧮 SciCalc — Sobre o projeto</h2>
+    <p><strong>Autor:</strong> João Carlos Barumby</p>
+    <p><strong>Ano:</strong> 2026</p>
+    <p><strong>Descrição:</strong> plataforma educacional de Matemática, Física e Teoria dos Números, desenvolvida para estudo, exploração de conceitos, cálculos e resolução passo a passo no navegador.</p>
+    <h3>Autoria e direitos</h3>
+    <p><strong>© 2026 João Carlos Barumby — Todos os direitos reservados.</strong></p>
+    <p>O código original do SciCalc é de autoria de João Carlos Barumby, salvo componentes de terceiros identificados por suas próprias licenças. A publicação pública no GitHub Pages não significa que o código esteja em domínio público nem concede, por si só, uma licença geral para copiar, modificar, redistribuir ou comercializar o código-fonte.</p>
+    <h3>Componentes de terceiros</h3>
+    <ul><li>KaTeX — renderização matemática.</li><li>Plotly — gráficos.</li><li>Math.js — expressões e derivadas simbólicas.</li><li>Nerdamer — operações simbólicas, incluindo integrais.</li></ul>
+    <p>Esses componentes permanecem sujeitos às respectivas licenças e termos de uso.</p>
+    <h3>Histórico e desenvolvimento</h3>
+    <p>O histórico de commits do repositório GitHub pode ser utilizado para documentar a evolução do projeto. Este aviso integra o programa para deixar a autoria visível mesmo quando o arquivo HTML for executado fora do GitHub.</p>
+    <p style="margin-top:16px"><strong>Licença:</strong> consulte o arquivo <code>LICENSE</code> do repositório para os termos completos.</p>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
+// ============ AUTORIA / SOBRE ============
+function abrirSobre(){ document.getElementById('about-modal').classList.add('open'); }
+function fecharSobre(){ document.getElementById('about-modal').classList.remove('open'); }
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') fecharSobre(); });
+
 // ============ UTILITÁRIOS E UI ============
 document.querySelectorAll('.tab').forEach(t => {
   t.onclick = () => {
@@ -395,7 +477,8 @@ function getPlotLayout(extraLayout = {}) {
 function toggleTheme() {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
-  document.querySelector('.theme-toggle').textContent = isDark ? '☀️ Claro' : '🌙 Escuro';
+  const themeButton = document.querySelector('.header-actions .theme-toggle');
+  if (themeButton) themeButton.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   
   // Atualizar os gráficos existentes para refletir a nova cor do tema
@@ -1298,27 +1381,45 @@ function scicalcIntegralTermStep(node, variable, sign) {
   var core = factor.core;
   var wholeTex = (sign < 0 ? '-' : '') + scicalcNodeTex(node);
   var coefficientTex = scicalcFormat(coefficient);
+
   if (core === null) {
-    return scicalcStep('Regra da constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable, 'A integral de uma constante é a constante multiplicada pela variável.');
+    return scicalcStep('Regra 1 — constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable + ' + C', 'A integral de uma constante é a constante multiplicada pela variável.');
   }
   if (core.type === 'SymbolNode' && core.name === variable) {
-    return scicalcStep('Regra da potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot\\frac{' + variable + '^2}{2}', 'Usamos ∫xⁿ dx = xⁿ⁺¹/(n+1), com n = 1.');
+    return scicalcStep('Regra 4 — potência (n = 1)', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^2}{2} + C', 'Somamos 1 ao expoente: 1 + 1 = 2; depois dividimos pelo novo expoente.');
   }
   if (core.type === 'OperatorNode' && core.op === '^' && core.args.length === 2 && core.args[0].type === 'SymbolNode' && core.args[0].name === variable) {
     var exponent = core.args[1].type === 'ConstantNode' ? scicalcReal(core.args[1].value) : null;
     if (exponent !== null && exponent !== -1) {
-      return scicalcStep('Regra da potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot\\frac{' + variable + '^{' + scicalcFormat(exponent + 1) + '}}{' + scicalcFormat(exponent + 1) + '}', 'Somamos 1 ao expoente e dividimos pelo novo expoente.');
+      var novo = exponent + 1;
+      return scicalcStep('Regra 4 — potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^{' + scicalcFormat(novo) + '}}{' + scicalcFormat(novo) + '} + C', 'Somamos 1 ao expoente (' + scicalcFormat(exponent) + ' + 1 = ' + scicalcFormat(novo) + ') e dividimos pelo novo expoente.');
     }
     if (exponent === -1) {
-      return scicalcStep('Caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '|', 'Para 1/x, a regra da potência é substituída pelo logaritmo natural.');
+      return scicalcStep('Regra 5 — caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '| + C', 'Quando n = −1, não usamos a regra da potência; a primitiva é o logaritmo natural.');
     }
   }
-  if (core.type === 'FunctionNode' && core.args.length === 1 && core.args[0].type === 'SymbolNode' && core.args[0].name === variable) {
-    var name = String(core.name).toLowerCase();
-    var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}'}[name];
-    if (antiderivative) return scicalcStep('Primitiva elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative, 'Aplicamos uma primitiva conhecida da função trigonométrica ou exponencial.');
+  if (core.type === 'OperatorNode' && core.op === '/' && core.args.length === 2 && core.args[0].type === 'ConstantNode' && core.args[1].type === 'SymbolNode' && core.args[1].name === variable) {
+    var num = scicalcReal(core.args[0].value);
+    if (num !== null) return scicalcStep('Regra 5 — 1/x', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(num * sign) + '\\ln|' + variable + '| + C', 'Reconhecemos a forma k/x.');
   }
-  return scicalcStep('Integração simbólica', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela é enviada ao motor simbólico para encontrar uma primitiva, quando ela existir.');
+  if (core.type === 'FunctionNode' && core.args.length === 1) {
+    var arg = core.args[0];
+    var name = String(core.name).toLowerCase();
+    if (arg.type === 'SymbolNode' && arg.name === variable) {
+      var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}'}[name];
+      if (antiderivative) return scicalcStep('Regra elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative + ' + C', 'Aplicamos a primitiva fundamental da função.');
+    }
+    if (arg.type === 'OperatorNode' && arg.op === '*' && arg.args.length === 2) {
+      var k = arg.args[0].type === 'ConstantNode' ? scicalcReal(arg.args[0].value) : null;
+      var sym = arg.args[1].type === 'SymbolNode' ? arg.args[1].name : null;
+      if (k !== null && sym === variable && k !== 0 && (name === 'sin' || name === 'cos' || name === 'exp')) {
+        var base = coefficient / k;
+        var primitive = name === 'sin' ? '-\\cos(' + scicalcFormat(k) + variable + ')' : name === 'cos' ? '\\sin(' + scicalcFormat(k) + variable + ')' : 'e^{' + scicalcFormat(k) + variable + '}';
+        return scicalcStep('Regra 6–8 — argumento linear', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(base) + '\\, ' + primitive + ' + C', 'Usamos u = ' + scicalcFormat(k) + variable + '; aparece o fator 1/k pela regra da substituição.');
+      }
+    }
+  }
+  return scicalcStep('Método apropriado', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela não corresponde diretamente a uma regra elementar detectada. Em casos desse tipo, pode ser necessário usar substituição, integração por partes, frações parciais ou o motor simbólico.');
 }
 
 function scicalcSimpson(code, lower, upper) {
@@ -1368,7 +1469,11 @@ function calcIntegral() {
     }
     if (document.getElementById('int-steps').checked) {
       var terms = scicalcSplitTerms(fNode);
-      var steps = terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); });
+      var steps = [];
+      if (terms.length > 1) {
+        steps.push(scicalcStep('Regra 2 — linearidade', '\int (f(x) \pm g(x))\,dx = \int f(x)\,dx \pm \int g(x)\,dx', 'Separar a expressão em parcelas permite integrar cada termo individualmente.'));
+      }
+      steps = steps.concat(terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); }));
       if (terms.length > 6) steps.push(scicalcStep('Demais parcelas', '', 'As demais parcelas foram integradas pelo motor simbólico.'));
       if (definite) {
         steps.push(scicalcStep('Regra de Simpson composta', '\\int_a^b f(x)\\,dx \\approx \\frac{h}{3}\\left[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)\\right]', 'Foram usados n = ' + definite.subdivisions + ' subintervalos pares e h = ' + scicalcFormat(definite.h, 8) + '.'));
@@ -1916,5 +2021,14 @@ function plotArithmetic(n){
 window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){try{renderPhysicsCalculator();}catch(e){console.error(e);}},0);});
 </script>
 
+<script>
+/* ===== PROTEÇÃO E DIAGNÓSTICO DO SCICALC ===== */
+window.addEventListener('error', function(ev){
+  try { console.error('[SciCalc]', ev.error || ev.message); } catch(e) {}
+});
+window.addEventListener('unhandledrejection', function(ev){
+  try { console.error('[SciCalc] Promise rejeitada:', ev.reason); } catch(e) {}
+});
+</script>
 </body>
 </html>
