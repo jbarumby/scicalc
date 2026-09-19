@@ -47,6 +47,11 @@
     .header-actions .theme-toggle, .header-actions .about-toggle {font-size:.8rem; padding:7px 10px;}
   }
   
+
+  .theorem-box{background:linear-gradient(135deg,var(--panel),var(--bg));border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:var(--shadow)}
+  .theorem-title{font-size:1.12rem;font-weight:800;color:var(--primary);margin-bottom:10px}.theorem-statement{font-size:1.05rem;line-height:1.7}.theorem-note{margin-top:10px;color:var(--muted);line-height:1.6}.formula{font-family:Georgia,serif;font-size:1.08em}.proof-details{margin-top:18px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel)}.proof-details summary{cursor:pointer;padding:13px 16px;font-weight:700;color:var(--primary);background:var(--bg)}.proof-card{padding:16px}.proof-step{display:flex;gap:12px;padding:13px 10px;border-bottom:1px solid var(--border);line-height:1.6}.proof-step>span{min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:#fff;font-weight:800}.proof-conclusion{margin-top:14px;padding:14px;border-radius:10px;background:var(--bg);text-align:center;font-size:1.08rem;color:var(--primary)}
+
+  .proof-result{margin-top:16px;border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--panel);box-shadow:var(--shadow)}.proof-result-title{font-weight:800;color:var(--primary);font-size:1.08rem;margin-bottom:10px}.proof-line{padding:10px 4px;border-bottom:1px solid var(--border);line-height:1.55}.proof-rests{margin-top:14px;padding:12px;border-radius:10px;background:var(--bg);line-height:1.7;font-family:monospace;word-break:break-word}
   .tabs {display:flex; flex-wrap:wrap; gap:6px; padding:14px 24px; background:var(--panel); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; transition:background-color .3s, border-color .3s;}
   .tab {padding:10px 18px; border:none; background:transparent; cursor:pointer; border-radius:10px; font-weight:600; color:var(--muted); font-size:.92rem; transition:all .2s;}
   .tab:hover {background:var(--bg); color:var(--primary);}
@@ -355,6 +360,7 @@
       <button class="sub-tab active" data-sub="num-primos">🔍 Primos</button>
       <button class="sub-tab" data-sub="num-fator">🔨 Fatoração</button>
       <button class="sub-tab" data-sub="num-func">📊 Funções Aritméticas</button>
+      <button class="sub-tab" data-sub="num-ferm">🧠 Pequeno Teorema de Fermat</button>
     </div>
     <div class="sub-panel active" id="sub-num-primos">
       <div class="form-row">
@@ -378,6 +384,27 @@
         <div><label>Número n</label><input id="num-func-n" placeholder="60"><label class="didactic-toggle" style="margin-top:10px"><input id="num-func-steps" type="checkbox" checked> Mostrar passo a passo didático</label><button class="btn" style="margin-top:2px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button></div>
       </div>
       <div id="num-func-result"></div>
+    </div>
+    <div class="sub-panel" id="sub-num-ferm">
+      <div class="theorem-box">
+        <div class="theorem-title">📘 Pequeno Teorema de Fermat</div>
+        <div class="theorem-statement">Se <strong>p</strong> é primo e <strong>p ∤ a</strong>, então <span class="formula">a<sup>p−1</sup> ≡ 1 (mod p)</span>.</div>
+        <div class="theorem-note">Forma equivalente: <span class="formula">a<sup>p</sup> ≡ a (mod p)</span>, válida para todo inteiro <strong>a</strong> quando <strong>p</strong> é primo.</div>
+      </div>
+      <div class="form-row">
+        <div><label>Primo p</label><input id="ferm-p" type="number" value="7" min="2"></div>
+        <div><label>Inteiro a</label><input id="ferm-a" type="number" value="3"></div>
+      </div>
+      <button class="btn" onclick="demonstrarFermat()">🧮 Verificar e demonstrar</button>
+      <div id="ferm-result"></div>
+      <details class="proof-details"><summary>📚 Demonstração clássica</summary>
+        <div class="proof-card"><div class="proof-step"><span>1</span><div>Considere os números <strong>a, 2a, 3a, …, (p−1)a</strong> módulo p.</div></div>
+        <div class="proof-step"><span>2</span><div>Como <strong>p ∤ a</strong> e p é primo, esses restos são não nulos e dois deles não podem ser iguais.</div></div>
+        <div class="proof-step"><span>3</span><div>Logo, eles formam uma permutação de <strong>1,2,…,p−1</strong> módulo p.</div></div>
+        <div class="proof-step"><span>4</span><div>Multiplicando os restos: <span class="formula">a<sup>p−1</sup>(p−1)! ≡ (p−1)! (mod p)</span>.</div></div>
+        <div class="proof-step"><span>5</span><div>Como nenhum dos fatores de (p−1)! é divisível por p, podemos cancelar (p−1)!.</div></div>
+        <div class="proof-conclusion">∴ <strong>a<sup>p−1</sup> ≡ 1 (mod p)</strong>.</div></div>
+      </details>
     </div>
   </div>
 </section>
@@ -1042,6 +1069,11 @@ function calcularFuncoesAritmeticas() {
     </div>`;
   } catch(e) { toast(e.message,'err'); }
 }
+
+
+function potenciaModular(base, exp, mod){ let r=1, b=((base%mod)+mod)%mod; while(exp>0){ if(exp%2===1) r=(r*b)%mod; b=(b*b)%mod; exp=Math.floor(exp/2); } return r; }
+function isPrimeNumber(n){ if(n<2)return false; for(let i=2;i*i<=n;i++)if(n%i===0)return false; return true; }
+function demonstrarFermat(){ try{ const p=parseInt(str('ferm-p')), a=parseInt(str('ferm-a')); if(!isPrimeNumber(p))throw new Error('p deve ser primo.'); if(a%p===0)throw new Error('É necessário que p não divida a.'); const r=potenciaModular(a,p-1,p); const ap=potenciaModular(a,p,p); let restos=[]; for(let k=1;k<p;k++)restos.push((a*k)%p); const unique=new Set(restos).size===p-1; document.getElementById('ferm-result').innerHTML=`<div class="proof-result"><div class="proof-result-title">✓ Verificação para a=${a} e p=${p}</div><div class="proof-line"><strong>1.</strong> p é primo e p ∤ a.</div><div class="proof-line"><strong>2.</strong> a<sup>p−1</sup> mod p = <strong>${r}</strong>.</div><div class="proof-line"><strong>3.</strong> Pela permutação dos restos, a<sup>p−1</sup>(p−1)! ≡ (p−1)! (mod p).</div><div class="proof-line"><strong>4.</strong> Como (p−1)! é invertível módulo p, resulta <strong>a<sup>p−1</sup> ≡ 1 (mod p)</strong>.</div><div class="proof-conclusion">Além disso, a<sup>p</sup> mod p = <strong>${ap}</strong>, confirmando a forma equivalente.</div><div class="proof-rests"><strong>Restos de ka mod p:</strong> ${restos.join(', ')}<br><span>São todos distintos? <strong>${unique?'Sim':'Não'}</strong></span></div></div>`; }catch(e){toast(e.message,'err');} }
 
 // ============ HISTÓRICO ============
 function salvarHistorico(tipo,entrada,saida) {
