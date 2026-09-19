@@ -161,6 +161,24 @@
   .about-box h2,.about-box h3{color:var(--primary);margin:0 0 10px;}
   .about-box p,.about-box li{line-height:1.6;margin-bottom:8px;}
   .about-close{position:sticky;top:0;float:right;border:0;border-radius:8px;padding:7px 11px;cursor:pointer;background:var(--primary);color:#fff;font-weight:700;}
+
+/* ===== APRESENTAÇÃO DIDÁTICA DO PEQUENO TEOREMA DE FERMAT ===== */
+.fermat-proof-result{margin-top:16px;border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.fermat-stage{margin-top:14px;padding:15px;border:1px solid var(--border);border-radius:13px;background:var(--bg);line-height:1.65}
+.fermat-stage-title{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--primary);margin-bottom:8px;font-size:1rem}
+.fermat-stage-title span{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:var(--primary);color:#fff;font-weight:800}
+.formula-block{margin:10px 0;padding:12px 14px;border-left:4px solid var(--primary);border-radius:8px;background:var(--panel);font-family:Georgia,serif;font-size:1.05rem;overflow-x:auto}
+.fermat-rests{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.fermat-rest-pill{display:inline-block;padding:6px 9px;border-radius:8px;background:var(--panel);border:1px solid var(--border);font-family:monospace}
+.fermat-explain{margin-top:9px;color:var(--muted)}
+.fermat-powers{padding:10px;border-radius:9px;background:var(--panel);border:1px solid var(--border);line-height:2;font-family:monospace;overflow-x:auto}
+.fermat-calculation{margin-top:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel);padding:10px 13px}
+.fermat-calculation summary{cursor:pointer;font-weight:700;color:var(--primary)}
+.fermat-mini-list{margin-top:10px;display:grid;gap:7px}
+.fermat-mini-step{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:8px;background:var(--bg);border:1px solid var(--border)}
+.fermat-mini-step span{min-width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-weight:700;font-size:.78rem}
+@media(max-width:700px){.fermat-proof-result{padding:11px}.fermat-stage{padding:11px}.formula-block{font-size:.96rem}}
+
 </style>
 </head>
 <body>
@@ -1073,7 +1091,98 @@ function calcularFuncoesAritmeticas() {
 
 function potenciaModular(base, exp, mod){ let r=1, b=((base%mod)+mod)%mod; while(exp>0){ if(exp%2===1) r=(r*b)%mod; b=(b*b)%mod; exp=Math.floor(exp/2); } return r; }
 function isPrimeNumber(n){ if(n<2)return false; for(let i=2;i*i<=n;i++)if(n%i===0)return false; return true; }
-function demonstrarFermat(){ try{ const p=parseInt(str('ferm-p')), a=parseInt(str('ferm-a')); if(!isPrimeNumber(p))throw new Error('p deve ser primo.'); if(a%p===0)throw new Error('É necessário que p não divida a.'); const r=potenciaModular(a,p-1,p); const ap=potenciaModular(a,p,p); let restos=[]; for(let k=1;k<p;k++)restos.push((a*k)%p); const unique=new Set(restos).size===p-1; document.getElementById('ferm-result').innerHTML=`<div class="proof-result"><div class="proof-result-title">✓ Verificação para a=${a} e p=${p}</div><div class="proof-line"><strong>1.</strong> p é primo e p ∤ a.</div><div class="proof-line"><strong>2.</strong> a<sup>p−1</sup> mod p = <strong>${r}</strong>.</div><div class="proof-line"><strong>3.</strong> Pela permutação dos restos, a<sup>p−1</sup>(p−1)! ≡ (p−1)! (mod p).</div><div class="proof-line"><strong>4.</strong> Como (p−1)! é invertível módulo p, resulta <strong>a<sup>p−1</sup> ≡ 1 (mod p)</strong>.</div><div class="proof-conclusion">Além disso, a<sup>p</sup> mod p = <strong>${ap}</strong>, confirmando a forma equivalente.</div><div class="proof-rests"><strong>Restos de ka mod p:</strong> ${restos.join(', ')}<br><span>São todos distintos? <strong>${unique?'Sim':'Não'}</strong></span></div></div>`; }catch(e){toast(e.message,'err');} }
+function demonstrarFermat(){
+  try{
+    const p=parseInt(str('ferm-p')), a=parseInt(str('ferm-a'));
+    if(!isPrimeNumber(p)) throw new Error('p deve ser primo.');
+    if(a%p===0) throw new Error('É necessário que p não divida a.');
+
+    const mod=(x)=>((x%p)+p)%p;
+    const r=potenciaModular(a,p-1,p), ap=potenciaModular(a,p,p);
+    const restos=[];
+    for(let k=1;k<p;k++) restos.push(mod(a*k));
+    const unique=new Set(restos).size===p-1;
+
+    // Potências sucessivas, úteis para tornar a verificação concreta.
+    const potencias=[];
+    let valor=1;
+    for(let k=1;k<=p-1;k++){
+      valor=mod(valor*a);
+      potencias.push({k,valor});
+    }
+
+    // Demonstração do produto dos restos.
+    let produtoEsq=1, produtoDir=1;
+    for(let k=1;k<p;k++){
+      produtoEsq=mod(produtoEsq*mod(a*k));
+      produtoDir=mod(produtoDir*k);
+    }
+
+    // Algoritmo de exponenciação rápida, mostrado passo a passo.
+    let e=p-1, b=mod(a), acumulado=1, linhas=[];
+    let etapa=1;
+    while(e>0){
+      const bit=e%2;
+      if(bit===1) acumulado=mod(acumulado*b);
+      linhas.push(`<div class="fermat-mini-step"><span>${etapa}</span><div>e = ${e}, b = ${b}, bit = ${bit}. ${bit===1?'Como o bit é 1: acumulado ← '+acumulado+'.':'O bit é 0: não multiplicamos o acumulado.'}</div></div>`);
+      b=mod(b*b); e=Math.floor(e/2); etapa++;
+    }
+
+    const listaPot=potencias.map(x=>`a<sup>${x.k}</sup> ≡ ${x.valor} (mod ${p})`).join(' &nbsp;→&nbsp; ');
+    const listaRestos=restos.map((x,i)=>`<span class="fermat-rest-pill">${i+1}a ≡ ${x}</span>`).join(' ');
+
+    document.getElementById('ferm-result').innerHTML=`
+      <div class="fermat-proof-result">
+        <div class="proof-result-title">✓ Pequeno Teorema de Fermat — resolução passo a passo</div>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>1</span> Dados e hipótese</div>
+          <div>Escolhemos <strong>a = ${a}</strong> e <strong>p = ${p}</strong>.</div>
+          <div>Verificação: <strong>${p} é primo</strong> e ${p} ∤ ${a} porque ${mod(a)} ≠ 0 (mod ${p}).</div>
+        </div>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>2</span> Construção dos múltiplos de a</div>
+          <div>Calculamos <strong>a, 2a, 3a, …, (p−1)a</strong> e reduzimos cada resultado módulo p:</div>
+          <div class="fermat-rests">${listaRestos}</div>
+          <div class="fermat-explain">Os ${p-1} restos são não nulos e todos distintos. Portanto, formam apenas uma reordenação de <strong>1, 2, …, ${p-1}</strong>.</div>
+        </div>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>3</span> Multiplicação dos restos</div>
+          <div>Multiplicando todos os ${p-1} congruências:</div>
+          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ 1·2·3·…·(p−1) = (p−1)! (mod ${p})</div>
+          <div>Na verificação numérica:</div>
+          <div class="formula-block">Lado esquerdo ≡ ${produtoEsq} (mod ${p}) &nbsp;&nbsp; | &nbsp;&nbsp; Lado direito ≡ ${produtoDir} (mod ${p})</div>
+        </div>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>4</span> Cancelamento de (p−1)!</div>
+          <div>Como p é primo, nenhum dos números <strong>1, 2, …, p−1</strong> é divisível por p. Assim, (p−1)! possui inverso módulo p.</div>
+          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ (p−1)! (mod ${p})</div>
+          <div class="formula-block">a<sup>${p-1}</sup> ≡ 1 (mod ${p})</div>
+        </div>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>5</span> Conferência por potências sucessivas</div>
+          <div class="fermat-powers">${listaPot}</div>
+          <div>Logo, a potência exigida pelo teorema é:</div>
+          <div class="formula-block"><strong>${a}<sup>${p-1}</sup> ≡ ${r} ≡ 1 (mod ${p})</strong></div>
+        </div>
+
+        <details class="fermat-calculation"><summary>🔢 Ver como a potência modular foi calculada</summary><div class="fermat-mini-list">${linhas.join('')}</div></details>
+
+        <div class="fermat-stage">
+          <div class="fermat-stage-title"><span>6</span> Forma equivalente</div>
+          <div>Multiplicando a congruência por a:</div>
+          <div class="formula-block">a<sup>${p}</sup> ≡ a (mod ${p})</div>
+          <div>Na verificação: <strong>${a}<sup>${p}</sup> mod ${p} = ${ap}</strong>.</div>
+        </div>
+
+        <div class="proof-conclusion">∴ <strong>${a}<sup>${p-1}</sup> ≡ 1 (mod ${p})</strong>. O Pequeno Teorema de Fermat foi demonstrado e verificado para os valores escolhidos.</div>
+      </div>`;
+  }catch(e){toast(e.message,'err');}
+}
 
 // ============ HISTÓRICO ============
 function salvarHistorico(tipo,entrada,saida) {
