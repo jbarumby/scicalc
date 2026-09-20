@@ -1019,13 +1019,14 @@ function calcEDO() {
       `2. Condição inicial: ${texInline(String.raw`x_0=${x0}`)} e ${texInline(String.raw`y_0=${y0}`)}.`,
       `3. Número de passos: ${N}. Logo, o tamanho do passo é ${texInline(String.raw`h=(x_f-x_0)/N=${fmt(h)}`)}.`,
       `4. Método utilizado: <strong>Runge–Kutta de 4ª ordem (RK4)</strong>. Em cada passo calculamos quatro inclinações.`,
-      `5. No primeiro passo: ${texInline(String.raw`k_1=f(x_0,y_0)=${fmt(first.k1)}`)}.`,
-      `6. Segunda inclinação: ${texInline(String.raw`k_2=f(x_0+h/2,\,y_0+h k_1/2)=${fmt(first.k2)}`)}.`,
-      `7. Terceira inclinação: ${texInline(String.raw`k_3=f(x_0+h/2,\,y_0+h k_2/2)=${fmt(first.k3)}`)}.`,
-      `8. Quarta inclinação: ${texInline(String.raw`k_4=f(x_0+h,\,y_0+h k_3)=${fmt(first.k4)}`)}.`,
-      `9. Atualização: ${texInline(String.raw`y_1=y_0+\frac{h}{6}(k_1+2k_2+2k_3+k_4)=${fmt(first.yNext)}`)}.`,
-      `10. Repetimos o mesmo processo até ${texInline(String.raw`x=${xf}`)}. A tabela mostra os primeiros passos e o último passo.`,
-      `11. Resultado numérico: ${texInline(String.raw`y(${xf})\approx${fmt(y)}`)}.`
+      `5. Primeiro ponto intermediário: ${texInline(String.raw`x_0=${fmt(first.x)},\quad y_0=${fmt(first.y)}`)}.`,
+      `6. Primeira inclinação: ${texInline(String.raw`k_1=f(x_0,y_0)=${fmt(first.k1)}`)}.`,
+      `7. Segunda inclinação: ${texInline(String.raw`x_0+\frac h2=${fmt(first.x+h/2)},\quad y_0+\frac{hk_1}{2}=${fmt(first.y+h*first.k1/2)}`)}; então ${texInline(String.raw`k_2=${fmt(first.k2)}`)}.`,
+      `8. Terceira inclinação: ${texInline(String.raw`x_0+\frac h2=${fmt(first.x+h/2)},\quad y_0+\frac{hk_2}{2}=${fmt(first.y+h*first.k2/2)}`)}; então ${texInline(String.raw`k_3=${fmt(first.k3)}`)}.`,
+      `9. Quarta inclinação: ${texInline(String.raw`x_0+h=${fmt(first.x+h)},\quad y_0+hk_3=${fmt(first.y+h*first.k3)}`)}; então ${texInline(String.raw`k_4=${fmt(first.k4)}`)}.`,
+      `10. Atualização: ${texInline(String.raw`y_1=y_0+\frac{h}{6}(k_1+2k_2+2k_3+k_4)=${fmt(first.yNext)}`)}.`,
+      `11. Repetimos o mesmo processo até ${texInline(String.raw`x=${xf}`)}. A tabela mostra os primeiros passos e o último passo.`,
+      `12. Resultado numérico: ${texInline(String.raw`y(${xf})\approx${fmt(y)}`)}.`
     ];
     document.getElementById('edo-result').innerHTML=`<div class="result"><h3>📚 Resolução passo a passo — RK4</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}${table}</div>`;
     Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'Solução y(x)',line:{width:3}}],getPlotLayout({title:'Solução EDO (RK4)',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true});
@@ -1069,9 +1070,10 @@ function calcFourier() {
       `4. Passo temporal: ${texInline(String.raw`\Delta t=(t_{max}-t_{min})/N=${fmt(dt)}`)}.`,
       `5. Amostragem: calculamos ${texInline(String.raw`t_n=t_{min}+n\Delta t`)} e avaliamos ${texInline(String.raw`f(t_n)`)} para cada ${texInline(String.raw`n=0,1,\ldots,N-1`)}.`,
       `6. Para cada frequência discreta ${texInline(String.raw`k`)}, calculamos as partes real e imaginária da DFT: ${texInline(String.raw`Re_k=\frac1N\sum f(t_n)\cos(2\pi kn/N)`)} e ${texInline(String.raw`Im_k=-\frac1N\sum f(t_n)\sin(2\pi kn/N)`)}.`,
-      `7. A amplitude é obtida por ${texInline(String.raw`A_k=2\sqrt{Re_k^2+Im_k^2}`)}; para ${texInline(String.raw`k=0`)}, usamos a componente média.`,
-      `8. A frequência associada é ${texInline(String.raw`f_k=k/(N\Delta t)`)}.`,
-      `9. Resultado: foram calculadas ${K} componentes espectrais e o gráfico mostra o sinal amostrado e seu espectro.`
+      `7. Para tornar o cálculo verificável, o primeiro coeficiente usa ${texInline(String.raw`k=0`)}: ${texInline(String.raw`Re_0=\frac1N\sum_{n=0}^{N-1}f(t_n)`)} e a parte imaginária tende a zero para um sinal puramente médio.`,
+      `8. A amplitude é obtida por ${texInline(String.raw`A_k=2\sqrt{Re_k^2+Im_k^2}`)}; para ${texInline(String.raw`k=0`)}, usamos a componente média.`,
+      `9. A frequência associada é ${texInline(String.raw`f_k=k/(N\Delta t)`)}.`,
+      `10. Resultado: foram calculadas ${K} componentes espectrais e o gráfico mostra o sinal amostrado e seu espectro.`
     ];
     let html=`<div class="result"><h3>📚 Transformada de Fourier — passo a passo</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}`;
     html+=`<div class="limit-sides"><div class="limit-side"><strong>Primeiras amostras</strong><table class="step-table"><thead><tr><th>n</th><th>tₙ</th><th>f(tₙ)</th></tr></thead><tbody>${sampleRows}</tbody></table></div><div class="limit-side"><strong>Primeiros coeficientes</strong><table class="step-table"><thead><tr><th>k</th><th>fₖ</th><th>Re</th><th>Im</th><th>Aₖ</th></tr></thead><tbody>${coeffTable}</tbody></table></div></div>`;
@@ -1288,13 +1290,41 @@ function scicalcEscape(value) {
   });
 }
 
+function scicalcSanitizeLatex(latex) {
+  let s = String(latex ?? '').trim();
+  // Normaliza barras duplicadas sem destruir comandos TeX válidos.
+  s = s.replace(/\\\\/g, '\\');
+  s = s.replace(/\\{2,}/g, '\\');
+  return s;
+}
+
 function scicalcRenderTex(latex, display) {
+  const seguro = scicalcSanitizeLatex(latex);
   try {
     if (typeof katex !== 'undefined') {
-      return katex.renderToString(String(latex), {throwOnError:false, displayMode:display !== false});
+      return katex.renderToString(seguro, {throwOnError:false, displayMode:display !== false});
     }
-  } catch (error) { /* A fórmula continua legível no modo de reserva. */ }
-  return '<code>' + scicalcEscape(latex) + '</code>';
+  } catch (error) { /* Reserva textual segura. */ }
+  return '<code>' + scicalcEscape(seguro) + '</code>';
+}
+
+// Motor gráfico compartilhado: gera pontos para qualquer função compilada.
+function scicalcGeneratePoints(fCode, variable, min, max, steps = 200) {
+  const xs = [], ys = [];
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
+    throw new Error('Intervalo gráfico inválido.');
+  }
+  for (let i = 0; i <= steps; i++) {
+    const value = min + (max - min) * i / steps;
+    xs.push(value);
+    try {
+      const y = fCode.evaluate({ [variable]: value });
+      ys.push(Number.isFinite(Number(y)) ? Number(y) : null);
+    } catch (_) {
+      ys.push(null);
+    }
+  }
+  return {xs, ys};
 }
 
 function scicalcToast(message, type) {
