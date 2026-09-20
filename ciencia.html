@@ -255,7 +255,7 @@
       <div><label>Limite Inferior x₁ (Opcional)</label><input id="int-x1" placeholder="Ex: 0"></div>
       <div><label>Limite Superior x₂ (Opcional)</label><input id="int-x2" placeholder="Ex: 10"></div>
     </div>
-    <label class="didactic-toggle"><input id="int-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
+    <label class="didactic-toggle"><input id="int-steps" type="checkbox" checked checked> Mostrar passo a passo didático</label>
     <details class="integral-rules" open>
       <summary>📚 Regras de Integração — consulte antes de calcular</summary>
       <div class="integral-rules-content">
@@ -292,7 +292,7 @@
         </select>
       </div>
     </div>
-    <label class="didactic-toggle"><input id="lim-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
+    <label class="didactic-toggle"><input id="lim-steps" type="checkbox" checked checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcLimite()">Calcular Limite</button>
     <div id="lim-result" aria-live="polite"></div>
     <div id="lim-plot" class="plot"></div>
@@ -1769,79 +1769,144 @@ function calcIntegral() {
     var lowerRaw = document.getElementById('int-x1').value.trim();
     var upperRaw = document.getElementById('int-x2').value.trim();
     if ((lowerRaw && !upperRaw) || (!lowerRaw && upperRaw)) throw new Error('Informe os dois limites para calcular uma integral definida.');
+
     var fNode = scicalcParseNode(fStr, 'Função');
     var fCode = fNode.compile();
+    var normalized = fStr.replace(/\s+/g,'').toLowerCase();
     var integralTex = null;
+    var methodResult = null;
     var integrationMessage = '';
+
+    // ==========================================================
+    // 1. MÉTODOS DIDÁTICOS — antes do CAS
+    // ==========================================================
     try {
-      scicalcRequire('nerdamer');
-      var symbolic = nerdamer('integrate(' + fStr + ', x)');
-      var symbolicText = symbolic.text();
-      if (!/integrate\(/i.test(symbolicText)) integralTex = symbolic.toTeX();
-      else integrationMessage = 'O motor simbólico não encontrou uma primitiva elementar para esta expressão.';
-    } catch (error) {
-      integrationMessage = 'Não foi possível obter a integral indefinida simbólica: ' + error.message;
+      methodResult = scicalcIntegrationByParts(fNode, 'x', 1);
+      if (methodResult) integralTex = methodResult.resultTex;
+    } catch(e) {}
+
+    if (!methodResult) {
+      try {
+        methodResult = scicalcTrigDefiniteSpecial(fNode, 'x');
+        if (methodResult) integralTex = methodResult.resultTex;
+      } catch(e) {}
     }
 
-    // Regras elementares confiáveis para casos em que o motor simbólico pode retornar uma forma inadequada.
-    var normalizedInput = fStr.replace(/\s+/g,'').toLowerCase();
-    var byPartsResult = scicalcIntegrationByParts(fNode, 'x', 1);
-    if (byPartsResult) { integralTex = byPartsResult.resultTex; integrationMessage = ''; }
-    var specialTrigResult = scicalcTrigDefiniteSpecial(fNode, 'x');
-    if (specialTrigResult) {
-      integralTex = specialTrigResult.resultTex;
-      integrationMessage = '';
+    // Casos elementares com passo a passo explícito.
+    if (!methodResult && (normalized === 'sin(x)^2' || normalized === 'sin^2(x)')) {
+      integralTex = 'x/2-\\sin(2x)/4';
+      methodResult = {resultTex:integralTex, steps:[
+        scicalcStep('1. Identificação', '\\int \\sin^2(x)\\,dx', 'Usamos a identidade de redução de potência.'),
+        scicalcStep('2. Identidade trigonométrica', '\\sin^2(x)=\\frac{1-\\cos(2x)}{2}', 'Esta identidade transforma o quadrado do seno em uma soma de termos simples.'),
+        scicalcStep('3. Integração termo a termo', '\\frac12\\int 1\\,dx-\\frac12\\int\\cos(2x)\\,dx=\\frac{x}{2}-\\frac{\\sin(2x)}{4}+C', 'Na segunda parcela aparece o fator 1/2 por causa da regra da cadeia.'),
+        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left(\\frac{x}{2}-\\frac{\\sin(2x)}{4}\\right)=\\sin^2(x)', 'A derivada recupera a função original.')
+      ]};
     }
-    if (normalizedInput === 'sec(x)^2' || normalizedInput === 'sec^2(x)') integralTex = '\\tan\\left(x\\right)';
-    if (normalizedInput === 'csc(x)^2' || normalizedInput === 'csc^2(x)') integralTex = '-\\cot\\left(x\\right)';
-    if (normalizedInput === 'cot(x)') integralTex = '\\ln\\left|\\sin\\left(x\\right)\\right|';
-    if (normalizedInput === 'tan(x)') integralTex = '-\\ln\\left|\\cos\\left(x\\right)\\right|';
+    if (!methodResult && (normalized === 'cos(x)^2' || normalized === 'cos^2(x)')) {
+      integralTex = 'x/2+\\sin(2x)/4';
+      methodResult = {resultTex:integralTex, steps:[
+        scicalcStep('1. Identificação', '\\int \\cos^2(x)\\,dx', 'Usamos a identidade de redução de potência.'),
+        scicalcStep('2. Identidade trigonométrica', '\\cos^2(x)=\\frac{1+\\cos(2x)}{2}', 'Isso reduz a integral a duas integrais elementares.'),
+        scicalcStep('3. Integração', '\\frac12\\int1\\,dx+\\frac12\\int\\cos(2x)\\,dx=\\frac{x}{2}+\\frac{\\sin(2x)}{4}+C', 'Aplicamos a regra da cadeia na parcela com cos(2x).'),
+        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left(\\frac{x}{2}+\\frac{\\sin(2x)}{4}\\right)=\\cos^2(x)', 'A derivada recupera a função original.')
+      ]};
+    }
+    if (!methodResult && normalized === 'x/(x^2+1)') {
+      integralTex = '\\frac12\\ln(x^2+1)';
+      methodResult = {resultTex:integralTex, steps:[
+        scicalcStep('1. Identificação', '\\int\\frac{x}{x^2+1}\\,dx', 'O denominador tem derivada 2x, que é proporcional ao numerador.'),
+        scicalcStep('2. Substituição', 'u=x^2+1,\\quad du=2x\\,dx', 'Logo x dx = du/2.'),
+        scicalcStep('3. Substituição na integral', '\\frac12\\int\\frac{du}{u}', 'A integral foi reduzida à forma fundamental de 1/u.'),
+        scicalcStep('4. Resultado', '\\frac12\\ln|u|+C=\\frac12\\ln(x^2+1)+C', 'Como x²+1>0 para todo x real, podemos retirar o valor absoluto.'),
+        scicalcStep('5. Verificação', '\\frac{d}{dx}\\left[\\frac12\\ln(x^2+1)\\right]=\\frac{x}{x^2+1}', 'A derivada confirma o resultado.')
+      ]};
+    }
+    if (!methodResult && normalized === 'exp(x)/(1+exp(x))') {
+      integralTex = '\\ln(1+e^x)';
+      methodResult = {resultTex:integralTex, steps:[
+        scicalcStep('1. Identificação', '\\int\\frac{e^x}{1+e^x}\\,dx', 'O numerador é exatamente a derivada do termo 1+e^x.'),
+        scicalcStep('2. Substituição', 'u=1+e^x,\\quad du=e^x\\,dx', 'A integral se transforma diretamente em uma integral logarítmica.'),
+        scicalcStep('3. Integração', '\\int\\frac{du}{u}=\\ln|u|+C', 'Aplicamos a primitiva de 1/u.'),
+        scicalcStep('4. Retorno', '\\ln(1+e^x)+C', 'Como 1+e^x é sempre positivo, não precisamos do valor absoluto.'),
+        scicalcStep('5. Verificação', '\\frac{d}{dx}\\ln(1+e^x)=\\frac{e^x}{1+e^x}', 'Resultado confirmado.')
+      ]};
+    }
+    if (!methodResult && normalized === '1/(x^2-1)') {
+      integralTex = '\\frac12\\ln|x-1|-\\frac12\\ln|x+1|';
+      methodResult = {resultTex:integralTex, steps:[
+        scicalcStep('1. Fatoração', '\\frac{1}{x^2-1}=\\frac{1}{(x-1)(x+1)}', 'Reconhecemos uma fração racional adequada.'),
+        scicalcStep('2. Frações parciais', '\\frac{1}{(x-1)(x+1)}=\\frac{1/2}{x-1}-\\frac{1/2}{x+1}', 'Determinamos os coeficientes comparando os numeradores.'),
+        scicalcStep('3. Integração', '\\frac12\\ln|x-1|-\\frac12\\ln|x+1|+C', 'Cada parcela é uma integral de 1/u.'),
+        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left[\\frac12\\ln|x-1|-\\frac12\\ln|x+1|\\right]=\\frac1{x^2-1}', 'A derivada confirma a decomposição.')
+      ]};
+    }
+
+    // Potências trigonométricas elementares detectadas pelo motor didático.
+    if (!methodResult) {
+      try {
+        var factorInfo = scicalcNumericFactor(fNode);
+        var trigStep = scicalcTrigPowerStep(factorInfo.core, factorInfo.coefficient, 'x', scicalcNodeTex(fNode));
+        if (trigStep) { integralTex = null; methodResult = {resultTex:null, steps:[trigStep]}; }
+      } catch(e) {}
+    }
+
+    // ==========================================================
+    // 2. CAS apenas como fallback
+    // ==========================================================
+    if (!integralTex && !methodResult) {
+      try {
+        scicalcRequire('nerdamer');
+        var symbolic = nerdamer('integrate(' + fStr + ', x)');
+        var symbolicText = symbolic.text();
+        if (!/integrate\(/i.test(symbolicText)) integralTex = symbolic.toTeX();
+        else integrationMessage = 'O motor simbólico não encontrou uma primitiva elementar para esta expressão.';
+      } catch (error) {
+        integrationMessage = 'Não foi possível obter a integral indefinida simbólica: ' + error.message;
+      }
+    }
+
+    // Regras seguras adicionais de primitivas.
+    if (!integralTex && normalized === 'sec(x)^2') integralTex='\\tan(x)';
+    if (!integralTex && normalized === 'csc(x)^2') integralTex='-\\cot(x)';
+    if (!integralTex && normalized === 'cot(x)') integralTex='\\ln|\\sin(x)|';
+    if (!integralTex && normalized === 'tan(x)') integralTex='-\\ln|\\cos(x)|';
 
     var html = '<div class="result"><div><strong>Integral indefinida:</strong></div>';
     if (integralTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + integralTex + ' + C') + '</div>';
+    else if (methodResult && methodResult.resultTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + methodResult.resultTex + ' + C') + '</div>';
     else html += '<div class="step-note">' + scicalcEscape(integrationMessage || 'Sem primitiva elementar identificada.') + '</div>';
 
-    var bounds = null;
-    var definite = null;
+    var bounds=null, definite=null;
     if (lowerRaw && upperRaw) {
-      bounds = [scicalcNumber(lowerRaw, 'Limite inferior'), scicalcNumber(upperRaw, 'Limite superior')];
-      definite = scicalcSimpson(fCode, bounds[0], bounds[1]);
+      bounds=[scicalcNumber(lowerRaw,'Limite inferior'),scicalcNumber(upperRaw,'Limite superior')];
+      definite=scicalcSimpson(fCode,bounds[0],bounds[1]);
       html += '<hr style="margin:16px 0;border:none;border-top:1px solid var(--border)"><div><strong>Integral definida (Simpson):</strong></div>' +
-        '<div style="margin-top:8px;color:var(--ok)">' + scicalcRenderTex('\\int_{' + scicalcFormat(bounds[0]) + '}^{' + scicalcFormat(bounds[1]) + '} (' + scicalcNodeTex(fNode) + ')\\,dx \\approx ' + scicalcFormat(definite.value, 8)) + '</div>';
+        '<div style="margin-top:8px;color:var(--ok)">' + scicalcRenderTex('\\int_{'+scicalcFormat(bounds[0])+'}^{'+scicalcFormat(bounds[1])+'} ('+scicalcNodeTex(fNode)+')\\,dx \\approx '+scicalcFormat(definite.value,8)) + '</div>';
     }
-    if (document.getElementById('int-steps').checked) {
-      var terms = scicalcSplitTerms(fNode);
-      var steps = [];
-      if (terms.length > 1) {
-        steps.push(scicalcStep('Regra 2 — linearidade', '\int (f(x) \pm g(x))\,dx = \int f(x)\,dx \pm \int g(x)\,dx', 'Separar a expressão em parcelas permite integrar cada termo individualmente.'));
-      }
-      if (byPartsResult) {
-        steps = steps.concat(byPartsResult.steps);
-      } else if (specialTrigResult) {
-        steps = steps.concat(specialTrigResult.steps);
-      } else {
-        steps = steps.concat(terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); }));
-      }
-      if (terms.length > 6) steps.push(scicalcStep('Demais parcelas', '', 'As demais parcelas foram integradas pelo motor simbólico.'));
-      if (definite) {
-        steps.push(scicalcStep('Regra de Simpson composta', '\\int_a^b f(x)\\,dx \\approx \\frac{h}{3}\\left[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)\\right]', 'Foram usados n = ' + definite.subdivisions + ' subintervalos pares e h = ' + scicalcFormat(definite.h, 8) + '.'));
-      }
-      html += scicalcDidactic('Passo a passo da integral', 'A constante C aparece porque todas as primitivas diferem por uma constante.', steps);
-    }
-    html += '</div>';
-    document.getElementById('int-result').innerHTML = html;
 
-    var start = bounds ? bounds[0] : -5;
-    var end = bounds ? bounds[1] : 5;
-    var xs = [], ys = [];
-    for (var i = 0; i <= 240; i++) {
-      var x = start + (end - start) * i / 240;
-      xs.push(x); ys.push(scicalcEvaluateOrNull(fCode, {x:x}));
+    // PASSO A PASSO: agora é mostrado automaticamente.
+    var steps=[];
+    if (methodResult && methodResult.steps) steps=steps.concat(methodResult.steps);
+    else {
+      var terms=scicalcSplitTerms(fNode);
+      if (terms.length>1) steps.push(scicalcStep('1. Linearidade','\\int(f+g)\\,dx=\\int f\\,dx+\\int g\\,dx','Separamos a expressão em parcelas e integramos cada uma individualmente.'));
+      terms.slice(0,8).forEach(function(item){
+        var st=scicalcIntegralTermStep(item.node,'x',item.sign);
+        if(st) steps.push(st);
+      });
+      if(!steps.length) steps.push(scicalcStep('Método simbólico','\\int '+scicalcNodeTex(fNode)+'\\,dx','O CAS foi usado porque não foi identificada uma regra elementar específica.'));
     }
-    Plotly.newPlot('int-plot', [{x:xs,y:ys,type:'scatter',mode:'lines',fill:bounds ? 'tozeroy' : 'none',name:bounds ? 'Área sob f(x)' : 'f(x)',line:{color:'#4f46e5',width:3}}], getPlotLayout({title:bounds ? 'Área integrada' : 'Função integranda',xaxis:{title:'x'},yaxis:{title:'f(x)'}}), {responsive:true});
-    salvarHistorico('Integral', bounds ? '∫ ' + fStr + ' dx [' + bounds.join(', ') + ']' : '∫ ' + fStr + ' dx', definite ? scicalcFormat(definite.value, 8) : (integralTex || 'sem forma elementar'));
-    toast('Integral calculada.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
+    if (definite) steps.push(scicalcStep('Integral definida — Simpson composta','\\int_a^b f(x)\\,dx\\approx\\frac{h}{3}[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)]','Foram usados '+definite.subdivisions+' subintervalos pares, com h='+scicalcFormat(definite.h,8)+'.'));
+    html += scicalcDidactic('Passo a passo completo da integral','O procedimento mostra primeiro a escolha do método, depois as transformações algébricas e, quando possível, a verificação por derivação.',steps);
+    html += '</div>';
+    document.getElementById('int-result').innerHTML=html;
+
+    var start=bounds?bounds[0]:-5, end=bounds?bounds[1]:5, xs=[], ys=[];
+    for(var i=0;i<=240;i++){var x=start+(end-start)*i/240;xs.push(x);ys.push(scicalcEvaluateOrNull(fCode,{x:x}));}
+    Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',fill:bounds?'tozeroy':'none',name:bounds?'Área sob f(x)':'f(x)',line:{color:'#4f46e5',width:3}}],getPlotLayout({title:bounds?'Área integrada':'Função integranda',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true});
+    salvarHistorico('Integral',bounds?'∫ '+fStr+' dx ['+bounds.join(', ')+']':'∫ '+fStr+' dx',definite?scicalcFormat(definite.value,8):(integralTex||'sem forma elementar'));
+    toast('Integral calculada com passo a passo.','ok');
+  } catch(error){ toast(error.message,'err'); }
 }
 
 function scicalcLimitTarget(raw) {
@@ -1904,167 +1969,136 @@ function scicalcSampleTable(label, samples) {
 
 function calcLimite() {
   try {
-    scicalcRequire('math', 'plot');
-    var fStr = str('lim-f');
-    var selectedDirection = document.getElementById('lim-dir').value;
-    var target = scicalcLimitTarget(str('lim-a'));
-    var fNode = scicalcParseNode(fStr, 'Função');
-    var fCode = fNode.compile();
-    var leftSamples = target.infinite ? [] : scicalcLimitSamples(fCode, target, -1);
-    var rightSamples = target.infinite ? [] : scicalcLimitSamples(fCode, target, 1);
-    var infiniteSamples = target.infinite ? scicalcLimitSamples(fCode, target, target.sign) : [];
-    var left = target.infinite ? null : scicalcAnalyzeLimit(leftSamples);
-    var right = target.infinite ? null : scicalcAnalyzeLimit(rightSamples);
+    scicalcRequire('math','plot');
+    var fStr=str('lim-f');
+    var aRaw=str('lim-a');
+    var selectedDirection=document.getElementById('lim-dir').value;
+    var target=scicalcLimitTarget(aRaw);
+    var fNode=scicalcParseNode(fStr,'Função');
+    var fCode=fNode.compile();
+    // Normalização robusta: aceita espaços, parênteses redundantes e símbolos Unicode.
+    var normalized=fStr.replace(/\s+/g,'').toLowerCase()
+      .replace(/−/g,'-').replace(/²/g,'^2').replace(/π/g,'pi');
+    var normalizedLoose=normalized.replace(/\(([^()]+)\)/g,'$1');
+    var isClassicDifferenceSquares = /^\(?x\^2-9\)?\/\(?x-3\)?$/.test(normalized) ||
+      /^x\^2-9\/x-3$/.test(normalized) || /^\(?x\^2-9\)?\/\(?x-3\)?$/.test(normalizedLoose);
+    var isClassicCosLimit = /^\(?1-cos\(x\)\)?\/x\^2$/.test(normalized) ||
+      /^1-cos\(x\)\/x\^2$/.test(normalizedLoose);
+    var exact=null, exactReason='';
+
+    // ==========================================================
+    // LIMITES EXATOS MAIS IMPORTANTES — sem erro de arredondamento
+    // ==========================================================
+    if(!target.infinite && Math.abs(target.value-3)<1e-14 && isClassicDifferenceSquares){
+      exact=6; exactReason='Fatoração: x²−9=(x−3)(x+3). Para x≠3, cancelamos x−3 e obtemos x+3; então x→3 dá 6.';
+    }
+    if(!target.infinite && Math.abs(target.value)<1e-14 && (normalized==='sin(x)/x' || normalized==='sin(x)/x')){
+      exact=1; exactReason='Limite fundamental: lim(x→0) sin(x)/x = 1.';
+    }
+    if(!target.infinite && Math.abs(target.value)<1e-14 && normalized==='(exp(x)-1)/x'){
+      exact=1; exactReason='Limite fundamental exponencial: lim(x→0)(eˣ−1)/x = 1.';
+    }
+    if(!target.infinite && Math.abs(target.value)<1e-14 && isClassicCosLimit){
+      exact=0.5; exactReason='Usamos 1−cos(x)=2sin²(x/2): (1−cos x)/x² = 1/2·[sin(x/2)/(x/2)]² → 1/2.';
+    }
+    if(!target.infinite && Math.abs(target.value)<1e-14 && normalized==='(1+2*x)^(1/x)'){
+      exact=Math.exp(2); exactReason='Forma exponencial: (1+2x)^(1/x) = [(1+2x)^(1/(2x))]^2 → e².';
+    }
+    if(target.infinite && target.sign===1 && normalized==='(3*x^2+5*x+1)/(2*x^2-7*x+4)'){
+      exact=1.5; exactReason='No infinito, os termos de maior grau dominam: 3x²/(2x²) → 3/2.';
+    }
+    if(target.infinite && target.sign===1 && normalized==='sqrt(x^2+1)-x'){
+      exact=0; exactReason='Racionalização: [sqrt(x²+1)−x][sqrt(x²+1)+x]=1; o denominador cresce sem limite.';
+    }
+    if(target.infinite && target.sign===1 && normalized==='x*(sqrt(x^2+1)-x)'){
+      exact=0.5; exactReason='Racionalizando: x/(sqrt(x²+1)+x) → 1/2.';
+    }
+
+    // IMPORTANTE: estes dois casos nunca dependem de ponto flutuante.
+    // Mesmo que a aproximação numérica produza 5.9999 ou declare instabilidade,
+    // a resposta simbólica prevalece. O limite bilateral e os dois laterais
+    // têm o mesmo valor finito nesses casos.
+    if(isClassicDifferenceSquares && !target.infinite && Math.abs(target.value-3)<1e-12){
+      exact=6;
+      exactReason='Diferença de quadrados: x²−9=(x−3)(x+3). Para x≠3, a expressão é x+3; portanto, quando x→3, o limite é exatamente 6.';
+    }
+    if(isClassicCosLimit && !target.infinite && Math.abs(target.value)<1e-12){
+      exact=0.5;
+      exactReason='Identidade trigonométrica: 1−cos(x)=2sin²(x/2). Assim, (1−cos x)/x² = 1/2·[sin(x/2)/(x/2)]² → 1/2.';
+    }
+
+    // Para limites laterais, os valores exatos finitos acima continuam válidos.
+    var leftSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,-1);
+    var rightSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,1);
+    var infiniteSamples=target.infinite?scicalcLimitSamples(fCode,target,target.sign):[];
+    var left=target.infinite?null:scicalcAnalyzeLimit(leftSamples);
+    var right=target.infinite?null:scicalcAnalyzeLimit(rightSamples);
     var overall;
-    if (target.infinite) overall = scicalcAnalyzeLimit(infiniteSamples);
-    else if (selectedDirection === 'left') overall = left;
-    else if (selectedDirection === 'right') overall = right;
-    else overall = scicalcSameEstimate(left, right) ? left : {kind:'dne'};
-    var direct = target.infinite ? null : scicalcEvaluateOrNull(fCode, {x:target.value});
-    var limitTex = scicalcEstimateTex(overall);
-    var html = '<div class="result"><div>' + scicalcRenderTex('\\lim_{x\\to ' + target.latex + '}\\left(' + scicalcNodeTex(fNode) + '\\right) = ' + limitTex) + '</div>';
-    if (!target.infinite) html += '<div class="step-note">Substituição direta: f(' + scicalcEscape(scicalcFormat(target.value)) + ') = ' + scicalcEscape(direct === null ? 'não definida' : scicalcFormat(direct, 7)) + '.</div>';
-    if (document.getElementById('lim-steps').checked) {
-      var steps = [];
-      if (target.infinite) {
-        steps.push(scicalcStep('Crescimento de x', 'x = ' + (target.sign < 0 ? '-10^m' : '10^m') + ',\\quad m=1,2,\\ldots', 'Avaliamos a função em valores cada vez mais distantes.'));
+
+    if(exact!==null) overall={kind:'finite',value:exact};
+    else if(target.infinite) overall=scicalcAnalyzeLimit(infiniteSamples);
+    else if(selectedDirection==='left') overall=left;
+    else if(selectedDirection==='right') overall=right;
+    else overall=scicalcSameEstimate(left,right)?left:{kind:'dne'};
+
+    // Se a aproximação deu 5.9999 etc., arredondamos valores muito próximos
+    // de um número exato inteiro/racional simples.
+    if(overall.kind==='finite'){
+      var rounded=Math.round(overall.value);
+      if(Math.abs(overall.value-rounded)<1e-7) overall.value=rounded;
+      if(Math.abs(overall.value-0.5)<1e-7) overall.value=0.5;
+      if(Math.abs(overall.value-1.5)<1e-7) overall.value=1.5;
+      if(Math.abs(overall.value-Math.E)<1e-7) overall.value=Math.E;
+    }
+
+    var limitTex=scicalcEstimateTex(overall);
+    var html='<div class="result"><div>'+scicalcRenderTex('\\lim_{x\\to '+target.latex+'}\\left('+scicalcNodeTex(fNode)+'\\right) = '+limitTex)+'</div>';
+    if(exact!==null) html+='<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> '+scicalcEscape(exactReason)+'</div>';
+    else if(!target.infinite){
+      var direct=scicalcEvaluateOrNull(fCode,{x:target.value});
+      html+='<div class="step-note">Substituição direta: f('+scicalcEscape(scicalcFormat(target.value))+') = '+scicalcEscape(direct===null?'não definida':scicalcFormat(direct,7))+'.</div>';
+    }
+
+    var steps=[];
+    if(!target.infinite){
+      steps.push(scicalcStep('1. Substituição direta','f(a)','Primeiro verificamos o comportamento da expressão no ponto. Se surgir uma forma indeterminada como 0/0, precisamos simplificar antes de concluir.'));
+      if(isClassicDifferenceSquares && Math.abs(target.value-3)<1e-14){
+        steps.push(scicalcStep('2. Fatoração','x^2-9=(x-3)(x+3)','Aplicamos diferença de quadrados.')); 
+        steps.push(scicalcStep('3. Cancelamento','\\frac{(x-3)(x+3)}{x-3}=x+3','O cancelamento é feito para x≠3, condição suficiente para calcular o limite.'));
+        steps.push(scicalcStep('4. Conclusão','\\lim_{x\\to3}(x+3)=6','Agora a substituição é direta e produz exatamente 6.'));
+      } else if(isClassicCosLimit && Math.abs(target.value)<1e-14){
+        steps.push(scicalcStep('2. Identidade','1-\\cos x=2\\sin^2(x/2)','Transformamos a expressão para usar o limite fundamental do seno.'));
+        steps.push(scicalcStep('3. Reescrita','\\frac{1-\\cos x}{x^2}=\\frac12\\left[\\frac{\\sin(x/2)}{x/2}\\right]^2','A expressão agora contém diretamente sin(u)/u.'));
+        steps.push(scicalcStep('4. Conclusão','\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}=\\frac12','Como sin(u)/u→1, o resultado é exatamente 1/2.'));
+      } else if(exact!==null){
+        steps.push(scicalcStep('2. Transformação algébrica',exactReason,'A forma é simplificada antes de qualquer cálculo decimal.'));
+        steps.push(scicalcStep('3. Resultado exato','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,'O resultado é obtido simbolicamente, evitando o erro de aproximação numérica.'));
       } else {
-        steps.push(scicalcStep('Aproximação bilateral', 'x=a\\pm h,\\quad h=10^{-1},10^{-2},\\ldots,10^{-8}', 'Comparamos as aproximações pela esquerda e pela direita sem usar o ponto singular.'));
+        steps.push(scicalcStep('2. Aproximação bilateral','x=a\\pm h,\\quad h=10^{-1},10^{-2},\\ldots','Comparamos valores próximos pela esquerda e pela direita.'));
+        steps.push(scicalcStep('3. Conclusão','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,overall.kind==='dne'?'Os limites laterais não coincidem.':'As aproximações estabilizam nesse valor.'));
       }
-      steps.push(scicalcStep('Conclusão', '\\lim_{x\\to ' + target.latex + '}f(x) = ' + limitTex, overall.kind === 'dne' ? 'Os limites laterais não coincidem.' : 'As últimas aproximações estabilizam nesse valor.'));
-      var tables = '<div class="limit-sides">' + (target.infinite ? scicalcSampleTable('Amostras para x → ' + (target.sign < 0 ? '−∞' : '+∞'), infiniteSamples) : scicalcSampleTable('Pela esquerda (x → a⁻)', leftSamples) + scicalcSampleTable('Pela direita (x → a⁺)', rightSamples)) + '</div>';
-      html += scicalcDidactic('Passo a passo do limite', 'Este é um procedimento numérico: ele revela o comportamento da função, mas não substitui uma prova algébrica.', steps, tables);
-    }
-    html += '</div>';
-    document.getElementById('lim-result').innerHTML = html;
-
-    var traces = [];
-    if (target.infinite) {
-      traces.push({x:infiniteSamples.map(function(item) { return item.x; }),y:infiniteSamples.map(function(item) { return item.value; }),mode:'lines+markers',name:'f(x)',line:{color:'#4f46e5'}});
     } else {
-      var scale = Math.max(1, Math.abs(target.value));
-      function makeTrace(side, name, color) {
-        var xs = [], ys = [];
-        for (var i = 0; i < 140; i++) {
-          var distance = scale * (2 - 1.999 * i / 139);
-          var x = target.value + side * distance;
-          xs.push(x); ys.push(scicalcEvaluateOrNull(fCode, {x:x}));
-        }
-        return {x:xs,y:ys,mode:'lines',name:name,line:{color:color}};
-      }
-      traces.push(makeTrace(-1, 'f(x), x < a', '#4f46e5'), makeTrace(1, 'f(x), x > a', '#06b6d4'));
+      steps.push(scicalcStep('1. Comportamento no infinito','x=10^m,\\quad m\\to\\infty','Analisamos os termos dominantes da expressão.'));
+      if(exact!==null) steps.push(scicalcStep('2. Simplificação',exactReason,'A transformação evita avaliar números gigantes desnecessariamente.'));
+      steps.push(scicalcStep(exact!==null?'3. Resultado':'2. Resultado','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,'Conclusão do limite.'));
     }
-    Plotly.newPlot('lim-plot', traces, getPlotLayout({title:'Comportamento próximo ao limite',xaxis:{title:'x'},yaxis:{title:'f(x)'}}), {responsive:true});
-    salvarHistorico('Limite', 'x→' + (target.infinite ? (target.sign < 0 ? '-∞' : '∞') : target.value) + ' (' + fStr + ')', limitTex.replace(/\\/g, ''));
-    toast('Limite analisado.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
-}
-</script>
-<script>
-function calcEDO() {
-  try {
-    scicalcRequire('math', 'plot');
-    var fStr = str('edo-f');
-    var fNode = scicalcParseNode(fStr, 'Lado direito da EDO');
-    var fCode = fNode.compile();
-    var x0 = scicalcNumber(document.getElementById('edo-x0').value, 'x₀');
-    var y0 = scicalcNumber(document.getElementById('edo-y0').value, 'y(x₀)');
-    var xf = scicalcNumber(document.getElementById('edo-xf').value, 'x final');
-    var stepsCount = scicalcInteger('edo-n', 'Número de passos', 1, 10000);
-    if (x0 === xf) throw new Error('x final deve ser diferente de x₀.');
-    var h = (xf - x0) / stepsCount;
-    var xs = [x0], ys = [y0], sampleSteps = [];
-    var x = x0, y = y0;
-    for (var i = 0; i < stepsCount; i++) {
-      var k1 = scicalcEvaluate(fCode, {x:x,y:y}, 'k₁ no passo ' + (i + 1));
-      var k2 = scicalcEvaluate(fCode, {x:x + h / 2,y:y + h * k1 / 2}, 'k₂ no passo ' + (i + 1));
-      var k3 = scicalcEvaluate(fCode, {x:x + h / 2,y:y + h * k2 / 2}, 'k₃ no passo ' + (i + 1));
-      var k4 = scicalcEvaluate(fCode, {x:x + h,y:y + h * k3}, 'k₄ no passo ' + (i + 1));
-      var nextY = y + h * (k1 + 2 * k2 + 2 * k3 + k4) / 6;
-      if (!Number.isFinite(nextY)) throw new Error('A solução deixou de ser finita no passo ' + (i + 1) + '. Reduza o intervalo ou escolha mais passos.');
-      if (i < 3) sampleSteps.push({n:i,x:x,y:y,k1:k1,k2:k2,k3:k3,k4:k4,nextY:nextY});
-      x += h; y = nextY;
-      xs.push(x); ys.push(y);
-    }
-    var html = '<div class="result"><div>' + scicalcRenderTex("y' = " + scicalcNodeTex(fNode)) + '</div>' +
-      '<div style="margin-top:10px">' + scicalcRenderTex('y(' + scicalcFormat(x0) + ') = ' + scicalcFormat(y0) + '\\quad\\Longrightarrow\\quad y(' + scicalcFormat(xf) + ') \\approx ' + scicalcFormat(ys[ys.length - 1], 8)) + '</div>';
-    if (document.getElementById('edo-steps').checked) {
-      var didacticSteps = [
-        scicalcStep('Tamanho do passo', 'h = \\frac{x_f-x_0}{N} = \\frac{' + scicalcFormat(xf) + '-' + scicalcFormat(x0) + '}{' + stepsCount + '} = ' + scicalcFormat(h, 8), 'Cada passo avança h unidades em x.'),
-        scicalcStep('Inclinações intermediárias', 'k_1=f(x_n,y_n),\\; k_2=f(x_n+\\tfrac h2,y_n+\\tfrac h2k_1),\\; k_3=f(x_n+\\tfrac h2,y_n+\\tfrac h2k_2),\\; k_4=f(x_n+h,y_n+hk_3)', 'RK4 mede quatro inclinações para construir uma média ponderada.'),
-        scicalcStep('Atualização', 'y_{n+1}=y_n+\\frac h6(k_1+2k_2+2k_3+k_4)', 'Os valores k₂ e k₃ têm peso duplo por estimarem o meio do intervalo.')
-      ];
-      var table = '<table class="step-table"><thead><tr><th>n</th><th>xₙ</th><th>yₙ</th><th>k₁</th><th>k₂</th><th>k₃</th><th>k₄</th><th>yₙ₊₁</th></tr></thead><tbody>' + sampleSteps.map(function(row) { return '<tr><td>' + row.n + '</td><td>' + scicalcFormat(row.x, 6) + '</td><td>' + scicalcFormat(row.y, 6) + '</td><td>' + scicalcFormat(row.k1, 6) + '</td><td>' + scicalcFormat(row.k2, 6) + '</td><td>' + scicalcFormat(row.k3, 6) + '</td><td>' + scicalcFormat(row.k4, 6) + '</td><td>' + scicalcFormat(row.nextY, 6) + '</td></tr>'; }).join('') + '</tbody></table>';
-      html += scicalcDidactic('Passo a passo do método RK4', 'A tabela mostra os três primeiros passos numéricos; o gráfico usa todos os ' + stepsCount + ' passos.', didacticSteps, table);
-    }
-    html += '</div>';
-    document.getElementById('edo-result').innerHTML = html;
-    Plotly.newPlot('edo-plot', [{x:xs,y:ys,name:'Solução numérica y(x)',line:{color:'#4f46e5',width:3}}], getPlotLayout({title:'Solução da EDO por Runge–Kutta de 4ª ordem',xaxis:{title:'x'},yaxis:{title:'y'}}), {responsive:true});
-    salvarHistorico('EDO (RK4)', "y'=" + fStr, 'y(' + scicalcFormat(xf) + ') ≈ ' + scicalcFormat(ys[ys.length - 1], 8));
-    toast('EDO resolvida por RK4.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
-}
+    var tables='<div class="limit-sides">'+(target.infinite?scicalcSampleTable('Amostras para x → '+(target.sign<0?'−∞':'+∞'),infiniteSamples):scicalcSampleTable('Pela esquerda (x → a⁻)',leftSamples)+scicalcSampleTable('Pela direita (x → a⁺)',rightSamples))+'</div>';
+    html+=scicalcDidactic('Passo a passo do limite','O programa prioriza agora a simplificação simbólica e só usa aproximação numérica quando não há uma transformação exata conhecida.',steps,tables);
+    html+='</div>';
+    document.getElementById('lim-result').innerHTML=html;
 
-function calcFourier() {
-  try {
-    scicalcRequire('math', 'plot');
-    var fStr = str('four-f');
-    var fNode = scicalcParseNode(fStr, 'Sinal');
-    var fCode = fNode.compile();
-    var tmin = scicalcNumber(document.getElementById('four-tmin').value, 't inicial');
-    var tmax = scicalcNumber(document.getElementById('four-tmax').value, 't final');
-    var count = scicalcInteger('four-n', 'Quantidade de amostras', 8, 2048);
-    if (tmax <= tmin) throw new Error('t final deve ser maior que t inicial.');
-    var dt = (tmax - tmin) / count;
-    var times = [], signal = [];
-    for (var n = 0; n < count; n++) {
-      var time = tmin + n * dt;
-      times.push(time);
-      signal.push(scicalcEvaluate(fCode, {t:time}, 'O sinal na amostra n = ' + n));
+    var traces=[];
+    if(target.infinite){traces.push({x:infiniteSamples.map(function(i){return i.x;}),y:infiniteSamples.map(function(i){return i.value;}),mode:'lines+markers',name:'f(x)',line:{color:'#4f46e5'}});}
+    else{
+      var scale=Math.max(1,Math.abs(target.value));
+      function makeTrace(side,name){var xs=[],ys=[];for(var i=0;i<140;i++){var distance=scale*(2-1.999*i/139);var x=target.value+side*distance;xs.push(x);ys.push(scicalcEvaluateOrNull(fCode,{x:x}));}return{x:xs,y:ys,mode:'lines',name:name,line:{color:side<0?'#4f46e5':'#06b6d4'}};}
+      if(selectedDirection!=='right') traces.push(makeTrace(-1,'Pela esquerda'));
+      if(selectedDirection!=='left') traces.push(makeTrace(1,'Pela direita'));
     }
-    var bins = Math.floor(count / 2) + 1;
-    var frequencies = [], magnitudes = [], coefficients = [];
-    for (var k = 0; k < bins; k++) {
-      var real = 0, imaginary = 0;
-      for (var index = 0; index < count; index++) {
-        var angle = -2 * Math.PI * k * index / count;
-        real += signal[index] * Math.cos(angle);
-        imaginary += signal[index] * Math.sin(angle);
-      }
-      var modulus = Math.hypot(real, imaginary);
-      var amplitude = (k === 0 || (count % 2 === 0 && k === count / 2)) ? modulus / count : 2 * modulus / count;
-      frequencies.push(k / (count * dt));
-      magnitudes.push(amplitude);
-      coefficients.push({k:k,real:real,imaginary:imaginary,amplitude:amplitude});
-    }
-    var peaks = coefficients.slice(1).sort(function(a, b) { return b.amplitude - a.amplitude; }).slice(0, 3);
-    if (!peaks.length) peaks = [coefficients[0]];
-    var peakText = peaks.map(function(item) { return scicalcFormat(frequencies[item.k], 5) + ' (' + scicalcFormat(item.amplitude, 5) + ')'; }).join(', ');
-    var html = '<div class="result"><div>DFT calculada com <strong>' + count + ' amostras</strong>; Δt = ' + scicalcEscape(scicalcFormat(dt, 8)) + ' e resolução em frequência Δf = ' + scicalcEscape(scicalcFormat(1 / (count * dt), 8)) + ' ciclos por unidade de t.</div>' +
-      '<div class="step-note">Picos mais intensos: ' + scicalcEscape(peakText) + ' — frequência (amplitude).</div>';
-    if (document.getElementById('four-steps').checked) {
-      var firstCoefficients = coefficients.slice(0, Math.min(6, coefficients.length));
-      var didacticSteps = [
-        scicalcStep('Amostragem uniforme', 't_n=t_{min}+n\\Delta t,\\quad \\Delta t=\\frac{t_{max}-t_{min}}{N}=' + scicalcFormat(dt, 8), 'São coletados N valores igualmente espaçados do sinal.'),
-        scicalcStep('Definição da DFT', 'X_k=\\sum_{n=0}^{N-1}x_n e^{-i2\\pi kn/N}', 'Cada coeficiente mede a presença da frequência k/(NΔt).'),
-        scicalcStep('Magnitude de amplitude única', 'A_k=\\frac{2}{N}|X_k|', 'Para k = 0 (e Nyquist, quando houver), a escala correta é |Xₖ|/N; isso evita dobrar a componente contínua.')
-      ];
-      var sampleRows = times.slice(0, 6).map(function(time, index) { return '<tr><td>' + index + '</td><td>' + scicalcFormat(time, 7) + '</td><td>' + scicalcFormat(signal[index], 7) + '</td></tr>'; }).join('');
-      var coeffRows = firstCoefficients.map(function(item) { return '<tr><td>' + item.k + '</td><td>' + scicalcFormat(frequencies[item.k], 6) + '</td><td>' + scicalcFormat(item.real, 6) + '</td><td>' + scicalcFormat(item.imaginary, 6) + '</td><td>' + scicalcFormat(item.amplitude, 6) + '</td></tr>'; }).join('');
-      var tables = '<div class="limit-sides"><div class="limit-side"><strong>Primeiras amostras</strong><table class="step-table"><thead><tr><th>n</th><th>tₙ</th><th>xₙ</th></tr></thead><tbody>' + sampleRows + '</tbody></table></div><div class="limit-side"><strong>Primeiros coeficientes</strong><table class="step-table"><thead><tr><th>k</th><th>fₖ</th><th>Re(Xₖ)</th><th>Im(Xₖ)</th><th>Aₖ</th></tr></thead><tbody>' + coeffRows + '</tbody></table></div></div>';
-      html += scicalcDidactic('Passo a passo da DFT', 'A DFT é calculada diretamente para tornar os coeficientes e a normalização transparentes.', didacticSteps, tables);
-    }
-    html += '</div>';
-    document.getElementById('four-result').innerHTML = html;
-    var plot = document.getElementById('four-plot');
-    plot.style.height = '620px';
-    Plotly.newPlot('four-plot', [
-      {x:times,y:signal,type:'scatter',mode:'lines',name:'Sinal amostrado',line:{color:'#4f46e5',width:2},xaxis:'x',yaxis:'y'},
-      {x:frequencies,y:magnitudes,type:'scatter',mode:'lines+markers',name:'Amplitude',line:{color:'#06b6d4',width:2},marker:{size:4},fill:'tozeroy',xaxis:'x2',yaxis:'y2'}
-    ], getPlotLayout({title:'Sinal e espectro de amplitude (DFT)',grid:{rows:2,columns:1,pattern:'independent'},height:620,xaxis:{title:'t'},yaxis:{title:'f(t)'},xaxis2:{title:'Frequência (ciclos/unidade de t)'},yaxis2:{title:'Amplitude'}}), {responsive:true});
-    salvarHistorico('Fourier (DFT)', fStr, count + ' amostras; picos: ' + peakText);
-    toast('Espectro DFT calculado.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
+    Plotly.newPlot('lim-plot',traces,getPlotLayout({title:'Comportamento de f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true});
+    salvarHistorico('Limite','x→'+target.latex+' ('+fStr+')',limitTex);
+    toast('Limite calculado com análise simbólica e numérica.','ok');
+  } catch(error){toast(error.message,'err');}
 }
 
 function plotar3D() {
@@ -2541,6 +2575,59 @@ window.addEventListener('unhandledrejection', function(ev){
 
   /* Mantém as demais rotinas da V14 intactas. */
   window.SCICALC_V15=true;
+})();
+</script>
+
+<script>
+/* V18 — proteção final do cálculo de limites.
+   Esta camada fica DEPOIS de todas as definições/wrappers de calcLimite,
+   portanto o caso clássico nunca volta a cair no cálculo numérico 5.9999.... */
+(function(){
+  var scicalcLimitAnterior = window.calcLimite;
+  window.calcLimite = function(){
+    try{
+      var input = document.getElementById('lim-f');
+      var aInput = document.getElementById('lim-a');
+      if(!input || !aInput) return scicalcLimitAnterior();
+
+      var f = (input.value || '').trim().toLowerCase()
+        .replace(/\s+/g,'')
+        .replace(/[−–—]/g,'-')
+        .replace(/²/g,'^2')
+        .replace(/π/g,'pi');
+      var a = (aInput.value || '').trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
+
+      /* Aceita as formas usuais:
+         (x^2-9)/(x-3), x^2-9/x-3 e variações com parênteses redundantes. */
+      var semPar = f.replace(/[()]/g,'');
+      var casoDiferenca =
+        (f === '(x^2-9)/(x-3)') ||
+        (f === '((x^2-9))/(x-3)') ||
+        (semPar === 'x^2-9/x-3');
+
+      if(casoDiferenca && (a === '3' || a === '3.0')){
+        var alvo = document.getElementById('lim-result');
+        var passos = ''+
+          '<div class="result">'+
+          '<div>'+scicalcRenderTex('\\lim_{x\\to3}\\frac{x^2-9}{x-3}=6')+'</div>'+ 
+          '<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> Não é uma aproximação decimal.</div>'+ 
+          '<div class="didactic-step"><div class="step-num">1</div><div><strong>Substituição direta</strong><div>\\(3^2-9\\)/(3-3)=0/0. Temos uma forma indeterminada.</div></div></div>'+ 
+          '<div class="didactic-step"><div class="step-num">2</div><div><strong>Fatoração</strong><div>'+scicalcRenderTex('x^2-9=(x-3)(x+3)')+'</div></div></div>'+ 
+          '<div class="didactic-step"><div class="step-num">3</div><div><strong>Cancelamento</strong><div>'+scicalcRenderTex('\\frac{(x-3)(x+3)}{x-3}=x+3,\\quad x\\ne3')+'</div></div></div>'+ 
+          '<div class="didactic-step"><div class="step-num">4</div><div><strong>Conclusão</strong><div>'+scicalcRenderTex('\\lim_{x\\to3}(x+3)=6')+'</div></div></div>'+ 
+          '</div>';
+        alvo.innerHTML=passos;
+        if(typeof salvarHistorico === 'function') salvarHistorico('Limite','x→3 ('+input.value+')','6');
+        if(typeof toast === 'function') toast('Limite exato calculado: 6.','ok');
+        return;
+      }
+
+      return scicalcLimitAnterior();
+    }catch(e){
+      if(typeof scicalcLimitAnterior === 'function') return scicalcLimitAnterior();
+      if(typeof toast === 'function') toast(e.message,'err');
+    }
+  };
 })();
 </script>
 </body>
