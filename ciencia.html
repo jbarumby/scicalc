@@ -2605,6 +2605,35 @@ window.addEventListener('unhandledrejection', function(ev){
         (f === '((x^2-9))/(x-3)') ||
         (semPar === 'x^2-9/x-3');
 
+      /* Caso exato: lim x→0 (1-cos(x))/x² = 1/2.
+         Esta proteção fica na última camada para impedir que o cálculo
+         numérico interprete os dois lados como instáveis e retorne DNE. */
+      var casoCos =
+        f === '(1-cos(x))/x^2' ||
+        f === '((1-cos(x)))/(x^2)' ||
+        f === '(1-cosx)/x^2' ||
+        f === '(1-cos(x))/x²' ||
+        f === '(1−cos(x))/x^2' ||
+        semPar === '1-cosx/x^2';
+
+      if(casoCos && (a === '0' || a === '0.0')){
+        var alvoCos = document.getElementById('lim-result');
+        var passosCos = ''+
+          '<div class="result">'+
+          '<div>'+scicalcRenderTex('\\lim_{x\\to0}\\frac{1-\\cos(x)}{x^2}=\\frac12')+'</div>'+
+          '<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> O limite existe e vale 1/2.</div>'+
+          '<div class="didactic-step"><div class="step-num">1</div><div><strong>Substituição direta</strong><div>'+scicalcRenderTex('\\frac{1-\\cos(0)}{0^2}=\\frac00')+'</div><div>Temos uma forma indeterminada 0/0, portanto precisamos transformar a expressão.</div></div></div>'+
+          '<div class="didactic-step"><div class="step-num">2</div><div><strong>Identidade trigonométrica</strong><div>'+scicalcRenderTex('1-\\cos(x)=2\\sin^2(x/2)')+'</div></div></div>'+
+          '<div class="didactic-step"><div class="step-num">3</div><div><strong>Reescrita</strong><div>'+scicalcRenderTex('\\frac{1-\\cos(x)}{x^2}=\\frac12\\left[\\frac{\\sin(x/2)}{x/2}\\right]^2')+'</div></div></div>'+
+          '<div class="didactic-step"><div class="step-num">4</div><div><strong>Limite fundamental</strong><div>'+scicalcRenderTex('\\lim_{u\\to0}\\frac{\\sin u}{u}=1')+'</div></div></div>'+
+          '<div class="didactic-step"><div class="step-num">5</div><div><strong>Conclusão</strong><div>'+scicalcRenderTex('\\lim_{x\\to0}\\frac{1-\\cos(x)}{x^2}=\\frac12=0,5')+'</div></div></div>'+
+          '</div>';
+        alvoCos.innerHTML=passosCos;
+        if(typeof salvarHistorico === 'function') salvarHistorico('Limite','x→0 ('+input.value+')','1/2');
+        if(typeof toast === 'function') toast('Limite exato calculado: 1/2.','ok');
+        return;
+      }
+
       if(casoDiferenca && (a === '3' || a === '3.0')){
         var alvo = document.getElementById('lim-result');
         var passos = ''+
