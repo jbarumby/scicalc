@@ -591,17 +591,51 @@ async function processarNLP() {
       return;
     }
     
-    const integMatch = inputLower.match(/(?:integral|integrate|antiderivative)\s+(?:of\s+)?(.+?)(?:\s+with\s+respect\s+to\s+(\w+))?$/);
+    const integMatch = inputLower.match(/(?:integral|integrate|antiderivative)\s+(?:(?:of|de|da|do)\s+)?(.+?)(?:\s+(?:with\s+respect\s+to|em|com)\s+(\w+))?$/);
     if(integMatch) {
       const expressao = integMatch[1].trim();
       const variavel = integMatch[2] || 'x';
-      
-      const integral = nerdamer(`integrate(${expressao}, ${variavel})`);
+      const node = math.parse(expressao);
+      let resultadoTex = null;
+      let resultadoTexto = null;
+      let origem = 'CAS';
+
+      // Primeiro verificamos formas que possuem resultado conhecido e exato.
+      // Isso evita que o Nerdamer introduza fatores incorretos em algumas
+      // substituições trigonométricas, como sqrt(4-x^2)/x^2.
+      try {
+        if (variavel === 'x') {
+          const byParts = scicalcIntegrationByParts(node, variavel, 1);
+          if (byParts) {
+            resultadoTex = byParts.resultTex;
+            resultadoTexto = byParts.resultTex;
+            origem = 'Método exato — integração por partes';
+          }
+        }
+
+        if (!resultadoTex) {
+          const specialTrig = scicalcTrigDefiniteSpecial(node, variavel);
+          if (specialTrig) {
+            resultadoTex = specialTrig.resultTex;
+            resultadoTexto = specialTrig.resultTex;
+            origem = 'Método exato — substituição trigonométrica';
+          }
+        }
+      } catch (specialError) {
+        // Se a detecção especial falhar, seguimos normalmente para o CAS.
+      }
+
+      if (!resultadoTex) {
+        const integral = nerdamer(`integrate(${expressao}, ${variavel})`);
+        resultadoTex = integral.toTeX();
+        resultadoTexto = integral.text();
+      }
+
       resultDiv.innerHTML = `<div class="result">
-        <div style="margin-bottom:10px; color:var(--muted)">Resultado Simbólico (CAS):</div>
-        <div>${tex(`\\int (${math.parse(expressao).toTex()}) d${variavel} = ${integral.toTeX()} + C`)}</div>
+        <div style="margin-bottom:10px; color:var(--muted)">Resultado da integral (${origem}):</div>
+        <div>${tex(`\\int (${node.toTex()}) d${variavel} = ${resultadoTex} + C`)}</div>
       </div>`;
-      salvarHistorico('NLP Integral', input, integral.text());
+      salvarHistorico('NLP Integral', input, resultadoTexto);
       return;
     }
     
