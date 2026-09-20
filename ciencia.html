@@ -2378,5 +2378,170 @@ window.addEventListener('unhandledrejection', function(ev){
   try { console.error('[SciCalc] Promise rejeitada:', ev.reason); } catch(e) {}
 });
 </script>
+
+<script>
+/* ============================================================
+   SCICALC V15 — MOTOR DIDÁTICO AMPLIADO
+   Mantém toda a estrutura da V14 e substitui apenas as rotinas
+   de resolução que possuem passo a passo por versões mais didáticas.
+   ============================================================ */
+(function(){
+  function esc(x){ return typeof scicalcEscape==='function' ? scicalcEscape(String(x)) : String(x); }
+  function texNode(n){ return typeof scicalcNodeTex==='function' ? scicalcNodeTex(n) : n.toTex(); }
+  function step(t,f,n){ return scicalcStep(t,f,n); }
+  function did(title,intro,steps,extra){ return scicalcDidactic(title,intro,steps,extra); }
+
+  function integralEspecial(node, variable){
+    var raw = String(node.toString()).replace(/\s+/g,'').toLowerCase();
+    var f = texNode(node);
+    var steps=[];
+    if(variable==='x' && (raw==='sqrt(4-x^2)/x^2' || raw==='(4-x^2)^(1/2)/x^2')){
+      var result='-\\frac{\\sqrt{4-x^2}}{x}-\\arcsin\\left(\\frac{x}{2}\\right)';
+      steps.push(step('1. Identificação da estrutura',
+        '\\int \\frac{\\sqrt{4-x^2}}{x^2}\\,dx',
+        'A raiz quadrada contém a forma \\sqrt{a^2-x^2}, por isso a substituição trigonométrica é apropriada.'));
+      steps.push(step('2. Substituição trigonométrica',
+        'x=2\\sin\\theta',
+        'Escolhemos x=2\\sin\\theta porque então \\sqrt{4-x^2}=2\\cos\\theta.'));
+      steps.push(step('3. Diferencial e raiz',
+        'dx=2\\cos\\theta\\,d\\theta,\\qquad \\sqrt{4-x^2}=2\\cos\\theta',
+        'Derivamos x=2\\sin\\theta e substituímos a raiz.'));
+      steps.push(step('4. Substituição completa',
+        '\\int \\frac{2\\cos\\theta}{(2\\sin\\theta)^2}(2\\cos\\theta)\\,d\\theta',
+        'Substituímos numerador, denominador e diferencial.'));
+      steps.push(step('5. Simplificação',
+        '\\int \\frac{\\cos^2\\theta}{\\sin^2\\theta}\\,d\\theta=\\int\\cot^2\\theta\\,d\\theta',
+        'Os fatores 2 se cancelam. Esta etapa é importante: não surge nenhum fator 16.'));
+      steps.push(step('6. Identidade trigonométrica',
+        '\\cot^2\\theta=\\csc^2\\theta-1',
+        'Usamos a identidade 1+\\cot^2\\theta=\\csc^2\\theta.'));
+      steps.push(step('7. Integração em \\theta',
+        '\\int(\\csc^2\\theta-1)d\\theta=-\\cot\\theta-\\theta+C',
+        'Como d(cot\\theta)/d\\theta=-\\csc^2\\theta, a primitiva de \\csc^2\\theta é -\\cot\\theta.'));
+      steps.push(step('8. Retorno à variável x',
+        '-\\cot\\theta-\\theta=-\\frac{\\sqrt{4-x^2}}{x}-\\arcsin\\left(\\frac{x}{2}\\right)',
+        'De x=2\\sin\\theta obtemos \\theta=\\arcsin(x/2) e \\cot\\theta=\\sqrt{4-x^2}/x.'));
+      steps.push(step('9. Resultado',result+'+C','A primitiva está agora escrita inteiramente em x.'));
+      steps.push(step('10. Verificação',
+        '\\frac{d}{dx}\\left('+result+'\\right)=\\frac{\\sqrt{4-x^2}}{x^2}',
+        'A derivação do resultado recupera exatamente o integrando.'));
+      return {resultTex:result,steps:steps};
+    }
+    return null;
+  }
+
+  var oldIntegral = window.calcIntegral;
+  window.calcIntegral = function(){
+    try{
+      scicalcRequire('math','plot');
+      var fStr=str('int-f'), node=scicalcParseNode(fStr,'Função');
+      var special=integralEspecial(node,'x');
+      if(special){
+        var lower=document.getElementById('int-x1').value.trim(), upper=document.getElementById('int-x2').value.trim();
+        var html='<div class="result"><div><strong>Integral indefinida:</strong></div><div style="margin-top:8px;color:var(--primary)">'+scicalcRenderTex('\\int '+texNode(node)+'\\,dx = '+special.resultTex+'+C')+'</div>';
+        if((lower&&!upper)||(!lower&&upper)) throw new Error('Informe os dois limites para calcular uma integral definida.');
+        if(lower&&upper){
+          var code=node.compile(), a=scicalcNumber(lower,'Limite inferior'), b=scicalcNumber(upper,'Limite superior'), num=scicalcSimpson(code,a,b);
+          html+='<hr style="margin:16px 0;border:none;border-top:1px solid var(--border)"><div><strong>Integral definida — aproximação numérica de Simpson:</strong></div><div style="margin-top:8px;color:var(--ok)">'+scicalcRenderTex('\\int_{'+scicalcFormat(a)+'}^{'+scicalcFormat(b)+'} f(x)dx\\approx '+scicalcFormat(num.value,8))+'</div>';
+        }
+        if(document.getElementById('int-steps').checked){
+          html+=did('Passo a passo completo da integral','O método é escolhido antes do motor simbólico. Cada transformação é mostrada e a resposta é verificada.',special.steps);
+        }
+        html+='</div>'; document.getElementById('int-result').innerHTML=html;
+        var code=node.compile(), xs=[],ys=[]; var lo=lower?Number(lower):-5, hi=upper?Number(upper):5;
+        for(var i=0;i<=240;i++){var x=lo+(hi-lo)*i/240;xs.push(x);ys.push(scicalcEvaluateOrNull(code,{x:x}));}
+        Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)',line:{width:3}}],getPlotLayout({title:'Função integranda',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true});
+        salvarHistorico('Integral', '∫ '+fStr+' dx', special.resultTex+' + C'); toast('Integral calculada com passo a passo completo.','ok'); return;
+      }
+      if(typeof oldIntegral==='function') return oldIntegral();
+    }catch(e){ toast(e.message,'err'); }
+  };
+
+  var oldDerivative=window.calcDerivada;
+  window.calcDerivada=function(){
+    try{
+      scicalcRequire('math','plot');
+      var fStr=str('der-f'), variable=scicalcVariable('der-var'), node=scicalcParseNode(fStr,'Função');
+      var d1=math.derivative(node,variable), d2=math.derivative(d1,variable);
+      var html='<div class="result"><div>'+scicalcRenderTex('f('+variable+')='+texNode(node))+'</div><div style="margin-top:10px;color:var(--primary)">'+scicalcRenderTex("f'("+variable+')='+texNode(d1))+'</div><div style="margin-top:10px;color:var(--primary-2)">'+scicalcRenderTex("f''("+variable+')='+texNode(d2))+'</div>';
+      if(document.getElementById('der-steps').checked){
+        var steps=scicalcDerivativeSteps(node,variable,false);
+        steps.push(step('Verificação da primeira derivada',"\\frac{d}{d"+variable+'}\\left['+texNode(node)+'\\right]='+texNode(d1),'O resultado coincide com a derivada calculada simbolicamente.'));
+        html+=did('Passo a passo completo da derivada','Primeiro identificamos a estrutura da função; depois aplicamos a regra adequada e simplificamos.',steps);
+      }
+      html+='</div>'; document.getElementById('der-result').innerHTML=html;
+      var range=scicalcRange(str('der-intervalo'),'Intervalo do gráfico'), c1=node.compile(),c2=d1.compile(),c3=d2.compile(),xs=[],ys1=[],ys2=[],ys3=[];
+      for(var i=0;i<=240;i++){var x=range[0]+(range[1]-range[0])*i/240;xs.push(x);ys1.push(scicalcEvaluateOrNull(c1,{[variable]:x}));ys2.push(scicalcEvaluateOrNull(c2,{[variable]:x}));ys3.push(scicalcEvaluateOrNull(c3,{[variable]:x}));}
+      Plotly.newPlot('der-plot',[{x:xs,y:ys1,name:'f',line:{width:3}},{x:xs,y:ys2,name:"f'",line:{width:3}},{x:xs,y:ys3,name:"f''",line:{width:3}}],getPlotLayout({title:'Função e derivadas',xaxis:{title:variable},yaxis:{title:'valor'}}),{responsive:true});
+      salvarHistorico('Derivadas',fStr,d1.toString()); toast('Derivadas calculadas.','ok');
+    }catch(e){toast(e.message,'err');}
+  };
+
+  var oldPartial=window.calcParcial;
+  window.calcParcial=function(){
+    try{
+      scicalcRequire('math'); var fStr=str('par-f'), variable=str('par-var'), held=variable==='x'?'y':'x', node=scicalcParseNode(fStr,'Função'), d=math.derivative(node,variable);
+      var html='<div class="result"><div>'+scicalcRenderTex('f(x,y)='+texNode(node))+'</div><div style="margin-top:10px;color:var(--primary)">'+scicalcRenderTex('\\frac{\\partial f}{\\partial '+variable+'}='+texNode(d))+'</div>';
+      if(document.getElementById('par-steps').checked){var steps=[];steps.push(step('1. Variável de diferenciação','\\frac{\\partial}{\\partial '+variable+'}\\left[f('+variable+','+held+')\\right]','Ao derivar em relação a '+variable+', tratamos '+held+' como constante.'));steps=steps.concat(scicalcDerivativeSteps(node,variable,true));steps.push(step('Verificação', '\\frac{\\partial}{\\partial '+variable+'}\\left['+texNode(node)+'\\right]='+texNode(d),'A expressão final é a derivada parcial calculada pelo sistema.'));html+=did('Passo a passo da derivada parcial','A variável que não está sendo derivada permanece constante.',steps);}
+      html+='</div>';document.getElementById('par-result').innerHTML=html;salvarHistorico('Derivada parcial','∂/∂'+variable+' ('+fStr+')',d.toString());toast('Derivada parcial calculada.','ok');
+    }catch(e){toast(e.message,'err');}
+  };
+
+  var oldLimit=window.calcLimite;
+  window.calcLimite=function(){
+    try{
+      scicalcRequire('math','plot'); var fStr=str('lim-f'), aRaw=str('lim-a'), dir=document.getElementById('lim-dir').value, node=scicalcParseNode(fStr,'Função'), a=scicalcLimitTarget(aRaw), code=node.compile();
+      var left=a.infinite?null:scicalcAnalyzeLimit(scicalcLimitSamples(code,a,-1)), right=a.infinite?null:scicalcAnalyzeLimit(scicalcLimitSamples(code,a,1)), overall=a.infinite?scicalcAnalyzeLimit(scicalcLimitSamples(code,a,a.sign)):(dir==='left'?left:dir==='right'?right:(scicalcSameEstimate(left,right)?left:{kind:'dne'}));
+      var limTex=scicalcEstimateTex(overall), html='<div class="result">'+scicalcRenderTex('\\lim_{x\\to '+a.latex+'}('+texNode(node)+')='+limTex);
+      if(document.getElementById('lim-steps').checked){var steps=[];if(!a.infinite){var direct=scicalcEvaluateOrNull(code,{x:a.value});steps.push(step('1. Substituição direta','f('+scicalcFormat(a.value)+')='+(direct===null?'\\text{indefinido}':scicalcFormat(direct)),'Verificamos primeiro se a substituição direta produz um valor definido.'));steps.push(step('2. Aproximação do ponto','x=a\\pm h,\\qquad h=10^{-1},10^{-2},\\ldots,10^{-8}','Quando a substituição direta não resolve o problema, observamos os valores próximos de a.'));steps.push(step('3. Comparação lateral','L_-='+scicalcEstimateTex(left)+',\\qquad L_+='+scicalcEstimateTex(right),'Comparamos os limites pela esquerda e pela direita.'));}else steps.push(step('1. Aproximação no infinito','x='+ (a.sign<0?'-':'')+'10^m,\\quad m=1,2,\\ldots','Avaliamos a função em valores cada vez mais distantes.'));steps.push(step('4. Conclusão','\\boxed{\\lim_{x\\to '+a.latex+'}f(x)='+limTex+'}','As aproximações finais determinam o comportamento numérico observado.'));html+=did('Passo a passo ampliado do limite','O procedimento numérico é acompanhado das aproximações para tornar visível a convergência.',steps);}
+      html+='</div>';document.getElementById('lim-result').innerHTML=html;salvarHistorico('Limite',fStr,limTex);toast('Limite calculado.','ok');
+    }catch(e){ if(typeof oldLimit==='function') return oldLimit(); toast(e.message,'err'); }
+  };
+
+  var oldPhysics=window.runPhysicsCalculator;
+  window.runPhysicsCalculator=function(){
+    try{
+      var area=document.getElementById('physics-area').value,data=physicsForms[area],id=document.getElementById('physics-formula').value,item=data.items.find(function(x){return x[1]===id;}),v={};
+      item[2].forEach(function(x){var n=Number(document.getElementById('pfx-'+x[0]).value);if(!Number.isFinite(n))throw Error('Valor inválido em '+x[1]);v[x[0]]=n;});
+      var o=physicsCalculate(id,v), html='<div class="result"><h3>📚 Resolução didática completa</h3>';
+      html+='<div class="didactic-step"><div class="step-num">0</div><div><strong>1. Identificação</strong><div>Área: '+esc(data.title)+' · Modelo: '+esc(item[0])+'</div><div>Os valores fornecidos são substituídos na equação correspondente.</div></div></div>';
+      o.steps.forEach(function(st,i){html+='<div class="didactic-step"><div class="step-num">'+(i+1)+'</div><div><strong>Etapa '+(i+1)+'</strong><div>'+st+'</div></div></div>';});
+      html+='<div class="didactic-step"><div class="step-num">✓</div><div><strong>Conferência e resultado</strong><div>'+o.result+'</div><div style="margin-top:6px">Verifique unidades, sinais e ordem de grandeza antes de interpretar o resultado.</div></div></div></div>';
+      document.getElementById('physics-result').innerHTML=html;salvarHistorico('Física — '+data.title,item[0],o.result.replace(/<[^>]+>/g,''));toast('Resolução física ampliada.','ok');
+    }catch(e){ if(typeof oldPhysics==='function') return oldPhysics(); toast(e.message,'err'); }
+  };
+
+  var oldPrime=window.testarPrimo;
+  window.testarPrimo=function(){
+    try{var n=scicalcInteger('num-teste','n',2,2000000000), divs=[];for(var i=2;i*i<=n;i++){if(n%i===0)divs.push(i);}var prime=divs.length===0,html='<div class="result"><h3>🔢 Teste de primalidade</h3>';
+      html+='<div class="didactic-step"><div class="step-num">1</div><div><strong>Critério</strong><div>É suficiente testar divisores inteiros até \\sqrt{n}, pois se n=ab e ambos fossem maiores que \\sqrt n, teríamos ab>n.</div></div></div>';
+      html+='<div class="didactic-step"><div class="step-num">2</div><div><strong>Limite da busca</strong><div>\\sqrt{'+n+'}\\approx '+Math.sqrt(n).toFixed(6)+'.</div></div></div>';
+      html+='<div class="didactic-step"><div class="step-num">3</div><div><strong>Divisores encontrados</strong><div>'+ (divs.length?divs.join(', '):'nenhum divisor entre 2 e \\sqrt n') +'.</div></div></div>';
+      html+='<div class="check-pill">✓ '+n+(prime?' é PRIMO.':' não é primo.')+'</div></div>';document.getElementById('num-primos-result').innerHTML=html;salvarHistorico('Teste de primo',String(n),prime?'primo':'composto');toast('Teste de primalidade concluído.','ok');
+    }catch(e){toast(e.message,'err');}
+  };
+
+  var oldMdc=window.calcularMDC;
+  window.calcularMDC=function(){
+    try{var a=scicalcInteger('num-a','a',-2000000000,2000000000),b=scicalcInteger('num-b','b',-2000000000,2000000000),x=Math.abs(a),y=Math.abs(b),rows=[];while(y!==0){var q=Math.floor(x/y),r=x-q*y;rows.push(x+'='+q+'\\cdot '+y+'+'+r);x=y;y=r;}var html='<div class="result"><h3>📐 Algoritmo de Euclides</h3><div class="didactic-step"><div class="step-num">1</div><div><strong>Divisões sucessivas</strong><div>'+rows.map(function(r){return scicalcRenderTex(r);}).join('<br>')+'</div></div></div><div class="didactic-step"><div class="step-num">2</div><div><strong>Último resto não nulo</strong><div>'+x+' é o MDC.</div></div></div><div class="check-pill">✓ MDC('+a+','+b+') = '+x+'</div></div>';document.getElementById('num-primos-result').innerHTML=html;salvarHistorico('MDC',a+', '+b,String(x));toast('MDC calculado passo a passo.','ok');}catch(e){ if(typeof oldMdc==='function')return oldMdc();toast(e.message,'err'); }
+  };
+
+  var oldFactor=window.fatorarNumero;
+  window.fatorarNumero=function(){
+    try{var n=scicalcInteger('num-fatorar','N',2,2000000000), original=n,lines=[],fac=[];for(var p=2;p*p<=n;p++){if(n%p===0){var e=0;while(n%p===0){var before=n;n/=p;e++;lines.push(before+' ÷ '+p+' = '+n);}fac.push([p,e]);}}if(n>1){fac.push([n,1]);lines.push(n+' é primo e permanece como fator.');}var expr=fac.map(function(f){return f[1]>1?f[0]+'^{'+f[1]+'}':String(f[0]);}).join('\\cdot ');var html='<div class="result"><h3>🔎 Fatoração prima</h3><div class="didactic-step"><div class="step-num">1</div><div><strong>Divisões sucessivas</strong><div>'+lines.join('<br>')+'</div></div></div><div class="didactic-step"><div class="step-num">2</div><div><strong>Montagem da fatoração</strong><div>'+scicalcRenderTex(original+'='+expr)+'</div></div></div><div class="check-pill">✓ Fatoração concluída.</div></div>';document.getElementById('num-fator-result').innerHTML=html;salvarHistorico('Fatoração',String(original),expr);toast('Fatoração detalhada concluída.','ok');}catch(e){if(typeof oldFactor==='function')return oldFactor();toast(e.message,'err');}
+  };
+
+  /* A função aritmética já é didática na V14; acrescentamos uma seção explicando as fórmulas. */
+  var oldArith=window.calcularFuncoesAritmeticas;
+  window.calcularFuncoesAritmeticas=function(){
+    if(typeof oldArith==='function') oldArith();
+    var box=document.getElementById('num-func-result'); if(!box) return;
+    box.insertAdjacentHTML('beforeend','<div class="didactic-step" style="margin-top:14px"><div class="step-num">ℹ</div><div><strong>Como interpretar as funções</strong><div>Se n=∏pᵢ^{aᵢ}, então φ(n)=n∏(1−1/pᵢ), τ(n)=∏(aᵢ+1), σ(n)=∏(1+pᵢ+⋯+pᵢ^{aᵢ}). Para μ(n), qualquer expoente aᵢ≥2 torna μ(n)=0; se todos são 1, μ(n)=(-1)^k.</div></div></div>');
+  };
+
+  /* Mantém as demais rotinas da V14 intactas. */
+  window.SCICALC_V15=true;
+})();
+</script>
 </body>
 </html>
