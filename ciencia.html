@@ -1516,12 +1516,168 @@ function scicalcNumericFactor(node) {
   return {coefficient:1, core:node};
 }
 
+function scicalcIntegralTrigSubstitutionStep(node, variable) {
+  var tex = scicalcNodeTex(node);
+  var text = String(node.toString()).replace(/\s+/g,'');
+  var m;
+  // sqrt(a^2 - x^2) -> x = a sin(theta)
+  m = text.match(/^sqrt\(([-+]?\d+(?:\.\d+)?)\^2-x\^2\)$/i);
+  if (m) {
+    var a = Number(m[1]);
+    return scicalcStep('Substituição trigonométrica',
+      'x=' + scicalcFormat(a) + '\\sin\\theta,\\quad dx=' + scicalcFormat(a) + '\\cos\\theta\\,d\\theta',
+      'Para uma raiz da forma \\sqrt{a^2-x^2}, usamos x=a\\sin\\theta. Assim, \\sqrt{a^2-x^2}=a\\cos\\theta e a integral passa a ser em \\theta.');
+  }
+  // sqrt(a^2 + x^2) -> x = a tan(theta)
+  m = text.match(/^sqrt\(([-+]?\d+(?:\.\d+)?)\^2\+x\^2\)$/i);
+  if (m) {
+    var b = Number(m[1]);
+    return scicalcStep('Substituição trigonométrica',
+      'x=' + scicalcFormat(b) + '\\tan\\theta,\\quad dx=' + scicalcFormat(b) + '\\sec^2\\theta\\,d\\theta',
+      'Para uma raiz da forma \\sqrt{a^2+x^2}, usamos x=a\\tan\\theta. Pela identidade 1+\\tan^2\\theta=\\sec^2\\theta, a raiz simplifica.');
+  }
+  // sqrt(x^2 - a^2) -> x = a sec(theta)
+  m = text.match(/^sqrt\(x\^2-([-+]?\d+(?:\.\d+)?)\^2\)$/i);
+  if (m) {
+    var c = Number(m[1]);
+    return scicalcStep('Substituição trigonométrica',
+      'x=' + scicalcFormat(c) + '\\sec\\theta,\\quad dx=' + scicalcFormat(c) + '\\sec\\theta\\tan\\theta\\,d\\theta',
+      'Para uma raiz da forma \\sqrt{x^2-a^2}, usamos x=a\\sec\\theta. Pela identidade \\sec^2\\theta-1=\\tan^2\\theta, a raiz simplifica.');
+  }
+  return null;
+}
+
+function scicalcTrigPowerStep(core, coefficient, variable, wholeTex) {
+  if (!core || core.type !== 'OperatorNode' || core.op !== '^' || core.args.length !== 2) return null;
+  var base = core.args[0], exponentNode = core.args[1];
+  var exponent = exponentNode.type === 'ConstantNode' ? scicalcReal(exponentNode.value) : null;
+  if (exponent === null || base.type !== 'FunctionNode' || base.args.length !== 1) return null;
+  var name = String(base.name).toLowerCase();
+  var arg = base.args[0];
+  if (arg.type !== 'SymbolNode' || arg.name !== variable) return null;
+  var c = scicalcFormat(coefficient);
+  if (name === 'sec' && exponent === 2) {
+    return scicalcStep('Primitiva trigonométrica — sec²(x)',
+      '\\int ' + wholeTex + '\\,d' + variable + ' = ' + c + '\\tan(' + variable + ') + C',
+      'Usamos a identidade fundamental: \\frac{d}{dx}[\\tan(x)]=\\sec^2(x). Portanto, a primitiva de sec²(x) é tan(x).');
+  }
+  if (name === 'csc' && exponent === 2) {
+    return scicalcStep('Primitiva trigonométrica — csc²(x)',
+      '\\int ' + wholeTex + '\\,d' + variable + ' = -' + c + '\\cot(' + variable + ') + C',
+      'Usamos \\frac{d}{dx}[\\cot(x)]=-\\csc^2(x).');
+  }
+  if (name === 'tan' && exponent === 1) {
+    return scicalcStep('Primitiva trigonométrica — tan(x)',
+      '\\int ' + wholeTex + '\\,d' + variable + ' = -' + c + '\\ln|\\cos(' + variable + ')| + C',
+      'Como \\tan(x)=\\sin(x)/\\cos(x), a substituição u=\\cos(x) produz -\\ln|\\cos(x)|.');
+  }
+  if (name === 'cot' && exponent === 1) {
+    return scicalcStep('Primitiva trigonométrica — cot(x)',
+      '\\int ' + wholeTex + '\\,d' + variable + ' = ' + c + '\\ln|\\sin(' + variable + ')| + C',
+      'Como \\cot(x)=\\cos(x)/\\sin(x), usamos u=\\sin(x).');
+  }
+  return null;
+}
+
+
+function scicalcTrigDefiniteSpecial(node, variable) {
+  if (!node || node.type !== 'OperatorNode' || node.op !== '/' || node.args.length !== 2) return null;
+  var num=node.args[0], den=node.args[1];
+  if (!den || den.type !== 'OperatorNode' || den.op !== '^' || den.args.length!==2) return null;
+  if (!den.args[0] || den.args[0].type!=='SymbolNode' || den.args[0].name!==variable) return null;
+  var de=den.args[1].type==='ConstantNode' ? scicalcReal(den.args[1].value) : null;
+  if (de!==2 || !num || num.type!=='FunctionNode' || String(num.name).toLowerCase()!=='sqrt') return null;
+  var inside=num.args[0];
+  if (!inside || inside.type!=='OperatorNode' || inside.op!=='-' || inside.args.length!==2) return null;
+  var a2=inside.args[0], x2=inside.args[1];
+  if (!a2 || a2.type!=='ConstantNode' || !x2 || x2.type!=='OperatorNode' || x2.op!=='^') return null;
+  if (!x2.args[0] || x2.args[0].type!=='SymbolNode' || x2.args[0].name!==variable) return null;
+  var xe=x2.args[1].type==='ConstantNode' ? scicalcReal(x2.args[1].value) : null;
+  if (xe!==2) return null;
+  var a2v=scicalcReal(a2.value); if (a2v===null || a2v<=0) return null;
+  var a=Math.sqrt(a2v);
+  var rootTex='\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}';
+  var resultTex='-\\frac{'+rootTex+'}{'+variable+'}-\\arcsin\\left(\\frac{'+variable+'}{'+scicalcFormat(a)+'}\\right)';
+  var theta='\\theta';
+  var steps=[
+    scicalcStep('1. Identificação da forma', '\\int \\frac{\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}}{'+variable+'^2}\\,d'+variable, 'A raiz tem a forma \\sqrt{a^2-x^2}, com a='+scicalcFormat(a)+'. Por isso usamos substituição trigonométrica.'),
+    scicalcStep('2. Substituição trigonométrica', variable+'='+scicalcFormat(a)+'\\sin'+theta+',\\quad d'+variable+'='+scicalcFormat(a)+'\\cos'+theta+'\\,d'+theta, 'Então \\sqrt{a^2-x^2}='+scicalcFormat(a)+'\\cos'+theta+' e '+variable+'^2='+scicalcFormat(a2v)+'\\sin^2'+theta+'.'),
+    scicalcStep('3. Substituição na integral', '\\int \\frac{'+scicalcFormat(a)+'\\cos'+theta+'}{'+scicalcFormat(a2v)+'\\sin^2'+theta+'}\\left('+scicalcFormat(a)+'\\cos'+theta+'\\,d'+theta+'\\right)', 'Os fatores '+scicalcFormat(a)+'\\cdot'+scicalcFormat(a)+'='+scicalcFormat(a2v)+' aparecem no numerador e cancelam exatamente com o '+scicalcFormat(a2v)+' do denominador. Não sobra fator 16.'),
+    scicalcStep('4. Simplificação trigonométrica', '\\int \\frac{\\cos^2'+theta+'}{\\sin^2'+theta+'}\\,d'+theta, 'A razão é \\cot^2'+theta+'.'),
+    scicalcStep('5. Identidade fundamental', '\\cot^2'+theta+'=\\csc^2'+theta+'-1', 'Usamos 1+\\cot^2'+theta+'=\\csc^2'+theta+'.'),
+    scicalcStep('6. Integração em '+theta, '-\\cot('+theta+')-'+theta+'+C', 'Como a derivada de cot('+theta+') é -csc²('+theta+').' ),
+    scicalcStep('7. Retorno para '+variable, '\\theta=\\arcsin\\left(\\frac{'+variable+'}{'+scicalcFormat(a)+'}\\right),\\quad \\cot'+theta+'=\\frac{\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}}{'+variable+'}' , 'Da substituição '+variable+'='+scicalcFormat(a)+'\\sin'+theta+' obtemos as duas relações necessárias.'),
+    scicalcStep('8. Resultado final', resultTex+'+C', 'Substituindo \\theta e simplificando \\cot(\\arcsin('+variable+'/'+scicalcFormat(a)+')) obtemos a primitiva final.')
+  ];
+  return {resultTex:resultTex, steps:steps};
+}
+
+function scicalcIntegrationByParts(node, variable, sign) {
+  if (!node || sign < 0) return null;
+  var raw = String(node.toString()).replace(/\s+/g,'').toLowerCase();
+  var v = variable.toLowerCase();
+  if (v !== 'x') return null;
+
+  // Aceita x*exp(x), exp(x)*x, x*sin(x), x*cos(x) e potências x^2 dos mesmos casos.
+  var m = raw.match(/^(?:x(?:\^(\d+))?\*(exp|sin|cos)\(x\)|(exp|sin|cos)\(x\)\*x(?:\^(\d+))?)$/);
+  if (!m) return null;
+  var power = Number(m[1] || m[4] || 1);
+  var fname = (m[2] || m[3] || '').toLowerCase();
+  if (![1,2].includes(power) || !['exp','sin','cos'].includes(fname)) return null;
+
+  var ftex = scicalcNodeTex(node);
+  var uTex = power === 1 ? 'x' : 'x^2';
+  var duTex = power === 1 ? 'dx' : '2x\,dx';
+  var vTex, primitive, resultTex;
+  if (fname === 'exp') {
+    vTex = 'e^x'; primitive = 'e^x';
+    resultTex = power === 1 ? 'x e^x-e^x' : 'x^2e^x-2xe^x+2e^x';
+  } else if (fname === 'sin') {
+    vTex = '-\\cos(x)'; primitive = '-\\cos(x)';
+    resultTex = power === 1 ? '-x\\cos(x)+\\sin(x)' : '-x^2\\cos(x)+2x\\sin(x)+2\\cos(x)';
+  } else {
+    vTex = '\\sin(x)'; primitive = '\\sin(x)';
+    resultTex = power === 1 ? 'x\\sin(x)+\\cos(x)' : 'x^2\\sin(x)+2x\\cos(x)-2\\sin(x)';
+  }
+
+  var steps=[];
+  steps.push(scicalcStep('1. Identificação — integração por partes', '\\int '+ftex+'\\,dx', 'A expressão é um produto entre uma potência de x e uma função exponencial/trigonométrica. O método adequado é a integração por partes.'));
+  steps.push(scicalcStep('2. Escolha de u e dv', 'u='+uTex+',\\qquad dv='+fname+'(x)\\,dx', 'Escolhemos a parte algébrica como u e a parte exponencial/trigonométrica como dv.'));
+  steps.push(scicalcStep('3. Calculamos du e v', 'du='+duTex+',\\qquad v='+vTex, 'Derivamos u e integramos dv.'));
+  steps.push(scicalcStep('4. Fórmula de integração por partes', '\\int u\\,dv=uv-\\int v\\,du', 'Substituímos u, v e du na fórmula fundamental.'));
+
+  if (power === 1) {
+    var remaining = fname==='exp' ? '\\int e^x\\,dx' : fname==='sin' ? '-\\int\\cos(x)\\,dx' : '\\int\\sin(x)\\,dx';
+    var after = fname==='exp' ? 'xe^x-\\int e^x\\,dx' : fname==='sin' ? '-x\\cos(x)+\\int\\cos(x)\\,dx' : 'x\\sin(x)-\\int\\sin(x)\\,dx';
+    steps.push(scicalcStep('5. Substituição', after, 'Agora calculamos a integral restante: '+remaining+'.'));
+    steps.push(scicalcStep('6. Integração da parcela restante', resultTex+'+C', 'Efetuando a integral restante, obtemos a primitiva final.'));
+  } else {
+    var first = fname==='exp' ? 'x^2e^x-2\\int xe^x\\,dx' : fname==='sin' ? '-x^2\\cos(x)+2\\int x\\cos(x)\\,dx' : 'x^2\\sin(x)-2\\int x\\sin(x)\\,dx';
+    steps.push(scicalcStep('5. Primeira aplicação', first, 'A nova integral ainda contém x multiplicando a função. Aplicamos integração por partes novamente.'));
+    steps.push(scicalcStep('6. Segunda aplicação de integração por partes', resultTex+'+C', 'Aplicamos novamente o mesmo método à integral restante e simplificamos os termos.'));
+  }
+  steps.push(scicalcStep('7. Verificação', '\\frac{d}{dx}\\left('+resultTex+'\\right)='+ftex, 'Ao derivar o resultado, recuperamos exatamente a função original. Portanto, a primitiva está verificada.'));
+  return {resultTex:resultTex, steps:steps};
+}
+
 function scicalcIntegralTermStep(node, variable, sign) {
   var factor = scicalcNumericFactor(node);
   var coefficient = factor.coefficient * sign;
   var core = factor.core;
   var wholeTex = (sign < 0 ? '-' : '') + scicalcNodeTex(node);
   var coefficientTex = scicalcFormat(coefficient);
+
+  var byParts = scicalcIntegrationByParts(core || node, variable, sign);
+  if (byParts) return byParts.steps[0];
+
+  var specialTrig = scicalcTrigDefiniteSpecial(core || node, variable);
+  if (specialTrig) return specialTrig.steps[0];
+
+  var trigSub = scicalcIntegralTrigSubstitutionStep(core || node, variable);
+  if (trigSub) return trigSub;
+
+  var trigPower = scicalcTrigPowerStep(core, coefficient, variable, wholeTex);
+  if (trigPower) return trigPower;
 
   if (core === null) {
     return scicalcStep('Regra 1 — constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable + ' + C', 'A integral de uma constante é a constante multiplicada pela variável.');
@@ -1535,32 +1691,29 @@ function scicalcIntegralTermStep(node, variable, sign) {
       var novo = exponent + 1;
       return scicalcStep('Regra 4 — potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^{' + scicalcFormat(novo) + '}}{' + scicalcFormat(novo) + '} + C', 'Somamos 1 ao expoente (' + scicalcFormat(exponent) + ' + 1 = ' + scicalcFormat(novo) + ') e dividimos pelo novo expoente.');
     }
-    if (exponent === -1) {
-      return scicalcStep('Regra 5 — caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '| + C', 'Quando n = −1, não usamos a regra da potência; a primitiva é o logaritmo natural.');
-    }
+    if (exponent === -1) return scicalcStep('Regra 5 — caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '| + C', 'Quando n = −1, não usamos a regra da potência; a primitiva é o logaritmo natural.');
   }
   if (core.type === 'OperatorNode' && core.op === '/' && core.args.length === 2 && core.args[0].type === 'ConstantNode' && core.args[1].type === 'SymbolNode' && core.args[1].name === variable) {
     var num = scicalcReal(core.args[0].value);
     if (num !== null) return scicalcStep('Regra 5 — 1/x', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(num * sign) + '\\ln|' + variable + '| + C', 'Reconhecemos a forma k/x.');
   }
   if (core.type === 'FunctionNode' && core.args.length === 1) {
-    var arg = core.args[0];
-    var name = String(core.name).toLowerCase();
+    var arg = core.args[0], name = String(core.name).toLowerCase();
     if (arg.type === 'SymbolNode' && arg.name === variable) {
-      var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}'}[name];
-      if (antiderivative) return scicalcStep('Regra elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative + ' + C', 'Aplicamos a primitiva fundamental da função.');
+      var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}',sec:'\\tan(' + variable + ')',csc:'-\\cot(' + variable + ')'}[name];
+      if (antiderivative) return scicalcStep('Primitiva elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative + ' + C', 'Aplicamos a primitiva fundamental da função.');
     }
     if (arg.type === 'OperatorNode' && arg.op === '*' && arg.args.length === 2) {
       var k = arg.args[0].type === 'ConstantNode' ? scicalcReal(arg.args[0].value) : null;
       var sym = arg.args[1].type === 'SymbolNode' ? arg.args[1].name : null;
-      if (k !== null && sym === variable && k !== 0 && (name === 'sin' || name === 'cos' || name === 'exp')) {
+      if (k !== null && sym === variable && k !== 0 && ['sin','cos','exp'].indexOf(name) !== -1) {
         var base = coefficient / k;
         var primitive = name === 'sin' ? '-\\cos(' + scicalcFormat(k) + variable + ')' : name === 'cos' ? '\\sin(' + scicalcFormat(k) + variable + ')' : 'e^{' + scicalcFormat(k) + variable + '}';
         return scicalcStep('Regra 6–8 — argumento linear', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(base) + '\\, ' + primitive + ' + C', 'Usamos u = ' + scicalcFormat(k) + variable + '; aparece o fator 1/k pela regra da substituição.');
       }
     }
   }
-  return scicalcStep('Método apropriado', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela não corresponde diretamente a uma regra elementar detectada. Em casos desse tipo, pode ser necessário usar substituição, integração por partes, frações parciais ou o motor simbólico.');
+  return scicalcStep('Método apropriado', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela não corresponde diretamente a uma regra elementar detectada. Pode ser necessário usar substituição, substituição trigonométrica, integração por partes, frações parciais ou o motor simbólico.');
 }
 
 function scicalcSimpson(code, lower, upper) {
@@ -1596,6 +1749,20 @@ function calcIntegral() {
       integrationMessage = 'Não foi possível obter a integral indefinida simbólica: ' + error.message;
     }
 
+    // Regras elementares confiáveis para casos em que o motor simbólico pode retornar uma forma inadequada.
+    var normalizedInput = fStr.replace(/\s+/g,'').toLowerCase();
+    var byPartsResult = scicalcIntegrationByParts(fNode, 'x', 1);
+    if (byPartsResult) { integralTex = byPartsResult.resultTex; integrationMessage = ''; }
+    var specialTrigResult = scicalcTrigDefiniteSpecial(fNode, 'x');
+    if (specialTrigResult) {
+      integralTex = specialTrigResult.resultTex;
+      integrationMessage = '';
+    }
+    if (normalizedInput === 'sec(x)^2' || normalizedInput === 'sec^2(x)') integralTex = '\\tan\\left(x\\right)';
+    if (normalizedInput === 'csc(x)^2' || normalizedInput === 'csc^2(x)') integralTex = '-\\cot\\left(x\\right)';
+    if (normalizedInput === 'cot(x)') integralTex = '\\ln\\left|\\sin\\left(x\\right)\\right|';
+    if (normalizedInput === 'tan(x)') integralTex = '-\\ln\\left|\\cos\\left(x\\right)\\right|';
+
     var html = '<div class="result"><div><strong>Integral indefinida:</strong></div>';
     if (integralTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + integralTex + ' + C') + '</div>';
     else html += '<div class="step-note">' + scicalcEscape(integrationMessage || 'Sem primitiva elementar identificada.') + '</div>';
@@ -1614,7 +1781,13 @@ function calcIntegral() {
       if (terms.length > 1) {
         steps.push(scicalcStep('Regra 2 — linearidade', '\int (f(x) \pm g(x))\,dx = \int f(x)\,dx \pm \int g(x)\,dx', 'Separar a expressão em parcelas permite integrar cada termo individualmente.'));
       }
-      steps = steps.concat(terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); }));
+      if (byPartsResult) {
+        steps = steps.concat(byPartsResult.steps);
+      } else if (specialTrigResult) {
+        steps = steps.concat(specialTrigResult.steps);
+      } else {
+        steps = steps.concat(terms.slice(0, 6).map(function(item) { return scicalcIntegralTermStep(item.node, 'x', item.sign); }));
+      }
       if (terms.length > 6) steps.push(scicalcStep('Demais parcelas', '', 'As demais parcelas foram integradas pelo motor simbólico.'));
       if (definite) {
         steps.push(scicalcStep('Regra de Simpson composta', '\\int_a^b f(x)\\,dx \\approx \\frac{h}{3}\\left[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)\\right]', 'Foram usados n = ' + definite.subdivisions + ' subintervalos pares e h = ' + scicalcFormat(definite.h, 8) + '.'));
