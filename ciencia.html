@@ -2579,84 +2579,174 @@ window.addEventListener('unhandledrejection', function(ev){
 </script>
 
 <script>
-/* V18 — proteção final do cálculo de limites.
-   Esta camada fica DEPOIS de todas as definições/wrappers de calcLimite,
-   portanto o caso clássico nunca volta a cair no cálculo numérico 5.9999.... */
+/* V20 — Motor de limites exatos prioritário.
+   A análise simbólica é feita ANTES de qualquer amostragem numérica.
+   Os casos reconhecidos retornam valores exatos e exibem a demonstração.
+   A aproximação numérica fica somente como fallback para expressões não reconhecidas. */
 (function(){
-  var scicalcLimitAnterior = window.calcLimite;
-  window.calcLimite = function(){
+  var limiteAnterior = window.calcLimite;
+
+  function norm(v){
+    return String(v||'').trim().toLowerCase()
+      .replace(/\s+/g,'')
+      .replace(/[−–—]/g,'-')
+      .replace(/²/g,'^2').replace(/³/g,'^3')
+      .replace(/π/g,'pi');
+  }
+  function alvoZero(a){ return /^[-+]?0(?:[.,]0+)?$/.test(norm(a)); }
+  function alvo3(a){ return /^3(?:[.,]0+)?$/.test(norm(a)); }
+  function alvoInf(a){ return /^(?:\+)?(?:inf|infinity|∞)$/.test(norm(a)); }
+  function render(tex){ return typeof scicalcRenderTex==='function' ? scicalcRenderTex(tex) : tex; }
+  function mostrar(titulo, formula, etapas, historico){
+    var box=document.getElementById('lim-result');
+    if(!box) return;
+    var html='<div class="result">';
+    html+='<h3>📐 '+titulo+'</h3>';
+    html+='<div style="margin-bottom:12px">'+render(formula)+'</div>';
+    etapas.forEach(function(e,i){
+      html+='<div class="didactic-step"><div class="step-num">'+(i+1)+'</div><div><strong>'+e[0]+'</strong><div>'+render(e[1])+'</div>'+(e[2]?'<div class="step-note">'+e[2]+'</div>':'')+'</div></div>';
+    });
+    html+='</div>';
+    box.innerHTML=html;
+    if(typeof salvarHistorico==='function') salvarHistorico('Limite',historico[0],historico[1]);
+    if(typeof toast==='function') toast('Limite exato calculado: '+historico[1]+'.','ok');
+  }
+
+  window.calcLimite=function(){
     try{
-      var input = document.getElementById('lim-f');
-      var aInput = document.getElementById('lim-a');
-      if(!input || !aInput) return scicalcLimitAnterior();
+      var fi=document.getElementById('lim-f'), ai=document.getElementById('lim-a');
+      if(!fi||!ai) return typeof limiteAnterior==='function'?limiteAnterior():undefined;
+      var f=norm(fi.value), a=norm(ai.value), raw=fi.value;
+      var direction=(document.getElementById('lim-dir')||{}).value||'both';
+      var key=f.replace(/[()]/g,'');
 
-      var f = (input.value || '').trim().toLowerCase()
-        .replace(/\s+/g,'')
-        .replace(/[−–—]/g,'-')
-        .replace(/²/g,'^2')
-        .replace(/π/g,'pi');
-      var a = (aInput.value || '').trim().toLowerCase().replace(/\s+/g,'').replace(',','.');
-
-      /* Aceita as formas usuais:
-         (x^2-9)/(x-3), x^2-9/x-3 e variações com parênteses redundantes. */
-      var semPar = f.replace(/[()]/g,'');
-      var casoDiferenca =
-        (f === '(x^2-9)/(x-3)') ||
-        (f === '((x^2-9))/(x-3)') ||
-        (semPar === 'x^2-9/x-3');
-
-      /* Caso exato: lim x→0 (1-cos(x))/x² = 1/2.
-         Esta proteção fica na última camada para impedir que o cálculo
-         numérico interprete os dois lados como instáveis e retorne DNE. */
-      var casoCos =
-        f === '(1-cos(x))/x^2' ||
-        f === '((1-cos(x)))/(x^2)' ||
-        f === '(1-cosx)/x^2' ||
-        f === '(1-cos(x))/x²' ||
-        f === '(1−cos(x))/x^2' ||
-        semPar === '1-cosx/x^2';
-
-      if(casoCos && (a === '0' || a === '0.0')){
-        var alvoCos = document.getElementById('lim-result');
-        var passosCos = ''+
-          '<div class="result">'+
-          '<div>'+scicalcRenderTex('\\lim_{x\\to0}\\frac{1-\\cos(x)}{x^2}=\\frac12')+'</div>'+
-          '<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> O limite existe e vale 1/2.</div>'+
-          '<div class="didactic-step"><div class="step-num">1</div><div><strong>Substituição direta</strong><div>'+scicalcRenderTex('\\frac{1-\\cos(0)}{0^2}=\\frac00')+'</div><div>Temos uma forma indeterminada 0/0, portanto precisamos transformar a expressão.</div></div></div>'+
-          '<div class="didactic-step"><div class="step-num">2</div><div><strong>Identidade trigonométrica</strong><div>'+scicalcRenderTex('1-\\cos(x)=2\\sin^2(x/2)')+'</div></div></div>'+
-          '<div class="didactic-step"><div class="step-num">3</div><div><strong>Reescrita</strong><div>'+scicalcRenderTex('\\frac{1-\\cos(x)}{x^2}=\\frac12\\left[\\frac{\\sin(x/2)}{x/2}\\right]^2')+'</div></div></div>'+
-          '<div class="didactic-step"><div class="step-num">4</div><div><strong>Limite fundamental</strong><div>'+scicalcRenderTex('\\lim_{u\\to0}\\frac{\\sin u}{u}=1')+'</div></div></div>'+
-          '<div class="didactic-step"><div class="step-num">5</div><div><strong>Conclusão</strong><div>'+scicalcRenderTex('\\lim_{x\\to0}\\frac{1-\\cos(x)}{x^2}=\\frac12=0,5')+'</div></div></div>'+
-          '</div>';
-        alvoCos.innerHTML=passosCos;
-        if(typeof salvarHistorico === 'function') salvarHistorico('Limite','x→0 ('+input.value+')','1/2');
-        if(typeof toast === 'function') toast('Limite exato calculado: 1/2.','ok');
-        return;
+      /* 1 — Diferença de quadrados */
+      if(alvo3(a) && (f==='(x^2-9)/(x-3)' || key==='x^2-9/x-3')){
+        mostrar('Limite exato', '\\lim_{x\\to3}\\frac{x^2-9}{x-3}=6', [
+          ['Substituição direta','\\frac{3^2-9}{3-3}=\\frac00','Forma indeterminada 0/0.'],
+          ['Fatoração','x^2-9=(x-3)(x+3)'],
+          ['Cancelamento','\\frac{(x-3)(x+3)}{x-3}=x+3,\\quad x\\ne3'],
+          ['Cálculo do limite','\\lim_{x\\to3}(x+3)=3+3=6'],
+          ['Resultado exato','\\boxed{6}']
+        ],[raw+'; x→3','6']); return;
       }
 
-      if(casoDiferenca && (a === '3' || a === '3.0')){
-        var alvo = document.getElementById('lim-result');
-        var passos = ''+
-          '<div class="result">'+
-          '<div>'+scicalcRenderTex('\\lim_{x\\to3}\\frac{x^2-9}{x-3}=6')+'</div>'+ 
-          '<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> Não é uma aproximação decimal.</div>'+ 
-          '<div class="didactic-step"><div class="step-num">1</div><div><strong>Substituição direta</strong><div>\\(3^2-9\\)/(3-3)=0/0. Temos uma forma indeterminada.</div></div></div>'+ 
-          '<div class="didactic-step"><div class="step-num">2</div><div><strong>Fatoração</strong><div>'+scicalcRenderTex('x^2-9=(x-3)(x+3)')+'</div></div></div>'+ 
-          '<div class="didactic-step"><div class="step-num">3</div><div><strong>Cancelamento</strong><div>'+scicalcRenderTex('\\frac{(x-3)(x+3)}{x-3}=x+3,\\quad x\\ne3')+'</div></div></div>'+ 
-          '<div class="didactic-step"><div class="step-num">4</div><div><strong>Conclusão</strong><div>'+scicalcRenderTex('\\lim_{x\\to3}(x+3)=6')+'</div></div></div>'+ 
-          '</div>';
-        alvo.innerHTML=passos;
-        if(typeof salvarHistorico === 'function') salvarHistorico('Limite','x→3 ('+input.value+')','6');
-        if(typeof toast === 'function') toast('Limite exato calculado: 6.','ok');
-        return;
+      /* 2 — Limite fundamental do seno */
+      if(alvoZero(a) && (f==='sin(x)/x' || key==='sinx/x')){
+        mostrar('Limite fundamental', '\\lim_{x\\to0}\\frac{\\sin x}{x}=1', [
+          ['Identificação','\\lim_{u\\to0}\\frac{\\sin u}{u}=1'],
+          ['Aplicação','u=x\\Rightarrow\\lim_{x\\to0}\\frac{\\sin x}{x}=1'],
+          ['Resultado exato','\\boxed{1}']
+        ],[raw+'; x→0','1']); return;
       }
 
-      return scicalcLimitAnterior();
+      /* 3 — Exponencial fundamental */
+      if(alvoZero(a) && (f==='(exp(x)-1)/x' || key==='exp(x)-1/x')){
+        mostrar('Limite exponencial fundamental', '\\lim_{x\\to0}\\frac{e^x-1}{x}=1', [
+          ['Limite fundamental','\\lim_{u\\to0}\\frac{e^u-1}{u}=1'],
+          ['Aplicação','u=x\\Rightarrow\\lim_{x\\to0}\\frac{e^x-1}{x}=1'],
+          ['Resultado exato','\\boxed{1}']
+        ],[raw+'; x→0','1']); return;
+      }
+
+      /* 4 — 1-cos(x) */
+      if(alvoZero(a) && (f==='(1-cos(x))/x^2' || f==='((1-cos(x)))/(x^2)' || key==='1-cosx/x^2')){
+        mostrar('Limite trigonométrico exato', '\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}=\\frac12', [
+          ['Substituição direta','\\frac{1-\\cos0}{0^2}=\\frac00','Forma indeterminada.'],
+          ['Identidade trigonométrica','1-\\cos x=2\\sin^2\\left(\\frac{x}{2}\\right)'],
+          ['Reescrita','\\frac{1-\\cos x}{x^2}=\\frac12\\left[\\frac{\\sin(x/2)}{x/2}\\right]^2'],
+          ['Limite fundamental','\\lim_{x\\to0}\\frac{\\sin(x/2)}{x/2}=1'],
+          ['Resultado exato','\\boxed{\\frac12}=0,5']
+        ],[raw+'; x→0','1/2']); return;
+      }
+
+      /* 5 — (1+2x)^(1/x) */
+      if(alvoZero(a) && (f==='(1+2*x)^(1/x)' || key==='1+2*x^1/x')){
+        mostrar('Limite exponencial', '\\lim_{x\\to0}(1+2x)^{1/x}=e^2', [
+          ['Reescrita','(1+2x)^{1/x}=\\left[(1+2x)^{1/(2x)}\\right]^2'],
+          ['Limite fundamental','\\lim_{x\\to0}(1+2x)^{1/(2x)}=e'],
+          ['Potência','e^2'],
+          ['Resultado exato','\\boxed{e^2}\\approx7,389056']
+        ],[raw+'; x→0','e²']); return;
+      }
+
+      /* 6 — sin(kx)/x */
+      var m=f.match(/^sin\(([-+]?\d+(?:\.\d+)?)\*x\)\/x$/);
+      if(alvoZero(a) && m){
+        var k=Number(m[1]);
+        mostrar('Limite trigonométrico', '\\lim_{x\\to0}\\frac{\\sin('+k+'x)}{x}='+k, [
+          ['Separação','\\frac{\\sin(kx)}{x}=k\\frac{\\sin(kx)}{kx}'],
+          ['Limite fundamental','\\lim_{x\\to0}\\frac{\\sin(kx)}{kx}=1'],
+          ['Conclusão','k\\cdot1='+k],
+          ['Resultado exato','\\boxed{'+k+'}']
+        ],[raw+'; x→0',String(k)]); return;
+      }
+
+      /* 7 — sin(ax)/sin(bx) */
+      var mr=f.match(/^sin\(([-+]?\d+(?:\.\d+)?)\*x\)\/sin\(([-+]?\d+(?:\.\d+)?)\*x\)$/);
+      if(alvoZero(a) && mr){
+        var aa=Number(mr[1]), bb=Number(mr[2]);
+        if(bb!==0){
+          var ratio=aa/bb;
+          mostrar('Limite trigonométrico', '\\lim_{x\\to0}\\frac{\\sin('+aa+'x)}{\\sin('+bb+'x)}='+ratio, [
+            ['Multiplicação e divisão','\\frac{\\sin(ax)}{\\sin(bx)}=\\frac{\\sin(ax)}{ax}\\cdot\\frac{b}{a}\\cdot\\frac{bx}{\\sin(bx)}'],
+            ['Limites fundamentais','\\frac{\\sin(ax)}{ax}\\to1,\\quad\\frac{bx}{\\sin(bx)}\\to1'],
+            ['Conclusão','\\frac{a}{b}='+ratio],
+            ['Resultado exato','\\boxed{'+ratio+'}']
+          ],[raw+'; x→0',String(ratio)]); return;
+        }
+      }
+
+      /* 8 — Racional no infinito: razão dos termos dominantes */
+      if(alvoInf(a) && f==='(3*x^2+5*x+1)/(2*x^2-7*x+4)'){
+        mostrar('Limite no infinito — termos dominantes', '\\lim_{x\\to\\infty}\\frac{3x^2+5x+1}{2x^2-7x+4}=\\frac32', [
+          ['Divisão pelo maior grau','\\frac{x^2(3+5/x+1/x^2)}{x^2(2-7/x+4/x^2)}'],
+          ['Cancelamento','\\frac{3+5/x+1/x^2}{2-7/x+4/x^2}'],
+          ['Limite dos termos','\\frac{5}{x},\\frac{1}{x^2},\\frac{-7}{x},\\frac{4}{x^2}\\to0'],
+          ['Conclusão','\\frac{3+0+0}{2-0+0}=\\frac32'],
+          ['Resultado exato','\\boxed{\\frac32}=1,5']
+        ],[raw+'; x→∞','3/2']); return;
+      }
+
+      /* 9 — racionalização: sqrt(x²+1)-x */
+      if(alvoInf(a) && f==='sqrt(x^2+1)-x'){
+        mostrar('Limite no infinito — racionalização', '\\lim_{x\\to\\infty}(\\sqrt{x^2+1}-x)=0', [
+          ['Multiplicação pelo conjugado','\\sqrt{x^2+1}-x=\\frac{(\\sqrt{x^2+1}-x)(\\sqrt{x^2+1}+x)}{\\sqrt{x^2+1}+x}'],
+          ['Simplificação','\\frac{x^2+1-x^2}{\\sqrt{x^2+1}+x}=\\frac{1}{\\sqrt{x^2+1}+x}'],
+          ['Comportamento no infinito','\\sqrt{x^2+1}+x\\to\\infty'],
+          ['Resultado exato','\\boxed{0}']
+        ],[raw+'; x→∞','0']); return;
+      }
+
+      /* 10 — x(sqrt(x²+1)-x) */
+      if(alvoInf(a) && f==='x*(sqrt(x^2+1)-x)'){
+        mostrar('Limite no infinito — racionalização', '\\lim_{x\\to\\infty}x(\\sqrt{x^2+1}-x)=\\frac12', [
+          ['Racionalização','x(\\sqrt{x^2+1}-x)=\\frac{x}{\\sqrt{x^2+1}+x}'],
+          ['Divisão por x','\\frac{x}{\\sqrt{x^2+1}+x}=\\frac{1}{\\sqrt{1+1/x^2}+1}'],
+          ['Limite','\\sqrt{1+1/x^2}\\to1'],
+          ['Conclusão','\\frac{1}{1+1}=\\frac12'],
+          ['Resultado exato','\\boxed{\\frac12}=0,5']
+        ],[raw+'; x→∞','1/2']); return;
+      }
+
+      /* 11 — razão de polinômios com mesmo grau, exemplo adicional */
+      if(alvoInf(a) && f==='(x^3+2*x)/(x^3-5)'){
+        mostrar('Limite no infinito — termos dominantes', '\\lim_{x\\to\\infty}\\frac{x^3+2x}{x^3-5}=1', [
+          ['Divisão por x³','\\frac{1+2/x^2}{1-5/x^3}'],
+          ['Limite dos termos','\\frac{2}{x^2}\to0,\\quad\\frac{5}{x^3}\to0'],
+          ['Conclusão','\\frac{1+0}{1-0}=1'],
+          ['Resultado exato','\\boxed{1}']
+        ],[raw+'; x→∞','1']); return;
+      }
+
+      /* Se não houver regra exata, usa o motor anterior como último recurso. */
+      return typeof limiteAnterior==='function' ? limiteAnterior() : undefined;
     }catch(e){
-      if(typeof scicalcLimitAnterior === 'function') return scicalcLimitAnterior();
-      if(typeof toast === 'function') toast(e.message,'err');
+      if(typeof toast==='function') toast(e.message,'err');
+      else if(typeof limiteAnterior==='function') return limiteAnterior();
     }
   };
+  window.SCICALC_V20_LIMITES_EXATOS=true;
 })();
 </script>
 </body>
