@@ -311,9 +311,10 @@
           <option value="y">y (∂/∂y)</option>
         </select>
       </div>
-      <div><label>Avaliar Ponto (x,y) Opcional</label><input id="par-pt" placeholder="Ex: 1, 2" value="1, 2"></div>
+      <div><label>Ponto (x,y)</label><input id="par-pt" placeholder="Ex: 1, 2" value="1, 2"></div>
     </div>
     <label class="didactic-toggle"><input id="par-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
+    <label class="didactic-toggle"><input id="par-evaluate" type="checkbox"> Avaliar a derivada parcial no ponto informado</label>
     <button class="btn" onclick="calcParcial()">Calcular Parcial</button>
     <div id="par-result" aria-live="polite"></div>
   </div>
@@ -2514,12 +2515,43 @@ window.addEventListener('unhandledrejection', function(ev){
   var oldPartial=window.calcParcial;
   window.calcParcial=function(){
     try{
-      scicalcRequire('math'); var fStr=str('par-f'), variable=str('par-var'), held=variable==='x'?'y':'x', node=scicalcParseNode(fStr,'Função'), d=math.derivative(node,variable);
-      var html='<div class="result"><div>'+scicalcRenderTex('f(x,y)='+texNode(node))+'</div><div style="margin-top:10px;color:var(--primary)">'+scicalcRenderTex('\\frac{\\partial f}{\\partial '+variable+'}='+texNode(d))+'</div>';
-      if(document.getElementById('par-steps').checked){var steps=[];steps.push(step('1. Variável de diferenciação','\\frac{\\partial}{\\partial '+variable+'}\\left[f('+variable+','+held+')\\right]','Ao derivar em relação a '+variable+', tratamos '+held+' como constante.'));steps=steps.concat(scicalcDerivativeSteps(node,variable,true));steps.push(step('Verificação', '\\frac{\\partial}{\\partial '+variable+'}\\left['+texNode(node)+'\\right]='+texNode(d),'A expressão final é a derivada parcial calculada pelo sistema.'));html+=did('Passo a passo da derivada parcial','A variável que não está sendo derivada permanece constante.',steps);}
-      html+='</div>';document.getElementById('par-result').innerHTML=html;salvarHistorico('Derivada parcial','∂/∂'+variable+' ('+fStr+')',d.toString());toast('Derivada parcial calculada.','ok');
+      scicalcRequire('math');
+      var fStr=str('par-f'), variable=str('par-var'), held=variable==='x'?'y':'x';
+      var node=scicalcParseNode(fStr,'Função'), d=math.derivative(node,variable);
+      var html='<div class="result"><div>'+scicalcRenderTex('f(x,y)='+texNode(node))+'</div>'
+        +'<div style="margin-top:10px;color:var(--primary)">'+scicalcRenderTex('\\frac{\\partial f}{\\partial '+variable+'}='+texNode(d))+'</div>';
+
+      var evaluateBox=document.getElementById('par-evaluate');
+      var pointRaw=document.getElementById('par-pt').value.trim();
+      if(evaluateBox && evaluateBox.checked){
+        if(!pointRaw) throw new Error('Informe o ponto (x,y) para avaliar a derivada parcial.');
+        var point=scicalcPoint(pointRaw);
+        var value=scicalcEvaluate(d.compile(), {x:point[0], y:point[1]}, 'A derivada parcial no ponto informado');
+        html+='<div style="margin-top:14px;padding:12px;border:1px solid var(--ok);border-radius:10px">'
+          +'<div style="color:var(--ok);font-weight:700;margin-bottom:6px">Valor da derivada parcial no ponto</div>'
+          +scicalcRenderTex('\\left.\\frac{\\partial f}{\\partial '+variable+'}\\right|_{('+scicalcFormat(point[0])+','+scicalcFormat(point[1])+')}='+scicalcFormat(value))
+          +'</div>';
+      }
+
+      if(document.getElementById('par-steps').checked){
+        var steps=[];
+        steps.push(step('1. Variável de diferenciação','\\frac{\\partial}{\\partial '+variable+'}\\left[f('+variable+','+held+')\\right]','Ao derivar em relação a '+variable+', tratamos '+held+' como constante.'));
+        steps=steps.concat(scicalcDerivativeSteps(node,variable,true));
+        steps.push(step('Verificação','\\frac{\\partial}{\\partial '+variable+'}\\left['+texNode(node)+'\\right]='+texNode(d),'A expressão final é a derivada parcial calculada simbolicamente.'));
+        if(evaluateBox && evaluateBox.checked){
+          var p=scicalcPoint(pointRaw);
+          var val=scicalcEvaluate(d.compile(),{x:p[0],y:p[1]},'A derivada parcial no ponto informado');
+          steps.push(step('Avaliação no ponto','\\left.\\frac{\\partial f}{\\partial '+variable+'}\\right|_{('+scicalcFormat(p[0])+','+scicalcFormat(p[1])+')}='+scicalcFormat(val),'Substituímos as coordenadas do ponto na expressão da derivada parcial.'));
+        }
+        html+=did('Passo a passo da derivada parcial','A variável que não está sendo derivada permanece constante.',steps);
+      }
+      html+='</div>';
+      document.getElementById('par-result').innerHTML=html;
+      salvarHistorico('Derivada parcial','∂/∂'+variable+' ('+fStr+')',d.toString());
+      toast(evaluateBox && evaluateBox.checked ? 'Derivada parcial calculada e avaliada no ponto.' : 'Derivada parcial calculada.','ok');
     }catch(e){toast(e.message,'err');}
   };
+
 
   var oldLimit=window.calcLimite;
   window.calcLimite=function(){
