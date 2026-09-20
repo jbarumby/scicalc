@@ -986,66 +986,103 @@ function plotar3D() {
 function calcEDO() {
   try {
     const fStr = str('edo-f');
-    const fCode = math.parse(fStr).compile();
+    const fNode = math.parse(fStr);
+    const fCode = fNode.compile();
     const x0 = num('edo-x0'), y0 = num('edo-y0'), xf = num('edo-xf');
-    const N = Math.max(10, Math.floor(num('edo-n')));
-    
+    const N = Math.max(1, Math.floor(num('edo-n')));
+    if(!Number.isFinite(x0)||!Number.isFinite(y0)||!Number.isFinite(xf)||x0===xf) throw new Error('Informe x₀, y₀ e x final válidos e diferentes.');
     const h = (xf-x0)/N;
     const xs = [x0], ys = [y0];
-    let x = x0, y = y0;
-    
-    for(let i=0; i<N; i++) {
-      const k1 = fCode.evaluate({x:x, y:y});
-      const k2 = fCode.evaluate({x:x+h/2, y:y+h*k1/2});
-      const k3 = fCode.evaluate({x:x+h/2, y:y+h*k2/2});
-      const k4 = fCode.evaluate({x:x+h, y:y+h*k3});
-      y += (h/6)*(k1 + 2*k2 + 2*k3 + k4);
-      x += h;
+    let x=x0, y=y0;
+    const rows=[];
+    for(let i=0;i<N;i++){
+      const yBefore=y, xBefore=x;
+      const k1=fCode.evaluate({x:xBefore,y:yBefore});
+      const y2=yBefore+h*k1/2, x2=xBefore+h/2;
+      const k2=fCode.evaluate({x:x2,y:y2});
+      const y3=yBefore+h*k2/2, x3=xBefore+h/2;
+      const k3=fCode.evaluate({x:x3,y:y3});
+      const y4=yBefore+h*k3, x4=xBefore+h;
+      const k4=fCode.evaluate({x:x4,y:y4});
+      const incr=(h/6)*(k1+2*k2+2*k3+k4);
+      y=yBefore+incr; x=xBefore+h;
       xs.push(x); ys.push(y);
+      if(i<8 || i===N-1) rows.push({i:i+1,x:xBefore,y:yBefore,k1,k2,k3,k4,incr,yNext:y});
     }
-    
-    document.getElementById('edo-result').innerHTML = `<div class="result">
-      <div>${tex(`y' = ${math.parse(fStr).toTex()}`)}</div>
-      <div style="margin-top:8px">${texInline(`y(${x0}) = ${y0}`)} &nbsp; ➡ &nbsp; <strong style="color:var(--primary)">${texInline(`y(${xf.toFixed(2)}) \\approx ${ys[ys.length-1].toFixed(6)}`)}</strong></div>
-    </div>`;
-    
-    Plotly.newPlot('edo-plot', [{x:xs, y:ys, name:'Solução y(x)', line:{color:'#4f46e5',width:3}}], getPlotLayout({title:'Solução EDO (RK4)', xaxis:{title:'x'}, yaxis:{title:'y'}}), {responsive:true});
-    salvarHistorico('EDO RK4', `y'=${fStr}`, `y(${xf}) ≈ ${ys[ys.length-1].toFixed(4)}`);
-  } catch(e) { toast(e.message,'err'); }
+    const fmt=v=>Number(v.toFixed(10)).toString();
+    let table=`<div class="limit-sides"><div class="limit-side"><strong>Tabela detalhada do RK4</strong><table class="step-table"><thead><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>k₁</th><th>k₂</th><th>k₃</th><th>k₄</th><th>Δy</th><th>yᵢ₊₁</th></tr></thead><tbody>`;
+    table += rows.map(r=>`<tr><td>${r.i}</td><td>${fmt(r.x)}</td><td>${fmt(r.y)}</td><td>${fmt(r.k1)}</td><td>${fmt(r.k2)}</td><td>${fmt(r.k3)}</td><td>${fmt(r.k4)}</td><td>${fmt(r.incr)}</td><td>${fmt(r.yNext)}</td></tr>`).join('');
+    table += `</tbody></table></div></div>`;
+    const first=rows[0];
+    const steps=[
+      `1. Identificamos a EDO na forma <strong>y' = f(x,y)</strong>: ${tex(String.raw`y' = ${fNode.toTex()}`)}.`,
+      `2. Condição inicial: ${texInline(String.raw`x_0=${x0}`)} e ${texInline(String.raw`y_0=${y0}`)}.`,
+      `3. Número de passos: ${N}. Logo, o tamanho do passo é ${texInline(String.raw`h=(x_f-x_0)/N=${fmt(h)}`)}.`,
+      `4. Método utilizado: <strong>Runge–Kutta de 4ª ordem (RK4)</strong>. Em cada passo calculamos quatro inclinações.`,
+      `5. No primeiro passo: ${texInline(String.raw`k_1=f(x_0,y_0)=${fmt(first.k1)}`)}.`,
+      `6. Segunda inclinação: ${texInline(String.raw`k_2=f(x_0+h/2,\,y_0+h k_1/2)=${fmt(first.k2)}`)}.`,
+      `7. Terceira inclinação: ${texInline(String.raw`k_3=f(x_0+h/2,\,y_0+h k_2/2)=${fmt(first.k3)}`)}.`,
+      `8. Quarta inclinação: ${texInline(String.raw`k_4=f(x_0+h,\,y_0+h k_3)=${fmt(first.k4)}`)}.`,
+      `9. Atualização: ${texInline(String.raw`y_1=y_0+\frac{h}{6}(k_1+2k_2+2k_3+k_4)=${fmt(first.yNext)}`)}.`,
+      `10. Repetimos o mesmo processo até ${texInline(String.raw`x=${xf}`)}. A tabela mostra os primeiros passos e o último passo.`,
+      `11. Resultado numérico: ${texInline(String.raw`y(${xf})\approx${fmt(y)}`)}.`
+    ];
+    document.getElementById('edo-result').innerHTML=`<div class="result"><h3>📚 Resolução passo a passo — RK4</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}${table}</div>`;
+    Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'Solução y(x)',line:{width:3}}],getPlotLayout({title:'Solução EDO (RK4)',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true});
+    salvarHistorico('EDO RK4',`y'=${fStr}`,`y(${xf}) ≈ ${fmt(y)}`);
+  } catch(e){ toast(e.message,'err'); }
 }
 
 // ============ FOURIER ============
 function calcFourier() {
   try {
-    const fStr = str('four-f');
-    const fCode = math.parse(fStr).compile();
-    const tmin = num('four-tmin'), tmax = num('four-tmax');
-    const N = Math.floor(num('four-n'));
-    
-    const dt = (tmax-tmin)/N;
-    const mag = new Array(N/2).fill(0);
-    const freqs = new Array(N/2).fill(0);
-    
-    const signal = [];
-    for(let n=0; n<N; n++) signal.push(fCode.evaluate({t: tmin + n*dt}) || 0);
-    
-    for(let k=0; k<N/2; k++) {
-      let sR = 0, sI = 0;
-      for(let n=0; n<N; n++) {
-        const a = -2 * Math.PI * k * n / N;
-        sR += signal[n] * Math.cos(a);
-        sI += signal[n] * Math.sin(a);
-      }
-      mag[k] = (2/N) * Math.sqrt(sR*sR + sI*sI);
-      freqs[k] = k / (N*dt);
+    const fStr=str('four-f');
+    const fNode=math.parse(fStr), fCode=fNode.compile();
+    const tmin=num('four-tmin'), tmax=num('four-tmax');
+    const N=Math.floor(num('four-n'));
+    if(!Number.isFinite(N)||N<4||N%2!==0) throw new Error('O número de amostras N deve ser par e ≥ 4.');
+    if(!(tmax>tmin)) throw new Error('O intervalo deve satisfazer t máximo > t mínimo.');
+    const dt=(tmax-tmin)/N;
+    const times=[], signal=[];
+    for(let n=0;n<N;n++){ const t=tmin+n*dt; times.push(t); signal.push(Number(fCode.evaluate({t}))||0); }
+    const K=N/2;
+    const frequencies=[], magnitudes=[], coeffRows=[];
+    let a0sum=0;
+    for(let n=0;n<N;n++) a0sum+=signal[n];
+    const a0=(2/N)*a0sum;
+    for(let k=0;k<K;k++){
+      let re=0, im=0;
+      for(let n=0;n<N;n++){ const ang=2*Math.PI*k*n/N; re+=signal[n]*Math.cos(ang); im-=signal[n]*Math.sin(ang); }
+      re/=N; im/=N;
+      let amp=2*Math.sqrt(re*re+im*im);
+      if(k===0) amp=Math.abs(a0/2);
+      frequencies.push(k/(N*dt)); magnitudes.push(amp);
+      if(k<12) coeffRows.push({k,f:frequencies[k],re,im,amp});
     }
-    
-    document.getElementById('four-result').innerHTML = `<div class="result">
-      <div>Espectro de Magnitudes (DFT) calculado com sucesso para <strong>${N} amostras</strong>.</div>
-    </div>`;
-    
-    Plotly.newPlot('four-plot', [{x:freqs, y:mag, type:'scatter', mode:'lines', name:'Magnitude', fill:'tozeroy', line:{color:'#06b6d4'}}], getPlotLayout({title:'Transformada Discreta de Fourier', xaxis:{title:'Frequência (Hz)'}, yaxis:{title:'Magnitude'}}), {responsive:true});
-  } catch(e) { toast(e.message,'err'); }
+    const fmt=v=>Number(v.toFixed(8)).toString();
+    const sampleRows=times.slice(0,Math.min(8,N)).map((t,i)=>`<tr><td>${i}</td><td>${fmt(t)}</td><td>${fmt(signal[i])}</td></tr>`).join('');
+    const coeffTable=coeffRows.map(r=>`<tr><td>${r.k}</td><td>${fmt(r.f)}</td><td>${fmt(r.re)}</td><td>${fmt(r.im)}</td><td>${fmt(r.amp)}</td></tr>`).join('');
+    const steps=[
+      `1. Função/sinal informado: ${tex(String.raw`f(t)=${fNode.toTex()}`)}.`,
+      `2. Intervalo de análise: ${texInline(String.raw`t\in[${tmin},${tmax}]`)}.`,
+      `3. Número de amostras: ${N}. Como ${texInline(String.raw`N`)} é par, calculamos ${K} componentes até a metade do espectro.`,
+      `4. Passo temporal: ${texInline(String.raw`\Delta t=(t_{max}-t_{min})/N=${fmt(dt)}`)}.`,
+      `5. Amostragem: calculamos ${texInline(String.raw`t_n=t_{min}+n\Delta t`)} e avaliamos ${texInline(String.raw`f(t_n)`)} para cada ${texInline(String.raw`n=0,1,\ldots,N-1`)}.`,
+      `6. Para cada frequência discreta ${texInline(String.raw`k`)}, calculamos as partes real e imaginária da DFT: ${texInline(String.raw`Re_k=\frac1N\sum f(t_n)\cos(2\pi kn/N)`)} e ${texInline(String.raw`Im_k=-\frac1N\sum f(t_n)\sin(2\pi kn/N)`)}.`,
+      `7. A amplitude é obtida por ${texInline(String.raw`A_k=2\sqrt{Re_k^2+Im_k^2}`)}; para ${texInline(String.raw`k=0`)}, usamos a componente média.`,
+      `8. A frequência associada é ${texInline(String.raw`f_k=k/(N\Delta t)`)}.`,
+      `9. Resultado: foram calculadas ${K} componentes espectrais e o gráfico mostra o sinal amostrado e seu espectro.`
+    ];
+    let html=`<div class="result"><h3>📚 Transformada de Fourier — passo a passo</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}`;
+    html+=`<div class="limit-sides"><div class="limit-side"><strong>Primeiras amostras</strong><table class="step-table"><thead><tr><th>n</th><th>tₙ</th><th>f(tₙ)</th></tr></thead><tbody>${sampleRows}</tbody></table></div><div class="limit-side"><strong>Primeiros coeficientes</strong><table class="step-table"><thead><tr><th>k</th><th>fₖ</th><th>Re</th><th>Im</th><th>Aₖ</th></tr></thead><tbody>${coeffTable}</tbody></table></div></div>`;
+    html+=`<div style="margin-top:12px"><strong>Componente média:</strong> ${texInline(String.raw`a_0/2=${fmt(a0/2)}`)}</div></div>`;
+    document.getElementById('four-result').innerHTML=html;
+    Plotly.newPlot('four-plot',[
+      {x:times,y:signal,type:'scatter',mode:'lines',name:'Sinal f(t)',xaxis:'x',yaxis:'y'},
+      {x:frequencies,y:magnitudes,type:'scatter',mode:'lines+markers',name:'Amplitude',xaxis:'x2',yaxis:'y2'}
+    ],getPlotLayout({title:'Sinal e espectro de Fourier (DFT)',grid:{rows:2,columns:1,pattern:'independent'},height:620,xaxis:{title:'t'},yaxis:{title:'f(t)'},xaxis2:{title:'Frequência'},yaxis2:{title:'Amplitude'}}),{responsive:true});
+    salvarHistorico('Fourier (DFT)',fStr,`${N} amostras; ${K} componentes`);
+  } catch(e){ toast(e.message,'err'); }
 }
 
 // ============ TEORIA DOS NÚMEROS ============
