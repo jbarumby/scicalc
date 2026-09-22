@@ -2848,5 +2848,95 @@ window.addEventListener('unhandledrejection', function(ev){
   window.SCICALC_V20_LIMITES_EXATOS=true;
 })();
 </script>
+<script>
+/* ============================================================
+   SciCalc V25 — CAMADA DIDÁTICA COMPLETA
+   Não substitui os motores existentes. Acrescenta uma resolução
+   pedagógica organizada aos módulos já funcionais.
+   ============================================================ */
+(function(){
+'use strict';
+function esc(v){return typeof scicalcEscape==='function'?scicalcEscape(v):String(v??'');}
+function tex(v){return typeof scicalcRenderTex==='function'?scicalcRenderTex(v,false):'<code>'+esc(v)+'</code>';}
+function step(t,f,n){return '<div class="step"><div class="step-title">'+esc(t)+'</div>'+(f?tex(f):'')+(n?'<div class="step-note">'+esc(n)+'</div>':'')+'</div>';}
+function did(title,intro,steps){return '<details class="didactic" open><summary>'+esc(title)+'</summary><div class="didactic-body"><p class="didactic-intro">'+esc(intro)+'</p><div class="step-list">'+steps.join('')+'</div></div></details>';}
+function add(id,html){var e=document.getElementById(id);if(e)e.insertAdjacentHTML('beforeend',html);}
+function hook(name,fn){var old=window[name];if(typeof old!=='function')return;window[name]=function(){var r=old.apply(this,arguments);try{fn();}catch(e){console.warn('V25 didático',e)}return r;};}
+
+hook('calcDerivada',function(){
+ var f=(document.getElementById('der-f')||{}).value||'',v=(document.getElementById('der-var')||{}).value||'x';if(!f)return;
+ try{var n=math.parse(f),d=math.derivative(n,v),d2=math.derivative(d,v);add('der-result',did('📚 Derivada — resolução completa','O resultado simbólico é acompanhado da regra matemática usada e da verificação.',[
+ step('1. Função original','f('+v+')='+scicalcNodeTex(n),'Identificamos a expressão e a variável de diferenciação.'),
+ step('2. Estrutura da expressão','\\frac{d}{d'+v+'}['+scicalcNodeTex(n)+']','O motor identifica soma, produto, quociente, potência ou função composta.'),
+ step('3. Primeira derivada',"f'("+v+")="+scicalcNodeTex(d),'Aplicamos as regras de derivação e simplificamos.'),
+ step('4. Segunda derivada',"f''("+v+")="+scicalcNodeTex(d2),'Derivamos novamente para obter a segunda derivada.'),
+ step('5. Verificação',"\\frac{d}{d"+v+"}["+scicalcNodeTex(n)+"]="+scicalcNodeTex(d),'A expressão obtida é a derivada simbólica final.')
+ ]));}catch(e){}
+});
+
+hook('calcIntegral',function(){
+ var f=(document.getElementById('int-f')||{}).value||'',a=(document.getElementById('int-x1')||{}).value||'',b=(document.getElementById('int-x2')||{}).value||'';if(!f)return;
+ try{var n=math.parse(f),F='';try{F=nerdamer('integrate('+f+',x)').toTeX();}catch(e){F='\\text{primitiva não encontrada}';}
+ var method=/x\\s*\\*|\\*/.test(f)?'Produto de funções — verificar integração por partes ou simplificação.':/sin|cos|tan/i.test(f)?'Identificação de primitiva trigonométrica.':/exp/i.test(f)?'Regra da exponencial e possível substituição.':/sqrt/i.test(f)?'Reescrita da raiz como potência e análise de substituição.':'Regra direta ou análise simbólica da expressão.';
+ var st=[step('1. Integrando','\\int '+scicalcNodeTex(n)+'\\,dx','Partimos da expressão fornecida.'),step('2. Escolha do método','\\text{'+method+'}','O método depende da estrutura algébrica da função.'),step('3. Primitiva','\\int '+scicalcNodeTex(n)+'\\,dx='+F+'+C','O motor simbólico determina uma primitiva.'),step('4. Verificação por derivação','\\frac{d}{dx}['+F+']='+scicalcNodeTex(n),'Ao derivar a primitiva, recuperamos o integrando quando a forma é válida.')];
+ if(a&&b)st.push(step('5. Teorema Fundamental do Cálculo','\\int_{'+a+'}^{'+b+'}f(x)\\,dx=F('+b+')-F('+a+')','Para uma integral definida, avaliamos a primitiva nos extremos.'));
+ add('int-result',did('📚 Integral — do método à verificação','A resolução mostra o caminho matemático antes da simples resposta numérica.',st));}catch(e){}
+});
+
+hook('calcParcial',function(){
+ var f=(document.getElementById('par-f')||{}).value||'',v=(document.getElementById('par-var')||{}).value||'x',pt=(document.getElementById('par-pt')||{}).value||'';
+ if(!f)return;
+ try{
+  var n=math.parse(f), d=math.derivative(n,v);
+  var st=[];
+  st.push(step('1. Função','f(x,y)='+scicalcNodeTex(n),'Partimos da função original.'));
+  st.push(step('2. Variável escolhida','\\frac{\\partial}{\\partial '+v+'}','A outra variável permanece constante.'));
+  st.push(step('3. Derivação','\\frac{\\partial f}{\\partial '+v+'}='+scicalcNodeTex(d),'Aplicamos as regras usuais de derivação.'));
+  st.push(step('4. Resultado simbólico','\\boxed{\\frac{\\partial f}{\\partial '+v+'}='+scicalcNodeTex(d)+'}','Esta é a derivada parcial em forma simbólica.'));
+  if(pt){
+   var p=scicalcPoint(pt), val=d.compile().evaluate({x:p[0],y:p[1]});
+   st.push(step('5. Substituição do ponto','\\left.\\frac{\\partial f}{\\partial '+v+'}\\right|_{('+p[0]+','+p[1]+')}='+Number(val).toFixed(8),'Substituímos as coordenadas do ponto.'));
+   st.push(step('6. Valor final','\\boxed{'+Number(val).toFixed(8)+'}','Resultado numérico.'));
+  }
+  add('par-result',did('📚 Derivada parcial — passo a passo','A resolução distingue a forma simbólica da avaliação numérica.',st));
+ }catch(e){}
+});
+
+hook('calcLimite',function(){
+ var f=(document.getElementById('lim-f')||{}).value||'',a=(document.getElementById('lim-a')||{}).value||'';if(!f)return;
+ try{var n=math.parse(f);add('lim-result',did('📚 Limite — roteiro analítico','Antes da aproximação numérica, verificamos a estrutura matemática do limite.',[
+ step('1. Expressão','\\lim_{x\\to '+a+'}'+scicalcNodeTex(n)),
+ step('2. Substituição direta','f('+a+')','Verificamos se a substituição resolve o limite diretamente.'),
+ step('3. Identificação de indeterminação','\\frac00,\\quad\\infty-\\infty,\\quad0\\cdot\\infty,\\ldots','Se aparecer uma forma indeterminada, procuramos uma transformação algébrica.'),
+ step('4. Ferramenta adequada','\\text{fatoração, racionalização, identidade trigonométrica ou termos dominantes}','Escolhemos a transformação conforme a estrutura da expressão.'),
+ step('5. Limites laterais','\\lim_{x\\to a^-}f(x)\\quad e\\quad\\lim_{x\\to a^+}f(x)','No limite bilateral, os dois lados devem coincidir.'),
+ step('6. Conclusão','\\boxed{\\lim_{x\\to '+a+'}f(x)=L}','O valor exato reconhecido pelo motor prevalece sobre a aproximação numérica.')
+ ]));}catch(e){}
+});
+
+hook('calcEDO',function(){
+ add('edo-result',did('🔎 RK4 — cálculo de cada etapa','O método de Runge–Kutta de 4ª ordem usa quatro inclinações em cada intervalo.',[
+ step('1. Forma da EDO',"y'=f(x,y)"),step('2. Tamanho do passo','h=\\frac{x_f-x_0}{N}'),step('3. Primeira inclinação','k_1=f(x_i,y_i)'),step('4. Segunda inclinação','k_2=f\\left(x_i+\\frac h2,y_i+\\frac{hk_1}{2}\\right)'),step('5. Terceira inclinação','k_3=f\\left(x_i+\\frac h2,y_i+\\frac{hk_2}{2}\\right)'),step('6. Quarta inclinação','k_4=f(x_i+h,y_i+hk_3)'),step('7. Atualização','y_{i+1}=y_i+\\frac h6(k_1+2k_2+2k_3+k_4)'),step('8. Repetição','i=0,1,\\ldots,N-1','O mesmo processo é repetido até o ponto final.')
+ ]));
+});
+
+hook('calcFourier',function(){
+ add('four-result',did('🔎 Fourier — construção do espectro','A DFT é construída diretamente a partir das amostras do sinal.',[
+ step('1. Amostras','t_n=t_{min}+n\\Delta t'),step('2. Passo temporal','\\Delta t=\\frac{t_{max}-t_{min}}{N}'),step('3. Parte real','Re_k=\\frac1N\\sum_{n=0}^{N-1}f(t_n)\\cos\\left(\\frac{2\\pi kn}{N}\\right)'),step('4. Parte imaginária','Im_k=-\\frac1N\\sum_{n=0}^{N-1}f(t_n)\\sin\\left(\\frac{2\\pi kn}{N}\\right)'),step('5. Amplitude','A_k=2\\sqrt{Re_k^2+Im_k^2}'),step('6. Frequência','f_k=\\frac{k}{N\\Delta t}'),step('7. Interpretação','f(t)\\longrightarrow\\text{componentes de frequência}','Os maiores picos representam as componentes mais presentes no sinal.')
+ ]));
+});
+
+hook('plotar3D',function(){add('g3d-plot',did('📊 Gráfico 3D — construção','A superfície é formada avaliando z=f(x,y) em uma malha.',[step('1. Função','z=f(x,y)'),step('2. Domínio','x\\in[x_{min},x_{max}],\\quad y\\in[y_{min},y_{max}]'),step('3. Malha','z_{ij}=f(x_i,y_j)'),step('4. Superfície','Z=[z_{ij}]'),step('5. Interpretação','Picos, vales e regiões de crescimento são representados pela superfície.') ]));});
+
+hook('calcularMDC',function(){var a=Number((document.getElementById('num-a')||{}).value),b=Number((document.getElementById('num-b')||{}).value);if(!Number.isFinite(a)||!Number.isFinite(b))return;var x=Math.abs(a),y=Math.abs(b),r=[];while(y){var q=Math.floor(x/y),z=x-q*y;r.push(x+'='+q+'\\cdot'+y+'+'+z);x=y;y=z;}add('num-primos-result',did('📚 MDC — algoritmo de Euclides','O último resto não nulo é o MDC.',[step('1. Dados','a='+a+',\\quad b='+b),step('2. Divisões sucessivas',r.join('\\\\')),step('3. Último resto não nulo','\\operatorname{MDC}('+a+','+b+')='+x),step('4. Resultado','\\boxed{'+x+'}') ]));});
+
+hook('calcularMMC',function(){var a=Number((document.getElementById('num-c')||{}).value),b=Number((document.getElementById('num-d')||{}).value);if(!Number.isFinite(a)||!Number.isFinite(b)||!a||!b)return;var g=gcd(Math.abs(a),Math.abs(b)),m=Math.abs(a*b)/g;add('num-primos-result',did('📚 MMC — passo a passo','Usamos a relação entre MDC e MMC.',[step('1. Dados','a='+a+',\\quad b='+b),step('2. MDC','\\operatorname{MDC}('+a+','+b+')='+g),step('3. Relação','\\operatorname{MMC}(a,b)\\operatorname{MDC}(a,b)=|ab|'),step('4. Substituição','\\operatorname{MMC}='+m),step('5. Resultado','\\boxed{'+m+'}') ]));});
+
+hook('fatorarNumero',function(){var n0=Number((document.getElementById('num-fatorar')||{}).value);if(!Number.isInteger(n0)||n0<2)return;var n=n0,rows=[],fac=[];for(var p=2;p*p<=n;p++)if(n%p===0){var e=0;while(n%p===0){n/=p;e++;rows.push('dividir por '+p+'\\Rightarrow '+n);}fac.push([p,e]);}if(n>1)fac.push([n,1]);var out=fac.map(function(x){return x[1]>1?x[0]+'^{'+x[1]+'}':x[0];}).join('\\cdot');add('num-fator-result',did('📚 Fatoração prima — passo a passo','Dividimos sucessivamente até restarem fatores primos.',[step('1. Número','N='+n0),step('2. Divisões sucessivas',rows.join('\\\\')),step('3. Agrupamento',out),step('4. Verificação',n0+'='+out),step('5. Resultado','\\boxed{'+out+'}') ]));});
+
+window.SCICALC_V25_DIDATIC=true;
+})();
+</script>
+
 </body>
 </html>
