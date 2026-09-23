@@ -3273,8 +3273,8 @@ function fmt(n){
   return n.toFixed(2).replace('.',',');
 }
 function num(v,k){ var n=Number(v[k]); if(!Number.isFinite(n)) throw new Error('Valor inválido.'); return n; }
-function tex(s){ return '\\\\('+s+'\\\\)'; }
-function unit(u){ return u ? '\\\\,\\\\mathrm{'+u+'}' : ''; }
+function tex(s){ return '\\('+s+'\\)'; }
+function unit(u){ return u ? '\\,\\mathrm{'+u+'}' : ''; }
 
 window.physicsCalculate=function(id,v){
   var r,u,steps=[];
@@ -3287,13 +3287,13 @@ window.physicsCalculate=function(id,v){
       S('x=x_0+vt','x='+fmt(v.x0)+'+'+fmt(v.v)+'\\cdot '+fmt(v.t)+'='+fmt(r)+unit(u));break;
     case'mruPos':
       r=v.x0+v.v0*v.t+.5*v.a*v.t*v.t;u='m';
-      S('x=x_0+v_0t+\\\\frac{1}{2}at^2','x='+fmt(r)+unit(u));break;
+      S('x=x_0+v_0t+\\frac{1}{2}at^2','x='+fmt(r)+unit(u));break;
     case'mruVel':
       r=v.v0+v.a*v.t;u='m/s';
       S('v=v_0+at','v='+fmt(r)+unit(u));break;
     case'queda':
       r=Math.sqrt(2*v.h/v.g);u='s';
-      S('t=\\\\sqrt{\\\\frac{2h}{g}}','t='+fmt(r)+unit(u));break;
+      S('t=\\sqrt{\\frac{2h}{g}}','t='+fmt(r)+unit(u));break;
     case'newton2':
       r=v.m*v.a;u='N';
       S('F=ma','F='+fmt(r)+unit(u));break;
@@ -3302,49 +3302,49 @@ window.physicsCalculate=function(id,v){
       S('P=mg','P='+fmt(r)+unit(u));break;
     case'atrito':
       r=v.mu*v.N;u='N';
-      S('F_{at}=\\\\mu N','F_{at}='+fmt(r)+unit(u));break;
+      S('F_{at}=\\mu N','F_{at}='+fmt(r)+unit(u));break;
     case'gravForce':
       r=v.G*v.m1*v.m2/(v.r*v.r);u='N';
-      S('F=\\\\frac{Gm_1m_2}{r^2}','F='+r.toExponential(2)+unit(u));break;
+      S('F=\\frac{Gm_1m_2}{r^2}','F='+r.toExponential(2)+unit(u));break;
     case'orbital':
       r=Math.sqrt(v.G*v.M/v.r);u='m/s';
-      S('v=\\\\sqrt{\\\\frac{GM}{r}}','v='+fmt(r)+unit(u));break;
+      S('v=\\sqrt{\\frac{GM}{r}}','v='+fmt(r)+unit(u));break;
     case'calor':
       r=v.m*v.c*v.dT;u='J';
-      S('Q=mc\\\\Delta T','Q='+fmt(r)+unit(u));break;
+      S('Q=mc\\Delta T','Q='+fmt(r)+unit(u));break;
     case'dilat':
       r=v.L0*v.alpha*v.dT;u='m';
-      S('\\\\Delta L=L_0\\\\alpha\\\\Delta T','\\\\Delta L='+r.toExponential(2)+unit(u));break;
+      S('\\Delta L=L_0\\alpha\\Delta T','\\Delta L='+r.toExponential(2)+unit(u));break;
     case'cf':
-      r=9*v.C/5+32;u='^{\\\\circ}\\\\mathrm{F}';
-      S('F=\\\\frac{9}{5}C+32','F='+fmt(r)+unit('\\\\circ F'));break;
+      r=9*v.C/5+32;u='^{\\circ}\\mathrm{F}';
+      S('F=\\frac{9}{5}C+32','F='+fmt(r)+unit('\\circ F'));break;
     case'primeiraLei':
       r=v.Q-v.W;u='J';
-      S('\\\\Delta U=Q-W','\\\\Delta U='+fmt(r)+unit(u));break;
+      S('\\Delta U=Q-W','\\Delta U='+fmt(r)+unit(u));break;
     case'gasIdeal':
       r=v.n*8.314462618*v.T/v.V;u='Pa';
-      S('p=\\\\frac{nRT}{V}','p='+r.toExponential(2)+unit(u));break;
+      S('p=\\frac{nRT}{V}','p='+r.toExponential(2)+unit(u));break;
     case'rendimento':
       r=(v.Qh-v.Qc)/v.Qh*100;u='%';
-      S('\\\\eta=\\\\frac{Q_h-Q_c}{Q_h}\\\\times100','\\\\eta='+fmt(r)+unit(u));break;
+      S('\\eta=\\frac{Q_h-Q_c}{Q_h}\\times100','\\eta='+fmt(r)+unit(u));break;
     case'waveV':
       r=v.lambda*v.f;u='m/s';
-      S('v=\\\\lambda f','v='+fmt(r)+unit(u));break;
+      S('v=\\lambda f','v='+fmt(r)+unit(u));break;
     case'waveF':
       r=v.v/v.lambda;u='Hz';
-      S('f=\\\\frac{v}{\\\\lambda}','f='+fmt(r)+unit(u));break;
+      S('f=\\frac{v}{\\lambda}','f='+fmt(r)+unit(u));break;
     case'waveT':
       r=1/v.f;u='s';
-      S('T=\\\\frac{1}{f}','T='+fmt(r)+unit(u));break;
+      S('T=\\frac{1}{f}','T='+fmt(r)+unit(u));break;
     case'lente':
       r=1/(1/v.f-1/v.do);u='m';
-      S('\\\\frac{1}{f}=\\\\frac{1}{d_o}+\\\\frac{1}{d_i}','d_i='+fmt(r)+unit(u));break;
+      S('\\frac{1}{f}=\\frac{1}{d_o}+\\frac{1}{d_i}','d_i='+fmt(r)+unit(u));break;
     case'aumento':
       r=-v.di/v.do;u='';
-      S('A=-\\\\frac{d_i}{d_o}','A='+fmt(r));break;
+      S('A=-\\frac{d_i}{d_o}','A='+fmt(r));break;
     case'refracao':
       r=v.c/v.v;u='';
-      S('n=\\\\frac{c}{v}','n='+fmt(r));break;
+      S('n=\\frac{c}{v}','n='+fmt(r));break;
     case'ohm':
       r=v.R*v.I;u='V';
       S('V=RI','V='+fmt(r)+unit(u));break;
@@ -3356,13 +3356,13 @@ window.physicsCalculate=function(id,v){
       S('E=Pt','E='+fmt(r)+unit(u));break;
     case'magForce':
       r=Math.abs(v.q*v.v*v.B*v.sen);u='N';
-      S('F=|q|vB\\\\sin\\\\theta','F='+r.toExponential(2)+unit(u));break;
+      S('F=|q|vB\\sin\\theta','F='+r.toExponential(2)+unit(u));break;
     case'flux':
       r=v.B*v.A*v.cos;u='Wb';
-      S('\\\\Phi=BA\\\\cos\\\\theta','\\\\Phi='+fmt(r)+unit(u));break;
+      S('\\Phi=BA\\cos\\theta','\\Phi='+fmt(r)+unit(u));break;
     case'faraday':
       r=Math.abs(v.N*v.dPhi/v.dt);u='V';
-      S('|\\\\varepsilon|=N\\\\left|\\\\frac{\\\\Delta\\\\Phi}{\\\\Delta t}\\\\right|','|\\\\varepsilon|='+fmt(r)+unit(u));break;
+      S('|\\varepsilon|=N\\left|\\frac{\\Delta\\Phi}{\\Delta t}\\right|','|\\varepsilon|='+fmt(r)+unit(u));break;
     case'capacitor':
       r=v.C*v.V;u='C';
       S('Q=CV','Q='+fmt(r)+unit(u));break;
@@ -3374,10 +3374,10 @@ window.physicsCalculate=function(id,v){
       S('E=hf','E='+r.toExponential(2)+unit(u));break;
     case'photonLambda':
       r=v.c/v.f;u='m';
-      S('\\\\lambda=\\\\frac{c}{f}','\\\\lambda='+r.toExponential(2)+unit(u));break;
+      S('\\lambda=\\frac{c}{f}','\\lambda='+r.toExponential(2)+unit(u));break;
     default:throw new Error('Calculadora física não encontrada: '+id);
   }
-  return{steps:steps,result:tex((u?String(fmt(r))+'\\\\,\\\\mathrm{'+u+'}':String(fmt(r))))};
+  return{steps:steps,result:tex((u?String(fmt(r))+'\\,\\mathrm{'+u+'}':String(fmt(r))))};
 };
 
 window.renderPhysicsCalculator=function(){
