@@ -3406,6 +3406,7 @@ window.runPhysicsCalculator=function(){
     var v={};item[2].forEach(function(x){var el=document.getElementById('pfx-'+x[0]);v[x[0]]=num({x:el.value},'x');});
     var o=window.physicsCalculate(item[1],v);
     document.getElementById('physics-result').innerHTML='<div class="result"><h3>📚 Resolução passo a passo</h3>'+o.steps.map(function(st,i){return'<div class="didactic-step"><div class="step-num">'+(i+1)+'</div><div><strong>Passo '+(i+1)+'</strong>'+st+'</div></div>';}).join('')+'<div class="check-pill">✓ Resultado: '+o.result+'</div></div>';
+    if(typeof scicalcRenderStaticMath==='function'){ try{ scicalcRenderStaticMath(document.getElementById('physics-result')); }catch(_e){} }
   }catch(e){if(typeof toast==='function')toast(e.message,'err');else console.error(e);}
 };
 
