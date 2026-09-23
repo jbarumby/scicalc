@@ -8,7 +8,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc Avançada — Matemática, Física e Teoria dos Números</title>
+<title>SciCalc Avançada — Matemática, Física e Teoria dos Números — V26 Integrada</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="João Carlos Barumby">
 <meta name="copyright" content="© 2026 João Carlos Barumby — Todos os direitos reservados">
@@ -180,6 +180,22 @@
 @media(max-width:700px){.fermat-proof-result{padding:11px}.fermat-stage{padding:11px}.formula-block{font-size:.96rem}}
 
 </style>
+
+<style id="scicalc-v26-extra-css">
+/* ===== V26 — MÓDULOS ADICIONAIS INTEGRADOS ===== */
+.v26-extra-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.v26-extra-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:17px;box-shadow:var(--shadow)}
+.v26-extra-card h3{color:var(--primary);margin:0 0 7px}
+.v26-extra-card .sub{margin-bottom:12px}
+.v26-extra-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.v26-extra-result{margin-top:12px}
+.v26-extra-canvas{width:100%;height:320px;border-radius:12px;background:var(--bg);border:1px solid var(--border)}
+.v26-extra-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-top:12px}
+.v26-extra-metric{padding:9px;border-radius:9px;background:var(--bg);border:1px solid var(--border)}
+.v26-extra-metric small{display:block;color:var(--muted);margin-bottom:3px}
+.v26-extra-metric strong{color:var(--primary)}
+</style>
+
 </head>
 <body>
 <header>
@@ -202,6 +218,7 @@
   <button class="tab" data-tab="fourier">📡 Fourier</button>
   <button class="tab" data-tab="numeros">🔢 Números</button>
   <button class="tab" data-tab="fisica">⚛️ Física</button>
+  <button class="tab" data-tab="simuladores-v26">🚀 Simulações Extras</button>
   <button class="tab" data-tab="historico">📋 Histórico</button>
 </nav>
 
@@ -430,6 +447,75 @@
 
 
 <section class="tab-content" id="fisica"><div class="panel"><h2>⚛️ Calculadoras de Física</h2><p class="sub">Sem simulações: escolha uma área, selecione uma fórmula e acompanhe a resolução passo a passo.</p><div class="physics-panel active" id="fis-calc"><div class="calc-toolbar"><label><strong>Área da Física</strong><select id="physics-area" onchange="renderPhysicsCalculator()"><option value="cin">🏃 Cinemática</option><option value="dyn">⚖️ Dinâmica</option><option value="grav">🌍 Gravitação</option><option value="termo">🌡️ Termologia</option><option value="termod">♨️ Termodinâmica</option><option value="ondas">〰️ Ondas</option><option value="opt">🔎 Óptica</option><option value="elec">⚡ Eletricidade</option><option value="mag">🧲 Magnetismo</option><option value="em">🔌 Eletromagnetismo</option><option value="mod">🚀 Física Moderna</option></select></label><label><strong>Calculadora</strong><select id="physics-formula" onchange="renderPhysicsForm()"></select></label></div><div id="physics-form" class="result"></div><div id="physics-result"></div></div></div></section>
+
+
+<!-- ===== V26 — MÓDULOS ADICIONAIS DO ARQUIVO ENVIADO ===== -->
+<section class="tab-content" id="simuladores-v26">
+  <div class="panel">
+    <h2>🚀 Simuladores adicionais de Física</h2>
+    <p class="sub">Módulos acrescentados sem remover os recursos já existentes no SciCalc.</p>
+
+    <div class="v26-extra-grid">
+      <div class="v26-extra-card">
+        <h3>Oscilador Harmônico — MHS</h3>
+        <p class="sub">x(t)=A cos(ωt+φ), com cálculo de período, frequência e velocidade.</p>
+        <div class="form-row">
+          <div><label>A (m)</label><input id="v26-mhs-a" value="1"></div>
+          <div><label>ω (rad/s)</label><input id="v26-mhs-w" value="2"></div>
+          <div><label>φ (rad)</label><input id="v26-mhs-p" value="0"></div>
+          <div><label>Tempo (s)</label><input id="v26-mhs-t" value="10"></div>
+        </div>
+        <div class="v26-extra-actions">
+          <button class="btn" onclick="v26SimMHS()">Simular MHS</button>
+        </div>
+        <div id="v26-mhs-result" class="v26-extra-result"></div>
+        <div id="v26-mhs-plot" class="plot"></div>
+      </div>
+
+      <div class="v26-extra-card">
+        <h3>Lançamento Oblíquo</h3>
+        <p class="sub">Trajetória, alcance, altura máxima e tempo de voo.</p>
+        <div class="form-row">
+          <div><label>v₀ (m/s)</label><input id="v26-obl-v" value="30"></div>
+          <div><label>θ (graus)</label><input id="v26-obl-a" value="45"></div>
+          <div><label>h₀ (m)</label><input id="v26-obl-h" value="0"></div>
+          <div><label>g (m/s²)</label><input id="v26-obl-g" value="9.81"></div>
+        </div>
+        <div class="v26-extra-actions">
+          <button class="btn" onclick="v26SimObl()">Simular lançamento</button>
+        </div>
+        <div id="v26-obl-result" class="v26-extra-result"></div>
+        <div id="v26-obl-plot" class="plot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>⚛️ Laboratório Universitário Adicional</h2>
+    <p class="sub">Modelos do arquivo enviado: plano inclinado, massa–mola amortecida, circuito RC e onda harmônica progressiva.</p>
+
+    <div class="v26-extra-card">
+      <div class="form-row">
+        <div>
+          <label>Modelo</label>
+          <select id="v26-lab-model">
+            <option value="inclined">Plano inclinado com atrito</option>
+            <option value="spring">Massa–mola amortecida</option>
+            <option value="rc">Circuito RC — carga do capacitor</option>
+            <option value="wave">Onda harmônica progressiva</option>
+          </select>
+        </div>
+      </div>
+      <div id="v26-lab-fields"></div>
+      <div class="v26-extra-actions">
+        <button class="btn" type="button" onclick="v26RunLab()">Atualizar simulação</button>
+      </div>
+      <div id="v26-lab-theory" class="result"></div>
+      <div id="v26-lab-result" class="v26-extra-result"></div>
+      <div id="v26-lab-plot" class="plot"></div>
+    </div>
+  </div>
+</section>
 
 <section class="tab-content" id="historico">
   <div class="panel">
@@ -2935,6 +3021,217 @@ hook('calcularMMC',function(){var a=Number((document.getElementById('num-c')||{}
 hook('fatorarNumero',function(){var n0=Number((document.getElementById('num-fatorar')||{}).value);if(!Number.isInteger(n0)||n0<2)return;var n=n0,rows=[],fac=[];for(var p=2;p*p<=n;p++)if(n%p===0){var e=0;while(n%p===0){n/=p;e++;rows.push('dividir por '+p+'\\Rightarrow '+n);}fac.push([p,e]);}if(n>1)fac.push([n,1]);var out=fac.map(function(x){return x[1]>1?x[0]+'^{'+x[1]+'}':x[0];}).join('\\cdot');add('num-fator-result',did('📚 Fatoração prima — passo a passo','Dividimos sucessivamente até restarem fatores primos.',[step('1. Número','N='+n0),step('2. Divisões sucessivas',rows.join('\\\\')),step('3. Agrupamento',out),step('4. Verificação',n0+'='+out),step('5. Resultado','\\boxed{'+out+'}') ]));});
 
 window.SCICALC_V25_DIDATIC=true;
+})();
+</script>
+
+
+<script id="scicalc-v26-extra-js">
+/* ============================================================
+   SciCalc V26 — módulos adicionais integrados
+   Baseado no conteúdo do arquivo enviado pelo usuário.
+   Namespaced para não sobrescrever as funções existentes.
+   ============================================================ */
+(function(){
+'use strict';
+
+function v26num(id){
+  const el=document.getElementById(id);
+  if(!el) throw new Error('Campo não encontrado: '+id);
+  const n=Number(String(el.value).replace(',','.'));
+  if(!Number.isFinite(n)) throw new Error('Valor inválido.');
+  return n;
+}
+function v26fmt(n,u=''){return Number(n).toPrecision(6)+(u?' '+u:'');}
+function v26did(title,intro,steps){
+  const body=steps.map((s,i)=>
+    `<div class="step"><div class="step-title">${i+1}. ${s[0]}</div>`+
+    (typeof scicalcRenderTex==='function'?scicalcRenderTex(s[1],false):`<div>${s[1]}</div>`)+
+    (s[2]?`<div class="step-note">${s[2]}</div>`:'')+
+    `</div>`).join('');
+  return `<details class="didactic" open><summary>${title}</summary><div class="didactic-body"><p class="didactic-intro">${intro}</p><div class="step-list">${body}</div></div></details>`;
+}
+
+window.v26SimMHS=function(){
+  try{
+    const A=v26num('v26-mhs-a'), w=v26num('v26-mhs-w'), p=v26num('v26-mhs-p'), T=v26num('v26-mhs-t');
+    if(A<=0||w<=0||T<=0) throw new Error('A, ω e tempo devem ser positivos.');
+    const ts=Array.from({length:400},(_,i)=>T*i/399);
+    const x=ts.map(t=>A*Math.cos(w*t+p));
+    const v=ts.map(t=>-A*w*Math.sin(w*t+p));
+    const period=2*Math.PI/w, freq=w/(2*Math.PI);
+
+    document.getElementById('v26-mhs-result').innerHTML=
+      `<div class="result"><strong>Período:</strong> ${v26fmt(period,'s')} · `+
+      `<strong>Frequência:</strong> ${v26fmt(freq,'Hz')}</div>`+
+      v26did('📚 MHS — passo a passo',
+        'A solução é construída a partir da equação do movimento harmônico simples.',[
+          ['1. Equação de posição',`x(t)=A cos(ωt+φ)`],
+          ['2. Substituição dos parâmetros',`x(t)=${A} cos(${w}t+${p})`],
+          ['3. Velocidade',`v(t)=dx/dt=-Aω sen(ωt+φ)`,`Derivamos a posição em relação ao tempo.`],
+          ['4. Período',`T=2π/ω=${v26fmt(period,'s')}`],
+          ['5. Frequência',`f=ω/(2π)=${v26fmt(freq,'Hz')}`],
+          ['6. Verificação',`ω=2πf`,`A frequência angular e a frequência comum devem satisfazer essa relação.`]
+        ]);
+
+    Plotly.react('v26-mhs-plot',[
+      {x:ts,y:x,name:'x(t)',mode:'lines'},
+      {x:ts,y:v,name:'v(t)',mode:'lines'}
+    ],{title:'MHS — posição e velocidade',xaxis:{title:'t (s)'},yaxis:{title:'valor'},paper_bgcolor:'transparent',plot_bgcolor:'transparent'},
+    {responsive:true});
+    if(typeof addHist==='function') addHist('MHS V26',`A=${A}, ω=${w}, φ=${p}`,`T=${period.toPrecision(6)} s; f=${freq.toPrecision(6)} Hz`);
+    if(typeof toast==='function') toast('MHS adicional calculado.','ok');
+  }catch(e){if(typeof toast==='function')toast(e.message,'err');}
+};
+
+window.v26SimObl=function(){
+  try{
+    const v0=v26num('v26-obl-v'), ang=v26num('v26-obl-a'), h0=v26num('v26-obl-h'), g=v26num('v26-obl-g');
+    if(v0<=0||g<=0) throw new Error('v₀ e g devem ser positivos.');
+    const rad=ang*Math.PI/180, vx=v0*Math.cos(rad), vy=v0*Math.sin(rad);
+    if(Math.abs(vx)<1e-12) throw new Error('O ângulo de 90° não permite alcance horizontal finito.');
+    const tImpact=(vy+Math.sqrt(vy*vy+2*g*h0))/g;
+    const H=h0+vy*vy/(2*g), R=vx*tImpact;
+    const ts=Array.from({length:300},(_,i)=>tImpact*i/299);
+    const X=ts.map(t=>vx*t), Y=ts.map(t=>h0+vy*t-.5*g*t*t);
+
+    document.getElementById('v26-obl-result').innerHTML=
+      `<div class="result"><strong>Alcance:</strong> ${v26fmt(R,'m')} · `+
+      `<strong>Altura máxima:</strong> ${v26fmt(H,'m')} · `+
+      `<strong>Tempo de voo:</strong> ${v26fmt(tImpact,'s')}</div>`+
+      v26did('📚 Lançamento oblíquo — passo a passo',
+        'O movimento é decomposto em componentes horizontal e vertical.',[
+          ['1. Decomposição da velocidade',`v_x=v₀ cos θ=${v26fmt(vx,'m/s')}`],
+          ['2. Componente vertical',`v_y=v₀ sen θ=${v26fmt(vy,'m/s')}`],
+          ['3. Equação vertical',`y(t)=h₀+v_y t-(g/2)t²`],
+          ['4. Tempo de impacto',`t=${v26fmt(tImpact,'s')}`],
+          ['5. Altura máxima',`H=h₀+v_y²/(2g)=${v26fmt(H,'m')}`],
+          ['6. Alcance horizontal',`R=v_x t=${v26fmt(R,'m')}`]
+        ]);
+
+    Plotly.react('v26-obl-plot',[
+      {x:X,y:Y,name:'Trajetória',mode:'lines'}
+    ],{title:'Lançamento oblíquo',xaxis:{title:'x (m)'},yaxis:{title:'y (m)'},paper_bgcolor:'transparent',plot_bgcolor:'transparent'},
+    {responsive:true});
+    if(typeof addHist==='function') addHist('Lançamento V26',`v₀=${v0}, θ=${ang}°, h₀=${h0}`,`R=${R.toPrecision(6)} m; H=${H.toPrecision(6)} m`);
+    if(typeof toast==='function') toast('Lançamento adicional calculado.','ok');
+  }catch(e){if(typeof toast==='function')toast(e.message,'err');}
+};
+
+const v26labs={
+  inclined:{
+    title:'Plano inclinado com atrito',
+    formula:'a=g(sen θ−μ cos θ)',
+    desc:'Movimento de um bloco em uma rampa com atrito.',
+    fields:[
+      ['massa','Massa m (kg)',2],
+      ['angulo','Ângulo θ (graus)',30],
+      ['mu','Coeficiente μ',0.2],
+      ['tempo','Tempo (s)',5]
+    ]
+  },
+  spring:{
+    title:'Massa–mola amortecida',
+    formula:'m x″ + b x′ + kx = 0',
+    desc:'Sistema massa–mola com amortecimento linear.',
+    fields:[
+      ['massa','Massa m (kg)',1],
+      ['k','Constante k (N/m)',16],
+      ['b','Amortecimento b (N·s/m)',1],
+      ['x0','Deslocamento inicial x₀ (m)',0.2],
+      ['tempo','Tempo (s)',10]
+    ]
+  },
+  rc:{
+    title:'Circuito RC — carga',
+    formula:'V_C(t)=V₀(1−e^(−t/RC))',
+    desc:'Carga de um capacitor em circuito RC.',
+    fields:[
+      ['v','Tensão V₀ (V)',12],
+      ['r','Resistência R (Ω)',1000],
+      ['c','Capacitância C (µF)',100],
+      ['tempo','Tempo (s)',0.8]
+    ]
+  },
+  wave:{
+    title:'Onda harmônica progressiva',
+    formula:'y(x,t)=A sen(kx−ωt+φ)',
+    desc:'Perfil espacial de uma onda harmônica progressiva.',
+    fields:[
+      ['amp','Amplitude A (m)',0.5],
+      ['lambda','Comprimento de onda λ (m)',2],
+      ['freq','Frequência f (Hz)',1],
+      ['time','Instante t (s)',0]
+    ]
+  }
+};
+
+function v26SetupLab(){
+  const key=document.getElementById('v26-lab-model').value, m=v26labs[key];
+  document.getElementById('v26-lab-theory').innerHTML=
+    `<strong>${m.title}</strong><p>${m.desc}</p><div class="formula">${m.formula}</div>`;
+  document.getElementById('v26-lab-fields').innerHTML=
+    `<div class="form-row">`+
+    m.fields.map(f=>`<div><label>${f[1]}</label><input id="v26-lab-${f[0]}" type="number" value="${f[2]}" step="any"></div>`).join('')+
+    `</div>`;
+  v26RunLab();
+}
+
+window.v26RunLab=function(){
+  try{
+    const key=document.getElementById('v26-lab-model').value;
+    let x,y,title,xTitle,yTitle,metrics,steps;
+    if(key==='inclined'){
+      const m=v26num('v26-lab-massa'), th=v26num('v26-lab-angulo')*Math.PI/180, mu=v26num('v26-lab-mu'), T=v26num('v26-lab-tempo'), g=9.80665;
+      if(m<=0||T<=0||mu<0)throw new Error('Massa e tempo devem ser positivos; μ não pode ser negativo.');
+      const a=g*(Math.sin(th)-mu*Math.cos(th)), ts=Array.from({length:240},(_,i)=>T*i/239), s=ts.map(t=>Math.max(0,.5*a*t*t));
+      x=ts;y=s;title='Plano inclinado — posição';xTitle='tempo (s)';yTitle='posição (m)';
+      metrics=[['Aceleração',v26fmt(a,'m/s²')],['Força resultante',v26fmt(m*a,'N')],['Velocidade final',v26fmt(a*T,'m/s')]];
+      steps=[
+        ['1. Aceleração','a=g(senθ−μ cosθ)'],
+        ['2. Substituição',`a=9,80665(sen(${th*180/Math.PI}°)−${mu} cos(${th*180/Math.PI}°))`],
+        ['3. Resultado',`a=${v26fmt(a,'m/s²')}`],
+        ['4. Movimento','s(t)=½at²'],
+        ['5. Velocidade final',`v=aT=${v26fmt(a*T,'m/s')}`]
+      ];
+    }else if(key==='spring'){
+      const m=v26num('v26-lab-massa'), k=v26num('v26-lab-k'), b=v26num('v26-lab-b'), x0=v26num('v26-lab-x0'), T=v26num('v26-lab-tempo');
+      if(m<=0||k<=0||b<0||T<=0)throw new Error('m, k e tempo devem ser positivos; b não pode ser negativo.');
+      const gamma=b/(2*m), w0=Math.sqrt(k/m), disc=w0*w0-gamma*gamma, ts=Array.from({length:500},(_,i)=>T*i/499);
+      let regime, formula;
+      y=ts.map(t=>{
+        if(disc>1e-10){const wd=Math.sqrt(disc);regime='subamortecido';formula='x₀e^{-γt}[cos(ω_dt)+(γ/ω_d)sen(ω_dt)]';return x0*Math.exp(-gamma*t)*(Math.cos(wd*t)+gamma/wd*Math.sin(wd*t));}
+        if(Math.abs(disc)<=1e-10){regime='crítico';formula='x₀(1+γt)e^{-γt}';return x0*(1+gamma*t)*Math.exp(-gamma*t);}
+        const q=Math.sqrt(-disc);regime='superamortecido';formula='forma hiperbólica';return x0*Math.exp(-gamma*t)*(Math.cosh(q*t)+gamma/q*Math.sinh(q*t));
+      });
+      x=ts;title='Massa–mola amortecida';xTitle='tempo (s)';yTitle='deslocamento (m)';
+      metrics=[['ω₀',v26fmt(w0,'rad/s')],['γ',v26fmt(gamma,'s⁻¹')],['Regime',regime],['x final',v26fmt(y[y.length-1],'m')]];
+      steps=[['1. Equação','mx″+bx′+kx=0'],['2. Parâmetros','γ=b/(2m),  ω₀=√(k/m)'],['3. Discriminante',`ω₀²−γ²=${v26fmt(disc)}`],['4. Regime',regime],['5. Solução',formula]];
+    }else if(key==='rc'){
+      const V=v26num('v26-lab-v'), R=v26num('v26-lab-r'), C=v26num('v26-lab-c')*1e-6, T=v26num('v26-lab-tempo');
+      if(V<0||R<=0||C<=0||T<=0)throw new Error('V ≥ 0 e R, C e tempo positivos.');
+      const tau=R*C, ts=Array.from({length:300},(_,i)=>T*i/299);
+      x=ts;y=ts.map(t=>V*(1-Math.exp(-t/tau)));title='Circuito RC — carga';xTitle='tempo (s)';yTitle='V_C (V)';
+      metrics=[['τ',v26fmt(tau,'s')],['V final',v26fmt(y[y.length-1],'V')],['I inicial',v26fmt(V/R,'A')],['Q final',v26fmt(C*y[y.length-1],'C')]];
+      steps=[['1. Constante de tempo','τ=RC'],['2. Substituição',`τ=${R}·${C}=${v26fmt(tau,'s')}`],['3. Equação','V_C(t)=V₀(1−e^{-t/τ})'],['4. Corrente inicial','I(0)=V₀/R'],['5. Carga','Q=CV_C']];
+    }else{
+      const A=v26num('v26-lab-amp'), lam=v26num('v26-lab-lambda'), f=v26num('v26-lab-freq'), t=v26num('v26-lab-time');
+      if(A<0||lam<=0||f<0)throw new Error('A e f não podem ser negativos; λ deve ser positivo.');
+      const kk=2*Math.PI/lam, w=2*Math.PI*f; x=Array.from({length:400},(_,i)=>3*lam*i/399); y=x.map(pos=>A*Math.sin(kk*pos-w*t));
+      title='Onda harmônica progressiva';xTitle='posição x (m)';yTitle='y (m)';
+      metrics=[['v',v26fmt(lam*f,'m/s')],['k',v26fmt(kk,'rad/m')],['ω',v26fmt(w,'rad/s')],['Período',f?v26fmt(1/f,'s'):'∞']];
+      steps=[['1. Equação','y(x,t)=A sen(kx−ωt+φ)'],['2. Número de onda','k=2π/λ'],['3. Frequência angular','ω=2πf'],['4. Velocidade de propagação','v=λf'],['5. Perfil','y(x,t) é avaliado ponto a ponto.']];
+    }
+    document.getElementById('v26-lab-result').innerHTML=
+      `<div class="v26-extra-metrics">${metrics.map(m=>`<div class="v26-extra-metric"><small>${m[0]}</small><strong>${m[1]}</strong></div>`).join('')}</div>`+
+      v26did('📚 Resolução passo a passo','Modelo físico, equações, substituição e interpretação.',steps);
+    Plotly.react('v26-lab-plot',[{x,y,type:'scatter',mode:'lines',name:title}],{title,xaxis:{title:xTitle},yaxis:{title:yTitle},paper_bgcolor:'transparent',plot_bgcolor:'transparent',margin:{t:48}},{responsive:true});
+    if(typeof toast==='function')toast('Laboratório adicional atualizado.','ok');
+  }catch(e){if(typeof toast==='function')toast(e.message,'err');}
+};
+
+document.getElementById('v26-lab-model').addEventListener('change',v26SetupLab);
+v26SetupLab();
+window.SCICALC_V26_EXTRA=true;
 })();
 </script>
 
