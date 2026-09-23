@@ -2402,6 +2402,105 @@ function fatoracaoDidatica(n){
   if(temp>1){factors.push([temp,1]);lines.push(`${temp} é primo e permanece como fator.`);}
   return {factors,lines};
 }
+/* ===== MOTOR DAS CALCULADORAS DE FÍSICA =====
+   O V36 preserva a interface e fornece aqui o catálogo que alimenta
+   os dois selects e o cálculo passo a passo. */ 
+window.physicsForms={
+  cin:{title:'Cinemática',items:[
+    ['MRU — posição','mru',[['x0','Posição inicial x₀ (m)',0],['v','Velocidade v (m/s)',10],['t','Tempo t (s)',5]]],
+    ['MRUV — posição','mruPos',[['x0','Posição inicial x₀ (m)',0],['v0','Velocidade inicial v₀ (m/s)',5],['a','Aceleração a (m/s²)',2],['t','Tempo t (s)',4]]],
+    ['MRUV — velocidade','mruVel',[['v0','Velocidade inicial v₀ (m/s)',5],['a','Aceleração a (m/s²)',2],['t','Tempo t (s)',4]]],
+    ['Queda livre','queda',[['h','Altura h (m)',20],['g','Gravidade g (m/s²)',9.81]]]
+  ]},
+  dyn:{title:'Dinâmica',items:[
+    ['2ª Lei de Newton','newton2',[['m','Massa m (kg)',10],['a','Aceleração a (m/s²)',2]]],
+    ['Peso','peso',[['m','Massa m (kg)',10],['g','Gravidade g (m/s²)',9.81]]],
+    ['Atrito cinético','atrito',[['mu','Coeficiente μ',0.2],['N','Normal N (N)',100]]]
+  ]},
+  grav:{title:'Gravitação',items:[
+    ['Força gravitacional','gravForce',[['G','G (N·m²/kg²)',6.67430e-11],['m1','Massa m₁ (kg)',5.972e24],['m2','Massa m₂ (kg)',1000],['r','Distância r (m)',6.371e6]]],
+    ['Velocidade orbital','orbital',[['G','G (N·m²/kg²)',6.67430e-11],['M','Massa central M (kg)',5.972e24],['r','Raio orbital r (m)',7.0e6]]]
+  ]},
+  termo:{title:'Termologia',items:[
+    ['Calor sensível','calor',[['m','Massa m (kg)',2],['c','Calor específico c (J/kg·K)',4186],['dT','Variação de temperatura ΔT (K)',10]]],
+    ['Dilatação linear','dilat',[['L0','Comprimento inicial L₀ (m)',2],['alpha','Coeficiente α (K⁻¹)',1.2e-5],['dT','Variação ΔT (K)',50]]],
+    ['Escala Celsius → Fahrenheit','cf',[['C','Temperatura (°C)',25]]]
+  ]},
+  termod:{title:'Termodinâmica',items:[
+    ['1ª Lei — calor','primeiraLei',[['Q','Calor Q (J)',1000],['W','Trabalho W (J)',300]]],
+    ['Gás ideal','gasIdeal',[['n','Quantidade n (mol)',1],['T','Temperatura T (K)',300],['V','Volume V (m³)',0.0249]]],
+    ['Rendimento térmico','rendimento',[['Qh','Calor recebido Qh (J)',1000],['Qc','Calor rejeitado Qc (J)',400]]]
+  ]},
+  ondas:{title:'Ondas',items:[
+    ['Velocidade de onda','waveV',[['lambda','Comprimento de onda λ (m)',2],['f','Frequência f (Hz)',5]]],
+    ['Frequência','waveF',[['v','Velocidade v (m/s)',340],['lambda','Comprimento λ (m)',2]]],
+    ['Período','waveT',[['f','Frequência f (Hz)',5]]]
+  ]},
+  opt:{title:'Óptica',items:[
+    ['Equação de lentes','lente',[['f','Distância focal f (m)',0.2],['do','Distância do objeto dₒ (m)',0.4]]],
+    ['Aumento linear','aumento',[['di','Distância da imagem dᵢ (m)',0.4],['do','Distância do objeto dₒ (m)',0.8]]],
+    ['Índice de refração','refracao',[['c','Velocidade da luz c (m/s)',3e8],['v','Velocidade no meio v (m/s)',2e8]]]
+  ]},
+  elec:{title:'Eletricidade',items:[
+    ['Lei de Ohm','ohm',[['R','Resistência R (Ω)',10],['I','Corrente I (A)',2]]],
+    ['Potência elétrica','pot',[['V','Tensão V (V)',220],['I','Corrente I (A)',2]]],
+    ['Energia elétrica','energia',[['P','Potência P (W)',1000],['t','Tempo t (h)',2]]]
+  ]},
+  mag:{title:'Magnetismo',items:[
+    ['Força magnética','magForce',[['q','Carga q (C)',1e-6],['v','Velocidade v (m/s)',1e5],['B','Campo B (T)',0.2],['sen','sen θ',1]]],
+    ['Fluxo magnético','flux',[['B','Campo B (T)',0.5],['A','Área A (m²)',2],['cos','cos θ',1]]]
+  ]},
+  em:{title:'Eletromagnetismo',items:[
+    ['Lei de Faraday','faraday',[['N','Número de espiras N',100],['dPhi','Variação de fluxo ΔΦ (Wb)',0.02],['dt','Intervalo Δt (s)',0.1]]],
+    ['Carga de capacitor','capacitor',[['C','Capacitância C (F)',0.001],['V','Tensão V (V)',12]]]
+  ]},
+  mod:{title:'Física Moderna',items:[
+    ['Energia de Einstein','einstein',[['m','Massa m (kg)',1e-9],['c','Velocidade da luz c (m/s)',3e8]]],
+    ['Fóton — energia','photon',[['h','Constante h (J·s)',6.62607015e-34],['f','Frequência f (Hz)',5e14]]],
+    ['Fóton — comprimento de onda','photonLambda',[['c','Velocidade da luz c (m/s)',3e8],['f','Frequência f (Hz)',5e14]]]
+  ]}
+};
+
+window.physicsCalculate=function(id,v){
+  const steps=[]; let result=0, unit='';
+  const add=(formula,calc)=>{steps.push('<div class="nt-formula">'+formula+'</div><div>'+calc+'</div>');};
+  switch(id){
+    case 'mru': result=v.x0+v.v*v.t; unit='m'; add('x=x₀+vt',`x=${v.x0}+${v.v}·${v.t}=${result.toFixed(6)} m`); break;
+    case 'mruPos': result=v.x0+v.v0*v.t+0.5*v.a*v.t*v.t; unit='m'; add('x=x₀+v₀t+(at²)/2',`x=${result.toFixed(6)} m`); break;
+    case 'mruVel': result=v.v0+v.a*v.t; unit='m/s'; add('v=v₀+at',`v=${result.toFixed(6)} m/s`); break;
+    case 'queda': result=Math.sqrt(2*v.h/v.g); unit='s'; add('t=√(2h/g)',`t=${result.toFixed(6)} s`); break;
+    case 'newton2': result=v.m*v.a; unit='N'; add('F=ma',`F=${v.m}·${v.a}=${result.toFixed(6)} N`); break;
+    case 'peso': result=v.m*v.g; unit='N'; add('P=mg',`P=${result.toFixed(6)} N`); break;
+    case 'atrito': result=v.mu*v.N; unit='N'; add('Fₐₜ=μN',`Fₐₜ=${result.toFixed(6)} N`); break;
+    case 'gravForce': result=v.G*v.m1*v.m2/(v.r*v.r); unit='N'; add('F=Gm₁m₂/r²',`F=${result.toExponential(6)} N`); break;
+    case 'orbital': result=Math.sqrt(v.G*v.M/v.r); unit='m/s'; add('v=√(GM/r)',`v=${result.toFixed(6)} m/s`); break;
+    case 'calor': result=v.m*v.c*v.dT; unit='J'; add('Q=mcΔT',`Q=${result.toFixed(6)} J`); break;
+    case 'dilat': result=v.L0*v.alpha*v.dT; unit='m'; add('ΔL=L₀αΔT',`ΔL=${result.toExponential(6)} m`); break;
+    case 'cf': result=9*v.C/5+32; unit='°F'; add('F=(9/5)C+32',`F=${result.toFixed(6)} °F`); break;
+    case 'primeiraLei': result=v.Q-v.W; unit='J'; add('ΔU=Q−W',`ΔU=${result.toFixed(6)} J`); break;
+    case 'gasIdeal': result=v.n*8.314462618*v.T/v.V; unit='Pa'; add('pV=nRT',`p=${result.toFixed(6)} Pa`); break;
+    case 'rendimento': result=(v.Qh-v.Qc)/v.Qh*100; unit='%'; add('η=(Qh−Qc)/Qh',`η=${result.toFixed(6)} %`); break;
+    case 'waveV': result=v.lambda*v.f; unit='m/s'; add('v=λf',`v=${result.toFixed(6)} m/s`); break;
+    case 'waveF': result=v.v/v.lambda; unit='Hz'; add('f=v/λ',`f=${result.toFixed(6)} Hz`); break;
+    case 'waveT': result=1/v.f; unit='s'; add('T=1/f',`T=${result.toFixed6} s`); break;
+    case 'lente': result=1/(1/v.f-1/v.do); unit='m'; add('1/f=1/dₒ+1/dᵢ',`dᵢ=${result.toFixed(6)} m`); break;
+    case 'aumento': result=-v.di/v.do; unit=''; add('A=−dᵢ/dₒ',`A=${result.toFixed(6)}`); break;
+    case 'refracao': result=v.c/v.v; unit=''; add('n=c/v',`n=${result.toFixed(6)}`); break;
+    case 'ohm': result=v.R*v.I; unit='V'; add('V=RI',`V=${result.toFixed(6)} V`); break;
+    case 'pot': result=v.V*v.I; unit='W'; add('P=VI',`P=${result.toFixed(6)} W`); break;
+    case 'energia': result=v.P*v.t; unit='Wh'; add('E=Pt',`E=${result.toFixed(6)} Wh`); break;
+    case 'magForce': result=Math.abs(v.q*v.v*v.B*v.sen); unit='N'; add('F=|q|vB senθ',`F=${result.toExponential(6)} N`); break;
+    case 'flux': result=v.B*v.A*v.cos; unit='Wb'; add('Φ=BA cosθ',`Φ=${result.toFixed(6)} Wb`); break;
+    case 'faraday': result=Math.abs(v.N*v.dPhi/v.dt); unit='V'; add('|ε|=N|ΔΦ/Δt|',`|ε|=${result.toFixed(6)} V`); break;
+    case 'capacitor': result=v.C*v.V; unit='C'; add('Q=CV',`Q=${result.toFixed(6)} C`); break;
+    case 'einstein': result=v.m*v.c*v.c; unit='J'; add('E=mc²',`E=${result.toExponential(6)} J`); break;
+    case 'photon': result=v.h*v.f; unit='J'; add('E=hf',`E=${result.toExponential(6)} J`); break;
+    case 'photonLambda': result=v.c/v.f; unit='m'; add('λ=c/f',`λ=${result.toExponential(6)} m`); break;
+    default: throw new Error('Modelo físico não implementado: '+id);
+  }
+  return {steps,result:result.toFixed(6)+' '+unit};
+};
+
 /* Corrige a inicialização e torna as calculadoras de Física independentes dos simuladores. */
 function renderPhysicsCalculator(){
   const area=document.getElementById('physics-area').value, data=physicsForms[area];
