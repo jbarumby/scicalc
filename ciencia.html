@@ -3193,5 +3193,153 @@ document.addEventListener('DOMContentLoaded', function(){
   }, 50);
 });
 </script>
+
+<script id="scicalc-physics-runtime-fix">
+/* ===== CORREÇÃO INDEPENDENTE DO MOTOR DE FÍSICA =====
+   Este bloco é deliberadamente isolado para que a interface de Física
+   continue funcionando mesmo que algum módulo legado tenha erro.
+*/
+(function(){
+'use strict';
+
+var PHYSICS = {
+  cin:{title:'Cinemática',items:[
+    ['MRU — posição','mru',[['x0','Posição inicial x₀ (m)',0],['v','Velocidade v (m/s)',10],['t','Tempo t (s)',5]]],
+    ['MRUV — posição','mruPos',[['x0','Posição inicial x₀ (m)',0],['v0','Velocidade inicial v₀ (m/s)',5],['a','Aceleração a (m/s²)',2],['t','Tempo t (s)',4]]],
+    ['MRUV — velocidade','mruVel',[['v0','Velocidade inicial v₀ (m/s)',5],['a','Aceleração a (m/s²)',2],['t','Tempo t (s)',4]]],
+    ['Queda livre','queda',[['h','Altura h (m)',20],['g','Gravidade g (m/s²)',9.81]]]
+  ]},
+  dyn:{title:'Dinâmica',items:[
+    ['2ª Lei de Newton','newton2',[['m','Massa m (kg)',10],['a','Aceleração a (m/s²)',2]]],
+    ['Peso','peso',[['m','Massa m (kg)',10],['g','Gravidade g (m/s²)',9.81]]],
+    ['Atrito cinético','atrito',[['mu','Coeficiente μ',0.2],['N','Normal N (N)',100]]]
+  ]},
+  grav:{title:'Gravitação',items:[
+    ['Força gravitacional','gravForce',[['G','G (N·m²/kg²)',6.67430e-11],['m1','Massa m₁ (kg)',5.972e24],['m2','Massa m₂ (kg)',1000],['r','Distância r (m)',6.371e6]]],
+    ['Velocidade orbital','orbital',[['G','G (N·m²/kg²)',6.67430e-11],['M','Massa central M (kg)',5.972e24],['r','Raio orbital r (m)',7e6]]]
+  ]},
+  termo:{title:'Termologia',items:[
+    ['Calor sensível','calor',[['m','Massa m (kg)',2],['c','Calor específico c (J/kg·K)',4186],['dT','Variação de temperatura ΔT (K)',10]]],
+    ['Dilatação linear','dilat',[['L0','Comprimento inicial L₀ (m)',2],['alpha','Coeficiente α (K⁻¹)',1.2e-5],['dT','Variação ΔT (K)',50]]],
+    ['Celsius → Fahrenheit','cf',[['C','Temperatura (°C)',25]]]
+  ]},
+  termod:{title:'Termodinâmica',items:[
+    ['1ª Lei — energia interna','primeiraLei',[['Q','Calor Q (J)',1000],['W','Trabalho W (J)',300]]],
+    ['Gás ideal — pressão','gasIdeal',[['n','Quantidade n (mol)',1],['T','Temperatura T (K)',300],['V','Volume V (m³)',0.0249]]],
+    ['Rendimento térmico','rendimento',[['Qh','Calor recebido Qh (J)',1000],['Qc','Calor rejeitado Qc (J)',400]]]
+  ]},
+  ondas:{title:'Ondas',items:[
+    ['Velocidade da onda','waveV',[['lambda','Comprimento de onda λ (m)',2],['f','Frequência f (Hz)',5]]],
+    ['Frequência','waveF',[['v','Velocidade v (m/s)',340],['lambda','Comprimento λ (m)',2]]],
+    ['Período','waveT',[['f','Frequência f (Hz)',5]]]
+  ]},
+  opt:{title:'Óptica',items:[
+    ['Equação das lentes','lente',[['f','Distância focal f (m)',0.2],['do','Distância do objeto dₒ (m)',0.4]]],
+    ['Aumento linear','aumento',[['di','Distância da imagem dᵢ (m)',0.4],['do','Distância do objeto dₒ (m)',0.8]]],
+    ['Índice de refração','refracao',[['c','Velocidade da luz c (m/s)',3e8],['v','Velocidade no meio v (m/s)',2e8]]]
+  ]},
+  elec:{title:'Eletricidade',items:[
+    ['Lei de Ohm','ohm',[['R','Resistência R (Ω)',10],['I','Corrente I (A)',2]]],
+    ['Potência elétrica','pot',[['V','Tensão V (V)',220],['I','Corrente I (A)',2]]],
+    ['Energia elétrica','energia',[['P','Potência P (W)',1000],['t','Tempo t (h)',2]]]
+  ]},
+  mag:{title:'Magnetismo',items:[
+    ['Força magnética','magForce',[['q','Carga q (C)',1e-6],['v','Velocidade v (m/s)',1e5],['B','Campo B (T)',0.2],['sen','sen θ',1]]],
+    ['Fluxo magnético','flux',[['B','Campo B (T)',0.5],['A','Área A (m²)',2],['cos','cos θ',1]]]
+  ]},
+  em:{title:'Eletromagnetismo',items:[
+    ['Lei de Faraday','faraday',[['N','Número de espiras N',100],['dPhi','Variação de fluxo ΔΦ (Wb)',0.02],['dt','Intervalo Δt (s)',0.1]]],
+    ['Carga do capacitor','capacitor',[['C','Capacitância C (F)',0.001],['V','Tensão V (V)',12]]]
+  ]},
+  mod:{title:'Física Moderna',items:[
+    ['Energia de Einstein','einstein',[['m','Massa m (kg)',1e-9],['c','Velocidade da luz c (m/s)',3e8]]],
+    ['Energia do fóton','photon',[['h','Constante h (J·s)',6.62607015e-34],['f','Frequência f (Hz)',5e14]]],
+    ['Comprimento de onda do fóton','photonLambda',[['c','Velocidade da luz c (m/s)',3e8],['f','Frequência f (Hz)',5e14]]]
+  ]}
+};
+
+window.physicsForms=PHYSICS;
+
+function fmt(n){ return Number(n).toPrecision(8); }
+function num(v,k){ var n=Number(v[k]); if(!Number.isFinite(n)) throw new Error('Valor inválido.'); return n; }
+
+window.physicsCalculate=function(id,v){
+  var r,u,steps=[];
+  function S(f,c){steps.push('<div class="nt-formula">'+f+'</div><div>'+c+'</div>');}
+  switch(id){
+    case'mru':r=v.x0+v.v*v.t;u='m';S('x=x₀+vt','x='+v.x0+' + '+v.v+'·'+v.t+' = '+fmt(r)+' m');break;
+    case'mruPos':r=v.x0+v.v0*v.t+.5*v.a*v.t*v.t;u='m';S('x=x₀+v₀t+½at²','x='+fmt(r)+' m');break;
+    case'mruVel':r=v.v0+v.a*v.t;u='m/s';S('v=v₀+at','v='+fmt(r)+' m/s');break;
+    case'queda':r=Math.sqrt(2*v.h/v.g);u='s';S('t=√(2h/g)','t='+fmt(r)+' s');break;
+    case'newton2':r=v.m*v.a;u='N';S('F=ma','F='+fmt(r)+' N');break;
+    case'peso':r=v.m*v.g;u='N';S('P=mg','P='+fmt(r)+' N');break;
+    case'atrito':r=v.mu*v.N;u='N';S('Fₐₜ=μN','Fₐₜ='+fmt(r)+' N');break;
+    case'gravForce':r=v.G*v.m1*v.m2/(v.r*v.r);u='N';S('F=Gm₁m₂/r²','F='+r.toExponential(8)+' N');break;
+    case'orbital':r=Math.sqrt(v.G*v.M/v.r);u='m/s';S('v=√(GM/r)','v='+fmt(r)+' m/s');break;
+    case'calor':r=v.m*v.c*v.dT;u='J';S('Q=mcΔT','Q='+fmt(r)+' J');break;
+    case'dilat':r=v.L0*v.alpha*v.dT;u='m';S('ΔL=L₀αΔT','ΔL='+r.toExponential(8)+' m');break;
+    case'cf':r=9*v.C/5+32;u='°F';S('F=(9/5)C+32','F='+fmt(r)+' °F');break;
+    case'primeiraLei':r=v.Q-v.W;u='J';S('ΔU=Q−W','ΔU='+fmt(r)+' J');break;
+    case'gasIdeal':r=v.n*8.314462618*v.T/v.V;u='Pa';S('p=nRT/V','p='+r.toExponential(8)+' Pa');break;
+    case'rendimento':r=(v.Qh-v.Qc)/v.Qh*100;u='%';S('η=(Qh−Qc)/Qh','η='+fmt(r)+' %');break;
+    case'waveV':r=v.lambda*v.f;u='m/s';S('v=λf','v='+fmt(r)+' m/s');break;
+    case'waveF':r=v.v/v.lambda;u='Hz';S('f=v/λ','f='+fmt(r)+' Hz');break;
+    case'waveT':r=1/v.f;u='s';S('T=1/f','T='+fmt(r)+' s');break;
+    case'lente':r=1/(1/v.f-1/v.do);u='m';S('1/f=1/dₒ+1/dᵢ','dᵢ='+fmt(r)+' m');break;
+    case'aumento':r=-v.di/v.do;u='';S('A=−dᵢ/dₒ','A='+fmt(r));break;
+    case'refracao':r=v.c/v.v;u='';S('n=c/v','n='+fmt(r));break;
+    case'ohm':r=v.R*v.I;u='V';S('V=RI','V='+fmt(r)+' V');break;
+    case'pot':r=v.V*v.I;u='W';S('P=VI','P='+fmt(r)+' W');break;
+    case'energia':r=v.P*v.t;u='Wh';S('E=Pt','E='+fmt(r)+' Wh');break;
+    case'magForce':r=Math.abs(v.q*v.v*v.B*v.sen);u='N';S('F=|q|vB senθ','F='+r.toExponential(8)+' N');break;
+    case'flux':r=v.B*v.A*v.cos;u='Wb';S('Φ=BA cosθ','Φ='+fmt(r)+' Wb');break;
+    case'faraday':r=Math.abs(v.N*v.dPhi/v.dt);u='V';S('|ε|=N|ΔΦ/Δt|','|ε|='+fmt(r)+' V');break;
+    case'capacitor':r=v.C*v.V;u='C';S('Q=CV','Q='+fmt(r)+' C');break;
+    case'einstein':r=v.m*v.c*v.c;u='J';S('E=mc²','E='+r.toExponential(8)+' J');break;
+    case'photon':r=v.h*v.f;u='J';S('E=hf','E='+r.toExponential(8)+' J');break;
+    case'photonLambda':r=v.c/v.f;u='m';S('λ=c/f','λ='+r.toExponential(8)+' m');break;
+    default:throw new Error('Calculadora física não encontrada: '+id);
+  }
+  return{steps:steps,result:fmt(r)+' '+u};
+};
+
+window.renderPhysicsCalculator=function(){
+  var area=document.getElementById('physics-area'),sel=document.getElementById('physics-formula');
+  if(!area||!sel)return;
+  var data=PHYSICS[area.value];
+  if(!data){sel.innerHTML='<option>Área não encontrada</option>';return;}
+  sel.innerHTML=data.items.map(function(x){return'<option value="'+x[1]+'">'+x[0]+'</option>';}).join('');
+  window.renderPhysicsForm();
+};
+
+window.renderPhysicsForm=function(){
+  var area=document.getElementById('physics-area'),sel=document.getElementById('physics-formula'),form=document.getElementById('physics-form'),res=document.getElementById('physics-result');
+  if(!area||!sel||!form)return;
+  var data=PHYSICS[area.value],item=data&&data.items.find(function(x){return x[1]===sel.value;});
+  if(!item)return;
+  form.innerHTML='<h3>'+data.title+' — '+item[0]+'</h3><div class="sim-controls">'+item[2].map(function(x){return'<div><label>'+x[1]+'</label><input type="number" step="any" id="pfx-'+x[0]+'" value="'+x[2]+'"></div>';}).join('')+'</div><button class="btn" type="button" onclick="runPhysicsCalculator()">🧮 Calcular passo a passo</button>';
+  if(res)res.innerHTML='';
+};
+
+window.runPhysicsCalculator=function(){
+  try{
+    var area=document.getElementById('physics-area'),sel=document.getElementById('physics-formula');
+    var data=PHYSICS[area.value],item=data&&data.items.find(function(x){return x[1]===sel.value;});
+    if(!item)throw new Error('Selecione uma calculadora.');
+    var v={};item[2].forEach(function(x){var el=document.getElementById('pfx-'+x[0]);v[x[0]]=num({x:el.value},'x');});
+    var o=window.physicsCalculate(item[1],v);
+    document.getElementById('physics-result').innerHTML='<div class="result"><h3>📚 Resolução passo a passo</h3>'+o.steps.map(function(st,i){return'<div class="didactic-step"><div class="step-num">'+(i+1)+'</div><div><strong>Passo '+(i+1)+'</strong>'+st+'</div></div>';}).join('')+'<div class="check-pill">✓ Resultado: '+o.result+'</div></div>';
+  }catch(e){if(typeof toast==='function')toast(e.message,'err');else console.error(e);}
+};
+
+function initPhysics(){
+  try{
+    var area=document.getElementById('physics-area');
+    if(area)window.renderPhysicsCalculator();
+  }catch(e){console.error('[SciCalc Física]',e);}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPhysics);else setTimeout(initPhysics,0);
+})();
+</script>
 </body>
 </html>
