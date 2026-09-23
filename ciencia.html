@@ -997,8 +997,7 @@ function calcDerivada() {
     const d2Code = d2Node.compile();
     
     const xs = [], ys = [], yps = [], ypps = [];
-    for(let i=0; i<=100; i++) {
-      let x = x1 + (x2 - x1) * (i/100);
+    for(let i=0; i<=100; i++) {      let x = x1 + (x2 - x1) * (i/100);
       xs.push(x);
       try { ys.push(fCode.evaluate({ [varName]: x })); } catch(e) { ys.push(null); }
       try { yps.push(d1Code.evaluate({ [varName]: x })); } catch(e) { yps.push(null); }
@@ -1997,8 +1996,7 @@ function scicalcIntegralTermStep(node, variable, sign) {
   if (trigPower) return trigPower;
 
   if (core === null) {
-    return scicalcStep('Regra 1 — constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable + ' + C', 'A integral de uma constante é a constante multiplicada pela variável.');
-  }
+    return scicalcStep('Regra 1 — constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable + ' + C', 'A integral de uma constante é a constante multiplicada pela variável.');  }
   if (core.type === 'SymbolNode' && core.name === variable) {
     return scicalcStep('Regra 4 — potência (n = 1)', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^2}{2} + C', 'Somamos 1 ao expoente: 1 + 1 = 2; depois dividimos pelo novo expoente.');
   }
@@ -2997,8 +2995,7 @@ const v26labs={
     ]
   },
   rc:{
-    title:'Circuito RC — carga',
-    formula:'V_C(t)=V₀(1−e^(−t/RC))',
+    title:'Circuito RC — carga',    formula:'V_C(t)=V₀(1−e^(−t/RC))',
     desc:'Carga de um capacitor em circuito RC.',
     fields:[
       ['v','Tensão V₀ (V)',12],
