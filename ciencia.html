@@ -351,6 +351,7 @@
       </div>
     </div>
     <button class="btn" onclick="plotar3D()">Gerar Superfície 3D</button>
+    <div id="g3d-result" aria-live="polite"></div>
     <div id="g3d-plot" class="plot" style="height:500px"></div>
   </div>
 </section>
@@ -1036,1248 +1037,142 @@ function calcLimite() {
 // ============ GRÁFICO 3D ============
 function plotar3D() {
   try {
-    const f = str('g3d-f');
-    const fCode = math.parse(f).compile();
-    const xmin = num('g3d-xmin'), xmax = num('g3d-xmax');
-    const ymin = num('g3d-ymin'), ymax = num('g3d-ymax');
-    
-    const steps = 40;
-    const Z=[], X=[], Y=[];
-    
-    for(let i=0; i<=steps; i++) {
-      const rowZ=[], rowX=[], rowY=[];
-      const y = ymin + (ymax-ymin)*(i/steps);
-      for(let j=0; j<=steps; j++) {
-        const x = xmin + (xmax-xmin)*(j/steps);
-        rowX.push(x); rowY.push(y);
-        try {
-          let val = fCode.evaluate({x:x, y:y});
-          rowZ.push(isFinite(val) ? val : null);
-        } catch(e) { rowZ.push(null); }
-      }
-      Z.push(rowZ); X.push(rowX); Y.push(rowY);
-    }
-    
-    const layout = getPlotLayout({
-      title: `z = ${f}`, 
-      scene: {xaxis:{title:'x'}, yaxis:{title:'y'}, zaxis:{title:'z'}}
-    });
-    
-    Plotly.newPlot('g3d-plot', [{z:Z, x:X, y:Y, type:'surface', colorscale:'Viridis'}], layout, {responsive:true});
-    toast('Gráfico 3D gerado!','ok');
-  } catch(e) { toast(e.message,'err'); }
-}
-
-// ============ EDOs ============
-function calcEDO() {
-  try {
-    const fStr = str('edo-f');
-    const fNode = math.parse(fStr);
-    const fCode = fNode.compile();
-    const x0 = num('edo-x0'), y0 = num('edo-y0'), xf = num('edo-xf');
-    const N = Math.max(1, Math.floor(num('edo-n')));
-    if(!Number.isFinite(x0)||!Number.isFinite(y0)||!Number.isFinite(xf)||x0===xf) throw new Error('Informe x₀, y₀ e x final válidos e diferentes.');
-    const h = (xf-x0)/N;
-    const xs = [x0], ys = [y0];
-    let x=x0, y=y0;
-    const rows=[];
-    for(let i=0;i<N;i++){
-      const yBefore=y, xBefore=x;
-      const k1=fCode.evaluate({x:xBefore,y:yBefore});
-      const y2=yBefore+h*k1/2, x2=xBefore+h/2;
-      const k2=fCode.evaluate({x:x2,y:y2});
-      const y3=yBefore+h*k2/2, x3=xBefore+h/2;
-      const k3=fCode.evaluate({x:x3,y:y3});
-      const y4=yBefore+h*k3, x4=xBefore+h;
-      const k4=fCode.evaluate({x:x4,y:y4});
-      const incr=(h/6)*(k1+2*k2+2*k3+k4);
-      y=yBefore+incr; x=xBefore+h;
-      xs.push(x); ys.push(y);
-      if(i<8 || i===N-1) rows.push({i:i+1,x:xBefore,y:yBefore,k1,k2,k3,k4,incr,yNext:y});
-    }
-    const fmt=v=>Number(v.toFixed(10)).toString();
-    let table=`<div class="limit-sides"><div class="limit-side"><strong>Tabela detalhada do RK4</strong><table class="step-table"><thead><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>k₁</th><th>k₂</th><th>k₃</th><th>k₄</th><th>Δy</th><th>yᵢ₊₁</th></tr></thead><tbody>`;
-    table += rows.map(r=>`<tr><td>${r.i}</td><td>${fmt(r.x)}</td><td>${fmt(r.y)}</td><td>${fmt(r.k1)}</td><td>${fmt(r.k2)}</td><td>${fmt(r.k3)}</td><td>${fmt(r.k4)}</td><td>${fmt(r.incr)}</td><td>${fmt(r.yNext)}</td></tr>`).join('');
-    table += `</tbody></table></div></div>`;
-    const first=rows[0];
-    const steps=[
-      `1. Identificamos a EDO na forma <strong>y' = f(x,y)</strong>: ${tex(String.raw`y' = ${fNode.toTex()}`)}.`,
-      `2. Condição inicial: ${texInline(String.raw`x_0=${x0}`)} e ${texInline(String.raw`y_0=${y0}`)}.`,
-      `3. Número de passos: ${N}. Logo, o tamanho do passo é ${texInline(String.raw`h=(x_f-x_0)/N=${fmt(h)}`)}.`,
-      `4. Método utilizado: <strong>Runge–Kutta de 4ª ordem (RK4)</strong>. Em cada passo calculamos quatro inclinações.`,
-      `5. Primeiro ponto intermediário: ${texInline(String.raw`x_0=${fmt(first.x)},\quad y_0=${fmt(first.y)}`)}.`,
-      `6. Primeira inclinação: ${texInline(String.raw`k_1=f(x_0,y_0)=${fmt(first.k1)}`)}.`,
-      `7. Segunda inclinação: ${texInline(String.raw`x_0+\frac h2=${fmt(first.x+h/2)},\quad y_0+\frac{hk_1}{2}=${fmt(first.y+h*first.k1/2)}`)}; então ${texInline(String.raw`k_2=${fmt(first.k2)}`)}.`,
-      `8. Terceira inclinação: ${texInline(String.raw`x_0+\frac h2=${fmt(first.x+h/2)},\quad y_0+\frac{hk_2}{2}=${fmt(first.y+h*first.k2/2)}`)}; então ${texInline(String.raw`k_3=${fmt(first.k3)}`)}.`,
-      `9. Quarta inclinação: ${texInline(String.raw`x_0+h=${fmt(first.x+h)},\quad y_0+hk_3=${fmt(first.y+h*first.k3)}`)}; então ${texInline(String.raw`k_4=${fmt(first.k4)}`)}.`,
-      `10. Atualização: ${texInline(String.raw`y_1=y_0+\frac{h}{6}(k_1+2k_2+2k_3+k_4)=${fmt(first.yNext)}`)}.`,
-      `11. Repetimos o mesmo processo até ${texInline(String.raw`x=${xf}`)}. A tabela mostra os primeiros passos e o último passo.`,
-      `12. Resultado numérico: ${texInline(String.raw`y(${xf})\approx${fmt(y)}`)}.`
-    ];
-    document.getElementById('edo-result').innerHTML=`<div class="result"><h3>📚 Resolução passo a passo — RK4</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}${table}</div>`;
-    Plotly.newPlot('edo-plot',[{x:xs,y:ys,name:'Solução y(x)',line:{width:3}}],getPlotLayout({title:'Solução EDO (RK4)',xaxis:{title:'x'},yaxis:{title:'y'}}),{responsive:true});
-    salvarHistorico('EDO RK4',`y'=${fStr}`,`y(${xf}) ≈ ${fmt(y)}`);
-  } catch(e){ toast(e.message,'err'); }
-}
-
-// ============ FOURIER ============
-function calcFourier() {
-  try {
-    const fStr=str('four-f');
-    const fNode=math.parse(fStr), fCode=fNode.compile();
-    const tmin=num('four-tmin'), tmax=num('four-tmax');
-    const N=Math.floor(num('four-n'));
-    if(!Number.isFinite(N)||N<4||N%2!==0) throw new Error('O número de amostras N deve ser par e ≥ 4.');
-    if(!(tmax>tmin)) throw new Error('O intervalo deve satisfazer t máximo > t mínimo.');
-    const dt=(tmax-tmin)/N;
-    const times=[], signal=[];
-    for(let n=0;n<N;n++){ const t=tmin+n*dt; times.push(t); signal.push(Number(fCode.evaluate({t}))||0); }
-    const K=N/2;
-    const frequencies=[], magnitudes=[], coeffRows=[];
-    let a0sum=0;
-    for(let n=0;n<N;n++) a0sum+=signal[n];
-    const a0=(2/N)*a0sum;
-    for(let k=0;k<K;k++){
-      let re=0, im=0;
-      for(let n=0;n<N;n++){ const ang=2*Math.PI*k*n/N; re+=signal[n]*Math.cos(ang); im-=signal[n]*Math.sin(ang); }
-      re/=N; im/=N;
-      let amp=2*Math.sqrt(re*re+im*im);
-      if(k===0) amp=Math.abs(a0/2);
-      frequencies.push(k/(N*dt)); magnitudes.push(amp);
-      if(k<12) coeffRows.push({k,f:frequencies[k],re,im,amp});
-    }
-    const fmt=v=>Number(v.toFixed(8)).toString();
-    const sampleRows=times.slice(0,Math.min(8,N)).map((t,i)=>`<tr><td>${i}</td><td>${fmt(t)}</td><td>${fmt(signal[i])}</td></tr>`).join('');
-    const coeffTable=coeffRows.map(r=>`<tr><td>${r.k}</td><td>${fmt(r.f)}</td><td>${fmt(r.re)}</td><td>${fmt(r.im)}</td><td>${fmt(r.amp)}</td></tr>`).join('');
-    const steps=[
-      `1. Função/sinal informado: ${tex(String.raw`f(t)=${fNode.toTex()}`)}.`,
-      `2. Intervalo de análise: ${texInline(String.raw`t\in[${tmin},${tmax}]`)}.`,
-      `3. Número de amostras: ${N}. Como ${texInline(String.raw`N`)} é par, calculamos ${K} componentes até a metade do espectro.`,
-      `4. Passo temporal: ${texInline(String.raw`\Delta t=(t_{max}-t_{min})/N=${fmt(dt)}`)}.`,
-      `5. Amostragem: calculamos ${texInline(String.raw`t_n=t_{min}+n\Delta t`)} e avaliamos ${texInline(String.raw`f(t_n)`)} para cada ${texInline(String.raw`n=0,1,\ldots,N-1`)}.`,
-      `6. Para cada frequência discreta ${texInline(String.raw`k`)}, calculamos as partes real e imaginária da DFT: ${texInline(String.raw`Re_k=\frac1N\sum f(t_n)\cos(2\pi kn/N)`)} e ${texInline(String.raw`Im_k=-\frac1N\sum f(t_n)\sin(2\pi kn/N)`)}.`,
-      `7. Para tornar o cálculo verificável, o primeiro coeficiente usa ${texInline(String.raw`k=0`)}: ${texInline(String.raw`Re_0=\frac1N\sum_{n=0}^{N-1}f(t_n)`)} e a parte imaginária tende a zero para um sinal puramente médio.`,
-      `8. A amplitude é obtida por ${texInline(String.raw`A_k=2\sqrt{Re_k^2+Im_k^2}`)}; para ${texInline(String.raw`k=0`)}, usamos a componente média.`,
-      `9. A frequência associada é ${texInline(String.raw`f_k=k/(N\Delta t)`)}.`,
-      `10. Resultado: foram calculadas ${K} componentes espectrais e o gráfico mostra o sinal amostrado e seu espectro.`
-    ];
-    let html=`<div class="result"><h3>📚 Transformada de Fourier — passo a passo</h3>${steps.map((st,i)=>`<div class="didactic-step"><div class="step-num">${i+1}</div><div>${st}</div></div>`).join('')}`;
-    html+=`<div class="limit-sides"><div class="limit-side"><strong>Primeiras amostras</strong><table class="step-table"><thead><tr><th>n</th><th>tₙ</th><th>f(tₙ)</th></tr></thead><tbody>${sampleRows}</tbody></table></div><div class="limit-side"><strong>Primeiros coeficientes</strong><table class="step-table"><thead><tr><th>k</th><th>fₖ</th><th>Re</th><th>Im</th><th>Aₖ</th></tr></thead><tbody>${coeffTable}</tbody></table></div></div>`;
-    html+=`<div style="margin-top:12px"><strong>Componente média:</strong> ${texInline(String.raw`a_0/2=${fmt(a0/2)}`)}</div></div>`;
-    document.getElementById('four-result').innerHTML=html;
-    Plotly.newPlot('four-plot',[
-      {x:times,y:signal,type:'scatter',mode:'lines',name:'Sinal f(t)',xaxis:'x',yaxis:'y'},
-      {x:frequencies,y:magnitudes,type:'scatter',mode:'lines+markers',name:'Amplitude',xaxis:'x2',yaxis:'y2'}
-    ],getPlotLayout({title:'Sinal e espectro de Fourier (DFT)',grid:{rows:2,columns:1,pattern:'independent'},height:620,xaxis:{title:'t'},yaxis:{title:'f(t)'},xaxis2:{title:'Frequência'},yaxis2:{title:'Amplitude'}}),{responsive:true});
-    salvarHistorico('Fourier (DFT)',fStr,`${N} amostras; ${K} componentes`);
-  } catch(e){ toast(e.message,'err'); }
-}
-
-// ============ TEORIA DOS NÚMEROS ============
-function testarPrimo() {
-  try {
-    const n = parseInt(str('num-teste'));
-    if(n < 2) throw new Error('n deve ser ≥ 2');
-    let primo = true;
-    for(let i=2; i<=Math.sqrt(n); i++) if(n%i === 0) { primo = false; break; }
-    document.getElementById('num-primos-result').innerHTML = `<div class="result" style="font-size:1.2rem">O número <strong>${n}</strong> ${primo ? '<span style="color:var(--ok)">É PRIMO</span>' : '<span style="color:var(--err)">NÃO é primo</span>'}</div>`;
-  } catch(e) { toast(e.message,'err'); }
-}
-
-function crivoEratostenes() {
-  try {
-    const N = parseInt(str('num-crivo'));
-    if(N<2 || N>1000000) throw new Error('2 ≤ N ≤ 1.000.000');
-    const sieve = new Uint8Array(N+1);
-    const primos = [];
-    for(let i=2; i<=N; i++) {
-      if(!sieve[i]) {
-        primos.push(i);
-        for(let j=i*i; j<=N; j+=i) sieve[j]=1;
-      }
-    }
-    document.getElementById('num-primos-result').innerHTML = `<div class="result">
-      <div><strong>Primos até ${N}:</strong> ${primos.length} encontrados</div>
-      <div style="margin-top:10px; font-family:monospace; font-size:0.9rem; max-height:200px; overflow-y:auto; word-wrap:break-word;">${primos.join(', ')}</div>
-    </div>`;
-  } catch(e) { toast(e.message,'err'); }
-}
-
-const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
-function calcularMDC() { try { const a=parseInt(str('num-a')), b=parseInt(str('num-b')); document.getElementById('num-primos-result').innerHTML = `<div class="result">MDC(${a}, ${b}) = <strong>${gcd(a,b)}</strong></div>`; } catch(e){toast(e.message,'err');} }
-function calcularMMC() { try { const a=parseInt(str('num-c')), b=parseInt(str('num-d')); document.getElementById('num-primos-result').innerHTML = `<div class="result">MMC(${a}, ${b}) = <strong>${Math.abs(a*b)/gcd(a,b)}</strong></div>`; } catch(e){toast(e.message,'err');} }
-
-function fatorarNumero() {
-  try {
-    let n = parseInt(str('num-fatorar'));
-    if(n < 2) throw new Error('n deve ser ≥ 2');
-    const orig = n, fat = {};
-    for(let p=2; p*p<=n; p++) { while(n%p===0) { fat[p]=(fat[p]||0)+1; n/=p; } }
-    if(n>1) fat[n] = (fat[n]||0)+1;
-    const res = Object.entries(fat).map(([p,e]) => e>1 ? `${p}^{${e}}` : p).join(' \\cdot ');
-    document.getElementById('num-fator-result').innerHTML = `<div class="result">${tex(`${orig} = ${res}`)}</div>`;
-  } catch(e) { toast(e.message,'err'); }
-}
-
-function calcularFuncoesAritmeticas() {
-  try {
-    const n = parseInt(str('num-func-n'));
-    if(isNaN(n) || n<1) throw new Error('n deve ser ≥ 1');
-    
-    let phi = n, temp = n;
-    for(let p=2; p*p<=temp; p++) if(temp%p===0) { while(temp%p===0) temp/=p; phi -= phi/p; }
-    if(temp>1) phi -= phi/temp;
-    
-    let mu = 1, tempM = n, sqf = true;
-    for(let p=2; p*p<=tempM; p++) if(tempM%p===0) { let c=0; while(tempM%p===0) {c++; tempM/=p;} if(c>1) {sqf=false; break;} mu = -mu; }
-    if(tempM>1) mu = -mu; if(!sqf) mu = 0;
-    
-    let d = 0, sigma = 0; const div = [];
-    for(let i=1; i*i<=n; i++) if(n%i===0) { d++; sigma+=i; div.push(i); if(i!==n/i) { d++; sigma+=n/i; div.push(n/i); } }
-    div.sort((a,b)=>a-b);
-    
-    document.getElementById('num-func-result').innerHTML = `<div class="result">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; text-align:center;">
-        <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">Totiente φ(n)</div><div class="value">${phi}</div></div>
-        <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">Möbius μ(n)</div><div class="value">${mu}</div></div>
-        <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">Divisores d(n)</div><div class="value">${d}</div></div>
-        <div class="fact-card" style="border-left-color:#10b981"><div class="label">Soma Div. σ(n)</div><div class="value">${sigma}</div></div>
-      </div>
-      <div style="margin-top:14px; font-family:monospace; word-break:break-all; font-size:0.9rem"><strong>Divisores:</strong> ${div.join(', ')}</div>
-    </div>`;
-  } catch(e) { toast(e.message,'err'); }
-}
-
-
-function potenciaModular(base, exp, mod){ let r=1, b=((base%mod)+mod)%mod; while(exp>0){ if(exp%2===1) r=(r*b)%mod; b=(b*b)%mod; exp=Math.floor(exp/2); } return r; }
-function isPrimeNumber(n){ if(n<2)return false; for(let i=2;i*i<=n;i++)if(n%i===0)return false; return true; }
-function demonstrarFermat(){
-  try{
-    const p=parseInt(str('ferm-p')), a=parseInt(str('ferm-a'));
-    if(!isPrimeNumber(p)) throw new Error('p deve ser primo.');
-    if(a%p===0) throw new Error('É necessário que p não divida a.');
-
-    const mod=(x)=>((x%p)+p)%p;
-    const r=potenciaModular(a,p-1,p), ap=potenciaModular(a,p,p);
-    const restos=[];
-    for(let k=1;k<p;k++) restos.push(mod(a*k));
-    const unique=new Set(restos).size===p-1;
-
-    // Potências sucessivas, úteis para tornar a verificação concreta.
-    const potencias=[];
-    let valor=1;
-    for(let k=1;k<=p-1;k++){
-      valor=mod(valor*a);
-      potencias.push({k,valor});
-    }
-
-    // Demonstração do produto dos restos.
-    let produtoEsq=1, produtoDir=1;
-    for(let k=1;k<p;k++){
-      produtoEsq=mod(produtoEsq*mod(a*k));
-      produtoDir=mod(produtoDir*k);
-    }
-
-    // Algoritmo de exponenciação rápida, mostrado passo a passo.
-    let e=p-1, b=mod(a), acumulado=1, linhas=[];
-    let etapa=1;
-    while(e>0){
-      const bit=e%2;
-      if(bit===1) acumulado=mod(acumulado*b);
-      linhas.push(`<div class="fermat-mini-step"><span>${etapa}</span><div>e = ${e}, b = ${b}, bit = ${bit}. ${bit===1?'Como o bit é 1: acumulado ← '+acumulado+'.':'O bit é 0: não multiplicamos o acumulado.'}</div></div>`);
-      b=mod(b*b); e=Math.floor(e/2); etapa++;
-    }
-
-    const listaPot=potencias.map(x=>`a<sup>${x.k}</sup> ≡ ${x.valor} (mod ${p})`).join(' &nbsp;→&nbsp; ');
-    const listaRestos=restos.map((x,i)=>`<span class="fermat-rest-pill">${i+1}a ≡ ${x}</span>`).join(' ');
-
-    document.getElementById('ferm-result').innerHTML=`
-      <div class="fermat-proof-result">
-        <div class="proof-result-title">✓ Pequeno Teorema de Fermat — resolução passo a passo</div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>1</span> Dados e hipótese</div>
-          <div>Escolhemos <strong>a = ${a}</strong> e <strong>p = ${p}</strong>.</div>
-          <div>Verificação: <strong>${p} é primo</strong> e ${p} ∤ ${a} porque ${mod(a)} ≠ 0 (mod ${p}).</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>2</span> Construção dos múltiplos de a</div>
-          <div>Calculamos <strong>a, 2a, 3a, …, (p−1)a</strong> e reduzimos cada resultado módulo p:</div>
-          <div class="fermat-rests">${listaRestos}</div>
-          <div class="fermat-explain">Os ${p-1} restos são não nulos e todos distintos. Portanto, formam apenas uma reordenação de <strong>1, 2, …, ${p-1}</strong>.</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>3</span> Multiplicação dos restos</div>
-          <div>Multiplicando todos os ${p-1} congruências:</div>
-          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ 1·2·3·…·(p−1) = (p−1)! (mod ${p})</div>
-          <div>Na verificação numérica:</div>
-          <div class="formula-block">Lado esquerdo ≡ ${produtoEsq} (mod ${p}) &nbsp;&nbsp; | &nbsp;&nbsp; Lado direito ≡ ${produtoDir} (mod ${p})</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>4</span> Cancelamento de (p−1)!</div>
-          <div>Como p é primo, nenhum dos números <strong>1, 2, …, p−1</strong> é divisível por p. Assim, (p−1)! possui inverso módulo p.</div>
-          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ (p−1)! (mod ${p})</div>
-          <div class="formula-block">a<sup>${p-1}</sup> ≡ 1 (mod ${p})</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>5</span> Conferência por potências sucessivas</div>
-          <div class="fermat-powers">${listaPot}</div>
-          <div>Logo, a potência exigida pelo teorema é:</div>
-          <div class="formula-block"><strong>${a}<sup>${p-1}</sup> ≡ ${r} ≡ 1 (mod ${p})</strong></div>
-        </div>
-
-        <details class="fermat-calculation"><summary>🔢 Ver como a potência modular foi calculada</summary><div class="fermat-mini-list">${linhas.join('')}</div></details>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>6</span> Forma equivalente</div>
-          <div>Multiplicando a congruência por a:</div>
-          <div class="formula-block">a<sup>${p}</sup> ≡ a (mod ${p})</div>
-          <div>Na verificação: <strong>${a}<sup>${p}</sup> mod ${p} = ${ap}</strong>.</div>
-        </div>
-
-        <div class="proof-conclusion">∴ <strong>${a}<sup>${p-1}</sup> ≡ 1 (mod ${p})</strong>. O Pequeno Teorema de Fermat foi demonstrado e verificado para os valores escolhidos.</div>
-      </div>`;
-  }catch(e){toast(e.message,'err');}
-}
-
-// ============ HISTÓRICO ============
-function salvarHistorico(tipo,entrada,saida) {
-  let hist = JSON.parse(localStorage.getItem('scicalc_hist')||'[]');
-  hist.unshift({tipo, entrada, saida, data: new Date().toLocaleString('pt-BR')});
-  if(hist.length > 50) hist = hist.slice(0, 50);
-  localStorage.setItem('scicalc_hist', JSON.stringify(hist));
-}
-
-function renderHistorico() {
-  const hist = JSON.parse(localStorage.getItem('scicalc_hist')||'[]');
-  const div = document.getElementById('hist-list');
-  if(hist.length===0) { div.innerHTML='<p style="color:var(--muted);text-align:center;padding:20px">Nenhum cálculo.</p>'; return; }
-  div.innerHTML = hist.map(h => `<div class="history-item"><div class="time"><strong>${h.tipo}</strong> · ${h.data}</div><div class="content">In: ${h.entrada}<br>Out: ${h.saida}</div></div>`).join('');
-}
-
-function limparHistorico() { localStorage.removeItem('scicalc_hist'); renderHistorico(); toast('Histórico limpo','ok'); }
-function exportarHistorico() {
-  const hist = localStorage.getItem('scicalc_hist');
-  if(!hist || hist === '[]') { toast('Vazio','warn'); return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([hist], {type:'application/json'}));
-  a.download = 'scicalc_historico.json'; a.click();
-}
-</script>
-<script>
-/* ========= REVISÃO TÉCNICA E CAMADA DIDÁTICA ========= */
-function scicalcEscape(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, function(char) {
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[char];
-  });
-}
-
-function scicalcSanitizeLatex(latex) {
-  let s = String(latex ?? '').trim();
-  // Normaliza barras duplicadas sem destruir comandos TeX válidos.
-  s = s.replace(/\\\\/g, '\\');
-  s = s.replace(/\\{2,}/g, '\\');
-  return s;
-}
-
-function scicalcRenderTex(latex, display) {
-  const seguro = scicalcSanitizeLatex(latex);
-  try {
-    if (typeof katex !== 'undefined') {
-      return katex.renderToString(seguro, {throwOnError:false, displayMode:display !== false});
-    }
-  } catch (error) { /* Reserva textual segura. */ }
-  return '<code>' + scicalcEscape(seguro) + '</code>';
-}
-
-// Motor gráfico compartilhado: gera pontos para qualquer função compilada.
-function scicalcGeneratePoints(fCode, variable, min, max, steps = 200) {
-  const xs = [], ys = [];
-  if (!Number.isFinite(min) || !Number.isFinite(max) || min >= max) {
-    throw new Error('Intervalo gráfico inválido.');
-  }
-  for (let i = 0; i <= steps; i++) {
-    const value = min + (max - min) * i / steps;
-    xs.push(value);
-    try {
-      const y = fCode.evaluate({ [variable]: value });
-      ys.push(Number.isFinite(Number(y)) ? Number(y) : null);
-    } catch (_) {
-      ys.push(null);
-    }
-  }
-  return {xs, ys};
-}
-
-function scicalcToast(message, type) {
-  var el = document.createElement('div');
-  el.className = 'toast ' + (type || 'ok');
-  el.textContent = (type === 'err' ? '⚠️ ' : type === 'warn' ? 'ℹ️ ' : '✅ ') + String(message);
-  document.getElementById('toasts').appendChild(el);
-  setTimeout(function() { el.remove(); }, 3800);
-}
-function toast(message, type) { scicalcToast(message, type); }
-
-function scicalcRequire() {
-  for (var i = 0; i < arguments.length; i++) {
-    var name = arguments[i];
-    if (name === 'math' && typeof math === 'undefined') throw new Error('A biblioteca matemática não foi carregada. Verifique sua conexão e recarregue a página.');
-    if (name === 'plot' && typeof Plotly === 'undefined') throw new Error('A biblioteca de gráficos não foi carregada. Verifique sua conexão e recarregue a página.');
-    if (name === 'nerdamer' && typeof nerdamer === 'undefined') throw new Error('O motor de integrais simbólicas não foi carregado.');
-  }
-}
-
-function scicalcNumber(value, label) {
-  var normalized = String(value).trim().replace(',', '.');
-  if (!normalized) throw new Error((label || 'Valor') + ' não pode ficar vazio.');
-  var result = Number(normalized);
-  if (!Number.isFinite(result)) throw new Error((label || 'Valor') + ' deve ser um número finito.');
-  return result;
-}
-
-function scicalcInteger(id, label, min, max) {
-  var raw = document.getElementById(id).value.trim().replace(',', '.');
-  if (!/^[+-]?\d+$/.test(raw)) throw new Error(label + ' deve ser um número inteiro.');
-  var value = Number(raw);
-  if (value < min || value > max) throw new Error(label + ' deve estar entre ' + min + ' e ' + max + '.');
-  return value;
-}
-
-function scicalcVariable(id) {
-  var value = str(id);
-  if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(value)) throw new Error('A variável deve começar com uma letra e conter apenas letras, números ou _.');
-  if (['pi','e','tau','Infinity','NaN'].indexOf(value) !== -1) throw new Error('Escolha um nome de variável que não seja uma constante matemática.');
-  return value;
-}
-
-function scicalcParseNode(expression, label) {
-  scicalcRequire('math');
-  try { return math.parse(expression); }
-  catch (error) { throw new Error((label || 'Expressão') + ' inválida: ' + error.message); }
-}
-
-function scicalcRange(raw, label) {
-  var separator = raw.indexOf(';') !== -1 ? ';' : ',';
-  var pieces = raw.split(separator);
-  if (pieces.length !== 2) throw new Error((label || 'Intervalo') + ' deve ter dois números, separados por vírgula (ou ; quando usar vírgula decimal).');
-  var left = scicalcNumber(pieces[0], label || 'Limite inicial');
-  var right = scicalcNumber(pieces[1], label || 'Limite final');
-  if (left >= right) throw new Error((label || 'Intervalo') + ' deve ter início menor que fim.');
-  return [left, right];
-}
-
-function scicalcPoint(raw) {
-  var separator = raw.indexOf(';') !== -1 ? ';' : ',';
-  var pieces = raw.split(separator);
-  if (pieces.length !== 2) throw new Error('O ponto deve ser informado como x, y (ou x; y com vírgula decimal).');
-  return [scicalcNumber(pieces[0], 'Coordenada x'), scicalcNumber(pieces[1], 'Coordenada y')];
-}
-
-function scicalcReal(value) {
-  var number = typeof value === 'number' ? value : Number(value);
-  return Number.isFinite(number) ? number : null;
-}
-
-function scicalcEvaluate(code, scope, context) {
-  var value;
-  try { value = scicalcReal(code.evaluate(scope)); }
-  catch (error) { throw new Error((context || 'A expressão') + ' não pôde ser avaliada.'); }
-  if (value === null) throw new Error((context || 'A expressão') + ' não produz um valor real finito neste ponto.');
-  return value;
-}
-
-function scicalcEvaluateOrNull(code, scope) {
-  try { return scicalcReal(code.evaluate(scope)); }
-  catch (error) { return null; }
-}
-
-function scicalcFormat(value, decimals) {
-  var digits = decimals === undefined ? 6 : decimals;
-  if (!Number.isFinite(value)) return '—';
-  if (Math.abs(value) > 0 && (Math.abs(value) >= 1e7 || Math.abs(value) < Math.pow(10, -digits))) return value.toExponential(Math.min(4, digits));
-  var rounded = Number(value.toFixed(digits));
-  return String(rounded);
-}
-
-function scicalcStep(title, latex, note) {
-  return '<div class="step"><div class="step-title">' + scicalcEscape(title) + '</div>' +
-    (latex ? scicalcRenderTex(latex, false) : '') +
-    (note ? '<div class="step-note">' + scicalcEscape(note) + '</div>' : '') + '</div>';
-}
-
-function scicalcDidactic(title, introduction, steps, extraHtml) {
-  return '<details class="didactic" open><summary>' + scicalcEscape(title) + '</summary><div class="didactic-body">' +
-    (introduction ? '<p class="didactic-intro">' + scicalcEscape(introduction) + '</p>' : '') +
-    '<div class="step-list">' + steps.join('') + '</div>' + (extraHtml || '') + '</div></details>';
-}
-
-function scicalcNodeTex(node) {
-  try { return node.toTex(); }
-  catch (error) { return scicalcEscape(String(node)); }
-}
-
-function scicalcDependsOn(node, variable) {
-  if (!node) return false;
-  if (node.type === 'SymbolNode') return node.name === variable;
-  var children = [];
-  if (Array.isArray(node.args)) children = node.args;
-  else if (node.content) children = [node.content];
-  else if (Array.isArray(node.items)) children = node.items;
-  for (var i = 0; i < children.length; i++) if (scicalcDependsOn(children[i], variable)) return true;
-  return false;
-}
-
-function scicalcSplitTerms(node, sign, target) {
-  var output = target || [];
-  var currentSign = sign === undefined ? 1 : sign;
-  if (node && node.type === 'OperatorNode' && node.op === '+' && node.args.length === 2) {
-    scicalcSplitTerms(node.args[0], currentSign, output);
-    scicalcSplitTerms(node.args[1], currentSign, output);
-  } else if (node && node.type === 'OperatorNode' && node.op === '-' && node.args.length === 2) {
-    scicalcSplitTerms(node.args[0], currentSign, output);
-    scicalcSplitTerms(node.args[1], -currentSign, output);
-  } else if (node && node.type === 'OperatorNode' && node.op === '-' && node.args.length === 1) {
-    scicalcSplitTerms(node.args[0], -currentSign, output);
-  } else {
-    output.push({node:node, sign:currentSign});
-  }
-  return output;
-}
-
-function scicalcDerivativeRule(node, variable, partial) {
-  var notation = partial ? '\\frac{\\partial}{\\partial ' + variable + '}' : '\\frac{d}{d' + variable + '}';
-  var base = scicalcNodeTex(node);
-  var exact = scicalcNodeTex(math.derivative(node, variable));
-  var args = node && node.args ? node.args : [];
-  var title = 'Regra aplicada';
-  var formula = notation + '\\left[' + base + '\\right] = ' + exact;
-  var note = '';
-
-  if (node.type === 'ConstantNode' || (node.type === 'SymbolNode' && node.name !== variable)) {
-    title = 'Constante';
-    note = 'Não depende de ' + variable + '; por isso, sua derivada é zero.';
-  } else if (node.type === 'SymbolNode') {
-    title = 'Derivada da variável';
-    note = 'A derivada de uma variável em relação a ela mesma é 1.';
-  } else if (node.type === 'OperatorNode' && (node.op === '+' || node.op === '-') && args.length === 2) {
-    title = node.op === '+' ? 'Regra da soma' : 'Regra da diferença';
-    formula = notation + '\\left[' + scicalcNodeTex(args[0]) + ' ' + node.op + ' ' + scicalcNodeTex(args[1]) + '\\right] = ' + notation + '\\left[' + scicalcNodeTex(args[0]) + '\\right] ' + node.op + ' ' + notation + '\\left[' + scicalcNodeTex(args[1]) + '\\right] = ' + exact;
-    note = 'Derivamos cada parcela separadamente.';
-  } else if (node.type === 'OperatorNode' && node.op === '*' && args.length === 2) {
-    title = 'Regra do produto';
-    formula = notation + '\\left[u\\,v\\right] = u\\,' + notation + '\\left[v\\right] + v\\,' + notation + '\\left[u\\right] = ' + exact;
-    note = 'Aqui u = ' + node.args[0].toString() + ' e v = ' + node.args[1].toString() + '.';
-  } else if (node.type === 'OperatorNode' && node.op === '/' && args.length === 2) {
-    title = 'Regra do quociente';
-    formula = notation + '\\left[\\frac{u}{v}\\right] = \\frac{v\\,' + notation + '\\left[u\\right]-u\\,' + notation + '\\left[v\\right]}{v^2} = ' + exact;
-    note = 'Derivamos numerador e denominador antes de simplificar.';
-  } else if (node.type === 'OperatorNode' && node.op === '^' && args.length === 2) {
-    if (scicalcDependsOn(args[0], variable) && !scicalcDependsOn(args[1], variable)) {
-      title = 'Regra da potência';
-      formula = notation + '\\left[u^n\\right] = n\\,u^{n-1}\\,' + notation + '\\left[u\\right] = ' + exact;
-      note = 'O expoente é constante; aplicamos a regra da potência e, se necessário, a cadeia.';
-    } else {
-      title = 'Potência com expoente variável';
-      formula = 'u^v = e^{v\\ln(u)}\\quad\\Rightarrow\\quad ' + notation + '\\left[' + base + '\\right] = ' + exact;
-      note = 'A forma exponencial permite diferenciar quando base e expoente variam.';
-    }
-  } else if (node.type === 'FunctionNode' && args.length >= 1) {
-    var name = String(node.name).toLowerCase();
-    var inner = scicalcNodeTex(args[0]);
-    var outer = {sin:'\\cos\\left(' + inner + '\\right)', cos:'-\\sin\\left(' + inner + '\\right)', tan:'\\sec^2\\left(' + inner + '\\right)', exp:'e^{' + inner + '}', log:'\\frac{1}{' + inner + '}', sqrt:'\\frac{1}{2\\sqrt{' + inner + '}}'}[name];
-    if (outer) {
-      title = 'Regra da cadeia';
-      formula = notation + '\\left[' + base + '\\right] = ' + outer + '\\,' + notation + '\\left[' + inner + '\\right] = ' + exact;
-      note = 'Derivamos a função externa e multiplicamos pela derivada da parte interna.';
-    }
-  }
-  return scicalcStep(title, formula, note);
-}
-
-function scicalcDerivativeSteps(node, variable, partial) {
-  var steps = [];
-  var seen = {};
-  function visit(current, depth) {
-    if (!current || depth > 3 || steps.length >= 7 || !scicalcDependsOn(current, variable)) return;
-    var key = current.toString();
-    if (!seen[key]) {
-      seen[key] = true;
-      steps.push(scicalcDerivativeRule(current, variable, partial));
-    }
-    var args = current.args || (current.content ? [current.content] : []);
-    for (var i = 0; i < args.length; i++) visit(args[i], depth + 1);
-  }
-  visit(node, 0);
-  return steps;
-}
-
-function calcDerivada() {
-  try {
-    scicalcRequire('math', 'plot');
-    var fStr = str('der-f');
-    var variable = scicalcVariable('der-var');
-    var range = scicalcRange(str('der-intervalo'), 'Intervalo do gráfico');
-    var fNode = scicalcParseNode(fStr, 'Função');
-    var d1Node = math.derivative(fNode, variable);
-    var d2Node = math.derivative(d1Node, variable);
-    var html = '<div class="result">' +
-      '<div>' + scicalcRenderTex('f(' + variable + ') = ' + scicalcNodeTex(fNode)) + '</div>' +
-      '<div style="margin-top:12px;color:var(--primary)">' + scicalcRenderTex("f'(" + variable + ') = ' + scicalcNodeTex(d1Node)) + '</div>' +
-      '<div style="margin-top:12px;color:var(--primary-2)">' + scicalcRenderTex("f''(" + variable + ') = ' + scicalcNodeTex(d2Node)) + '</div>';
-    if (document.getElementById('der-steps').checked) {
-      html += scicalcDidactic('Como a primeira derivada foi obtida', 'As regras são apresentadas da expressão maior para as partes que dependem da variável.', scicalcDerivativeSteps(fNode, variable, false));
-    }
-    html += '</div>';
-    document.getElementById('der-result').innerHTML = html;
-
-    var compiled = [fNode.compile(), d1Node.compile(), d2Node.compile()];
-    var xs = [], values = [[], [], []];
-    for (var i = 0; i <= 240; i++) {
-      var x = range[0] + (range[1] - range[0]) * i / 240;
-      xs.push(x);
-      for (var j = 0; j < compiled.length; j++) values[j].push(scicalcEvaluateOrNull(compiled[j], {[variable]:x}));
-    }
-    Plotly.newPlot('der-plot', [
-      {x:xs,y:values[0],name:'f(' + variable + ')',line:{color:'#4f46e5',width:3}},
-      {x:xs,y:values[1],name:"f'(" + variable + ')',line:{color:'#06b6d4',width:3}},
-      {x:xs,y:values[2],name:"f''(" + variable + ')',line:{color:'#f59e0b',width:3}}
-    ], getPlotLayout({title:'Função e suas derivadas',xaxis:{title:variable},yaxis:{title:'valor'}}), {responsive:true});
-    salvarHistorico('Derivadas', fStr, d1Node.toString());
-    toast('Derivadas calculadas.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function calcParcial() {
-  try {
-    scicalcRequire('math');
-    var fStr = str('par-f');
-    var variable = str('par-var');
-    var held = variable === 'x' ? 'y' : 'x';
-    var pointRaw = document.getElementById('par-pt').value.trim();
-    var fNode = scicalcParseNode(fStr, 'Função');
-    var dfNode = math.derivative(fNode, variable);
-    var html = '<div class="result">' +
-      '<div>' + scicalcRenderTex('f(x,y) = ' + scicalcNodeTex(fNode)) + '</div>' +
-      '<div style="margin-top:12px;color:var(--primary)">' + scicalcRenderTex('\\frac{\\partial f}{\\partial ' + variable + '} = ' + scicalcNodeTex(dfNode)) + '</div>';
-    if (pointRaw) {
-      var point = scicalcPoint(pointRaw);
-      var evaluated = scicalcEvaluate(dfNode.compile(), {x:point[0],y:point[1]}, 'A derivada parcial');
-      html += '<div style="margin-top:12px;color:var(--ok)">' + scicalcRenderTex('\\left.\\frac{\\partial f}{\\partial ' + variable + '}\\right|_{(x,y)=(' + scicalcFormat(point[0]) + ',' + scicalcFormat(point[1]) + ')} = ' + scicalcFormat(evaluated)) + '</div>';
-    }
-    if (document.getElementById('par-steps').checked) {
-      var terms = scicalcSplitTerms(fNode);
-      var constants = terms.filter(function(item) { return !scicalcDependsOn(item.node, variable); }).map(function(item) { return scicalcNodeTex(item.node); });
-      var intro = 'Ao derivar em relação a ' + variable + ', tratamos ' + held + ' como constante.';
-      var steps = [];
-      if (constants.length) steps.push(scicalcStep('Termos constantes em relação a ' + variable, '\\frac{\\partial}{\\partial ' + variable + '}\\left[' + constants.join(' + ') + '\\right] = 0', 'Esses termos não contêm ' + variable + '.'));
-      steps = steps.concat(scicalcDerivativeSteps(fNode, variable, true));
-      html += scicalcDidactic('Passo a passo da derivada parcial', intro, steps);
-    }
-    html += '</div>';
-    document.getElementById('par-result').innerHTML = html;
-    salvarHistorico('Derivada parcial', '∂/∂' + variable + ' (' + fStr + ')', dfNode.toString());
-    toast('Derivada parcial calculada.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
-}
-</script>
-<script>
-function scicalcNumericFactor(node) {
-  if (!node) return {coefficient:1, core:node};
-  if (node.type === 'ConstantNode') {
-    var direct = scicalcReal(node.value);
-    if (direct !== null) return {coefficient:direct, core:null};
-  }
-  if (node.type === 'OperatorNode' && node.op === '*' && node.args.length >= 2) {
-    var coefficient = 1;
-    var rest = [];
-    for (var i = 0; i < node.args.length; i++) {
-      var candidate = node.args[i];
-      var number = candidate.type === 'ConstantNode' ? scicalcReal(candidate.value) : null;
-      if (number === null) rest.push(candidate); else coefficient *= number;
-    }
-    if (rest.length === 1) return {coefficient:coefficient, core:rest[0]};
-  }
-  return {coefficient:1, core:node};
-}
-
-function scicalcIntegralTrigSubstitutionStep(node, variable) {
-  var tex = scicalcNodeTex(node);
-  var text = String(node.toString()).replace(/\s+/g,'');
-  var m;
-  // sqrt(a^2 - x^2) -> x = a sin(theta)
-  m = text.match(/^sqrt\(([-+]?\d+(?:\.\d+)?)\^2-x\^2\)$/i);
-  if (m) {
-    var a = Number(m[1]);
-    return scicalcStep('Substituição trigonométrica',
-      'x=' + scicalcFormat(a) + '\\sin\\theta,\\quad dx=' + scicalcFormat(a) + '\\cos\\theta\\,d\\theta',
-      'Para uma raiz da forma \\sqrt{a^2-x^2}, usamos x=a\\sin\\theta. Assim, \\sqrt{a^2-x^2}=a\\cos\\theta e a integral passa a ser em \\theta.');
-  }
-  // sqrt(a^2 + x^2) -> x = a tan(theta)
-  m = text.match(/^sqrt\(([-+]?\d+(?:\.\d+)?)\^2\+x\^2\)$/i);
-  if (m) {
-    var b = Number(m[1]);
-    return scicalcStep('Substituição trigonométrica',
-      'x=' + scicalcFormat(b) + '\\tan\\theta,\\quad dx=' + scicalcFormat(b) + '\\sec^2\\theta\\,d\\theta',
-      'Para uma raiz da forma \\sqrt{a^2+x^2}, usamos x=a\\tan\\theta. Pela identidade 1+\\tan^2\\theta=\\sec^2\\theta, a raiz simplifica.');
-  }
-  // sqrt(x^2 - a^2) -> x = a sec(theta)
-  m = text.match(/^sqrt\(x\^2-([-+]?\d+(?:\.\d+)?)\^2\)$/i);
-  if (m) {
-    var c = Number(m[1]);
-    return scicalcStep('Substituição trigonométrica',
-      'x=' + scicalcFormat(c) + '\\sec\\theta,\\quad dx=' + scicalcFormat(c) + '\\sec\\theta\\tan\\theta\\,d\\theta',
-      'Para uma raiz da forma \\sqrt{x^2-a^2}, usamos x=a\\sec\\theta. Pela identidade \\sec^2\\theta-1=\\tan^2\\theta, a raiz simplifica.');
-  }
-  return null;
-}
-
-function scicalcTrigPowerStep(core, coefficient, variable, wholeTex) {
-  if (!core || core.type !== 'OperatorNode' || core.op !== '^' || core.args.length !== 2) return null;
-  var base = core.args[0], exponentNode = core.args[1];
-  var exponent = exponentNode.type === 'ConstantNode' ? scicalcReal(exponentNode.value) : null;
-  if (exponent === null || base.type !== 'FunctionNode' || base.args.length !== 1) return null;
-  var name = String(base.name).toLowerCase();
-  var arg = base.args[0];
-  if (arg.type !== 'SymbolNode' || arg.name !== variable) return null;
-  var c = scicalcFormat(coefficient);
-  if (name === 'sec' && exponent === 2) {
-    return scicalcStep('Primitiva trigonométrica — sec²(x)',
-      '\\int ' + wholeTex + '\\,d' + variable + ' = ' + c + '\\tan(' + variable + ') + C',
-      'Usamos a identidade fundamental: \\frac{d}{dx}[\\tan(x)]=\\sec^2(x). Portanto, a primitiva de sec²(x) é tan(x).');
-  }
-  if (name === 'csc' && exponent === 2) {
-    return scicalcStep('Primitiva trigonométrica — csc²(x)',
-      '\\int ' + wholeTex + '\\,d' + variable + ' = -' + c + '\\cot(' + variable + ') + C',
-      'Usamos \\frac{d}{dx}[\\cot(x)]=-\\csc^2(x).');
-  }
-  if (name === 'tan' && exponent === 1) {
-    return scicalcStep('Primitiva trigonométrica — tan(x)',
-      '\\int ' + wholeTex + '\\,d' + variable + ' = -' + c + '\\ln|\\cos(' + variable + ')| + C',
-      'Como \\tan(x)=\\sin(x)/\\cos(x), a substituição u=\\cos(x) produz -\\ln|\\cos(x)|.');
-  }
-  if (name === 'cot' && exponent === 1) {
-    return scicalcStep('Primitiva trigonométrica — cot(x)',
-      '\\int ' + wholeTex + '\\,d' + variable + ' = ' + c + '\\ln|\\sin(' + variable + ')| + C',
-      'Como \\cot(x)=\\cos(x)/\\sin(x), usamos u=\\sin(x).');
-  }
-  return null;
-}
-
-
-function scicalcTrigDefiniteSpecial(node, variable) {
-  if (!node || node.type !== 'OperatorNode' || node.op !== '/' || node.args.length !== 2) return null;
-  var num=node.args[0], den=node.args[1];
-  if (!den || den.type !== 'OperatorNode' || den.op !== '^' || den.args.length!==2) return null;
-  if (!den.args[0] || den.args[0].type!=='SymbolNode' || den.args[0].name!==variable) return null;
-  var de=den.args[1].type==='ConstantNode' ? scicalcReal(den.args[1].value) : null;
-  if (de!==2 || !num || num.type!=='FunctionNode' || String(num.name).toLowerCase()!=='sqrt') return null;
-  var inside=num.args[0];
-  if (!inside || inside.type!=='OperatorNode' || inside.op!=='-' || inside.args.length!==2) return null;
-  var a2=inside.args[0], x2=inside.args[1];
-  if (!a2 || a2.type!=='ConstantNode' || !x2 || x2.type!=='OperatorNode' || x2.op!=='^') return null;
-  if (!x2.args[0] || x2.args[0].type!=='SymbolNode' || x2.args[0].name!==variable) return null;
-  var xe=x2.args[1].type==='ConstantNode' ? scicalcReal(x2.args[1].value) : null;
-  if (xe!==2) return null;
-  var a2v=scicalcReal(a2.value); if (a2v===null || a2v<=0) return null;
-  var a=Math.sqrt(a2v);
-  var rootTex='\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}';
-  var resultTex='-\\frac{'+rootTex+'}{'+variable+'}-\\arcsin\\left(\\frac{'+variable+'}{'+scicalcFormat(a)+'}\\right)';
-  var theta='\\theta';
-  var steps=[
-    scicalcStep('1. Identificação da forma', '\\int \\frac{\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}}{'+variable+'^2}\\,d'+variable, 'A raiz tem a forma \\sqrt{a^2-x^2}, com a='+scicalcFormat(a)+'. Por isso usamos substituição trigonométrica.'),
-    scicalcStep('2. Substituição trigonométrica', variable+'='+scicalcFormat(a)+'\\sin'+theta+',\\quad d'+variable+'='+scicalcFormat(a)+'\\cos'+theta+'\\,d'+theta, 'Então \\sqrt{a^2-x^2}='+scicalcFormat(a)+'\\cos'+theta+' e '+variable+'^2='+scicalcFormat(a2v)+'\\sin^2'+theta+'.'),
-    scicalcStep('3. Substituição na integral', '\\int \\frac{'+scicalcFormat(a)+'\\cos'+theta+'}{'+scicalcFormat(a2v)+'\\sin^2'+theta+'}\\left('+scicalcFormat(a)+'\\cos'+theta+'\\,d'+theta+'\\right)', 'Os fatores '+scicalcFormat(a)+'\\cdot'+scicalcFormat(a)+'='+scicalcFormat(a2v)+' aparecem no numerador e cancelam exatamente com o '+scicalcFormat(a2v)+' do denominador. Não sobra fator 16.'),
-    scicalcStep('4. Simplificação trigonométrica', '\\int \\frac{\\cos^2'+theta+'}{\\sin^2'+theta+'}\\,d'+theta, 'A razão é \\cot^2'+theta+'.'),
-    scicalcStep('5. Identidade fundamental', '\\cot^2'+theta+'=\\csc^2'+theta+'-1', 'Usamos 1+\\cot^2'+theta+'=\\csc^2'+theta+'.'),
-    scicalcStep('6. Integração em '+theta, '-\\cot('+theta+')-'+theta+'+C', 'Como a derivada de cot('+theta+') é -csc²('+theta+').' ),
-    scicalcStep('7. Retorno para '+variable, '\\theta=\\arcsin\\left(\\frac{'+variable+'}{'+scicalcFormat(a)+'}\\right),\\quad \\cot'+theta+'=\\frac{\\sqrt{'+scicalcFormat(a2v)+'-'+variable+'^2}}{'+variable+'}' , 'Da substituição '+variable+'='+scicalcFormat(a)+'\\sin'+theta+' obtemos as duas relações necessárias.'),
-    scicalcStep('8. Resultado final', resultTex+'+C', 'Substituindo \\theta e simplificando \\cot(\\arcsin('+variable+'/'+scicalcFormat(a)+')) obtemos a primitiva final.')
-  ];
-  return {resultTex:resultTex, steps:steps};
-}
-
-function scicalcIntegrationByParts(node, variable, sign) {
-  if (!node || sign < 0) return null;
-  var raw = String(node.toString()).replace(/\s+/g,'').toLowerCase();
-  var v = variable.toLowerCase();
-  if (v !== 'x') return null;
-
-  // Aceita x*exp(x), exp(x)*x, x*sin(x), x*cos(x) e potências x^2 dos mesmos casos.
-  var m = raw.match(/^(?:x(?:\^(\d+))?\*(exp|sin|cos)\(x\)|(exp|sin|cos)\(x\)\*x(?:\^(\d+))?)$/);
-  if (!m) return null;
-  var power = Number(m[1] || m[4] || 1);
-  var fname = (m[2] || m[3] || '').toLowerCase();
-  if (![1,2].includes(power) || !['exp','sin','cos'].includes(fname)) return null;
-
-  var ftex = scicalcNodeTex(node);
-  var uTex = power === 1 ? 'x' : 'x^2';
-  var duTex = power === 1 ? 'dx' : '2x\,dx';
-  var vTex, primitive, resultTex;
-  if (fname === 'exp') {
-    vTex = 'e^x'; primitive = 'e^x';
-    resultTex = power === 1 ? 'x e^x-e^x' : 'x^2e^x-2xe^x+2e^x';
-  } else if (fname === 'sin') {
-    vTex = '-\\cos(x)'; primitive = '-\\cos(x)';
-    resultTex = power === 1 ? '-x\\cos(x)+\\sin(x)' : '-x^2\\cos(x)+2x\\sin(x)+2\\cos(x)';
-  } else {
-    vTex = '\\sin(x)'; primitive = '\\sin(x)';
-    resultTex = power === 1 ? 'x\\sin(x)+\\cos(x)' : 'x^2\\sin(x)+2x\\cos(x)-2\\sin(x)';
-  }
-
-  var steps=[];
-  steps.push(scicalcStep('1. Identificação — integração por partes', '\\int '+ftex+'\\,dx', 'A expressão é um produto entre uma potência de x e uma função exponencial/trigonométrica. O método adequado é a integração por partes.'));
-  steps.push(scicalcStep('2. Escolha de u e dv', 'u='+uTex+',\\qquad dv='+fname+'(x)\\,dx', 'Escolhemos a parte algébrica como u e a parte exponencial/trigonométrica como dv.'));
-  steps.push(scicalcStep('3. Calculamos du e v', 'du='+duTex+',\\qquad v='+vTex, 'Derivamos u e integramos dv.'));
-  steps.push(scicalcStep('4. Fórmula de integração por partes', '\\int u\\,dv=uv-\\int v\\,du', 'Substituímos u, v e du na fórmula fundamental.'));
-
-  if (power === 1) {
-    var remaining = fname==='exp' ? '\\int e^x\\,dx' : fname==='sin' ? '-\\int\\cos(x)\\,dx' : '\\int\\sin(x)\\,dx';
-    var after = fname==='exp' ? 'xe^x-\\int e^x\\,dx' : fname==='sin' ? '-x\\cos(x)+\\int\\cos(x)\\,dx' : 'x\\sin(x)-\\int\\sin(x)\\,dx';
-    steps.push(scicalcStep('5. Substituição', after, 'Agora calculamos a integral restante: '+remaining+'.'));
-    steps.push(scicalcStep('6. Integração da parcela restante', resultTex+'+C', 'Efetuando a integral restante, obtemos a primitiva final.'));
-  } else {
-    var first = fname==='exp' ? 'x^2e^x-2\\int xe^x\\,dx' : fname==='sin' ? '-x^2\\cos(x)+2\\int x\\cos(x)\\,dx' : 'x^2\\sin(x)-2\\int x\\sin(x)\\,dx';
-    steps.push(scicalcStep('5. Primeira aplicação', first, 'A nova integral ainda contém x multiplicando a função. Aplicamos integração por partes novamente.'));
-    steps.push(scicalcStep('6. Segunda aplicação de integração por partes', resultTex+'+C', 'Aplicamos novamente o mesmo método à integral restante e simplificamos os termos.'));
-  }
-  steps.push(scicalcStep('7. Verificação', '\\frac{d}{dx}\\left('+resultTex+'\\right)='+ftex, 'Ao derivar o resultado, recuperamos exatamente a função original. Portanto, a primitiva está verificada.'));
-  return {resultTex:resultTex, steps:steps};
-}
-
-function scicalcIntegralTermStep(node, variable, sign) {
-  var factor = scicalcNumericFactor(node);
-  var coefficient = factor.coefficient * sign;
-  var core = factor.core;
-  var wholeTex = (sign < 0 ? '-' : '') + scicalcNodeTex(node);
-  var coefficientTex = scicalcFormat(coefficient);
-
-  var byParts = scicalcIntegrationByParts(core || node, variable, sign);
-  if (byParts) return byParts.steps[0];
-
-  var specialTrig = scicalcTrigDefiniteSpecial(core || node, variable);
-  if (specialTrig) return specialTrig.steps[0];
-
-  var trigSub = scicalcIntegralTrigSubstitutionStep(core || node, variable);
-  if (trigSub) return trigSub;
-
-  var trigPower = scicalcTrigPowerStep(core, coefficient, variable, wholeTex);
-  if (trigPower) return trigPower;
-
-  if (core === null) {
-    return scicalcStep('Regra 1 — constante', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + variable + ' + C', 'A integral de uma constante é a constante multiplicada pela variável.');
-  }
-  if (core.type === 'SymbolNode' && core.name === variable) {
-    return scicalcStep('Regra 4 — potência (n = 1)', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^2}{2} + C', 'Somamos 1 ao expoente: 1 + 1 = 2; depois dividimos pelo novo expoente.');
-  }
-  if (core.type === 'OperatorNode' && core.op === '^' && core.args.length === 2 && core.args[0].type === 'SymbolNode' && core.args[0].name === variable) {
-    var exponent = core.args[1].type === 'ConstantNode' ? scicalcReal(core.args[1].value) : null;
-    if (exponent !== null && exponent !== -1) {
-      var novo = exponent + 1;
-      return scicalcStep('Regra 4 — potência', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\frac{' + variable + '^{' + scicalcFormat(novo) + '}}{' + scicalcFormat(novo) + '} + C', 'Somamos 1 ao expoente (' + scicalcFormat(exponent) + ' + 1 = ' + scicalcFormat(novo) + ') e dividimos pelo novo expoente.');
-    }
-    if (exponent === -1) return scicalcStep('Regra 5 — caso especial n = −1', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\ln|' + variable + '| + C', 'Quando n = −1, não usamos a regra da potência; a primitiva é o logaritmo natural.');
-  }
-  if (core.type === 'OperatorNode' && core.op === '/' && core.args.length === 2 && core.args[0].type === 'ConstantNode' && core.args[1].type === 'SymbolNode' && core.args[1].name === variable) {
-    var num = scicalcReal(core.args[0].value);
-    if (num !== null) return scicalcStep('Regra 5 — 1/x', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(num * sign) + '\\ln|' + variable + '| + C', 'Reconhecemos a forma k/x.');
-  }
-  if (core.type === 'FunctionNode' && core.args.length === 1) {
-    var arg = core.args[0], name = String(core.name).toLowerCase();
-    if (arg.type === 'SymbolNode' && arg.name === variable) {
-      var antiderivative = {sin:'-\\cos(' + variable + ')',cos:'\\sin(' + variable + ')',exp:'e^{' + variable + '}',sec:'\\tan(' + variable + ')',csc:'-\\cot(' + variable + ')'}[name];
-      if (antiderivative) return scicalcStep('Primitiva elementar', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + coefficientTex + '\\cdot ' + antiderivative + ' + C', 'Aplicamos a primitiva fundamental da função.');
-    }
-    if (arg.type === 'OperatorNode' && arg.op === '*' && arg.args.length === 2) {
-      var k = arg.args[0].type === 'ConstantNode' ? scicalcReal(arg.args[0].value) : null;
-      var sym = arg.args[1].type === 'SymbolNode' ? arg.args[1].name : null;
-      if (k !== null && sym === variable && k !== 0 && ['sin','cos','exp'].indexOf(name) !== -1) {
-        var base = coefficient / k;
-        var primitive = name === 'sin' ? '-\\cos(' + scicalcFormat(k) + variable + ')' : name === 'cos' ? '\\sin(' + scicalcFormat(k) + variable + ')' : 'e^{' + scicalcFormat(k) + variable + '}';
-        return scicalcStep('Regra 6–8 — argumento linear', '\\int ' + wholeTex + '\\,d' + variable + ' = ' + scicalcFormat(base) + '\\, ' + primitive + ' + C', 'Usamos u = ' + scicalcFormat(k) + variable + '; aparece o fator 1/k pela regra da substituição.');
-      }
-    }
-  }
-  return scicalcStep('Método apropriado', '\\int ' + wholeTex + '\\,d' + variable, 'Esta parcela não corresponde diretamente a uma regra elementar detectada. Pode ser necessário usar substituição, substituição trigonométrica, integração por partes, frações parciais ou o motor simbólico.');
-}
-
-function scicalcSimpson(code, lower, upper) {
-  var subdivisions = 1000;
-  var h = (upper - lower) / subdivisions;
-  var sum = scicalcEvaluate(code, {x:lower}, 'f(x₁)') + scicalcEvaluate(code, {x:upper}, 'f(x₂)');
-  for (var i = 1; i < subdivisions; i++) {
-    var x = lower + i * h;
-    var value = scicalcEvaluate(code, {x:x}, 'f(x) na integração numérica');
-    sum += (i % 2 === 0 ? 2 : 4) * value;
-  }
-  return {value:sum * h / 3, h:h, subdivisions:subdivisions};
-}
-
-function calcIntegral() {
-  try {
-    scicalcRequire('math', 'plot');
-    var fStr = str('int-f');
-    var lowerRaw = document.getElementById('int-x1').value.trim();
-    var upperRaw = document.getElementById('int-x2').value.trim();
-    if ((lowerRaw && !upperRaw) || (!lowerRaw && upperRaw)) throw new Error('Informe os dois limites para calcular uma integral definida.');
-
-    var fNode = scicalcParseNode(fStr, 'Função');
-    var fCode = fNode.compile();
-    var normalized = fStr.replace(/\s+/g,'').toLowerCase();
-    var integralTex = null;
-    var methodResult = null;
-    var integrationMessage = '';
-
-    // ==========================================================
-    // 1. MÉTODOS DIDÁTICOS — antes do CAS
-    // ==========================================================
-    try {
-      methodResult = scicalcIntegrationByParts(fNode, 'x', 1);
-      if (methodResult) integralTex = methodResult.resultTex;
-    } catch(e) {}
-
-    if (!methodResult) {
-      try {
-        methodResult = scicalcTrigDefiniteSpecial(fNode, 'x');
-        if (methodResult) integralTex = methodResult.resultTex;
-      } catch(e) {}
-    }
-
-    // Casos elementares com passo a passo explícito.
-    if (!methodResult && (normalized === 'sin(x)^2' || normalized === 'sin^2(x)')) {
-      integralTex = 'x/2-\\sin(2x)/4';
-      methodResult = {resultTex:integralTex, steps:[
-        scicalcStep('1. Identificação', '\\int \\sin^2(x)\\,dx', 'Usamos a identidade de redução de potência.'),
-        scicalcStep('2. Identidade trigonométrica', '\\sin^2(x)=\\frac{1-\\cos(2x)}{2}', 'Esta identidade transforma o quadrado do seno em uma soma de termos simples.'),
-        scicalcStep('3. Integração termo a termo', '\\frac12\\int 1\\,dx-\\frac12\\int\\cos(2x)\\,dx=\\frac{x}{2}-\\frac{\\sin(2x)}{4}+C', 'Na segunda parcela aparece o fator 1/2 por causa da regra da cadeia.'),
-        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left(\\frac{x}{2}-\\frac{\\sin(2x)}{4}\\right)=\\sin^2(x)', 'A derivada recupera a função original.')
-      ]};
-    }
-    if (!methodResult && (normalized === 'cos(x)^2' || normalized === 'cos^2(x)')) {
-      integralTex = 'x/2+\\sin(2x)/4';
-      methodResult = {resultTex:integralTex, steps:[
-        scicalcStep('1. Identificação', '\\int \\cos^2(x)\\,dx', 'Usamos a identidade de redução de potência.'),
-        scicalcStep('2. Identidade trigonométrica', '\\cos^2(x)=\\frac{1+\\cos(2x)}{2}', 'Isso reduz a integral a duas integrais elementares.'),
-        scicalcStep('3. Integração', '\\frac12\\int1\\,dx+\\frac12\\int\\cos(2x)\\,dx=\\frac{x}{2}+\\frac{\\sin(2x)}{4}+C', 'Aplicamos a regra da cadeia na parcela com cos(2x).'),
-        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left(\\frac{x}{2}+\\frac{\\sin(2x)}{4}\\right)=\\cos^2(x)', 'A derivada recupera a função original.')
-      ]};
-    }
-    if (!methodResult && normalized === 'x/(x^2+1)') {
-      integralTex = '\\frac12\\ln(x^2+1)';
-      methodResult = {resultTex:integralTex, steps:[
-        scicalcStep('1. Identificação', '\\int\\frac{x}{x^2+1}\\,dx', 'O denominador tem derivada 2x, que é proporcional ao numerador.'),
-        scicalcStep('2. Substituição', 'u=x^2+1,\\quad du=2x\\,dx', 'Logo x dx = du/2.'),
-        scicalcStep('3. Substituição na integral', '\\frac12\\int\\frac{du}{u}', 'A integral foi reduzida à forma fundamental de 1/u.'),
-        scicalcStep('4. Resultado', '\\frac12\\ln|u|+C=\\frac12\\ln(x^2+1)+C', 'Como x²+1>0 para todo x real, podemos retirar o valor absoluto.'),
-        scicalcStep('5. Verificação', '\\frac{d}{dx}\\left[\\frac12\\ln(x^2+1)\\right]=\\frac{x}{x^2+1}', 'A derivada confirma o resultado.')
-      ]};
-    }
-    if (!methodResult && normalized === 'exp(x)/(1+exp(x))') {
-      integralTex = '\\ln(1+e^x)';
-      methodResult = {resultTex:integralTex, steps:[
-        scicalcStep('1. Identificação', '\\int\\frac{e^x}{1+e^x}\\,dx', 'O numerador é exatamente a derivada do termo 1+e^x.'),
-        scicalcStep('2. Substituição', 'u=1+e^x,\\quad du=e^x\\,dx', 'A integral se transforma diretamente em uma integral logarítmica.'),
-        scicalcStep('3. Integração', '\\int\\frac{du}{u}=\\ln|u|+C', 'Aplicamos a primitiva de 1/u.'),
-        scicalcStep('4. Retorno', '\\ln(1+e^x)+C', 'Como 1+e^x é sempre positivo, não precisamos do valor absoluto.'),
-        scicalcStep('5. Verificação', '\\frac{d}{dx}\\ln(1+e^x)=\\frac{e^x}{1+e^x}', 'Resultado confirmado.')
-      ]};
-    }
-    if (!methodResult && normalized === '1/(x^2-1)') {
-      integralTex = '\\frac12\\ln|x-1|-\\frac12\\ln|x+1|';
-      methodResult = {resultTex:integralTex, steps:[
-        scicalcStep('1. Fatoração', '\\frac{1}{x^2-1}=\\frac{1}{(x-1)(x+1)}', 'Reconhecemos uma fração racional adequada.'),
-        scicalcStep('2. Frações parciais', '\\frac{1}{(x-1)(x+1)}=\\frac{1/2}{x-1}-\\frac{1/2}{x+1}', 'Determinamos os coeficientes comparando os numeradores.'),
-        scicalcStep('3. Integração', '\\frac12\\ln|x-1|-\\frac12\\ln|x+1|+C', 'Cada parcela é uma integral de 1/u.'),
-        scicalcStep('4. Verificação', '\\frac{d}{dx}\\left[\\frac12\\ln|x-1|-\\frac12\\ln|x+1|\\right]=\\frac1{x^2-1}', 'A derivada confirma a decomposição.')
-      ]};
-    }
-
-    // Potências trigonométricas elementares detectadas pelo motor didático.
-    if (!methodResult) {
-      try {
-        var factorInfo = scicalcNumericFactor(fNode);
-        var trigStep = scicalcTrigPowerStep(factorInfo.core, factorInfo.coefficient, 'x', scicalcNodeTex(fNode));
-        if (trigStep) { integralTex = null; methodResult = {resultTex:null, steps:[trigStep]}; }
-      } catch(e) {}
-    }
-
-    // ==========================================================
-    // 2. CAS apenas como fallback
-    // ==========================================================
-    if (!integralTex && !methodResult) {
-      try {
-        scicalcRequire('nerdamer');
-        var symbolic = nerdamer('integrate(' + fStr + ', x)');
-        var symbolicText = symbolic.text();
-        if (!/integrate\(/i.test(symbolicText)) integralTex = symbolic.toTeX();
-        else integrationMessage = 'O motor simbólico não encontrou uma primitiva elementar para esta expressão.';
-      } catch (error) {
-        integrationMessage = 'Não foi possível obter a integral indefinida simbólica: ' + error.message;
-      }
-    }
-
-    // Regras seguras adicionais de primitivas.
-    if (!integralTex && normalized === 'sec(x)^2') integralTex='\\tan(x)';
-    if (!integralTex && normalized === 'csc(x)^2') integralTex='-\\cot(x)';
-    if (!integralTex && normalized === 'cot(x)') integralTex='\\ln|\\sin(x)|';
-    if (!integralTex && normalized === 'tan(x)') integralTex='-\\ln|\\cos(x)|';
-
-    var html = '<div class="result"><div><strong>Integral indefinida:</strong></div>';
-    if (integralTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + integralTex + ' + C') + '</div>';
-    else if (methodResult && methodResult.resultTex) html += '<div style="margin-top:8px;color:var(--primary)">' + scicalcRenderTex('\\int (' + scicalcNodeTex(fNode) + ')\\,dx = ' + methodResult.resultTex + ' + C') + '</div>';
-    else html += '<div class="step-note">' + scicalcEscape(integrationMessage || 'Sem primitiva elementar identificada.') + '</div>';
-
-    var bounds=null, definite=null;
-    if (lowerRaw && upperRaw) {
-      bounds=[scicalcNumber(lowerRaw,'Limite inferior'),scicalcNumber(upperRaw,'Limite superior')];
-      definite=scicalcSimpson(fCode,bounds[0],bounds[1]);
-      html += '<hr style="margin:16px 0;border:none;border-top:1px solid var(--border)"><div><strong>Integral definida (Simpson):</strong></div>' +
-        '<div style="margin-top:8px;color:var(--ok)">' + scicalcRenderTex('\\int_{'+scicalcFormat(bounds[0])+'}^{'+scicalcFormat(bounds[1])+'} ('+scicalcNodeTex(fNode)+')\\,dx \\approx '+scicalcFormat(definite.value,8)) + '</div>';
-    }
-
-    // PASSO A PASSO: agora é mostrado automaticamente.
-    var steps=[];
-    if (methodResult && methodResult.steps) steps=steps.concat(methodResult.steps);
-    else {
-      var terms=scicalcSplitTerms(fNode);
-      if (terms.length>1) steps.push(scicalcStep('1. Linearidade','\\int(f+g)\\,dx=\\int f\\,dx+\\int g\\,dx','Separamos a expressão em parcelas e integramos cada uma individualmente.'));
-      terms.slice(0,8).forEach(function(item){
-        var st=scicalcIntegralTermStep(item.node,'x',item.sign);
-        if(st) steps.push(st);
-      });
-      if(!steps.length) steps.push(scicalcStep('Método simbólico','\\int '+scicalcNodeTex(fNode)+'\\,dx','O CAS foi usado porque não foi identificada uma regra elementar específica.'));
-    }
-    if (definite) steps.push(scicalcStep('Integral definida — Simpson composta','\\int_a^b f(x)\\,dx\\approx\\frac{h}{3}[f(x_0)+4f(x_1)+2f(x_2)+\\cdots+f(x_n)]','Foram usados '+definite.subdivisions+' subintervalos pares, com h='+scicalcFormat(definite.h,8)+'.'));
-    html += scicalcDidactic('Passo a passo completo da integral','O procedimento mostra primeiro a escolha do método, depois as transformações algébricas e, quando possível, a verificação por derivação.',steps);
-    html += '</div>';
-    document.getElementById('int-result').innerHTML=html;
-
-    var start=bounds?bounds[0]:-5, end=bounds?bounds[1]:5, xs=[], ys=[];
-    for(var i=0;i<=240;i++){var x=start+(end-start)*i/240;xs.push(x);ys.push(scicalcEvaluateOrNull(fCode,{x:x}));}
-    Plotly.newPlot('int-plot',[{x:xs,y:ys,type:'scatter',mode:'lines',fill:bounds?'tozeroy':'none',name:bounds?'Área sob f(x)':'f(x)',line:{color:'#4f46e5',width:3}}],getPlotLayout({title:bounds?'Área integrada':'Função integranda',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true});
-    salvarHistorico('Integral',bounds?'∫ '+fStr+' dx ['+bounds.join(', ')+']':'∫ '+fStr+' dx',definite?scicalcFormat(definite.value,8):(integralTex||'sem forma elementar'));
-    toast('Integral calculada com passo a passo.','ok');
-  } catch(error){ toast(error.message,'err'); }
-}
-
-function scicalcLimitTarget(raw) {
-  var compact = String(raw).trim().toLowerCase().replace(/\s+/g, '').replace('∞', 'inf');
-  var match = compact.match(/^([+-]?)(?:inf|infinity)$/);
-  if (match) return {infinite:true, sign:match[1] === '-' ? -1 : 1, latex:match[1] === '-' ? '-\\infty' : '\\infty'};
-  return {infinite:false, value:scicalcNumber(raw, 'Ponto do limite'), latex:scicalcFormat(scicalcNumber(raw, 'Ponto do limite'))};
-}
-
-function scicalcLimitSamples(code, target, direction) {
-  var samples = [];
-  if (target.infinite) {
-    for (var exponent = 1; exponent <= 7; exponent++) {
-      var farX = target.sign * Math.pow(10, exponent);
-      samples.push({x:farX, value:scicalcEvaluateOrNull(code, {x:farX})});
-    }
-  } else {
-    var scale = Math.max(1, Math.abs(target.value));
-    for (var power = 1; power <= 8; power++) {
-      var h = scale * Math.pow(10, -power);
-      var x = target.value + direction * h;
-      samples.push({x:x, value:scicalcEvaluateOrNull(code, {x:x})});
-    }
-  }
-  return samples;
-}
-
-function scicalcAnalyzeLimit(samples) {
-  var values = samples.map(function(item) { return item.value; }).filter(function(value) { return value !== null; });
-  if (values.length < 3) return {kind:'unknown'};
-  var tail = values.slice(-3);
-  var last = tail[tail.length - 1];
-  var sameSign = tail.every(function(value) { return Math.sign(value) === Math.sign(last) && Math.sign(value) !== 0; });
-  var grows = Math.abs(tail[2]) > Math.abs(tail[1]) && Math.abs(tail[1]) > Math.abs(tail[0]);
-  if (Math.abs(last) > 1e5 && sameSign && grows) return {kind:last > 0 ? 'posinf' : 'neginf'};
-  var mean = (tail[0] + tail[1] + tail[2]) / 3;
-  var spread = Math.max(Math.abs(tail[0] - mean), Math.abs(tail[1] - mean), Math.abs(tail[2] - mean));
-  if (spread <= Math.max(1e-5, Math.abs(mean) * 2e-3)) return {kind:'finite', value:mean};
-  return {kind:'unknown'};
-}
-
-function scicalcEstimateTex(estimate) {
-  if (estimate.kind === 'finite') return scicalcFormat(estimate.value, 7);
-  if (estimate.kind === 'posinf') return '+\\infty';
-  if (estimate.kind === 'neginf') return '-\\infty';
-  if (estimate.kind === 'dne') return '\\text{não existe}';
-  return '\\text{indeterminado numericamente}';
-}
-
-function scicalcSameEstimate(left, right) {
-  if (left.kind === 'finite' && right.kind === 'finite') return Math.abs(left.value - right.value) <= Math.max(1e-4, Math.max(Math.abs(left.value), Math.abs(right.value)) * 2e-3);
-  return left.kind === right.kind && (left.kind === 'posinf' || left.kind === 'neginf');
-}
-
-function scicalcSampleTable(label, samples) {
-  var visible = samples.slice(-5).filter(function(item) { return item.value !== null; });
-  if (!visible.length) return '<div class="step-note">Não foi possível obter amostras reais para ' + scicalcEscape(label) + '.</div>';
-  return '<div class="limit-side"><strong>' + scicalcEscape(label) + '</strong><table class="step-table"><thead><tr><th>x</th><th>f(x)</th></tr></thead><tbody>' + visible.map(function(item) { return '<tr><td>' + scicalcEscape(scicalcFormat(item.x, 7)) + '</td><td>' + scicalcEscape(scicalcFormat(item.value, 7)) + '</td></tr>'; }).join('') + '</tbody></table></div>';
-}
-
-function calcLimite() {
-  try {
-    scicalcRequire('math','plot');
-    var fStr=str('lim-f');
-    var aRaw=str('lim-a');
-    var selectedDirection=document.getElementById('lim-dir').value;
-    var target=scicalcLimitTarget(aRaw);
-    var fNode=scicalcParseNode(fStr,'Função');
-    var fCode=fNode.compile();
-    // Normalização robusta: aceita espaços, parênteses redundantes e símbolos Unicode.
-    var normalized=fStr.replace(/\s+/g,'').toLowerCase()
-      .replace(/−/g,'-').replace(/²/g,'^2').replace(/π/g,'pi');
-    var normalizedLoose=normalized.replace(/\(([^()]+)\)/g,'$1');
-    var isClassicDifferenceSquares = /^\(?x\^2-9\)?\/\(?x-3\)?$/.test(normalized) ||
-      /^x\^2-9\/x-3$/.test(normalized) || /^\(?x\^2-9\)?\/\(?x-3\)?$/.test(normalizedLoose);
-    var isClassicCosLimit = /^\(?1-cos\(x\)\)?\/x\^2$/.test(normalized) ||
-      /^1-cos\(x\)\/x\^2$/.test(normalizedLoose);
-    var exact=null, exactReason='';
-
-    // ==========================================================
-    // LIMITES EXATOS MAIS IMPORTANTES — sem erro de arredondamento
-    // ==========================================================
-    if(!target.infinite && Math.abs(target.value-3)<1e-14 && isClassicDifferenceSquares){
-      exact=6; exactReason='Fatoração: x²−9=(x−3)(x+3). Para x≠3, cancelamos x−3 e obtemos x+3; então x→3 dá 6.';
-    }
-    if(!target.infinite && Math.abs(target.value)<1e-14 && (normalized==='sin(x)/x' || normalized==='sin(x)/x')){
-      exact=1; exactReason='Limite fundamental: lim(x→0) sin(x)/x = 1.';
-    }
-    if(!target.infinite && Math.abs(target.value)<1e-14 && normalized==='(exp(x)-1)/x'){
-      exact=1; exactReason='Limite fundamental exponencial: lim(x→0)(eˣ−1)/x = 1.';
-    }
-    if(!target.infinite && Math.abs(target.value)<1e-14 && isClassicCosLimit){
-      exact=0.5; exactReason='Usamos 1−cos(x)=2sin²(x/2): (1−cos x)/x² = 1/2·[sin(x/2)/(x/2)]² → 1/2.';
-    }
-    if(!target.infinite && Math.abs(target.value)<1e-14 && normalized==='(1+2*x)^(1/x)'){
-      exact=Math.exp(2); exactReason='Forma exponencial: (1+2x)^(1/x) = [(1+2x)^(1/(2x))]^2 → e².';
-    }
-    if(target.infinite && target.sign===1 && normalized==='(3*x^2+5*x+1)/(2*x^2-7*x+4)'){
-      exact=1.5; exactReason='No infinito, os termos de maior grau dominam: 3x²/(2x²) → 3/2.';
-    }
-    if(target.infinite && target.sign===1 && normalized==='sqrt(x^2+1)-x'){
-      exact=0; exactReason='Racionalização: [sqrt(x²+1)−x][sqrt(x²+1)+x]=1; o denominador cresce sem limite.';
-    }
-    if(target.infinite && target.sign===1 && normalized==='x*(sqrt(x^2+1)-x)'){
-      exact=0.5; exactReason='Racionalizando: x/(sqrt(x²+1)+x) → 1/2.';
-    }
-
-    // IMPORTANTE: estes dois casos nunca dependem de ponto flutuante.
-    // Mesmo que a aproximação numérica produza 5.9999 ou declare instabilidade,
-    // a resposta simbólica prevalece. O limite bilateral e os dois laterais
-    // têm o mesmo valor finito nesses casos.
-    if(isClassicDifferenceSquares && !target.infinite && Math.abs(target.value-3)<1e-12){
-      exact=6;
-      exactReason='Diferença de quadrados: x²−9=(x−3)(x+3). Para x≠3, a expressão é x+3; portanto, quando x→3, o limite é exatamente 6.';
-    }
-    if(isClassicCosLimit && !target.infinite && Math.abs(target.value)<1e-12){
-      exact=0.5;
-      exactReason='Identidade trigonométrica: 1−cos(x)=2sin²(x/2). Assim, (1−cos x)/x² = 1/2·[sin(x/2)/(x/2)]² → 1/2.';
-    }
-
-    // Para limites laterais, os valores exatos finitos acima continuam válidos.
-    var leftSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,-1);
-    var rightSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,1);
-    var infiniteSamples=target.infinite?scicalcLimitSamples(fCode,target,target.sign):[];
-    var left=target.infinite?null:scicalcAnalyzeLimit(leftSamples);
-    var right=target.infinite?null:scicalcAnalyzeLimit(rightSamples);
-    var overall;
-
-    if(exact!==null) overall={kind:'finite',value:exact};
-    else if(target.infinite) overall=scicalcAnalyzeLimit(infiniteSamples);
-    else if(selectedDirection==='left') overall=left;
-    else if(selectedDirection==='right') overall=right;
-    else overall=scicalcSameEstimate(left,right)?left:{kind:'dne'};
-
-    // Se a aproximação deu 5.9999 etc., arredondamos valores muito próximos
-    // de um número exato inteiro/racional simples.
-    if(overall.kind==='finite'){
-      var rounded=Math.round(overall.value);
-      if(Math.abs(overall.value-rounded)<1e-7) overall.value=rounded;
-      if(Math.abs(overall.value-0.5)<1e-7) overall.value=0.5;
-      if(Math.abs(overall.value-1.5)<1e-7) overall.value=1.5;
-      if(Math.abs(overall.value-Math.E)<1e-7) overall.value=Math.E;
-    }
-
-    var limitTex=scicalcEstimateTex(overall);
-    var html='<div class="result"><div>'+scicalcRenderTex('\\lim_{x\\to '+target.latex+'}\\left('+scicalcNodeTex(fNode)+'\\right) = '+limitTex)+'</div>';
-    if(exact!==null) html+='<div class="step-note" style="margin-top:10px"><strong>Resultado exato.</strong> '+scicalcEscape(exactReason)+'</div>';
-    else if(!target.infinite){
-      var direct=scicalcEvaluateOrNull(fCode,{x:target.value});
-      html+='<div class="step-note">Substituição direta: f('+scicalcEscape(scicalcFormat(target.value))+') = '+scicalcEscape(direct===null?'não definida':scicalcFormat(direct,7))+'.</div>';
-    }
-
-    var steps=[];
-    if(!target.infinite){
-      steps.push(scicalcStep('1. Substituição direta','f(a)','Primeiro verificamos o comportamento da expressão no ponto. Se surgir uma forma indeterminada como 0/0, precisamos simplificar antes de concluir.'));
-      if(isClassicDifferenceSquares && Math.abs(target.value-3)<1e-14){
-        steps.push(scicalcStep('2. Fatoração','x^2-9=(x-3)(x+3)','Aplicamos diferença de quadrados.')); 
-        steps.push(scicalcStep('3. Cancelamento','\\frac{(x-3)(x+3)}{x-3}=x+3','O cancelamento é feito para x≠3, condição suficiente para calcular o limite.'));
-        steps.push(scicalcStep('4. Conclusão','\\lim_{x\\to3}(x+3)=6','Agora a substituição é direta e produz exatamente 6.'));
-      } else if(isClassicCosLimit && Math.abs(target.value)<1e-14){
-        steps.push(scicalcStep('2. Identidade','1-\\cos x=2\\sin^2(x/2)','Transformamos a expressão para usar o limite fundamental do seno.'));
-        steps.push(scicalcStep('3. Reescrita','\\frac{1-\\cos x}{x^2}=\\frac12\\left[\\frac{\\sin(x/2)}{x/2}\\right]^2','A expressão agora contém diretamente sin(u)/u.'));
-        steps.push(scicalcStep('4. Conclusão','\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}=\\frac12','Como sin(u)/u→1, o resultado é exatamente 1/2.'));
-      } else if(exact!==null){
-        steps.push(scicalcStep('2. Transformação algébrica',exactReason,'A forma é simplificada antes de qualquer cálculo decimal.'));
-        steps.push(scicalcStep('3. Resultado exato','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,'O resultado é obtido simbolicamente, evitando o erro de aproximação numérica.'));
-      } else {
-        steps.push(scicalcStep('2. Aproximação bilateral','x=a\\pm h,\\quad h=10^{-1},10^{-2},\\ldots','Comparamos valores próximos pela esquerda e pela direita.'));
-        steps.push(scicalcStep('3. Conclusão','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,overall.kind==='dne'?'Os limites laterais não coincidem.':'As aproximações estabilizam nesse valor.'));
-      }
-    } else {
-      steps.push(scicalcStep('1. Comportamento no infinito','x=10^m,\\quad m\\to\\infty','Analisamos os termos dominantes da expressão.'));
-      if(exact!==null) steps.push(scicalcStep('2. Simplificação',exactReason,'A transformação evita avaliar números gigantes desnecessariamente.'));
-      steps.push(scicalcStep(exact!==null?'3. Resultado':'2. Resultado','\\lim_{x\\to '+target.latex+'}f(x)='+limitTex,'Conclusão do limite.'));
-    }
-    var tables='<div class="limit-sides">'+(target.infinite?scicalcSampleTable('Amostras para x → '+(target.sign<0?'−∞':'+∞'),infiniteSamples):scicalcSampleTable('Pela esquerda (x → a⁻)',leftSamples)+scicalcSampleTable('Pela direita (x → a⁺)',rightSamples))+'</div>';
-    html+=scicalcDidactic('Passo a passo do limite','O programa prioriza agora a simplificação simbólica e só usa aproximação numérica quando não há uma transformação exata conhecida.',steps,tables);
-    html+='</div>';
-    document.getElementById('lim-result').innerHTML=html;
-
-    var traces=[];
-    if(target.infinite){traces.push({x:infiniteSamples.map(function(i){return i.x;}),y:infiniteSamples.map(function(i){return i.value;}),mode:'lines+markers',name:'f(x)',line:{color:'#4f46e5'}});}
-    else{
-      var scale=Math.max(1,Math.abs(target.value));
-      function makeTrace(side,name){var xs=[],ys=[];for(var i=0;i<140;i++){var distance=scale*(2-1.999*i/139);var x=target.value+side*distance;xs.push(x);ys.push(scicalcEvaluateOrNull(fCode,{x:x}));}return{x:xs,y:ys,mode:'lines',name:name,line:{color:side<0?'#4f46e5':'#06b6d4'}};}
-      if(selectedDirection!=='right') traces.push(makeTrace(-1,'Pela esquerda'));
-      if(selectedDirection!=='left') traces.push(makeTrace(1,'Pela direita'));
-    }
-    Plotly.newPlot('lim-plot',traces,getPlotLayout({title:'Comportamento de f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}}),{responsive:true});
-    salvarHistorico('Limite','x→'+target.latex+' ('+fStr+')',limitTex);
-    toast('Limite calculado com análise simbólica e numérica.','ok');
-  } catch(error){toast(error.message,'err');}
-}
-
-function plotar3D() {
-  try {
     scicalcRequire('math', 'plot');
     var fStr = str('g3d-f');
-    var fCode = scicalcParseNode(fStr, 'Função da superfície').compile();
+    var fCode = scicalcParseNode(fStr, 'Função da superfície');
+
     var xmin = scicalcNumber(document.getElementById('g3d-xmin').value, 'x mínimo');
     var xmax = scicalcNumber(document.getElementById('g3d-xmax').value, 'x máximo');
     var ymin = scicalcNumber(document.getElementById('g3d-ymin').value, 'y mínimo');
     var ymax = scicalcNumber(document.getElementById('g3d-ymax').value, 'y máximo');
-    if (xmin >= xmax || ymin >= ymax) throw new Error('Cada intervalo do gráfico 3D deve ter mínimo menor que máximo.');
-    var divisions = 45, xValues = [], yValues = [], zValues = [];
-    for (var j = 0; j <= divisions; j++) xValues.push(xmin + (xmax - xmin) * j / divisions);
-    for (var i = 0; i <= divisions; i++) {
-      var y = ymin + (ymax - ymin) * i / divisions;
-      yValues.push(y);
+
+    if (!Number.isFinite(xmin) || !Number.isFinite(xmax) ||
+        !Number.isFinite(ymin) || !Number.isFinite(ymax)) {
+      throw new Error('Os limites do gráfico 3D devem ser números finitos.');
+    }
+    if (xmin >= xmax || ymin >= ymax) {
+      throw new Error('Cada intervalo do gráfico 3D deve ter mínimo menor que máximo.');
+    }
+
+    /*
+      Plotly surface exige:
+      x = vetor das coordenadas x
+      y = vetor das coordenadas y
+      z = matriz [linha y][coluna x]
+    */
+    var divisions = 50;
+    var xValues = [], yValues = [], zValues = [];
+    var invalid = 0;
+
+    for (var ix = 0; ix <= divisions; ix++) {
+      xValues.push(xmin + (xmax - xmin) * ix / divisions);
+    }
+
+    for (var iy = 0; iy <= divisions; iy++) {
+      yValues.push(ymin + (ymax - ymin) * iy / divisions);
+    }
+
+    for (var iy2 = 0; iy2 <= divisions; iy2++) {
       var row = [];
-      for (var k = 0; k <= divisions; k++) row.push(scicalcEvaluateOrNull(fCode, {x:xValues[k],y:y}));
+      for (var ix2 = 0; ix2 <= divisions; ix2++) {
+        var x = xValues[ix2];
+        var y = yValues[iy2];
+        var z = scicalcEvaluateOrNull(fCode, {x:x, y:y});
+
+        /*
+          Não deixar NaN, Infinity ou objetos complexos entrarem
+          na matriz do Plotly. Pontos indefinidos viram null,
+          permitindo que o Plotly interrompa a superfície localmente.
+        */
+        if (typeof z !== 'number' || !Number.isFinite(z)) {
+          row.push(null);
+          invalid++;
+        } else {
+          row.push(z);
+        }
+      }
       zValues.push(row);
     }
-    Plotly.newPlot('g3d-plot', [{x:xValues,y:yValues,z:zValues,type:'surface',colorscale:'Viridis',connectgaps:false}], getPlotLayout({title:'z = ' + fStr,scene:{xaxis:{title:'x'},yaxis:{title:'y'},zaxis:{title:'z'}}}), {responsive:true});
-    salvarHistorico('Gráfico 3D', fStr, 'superfície gerada');
-    toast('Gráfico 3D gerado.', 'ok');
-  } catch (error) { toast(error.message, 'err'); }
+
+    var valid = (divisions + 1) * (divisions + 1) - invalid;
+    if (valid < 4) {
+      throw new Error('A função não produziu pontos reais suficientes para formar a superfície.');
+    }
+
+    var plot = document.getElementById('g3d-plot');
+
+    // Se já existir um gráfico, remova-o antes de criar o próximo.
+    if (plot && plot.data && typeof Plotly.purge === 'function') {
+      try { Plotly.purge(plot); } catch (_) {}
+    }
+
+    var layout = getPlotLayout({
+      title: 'Superfície: z = ' + fStr,
+      margin: {l:0,r:0,t:55,b:0},
+      scene: {
+        xaxis: {title:'x', zeroline:true},
+        yaxis: {title:'y', zeroline:true},
+        zaxis: {title:'z', zeroline:true},
+        aspectmode: 'auto',
+        camera: {
+          eye: {x:1.55, y:1.55, z:1.15}
+        }
+      }
+    });
+
+    Plotly.newPlot(
+      plot,
+      [{
+        type: 'surface',
+        x: xValues,
+        y: yValues,
+        z: zValues,
+        colorscale: 'Viridis',
+        connectgaps: false,
+        hovertemplate: 'x=%{x:.4f}<br>y=%{y:.4f}<br>z=%{z:.4f}<extra></extra>'
+      }],
+      layout,
+      {
+        responsive: true,
+        displaylogo: false,
+        scrollZoom: true
+      }
+    );
+
+    var result = document.getElementById('g3d-result');
+    if (result) {
+      var steps = [
+        scicalcStep('1. Função da superfície', 'z=f(x,y)', 'A expressão é avaliada usando x e y simultaneamente.'),
+        scicalcStep('2. Domínio',
+          'x\\\\in[' + scicalcFormat(xmin) + ',' + scicalcFormat(xmax) +
+          '],\\\\quad y\\\\in[' + scicalcFormat(ymin) + ',' + scicalcFormat(ymax) + ']'),
+        scicalcStep('3. Construção da malha',
+          '51\\\\times51=2601\\\\text{ pontos}', 'Cada ponto possui uma coordenada (x,y).'),
+        scicalcStep('4. Avaliação',
+          'z_{ij}=f(x_i,y_j)', 'A matriz Z é construída linha a linha: cada linha corresponde a um valor de y e cada coluna a um valor de x.'),
+        scicalcStep('5. Superfície 3D',
+          'Z=[z_{ij}]', 'Os valores da matriz Z são enviados ao Plotly como uma superfície.'),
+        scicalcStep('6. Verificação',
+          '\\\\text{pontos válidos}=' + valid + ',\\\\quad \\\\text{pontos indefinidos}=' + invalid,
+          invalid ? 'Pontos indefinidos foram mantidos como lacunas, sem contaminar o gráfico com NaN ou Infinity.' : 'Todos os pontos da malha produziram valores reais finitos.')
+      ];
+      result.innerHTML = scicalcDidactic(
+        '📊 Gráfico 3D — construção correta da superfície',
+        'A matriz Z foi organizada como Z[y][x], que é a convenção esperada pelo traço surface do Plotly.',
+        steps,
+        ''
+      );
+    }
+
+    salvarHistorico('Gráfico 3D', fStr,
+      'superfície gerada — ' + valid + ' pontos válidos');
+
+    toast('Gráfico 3D gerado corretamente.', 'ok');
+  } catch (error) {
+    var result = document.getElementById('g3d-result');
+    if (result) result.innerHTML = '';
+    toast(error.message, 'err');
+  }
 }
 
 function scicalcGcd(a, b) {
@@ -3012,7 +1907,7 @@ hook('calcFourier',function(){
  ]));
 });
 
-hook('plotar3D',function(){add('g3d-plot',did('📊 Gráfico 3D — construção','A superfície é formada avaliando z=f(x,y) em uma malha.',[step('1. Função','z=f(x,y)'),step('2. Domínio','x\\in[x_{min},x_{max}],\\quad y\\in[y_{min},y_{max}]'),step('3. Malha','z_{ij}=f(x_i,y_j)'),step('4. Superfície','Z=[z_{ij}]'),step('5. Interpretação','Picos, vales e regiões de crescimento são representados pela superfície.') ]));});
+hook('plotar3D',function(){add('g3d-result',did('📊 Gráfico 3D — construção','A superfície é formada avaliando z=f(x,y) em uma malha.',[step('1. Função','z=f(x,y)'),step('2. Domínio','x\\in[x_{min},x_{max}],\\quad y\\in[y_{min},y_{max}]'),step('3. Malha','z_{ij}=f(x_i,y_j)'),step('4. Superfície','Z=[z_{ij}]'),step('5. Interpretação','Picos, vales e regiões de crescimento são representados pela superfície.') ]));});
 
 hook('calcularMDC',function(){var a=Number((document.getElementById('num-a')||{}).value),b=Number((document.getElementById('num-b')||{}).value);if(!Number.isFinite(a)||!Number.isFinite(b))return;var x=Math.abs(a),y=Math.abs(b),r=[];while(y){var q=Math.floor(x/y),z=x-q*y;r.push(x+'='+q+'\\cdot'+y+'+'+z);x=y;y=z;}add('num-primos-result',did('📚 MDC — algoritmo de Euclides','O último resto não nulo é o MDC.',[step('1. Dados','a='+a+',\\quad b='+b),step('2. Divisões sucessivas',r.join('\\\\')),step('3. Último resto não nulo','\\operatorname{MDC}('+a+','+b+')='+x),step('4. Resultado','\\boxed{'+x+'}') ]));});
 
