@@ -179,6 +179,44 @@
 .fermat-mini-step span{min-width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--primary);color:#fff;font-weight:700;font-size:.78rem}
 @media(max-width:700px){.fermat-proof-result{padding:11px}.fermat-stage{padding:11px}.formula-block{font-size:.96rem}}
 
+
+/* ===== Teoria dos Números — apresentação matemática ===== */
+.number-theory-panel .sub-tabs{margin-bottom:18px}
+.nt-grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+.nt-card,.nt-theorem,.nt-definition{background:var(--panel,#fff);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 4px 14px rgba(0,0,0,.04)}
+.nt-card h3,.nt-theorem h3,.nt-definition h3{margin:0 0 10px;color:var(--primary)}
+.nt-wide{margin-bottom:16px}
+.nt-formula{font-family:'Cambria Math','STIX Two Math',serif;font-size:1.05rem;background:var(--bg);border-left:4px solid var(--primary);padding:12px 14px;border-radius:8px;margin:10px 0;overflow-x:auto}
+.nt-formula.large{font-size:1.2rem;text-align:center}
+.nt-note{color:var(--muted);line-height:1.55}
+.nt-card input,.nt-wide input{margin:7px 0 10px}
+.inline-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nt-result{margin-top:18px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--panel,#fff)}
+.nt-result h3{margin-top:0;color:var(--primary)}
+.nt-step{margin:12px 0;padding:14px 16px;border-left:4px solid var(--primary);background:var(--bg);border-radius:8px;line-height:1.6}
+.nt-step b{display:block;margin-bottom:5px;color:var(--primary)}
+.nt-equations{font-family:'Cambria Math','STIX Two Math',serif;line-height:2}
+.nt-conclusion{margin-top:16px;padding:15px;border-radius:10px;font-size:1.08rem;text-align:center;font-weight:700}
+.nt-conclusion.good{background:rgba(16,185,129,.10);border:1px solid rgba(16,185,129,.3)}
+.nt-conclusion.bad{background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.3)}
+.nt-factor-summary{padding:16px;text-align:center;font-size:1.25rem;background:var(--bg);border-radius:10px;margin-bottom:14px;font-family:'Cambria Math','STIX Two Math',serif}
+.nt-prime-list,.nt-divisors{padding:12px;margin-top:8px;background:var(--panel,#fff);border:1px solid var(--border);border-radius:8px;word-break:break-word;line-height:1.7}
+.nt-theorem{margin-bottom:16px;text-align:center}
+@media(max-width:760px){.nt-grid-2{grid-template-columns:1fr}.nt-formula.large{font-size:1rem}}
+
+  .math-fallback{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.08em;white-space:nowrap}
+  .math-display{display:block;text-align:center;margin:.55rem .2rem;font-size:1.2em;overflow-x:auto}
+  .math-fallback sup{font-size:.72em;vertical-align:super;line-height:0}
+  .math-fallback sub{font-size:.72em;vertical-align:sub;line-height:0}
+  .math-frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.05;margin:0 .12em}
+  .math-frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .18em}
+  .math-frac>span:last-child{padding:0 .18em}
+  .math-op{font-style:normal}
+  .math-text{font-family:inherit;font-size:.9em}
+  .math-radicand{border-top:1px solid currentColor;padding:0 .12em}
+
+  .nt-interpret{background:var(--panel,#f8f9ff);border-left:4px solid var(--primary);padding:14px;border-radius:10px;line-height:1.8;}
+  .nt-interpret .katex{font-size:1.05em;}
 </style>
 
 <style id="scicalc-v26-extra-css">
@@ -391,61 +429,94 @@
 </section>
 
 <section class="tab-content" id="numeros">
-  <div class="panel">
+  <div class="panel number-theory-panel">
     <h2>🔢 Teoria dos Números</h2>
-    <div class="sub-tabs">
-      <button class="sub-tab active" data-sub="num-primos">🔍 Primos</button>
+    <p class="sub">Primalidade, fatoração, divisibilidade, aritmética modular, funções aritméticas e o Pequeno Teorema de Fermat — com fórmulas em notação matemática e resolução passo a passo.</p>
+
+    <div class="sub-tabs number-tabs">
+      <button class="sub-tab active" data-sub="num-primos">🔍 Primos e Divisibilidade</button>
       <button class="sub-tab" data-sub="num-fator">🔨 Fatoração</button>
       <button class="sub-tab" data-sub="num-func">📊 Funções Aritméticas</button>
-      <button class="sub-tab" data-sub="num-ferm">🧠 Pequeno Teorema de Fermat</button>
+      <button class="sub-tab" data-sub="num-ferm">📘 Teorema de Fermat</button>
     </div>
+
     <div class="sub-panel active" id="sub-num-primos">
-      <div class="form-row">
-        <div><label>Testar primalidade</label><input id="num-teste" placeholder="97"><button class="btn" style="margin-top:8px" onclick="testarPrimo()">Testar</button></div>
-        <div><label>Primos até N (Crivo)</label><input id="num-crivo" placeholder="100"><button class="btn" style="margin-top:8px" onclick="crivoEratostenes()">Gerar Lista</button></div>
+      <div class="nt-intro">
+        <div class="nt-definition">
+          <h3>Definição de número primo</h3>
+          <div class="nt-formula">\(p\ge 2\quad\text{e}\quad p\text{ possui exatamente dois divisores positivos: }1\text{ e }p.\)</div>
+        </div>
       </div>
-      <div class="grid-2" style="margin-top:14px">
-        <div><label>MDC(a,b)</label><div style="display:flex;gap:6px"><input id="num-a" placeholder="a"><input id="num-b" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMDC()">Calcular MDC</button></div>
-        <div><label>MMC(a,b)</label><div style="display:flex;gap:6px"><input id="num-c" placeholder="a"><input id="num-d" placeholder="b"></div><button class="btn" style="margin-top:8px" onclick="calcularMMC()">Calcular MMC</button></div>
+      <div class="nt-grid-2">
+        <div class="nt-card">
+          <h3>Teste de primalidade</h3>
+          <label for="num-teste">Inteiro \(n\)</label>
+          <input id="num-teste" type="number" step="1" value="97" placeholder="97">
+          <button class="btn" onclick="testarPrimo()">Verificar se é primo</button>
+        </div>
+        <div class="nt-card">
+          <h3>Crivo de Eratóstenes</h3>
+          <label for="num-crivo">Gerar primos até \(N\)</label>
+          <input id="num-crivo" type="number" step="1" value="100" placeholder="100">
+          <button class="btn" onclick="crivoEratostenes()">Gerar primos</button>
+        </div>
+      </div>
+      <div class="nt-grid-2">
+        <div class="nt-card">
+          <h3>Máximo Divisor Comum</h3>
+          <div class="nt-formula">\(\gcd(a,b)\)</div>
+          <div class="inline-inputs"><input id="num-a" type="number" value="84"><input id="num-b" type="number" value="30"></div>
+          <button class="btn" onclick="calcularMDC()">Calcular MDC</button>
+        </div>
+        <div class="nt-card">
+          <h3>Mínimo Múltiplo Comum</h3>
+          <div class="nt-formula">\(\operatorname{mmc}(a,b)=\dfrac{|ab|}{\gcd(a,b)}\)</div>
+          <div class="inline-inputs"><input id="num-c" type="number" value="84"><input id="num-d" type="number" value="30"></div>
+          <button class="btn" onclick="calcularMMC()">Calcular MMC</button>
+        </div>
       </div>
       <div id="num-primos-result"></div>
     </div>
+
     <div class="sub-panel" id="sub-num-fator">
-      <div class="form-row">
-        <div><label>Fatorar inteiro N</label><input id="num-fatorar" placeholder="360"><button class="btn" style="margin-top:8px" onclick="fatorarNumero()">Fatorar</button></div>
+      <div class="nt-card nt-wide">
+        <h3>Fatoração em primos</h3>
+        <div class="nt-formula">\(n=p_1^{\alpha_1}p_2^{\alpha_2}\cdots p_k^{\alpha_k}\)</div>
+        <label for="num-fatorar">Inteiro positivo \(n\)</label>
+        <input id="num-fatorar" type="number" step="1" value="360" placeholder="360">
+        <button class="btn" onclick="fatorarNumero()">Fatorar passo a passo</button>
       </div>
       <div id="num-fator-result"></div>
     </div>
+
     <div class="sub-panel" id="sub-num-func">
-      <div class="form-row">
-        <div><label>Número n</label><input id="num-func-n" placeholder="60"><label class="didactic-toggle" style="margin-top:10px"><input id="num-func-steps" type="checkbox" checked> Mostrar passo a passo didático</label><button class="btn" style="margin-top:2px" onclick="calcularFuncoesAritmeticas()">Calcular Funções</button></div>
+      <div class="nt-card nt-wide">
+        <h3>Funções aritméticas clássicas</h3>
+        <div class="nt-formula">\(\varphi(n),\quad \mu(n),\quad \tau(n),\quad \sigma(n)\)</div>
+        <p class="nt-note">Para um mesmo \(n\), o SciCalc calcula as quatro funções, apresenta as fórmulas em notação matemática e faz uma conferência direta pelos divisores.</p>
+        <label for="num-func-n">Inteiro \(n\)</label>
+        <input id="num-func-n" type="number" step="1" value="60" placeholder="60">
+        <label class="didactic-toggle"><input id="num-func-steps" type="checkbox" checked> Mostrar demonstração detalhada</label>
+        <button class="btn" onclick="calcularFuncoesAritmeticas()">Calcular funções aritméticas</button>
       </div>
       <div id="num-func-result"></div>
     </div>
+
     <div class="sub-panel" id="sub-num-ferm">
-      <div class="theorem-box">
-        <div class="theorem-title">📘 Pequeno Teorema de Fermat</div>
-        <div class="theorem-statement">Se <strong>p</strong> é primo e <strong>p ∤ a</strong>, então <span class="formula">a<sup>p−1</sup> ≡ 1 (mod p)</span>.</div>
-        <div class="theorem-note">Forma equivalente: <span class="formula">a<sup>p</sup> ≡ a (mod p)</span>, válida para todo inteiro <strong>a</strong> quando <strong>p</strong> é primo.</div>
+      <div class="nt-theorem">
+        <h3>📘 Pequeno Teorema de Fermat</h3>
+        <div class="nt-formula large">\(p\text{ primo},\ p\nmid a\quad\Longrightarrow\quad a^{p-1}\equiv1\pmod p\)</div>
+        <div class="nt-formula">Forma equivalente: \(a^p\equiv a\pmod p\)</div>
       </div>
-      <div class="form-row">
-        <div><label>Primo p</label><input id="ferm-p" type="number" value="7" min="2"></div>
-        <div><label>Inteiro a</label><input id="ferm-a" type="number" value="3"></div>
+      <div class="nt-grid-2">
+        <div class="nt-card"><label for="ferm-p">Primo \(p\)</label><input id="ferm-p" type="number" value="7" min="2"></div>
+        <div class="nt-card"><label for="ferm-a">Inteiro \(a\)</label><input id="ferm-a" type="number" value="3"></div>
       </div>
-      <button class="btn" onclick="demonstrarFermat()">🧮 Verificar e demonstrar</button>
+      <button class="btn" onclick="demonstrarFermat()">Demonstrar e verificar</button>
       <div id="ferm-result"></div>
-      <details class="proof-details"><summary>📚 Demonstração clássica</summary>
-        <div class="proof-card"><div class="proof-step"><span>1</span><div>Considere os números <strong>a, 2a, 3a, …, (p−1)a</strong> módulo p.</div></div>
-        <div class="proof-step"><span>2</span><div>Como <strong>p ∤ a</strong> e p é primo, esses restos são não nulos e dois deles não podem ser iguais.</div></div>
-        <div class="proof-step"><span>3</span><div>Logo, eles formam uma permutação de <strong>1,2,…,p−1</strong> módulo p.</div></div>
-        <div class="proof-step"><span>4</span><div>Multiplicando os restos: <span class="formula">a<sup>p−1</sup>(p−1)! ≡ (p−1)! (mod p)</span>.</div></div>
-        <div class="proof-step"><span>5</span><div>Como nenhum dos fatores de (p−1)! é divisível por p, podemos cancelar (p−1)!.</div></div>
-        <div class="proof-conclusion">∴ <strong>a<sup>p−1</sup> ≡ 1 (mod p)</strong>.</div></div>
-      </details>
     </div>
   </div>
 </section>
-
 
 <section class="tab-content" id="fisica"><div class="panel"><h2>⚛️ Calculadoras de Física</h2><p class="sub">Sem simulações: escolha uma área, selecione uma fórmula e acompanhe a resolução passo a passo.</p><div class="physics-panel active" id="fis-calc"><div class="calc-toolbar"><label><strong>Área da Física</strong><select id="physics-area" onchange="renderPhysicsCalculator()"><option value="cin">🏃 Cinemática</option><option value="dyn">⚖️ Dinâmica</option><option value="grav">🌍 Gravitação</option><option value="termo">🌡️ Termologia</option><option value="termod">♨️ Termodinâmica</option><option value="ondas">〰️ Ondas</option><option value="opt">🔎 Óptica</option><option value="elec">⚡ Eletricidade</option><option value="mag">🧲 Magnetismo</option><option value="em">🔌 Eletromagnetismo</option><option value="mod">🚀 Física Moderna</option></select></label><label><strong>Calculadora</strong><select id="physics-formula" onchange="renderPhysicsForm()"></select></label></div><div id="physics-form" class="result"></div><div id="physics-result"></div></div></div></section>
 
@@ -592,6 +663,78 @@ function tex(latex) {
 
 function texInline(latex) {
   return scicalcRenderTex(latex, false);
+}
+
+/* Renderizador matemático robusto: KaTeX quando disponível e um fallback
+   HTML limpo quando a CDN não carregar. Nunca deixa \(...\) visível. */
+function scicalcMathFallback(source, display) {
+  var s = String(source == null ? '' : source).trim();
+  s = s.replace(/\\text\{([^{}]*)\}/g, '<span class="math-text">$1</span>');
+  s = s.replace(/\\operatorname\{([^{}]*)\}/g, '<span class="math-op">$1</span>');
+  s = s.replace(/\\dfrac\{([^{}]*)\}\{([^{}]*)\}/g, '<span class="math-frac"><span>$1</span><span>$2</span></span>');
+  s = s.replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, '<span class="math-frac"><span>$1</span><span>$2</span></span>');
+  s = s.replace(/\\sqrt\{([^{}]*)\}/g, '√<span class="math-radicand">$1</span>');
+  s = s.replace(/\\left|\\right/g, '');
+  s = s.replace(/\\quad|\\qquad/g, '&emsp;');
+  s = s.replace(/\\,|\\;/g, '&thinsp;');
+  s = s.replace(/\\cdot/g, '·').replace(/\\times/g, '×');
+  s = s.replace(/\\pm/g, '±').replace(/\\mp/g, '∓');
+  s = s.replace(/\\equiv/g, '≡').replace(/\\leq/g, '≤').replace(/\\geq/g, '≥');
+  s = s.replace(/\\infty/g, '∞').replace(/\\pi/g, 'π');
+  s = s.replace(/\\varphi/g, 'φ').replace(/\\phi/g, 'φ');
+  s = s.replace(/\\mu/g, 'μ').replace(/\\tau/g, 'τ').replace(/\\sigma/g, 'σ');
+  s = s.replace(/\\alpha/g, 'α').replace(/\\beta/g, 'β').replace(/\\gamma/g, 'γ');
+  s = s.replace(/\\theta/g, 'θ').replace(/\\Delta/g, 'Δ').replace(/\\lambda/g, 'λ');
+  s = s.replace(/\\prod/g, '∏').replace(/\\sum/g, '∑').replace(/\\mid/g, '∣');
+  s = s.replace(/\\ldots/g, '…').replace(/\\cdots/g, '⋯');
+  s = s.replace(/\\pmod\s+([^\s<]+)/g, '<span class="math-pmod">mod $1</span>');
+  s = s.replace(/\\gcd/g, '<span class="math-op">gcd</span>');
+  s = s.replace(/\\operatorname\{mmc\}/g, '<span class="math-op">mmc</span>');
+  s = s.replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>');
+  s = s.replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>');
+  s = s.replace(/\^([A-Za-z0-9]+)/g, '<sup>$1</sup>');
+  s = s.replace(/_([A-Za-z0-9]+)/g, '<sub>$1</sub>');
+  s = s.replace(/\\/g, '');
+  return '<span class="math-fallback' + (display ? ' math-display' : '') + '">' + s + '</span>';
+}
+
+function scicalcRenderTex(latex, display) {
+  var seguro = String(latex == null ? '' : latex).trim().replace(/\\\\/g, '\\');
+  try {
+    if (typeof katex !== 'undefined' && typeof katex.renderToString === 'function') {
+      return katex.renderToString(seguro, {throwOnError:false, displayMode:display !== false});
+    }
+  } catch (error) {}
+  return scicalcMathFallback(seguro, display !== false);
+}
+
+function scicalcRenderStaticMath(root) {
+  var target = root || document.body;
+  var walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+  var nodes = [], node;
+  while ((node = walker.nextNode())) {
+    if (!node.parentElement) continue;
+    var tag = node.parentElement.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'CODE') continue;
+    if (/\\\(|\\\[/.test(node.nodeValue)) nodes.push(node);
+  }
+  nodes.forEach(function(textNode) {
+    var raw = textNode.nodeValue;
+    var re = /\\\((.*?)\\\)|\\\[(.*?)\\\]/g;
+    var match, last = 0, html = '';
+    while ((match = re.exec(raw))) {
+      html += scicalcEscape(raw.slice(last, match.index));
+      var formula = match[1] != null ? match[1] : match[2];
+      var display = match[2] != null;
+      html += scicalcRenderTex(formula, display);
+      last = re.lastIndex;
+    }
+    if (!html) return;
+    html += scicalcEscape(raw.slice(last));
+    var holder = document.createElement('span');
+    holder.innerHTML = html;
+    textNode.parentNode.replaceChild(holder, textNode);
+  });
 }
 
 // Tema e Gráficos
@@ -1255,174 +1398,78 @@ function calcFourier() {
   } catch(e){ toast(e.message,'err'); }
 }
 
-// ============ TEORIA DOS NÚMEROS ============
-function testarPrimo() {
-  try {
-    const n = parseInt(str('num-teste'));
-    if(n < 2) throw new Error('n deve ser ≥ 2');
-    let primo = true;
-    for(let i=2; i<=Math.sqrt(n); i++) if(n%i === 0) { primo = false; break; }
-    document.getElementById('num-primos-result').innerHTML = `<div class="result" style="font-size:1.2rem">O número <strong>${n}</strong> ${primo ? '<span style="color:var(--ok)">É PRIMO</span>' : '<span style="color:var(--err)">NÃO é primo</span>'}</div>`;
-  } catch(e) { toast(e.message,'err'); }
+// ============ TEORIA DOS NÚMEROS — MÓDULO REORGANIZADO ============
+function ntInteger(id,label,min){
+  const el=document.getElementById(id); if(!el) throw new Error('Campo '+label+' não encontrado.');
+  const n=Number(el.value); if(!Number.isInteger(n) || (min!==undefined && n<min)) throw new Error(label+' deve ser um inteiro válido.');
+  return n;
 }
+function ntGcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b!==0){const r=a%b;a=b;b=r;}return a;}
+function ntLcm(a,b){if(a===0||b===0)return 0;return Math.abs(a/ntGcd(a,b)*b);}
+function ntIsPrime(n){if(n<2)return false;if(n===2)return true;if(n%2===0)return false;for(let d=3;d*d<=n;d+=2)if(n%d===0)return false;return true;}
+function ntFactor(n){const factors=[];let m=n;for(let p=2;p*p<=m;p+=(p===2?1:2)){if(m%p===0){let e=0;while(m%p===0){m/=p;e++;}factors.push([p,e]);}}if(m>1)factors.push([m,1]);return factors;}
+function ntFactorTex(factors){return factors.length?factors.map(([p,e])=>e===1?String(p):String(p)+'^{'+e+'}').join('\\,\\cdot\\,'):'1';}
+function ntFormat(x){if(Number.isInteger(x))return String(x);return Number(x.toFixed(10)).toString();}
+function ntSetResult(id,title,body){const el=document.getElementById(id);if(el){el.innerHTML='<div class="nt-result"><h3>'+title+'</h3>'+body+'</div>';try{scicalcRenderStaticMath(el);}catch(e){}}}
 
-function crivoEratostenes() {
-  try {
-    const N = parseInt(str('num-crivo'));
-    if(N<2 || N>1000000) throw new Error('2 ≤ N ≤ 1.000.000');
-    const sieve = new Uint8Array(N+1);
-    const primos = [];
-    for(let i=2; i<=N; i++) {
-      if(!sieve[i]) {
-        primos.push(i);
-        for(let j=i*i; j<=N; j+=i) sieve[j]=1;
-      }
-    }
-    document.getElementById('num-primos-result').innerHTML = `<div class="result">
-      <div><strong>Primos até ${N}:</strong> ${primos.length} encontrados</div>
-      <div style="margin-top:10px; font-family:monospace; font-size:0.9rem; max-height:200px; overflow-y:auto; word-wrap:break-word;">${primos.join(', ')}</div>
-    </div>`;
-  } catch(e) { toast(e.message,'err'); }
+function testarPrimo(){
+  try{
+    const n=ntInteger('num-teste','n',2), limite=Math.floor(Math.sqrt(n));
+    let divisor=null;
+    for(let d=2;d<=limite;d++)if(n%d===0){divisor=d;break;}
+    let steps=[];
+    steps.push('<div class="nt-step"><b>1. Critério</b><div>É suficiente testar divisores inteiros até '+tex('\\sqrt{n}')+'.</div><div>'+tex('\\sqrt{'+n+'}\\approx '+ntFormat(Math.sqrt(n)))+'</div></div>');
+    if(divisor){steps.push('<div class="nt-step"><b>2. Divisor encontrado</b><div>'+tex(n+'='+divisor+'\\cdot'+(n/divisor))+'</div></div>');steps.push('<div class="nt-conclusion bad">'+tex(n+'\\text{ é composto}')+'</div>');}
+    else {steps.push('<div class="nt-step"><b>2. Verificação</b><div>Nenhum divisor entre 2 e '+limite+' divide '+n+'.</div></div>');steps.push('<div class="nt-conclusion good">'+tex(n+'\\text{ é primo}')+'</div>');}
+    ntSetResult('num-primos-result','Teste de primalidade',steps.join(''));salvarHistorico('Primalidade',String(n),divisor?'Composto':'Primo');toast('Teste concluído.','ok');
+  }catch(e){toast(e.message,'err');}
 }
-
-const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
-function calcularMDC() { try { const a=parseInt(str('num-a')), b=parseInt(str('num-b')); document.getElementById('num-primos-result').innerHTML = `<div class="result">MDC(${a}, ${b}) = <strong>${gcd(a,b)}</strong></div>`; } catch(e){toast(e.message,'err');} }
-function calcularMMC() { try { const a=parseInt(str('num-c')), b=parseInt(str('num-d')); document.getElementById('num-primos-result').innerHTML = `<div class="result">MMC(${a}, ${b}) = <strong>${Math.abs(a*b)/gcd(a,b)}</strong></div>`; } catch(e){toast(e.message,'err');} }
-
-function fatorarNumero() {
-  try {
-    let n = parseInt(str('num-fatorar'));
-    if(n < 2) throw new Error('n deve ser ≥ 2');
-    const orig = n, fat = {};
-    for(let p=2; p*p<=n; p++) { while(n%p===0) { fat[p]=(fat[p]||0)+1; n/=p; } }
-    if(n>1) fat[n] = (fat[n]||0)+1;
-    const res = Object.entries(fat).map(([p,e]) => e>1 ? `${p}^{${e}}` : p).join(' \\cdot ');
-    document.getElementById('num-fator-result').innerHTML = `<div class="result">${tex(`${orig} = ${res}`)}</div>`;
-  } catch(e) { toast(e.message,'err'); }
+function crivoEratostenes(){
+  try{
+    const N=ntInteger('num-crivo','N',2);if(N>1000000)throw new Error('N deve ser ≤ 1.000.000.');
+    const composite=new Uint8Array(N+1),primes=[];
+    for(let p=2;p<=N;p++){if(!composite[p]){primes.push(p);if(p*p<=N)for(let m=p*p;m<=N;m+=p)composite[m]=1;}}
+    const list=primes.slice(0,500).join(', ')+(primes.length>500?' …':'');
+    const html='<div class="nt-step"><b>1. Inicialização</b><div>Todos os inteiros de 2 até '+N+' começam como candidatos a primo.</div></div><div class="nt-step"><b>2. Eliminação</b><div>Para cada primo p, eliminamos os múltiplos a partir de '+tex('p^2')+'.</div></div><div class="nt-step"><b>3. Resultado</b><div>'+tex('\\pi('+N+')='+primes.length)+'</div><div class="nt-prime-list">'+list+'</div></div>';
+    ntSetResult('num-primos-result','Crivo de Eratóstenes',html);salvarHistorico('Crivo',String(N),primes.length+' primos');toast('Crivo concluído.','ok');
+  }catch(e){toast(e.message,'err');}
 }
-
-function calcularFuncoesAritmeticas() {
-  try {
-    const n = parseInt(str('num-func-n'));
-    if(isNaN(n) || n<1) throw new Error('n deve ser ≥ 1');
-    
-    let phi = n, temp = n;
-    for(let p=2; p*p<=temp; p++) if(temp%p===0) { while(temp%p===0) temp/=p; phi -= phi/p; }
-    if(temp>1) phi -= phi/temp;
-    
-    let mu = 1, tempM = n, sqf = true;
-    for(let p=2; p*p<=tempM; p++) if(tempM%p===0) { let c=0; while(tempM%p===0) {c++; tempM/=p;} if(c>1) {sqf=false; break;} mu = -mu; }
-    if(tempM>1) mu = -mu; if(!sqf) mu = 0;
-    
-    let d = 0, sigma = 0; const div = [];
-    for(let i=1; i*i<=n; i++) if(n%i===0) { d++; sigma+=i; div.push(i); if(i!==n/i) { d++; sigma+=n/i; div.push(n/i); } }
-    div.sort((a,b)=>a-b);
-    
-    document.getElementById('num-func-result').innerHTML = `<div class="result">
-      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; text-align:center;">
-        <div class="fact-card" style="border-left-color:#4f46e5"><div class="label">Totiente φ(n)</div><div class="value">${phi}</div></div>
-        <div class="fact-card" style="border-left-color:#06b6d4"><div class="label">Möbius μ(n)</div><div class="value">${mu}</div></div>
-        <div class="fact-card" style="border-left-color:#f59e0b"><div class="label">Divisores d(n)</div><div class="value">${d}</div></div>
-        <div class="fact-card" style="border-left-color:#10b981"><div class="label">Soma Div. σ(n)</div><div class="value">${sigma}</div></div>
-      </div>
-      <div style="margin-top:14px; font-family:monospace; word-break:break-all; font-size:0.9rem"><strong>Divisores:</strong> ${div.join(', ')}</div>
-    </div>`;
-  } catch(e) { toast(e.message,'err'); }
+function calcularMDC(){try{const a=ntInteger('num-a','a'),b=ntInteger('num-b','b');if(a===0&&b===0)throw new Error('MDC(0,0) não é definido.');let x=Math.abs(a),y=Math.abs(b),rows=[];while(y!==0){const q=Math.floor(x/y),r=x%y;rows.push(tex(x+'='+q+'\\cdot'+y+'+'+r));x=y;y=r;}ntSetResult('num-primos-result','Algoritmo de Euclides','<div class="nt-step"><b>Resoluções sucessivas</b><div class="nt-equations">'+rows.join('<br>')+'</div></div><div class="nt-conclusion good">'+tex('\\gcd('+a+','+b+')='+x)+'</div>');salvarHistorico('MDC',a+', '+b,String(x));toast('MDC calculado.','ok');}catch(e){toast(e.message,'err');}}
+function calcularMMC(){try{const a=ntInteger('num-c','a'),b=ntInteger('num-d','b');const g=ntGcd(a,b),m=ntLcm(a,b);ntSetResult('num-primos-result','Mínimo Múltiplo Comum','<div class="nt-step"><b>1. Usar o MDC</b><div>'+tex('\\gcd('+a+','+b+')='+g)+'</div></div><div class="nt-step"><b>2. Aplicar a identidade</b><div>'+tex('\\operatorname{mmc}(a,b)=\\frac{|ab|}{\\gcd(a,b)}')+'</div><div>'+tex('\\operatorname{mmc}('+a+','+b+')='+m)+'</div></div>');salvarHistorico('MMC',a+', '+b,String(m));toast('MMC calculado.','ok');}catch(e){toast(e.message,'err');}}
+function fatorarNumero(){try{const n=ntInteger('num-fatorar','n',2),f=ntFactor(n);let temp=n,rows=[];f.forEach(([p,e])=>{for(let k=0;k<e;k++){const next=temp/p;rows.push(tex(temp+'\\div '+p+'='+next));temp=next;}});const body='<div class="nt-step"><b>1. Divisões sucessivas</b><div class="nt-equations">'+rows.join('<br>')+'</div></div><div class="nt-step"><b>2. Agrupamento dos fatores</b><div>'+tex(n+'='+ntFactorTex(f))+'</div></div><div class="nt-conclusion good">Fatoração prima confirmada.</div>';ntSetResult('num-fator-result','Fatoração prima',body);salvarHistorico('Fatoração',String(n),f.map(([p,e])=>p+'^'+e).join(' · '));toast('Fatoração concluída.','ok');}catch(e){toast(e.message,'err');}}
+function calcularFuncoesAritmeticas(){
+  try{
+    const n=ntInteger('num-func-n','n',1);if(n>200000)throw new Error('Para este módulo, use n ≤ 200.000.');
+    const f=ntFactor(n);let phi=n,tau=1,sigma=1,mu=1,squarefree=true;
+    if(n===1){phi=tau=sigma=mu=1;}else{f.forEach(([p,e])=>{phi-=phi/p;tau*=e+1;sigma*=(Math.pow(p,e+1)-1)/(p-1);mu*= -1;if(e>1)squarefree=false;});if(!squarefree)mu=0;}
+    const divisors=[];for(let d=1;d*d<=n;d++)if(n%d===0){divisors.push(d);if(d*d!==n)divisors.push(n/d);}divisors.sort((a,b)=>a-b);
+    const directTau=divisors.length,directSigma=divisors.reduce((a,b)=>a+b,0);
+    const fac=ntFactorTex(f);
+    const body='<div class="nt-factor-summary">'+tex('n='+fac)+'</div>'+
+      '<div class="nt-step"><b>1. Totiente de Euler</b><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}\\left(1-\\frac1p\\right)')+'</div><div>'+tex('\\varphi('+n+')='+ntFormat(phi))+'</div></div>'+ 
+      '<div class="nt-step"><b>2. Função de Möbius</b><div>'+ (squarefree?'n é livre de quadrados; '+tex('\\mu(n)=(-1)^k'):'n possui um fator primo repetido; '+tex('\\mu(n)=0')) +'</div><div>'+tex('\\mu('+n+')='+mu)+'</div></div>'+ 
+      '<div class="nt-step"><b>3. Número de divisores</b><div>'+tex('\\tau(n)=\\prod_i(\\alpha_i+1)')+'</div><div>'+tex('\\tau('+n+')='+tau)+'</div></div>'+ 
+      '<div class="nt-step"><b>4. Soma dos divisores</b><div>'+tex('\\sigma(n)=\\prod_i\\frac{p_i^{\\alpha_i+1}-1}{p_i-1}')+'</div><div>'+tex('\\sigma('+n+')='+ntFormat(sigma))+'</div></div>'+ 
+      '<div class="nt-step"><b>5. Conferência direta</b><div>'+tex('\\#\\{d:d\\mid '+n+'\\}='+directTau)+' e '+tex('\\sum_{d\\mid '+n+'}d='+directSigma)+'</div><div>Os resultados teóricos '+(directTau===tau&&Math.abs(directSigma-sigma)<1e-8?'coincidem':'não coincidem')+' com a enumeração dos divisores.</div></div>'+
+      '<div class="nt-step nt-interpret"><b>Interpretação das funções</b><div>Se '+tex('n=\\prod_i p_i^{\\alpha_i}')+', então:</div><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}\left(1-\frac{1}{p}\right)')+'</div><div>'+tex('\\tau(n)=\\prod_i(\\alpha_i+1)')+'</div><div>'+tex('\\sigma(n)=\\prod_i\\frac{p_i^{\\alpha_i+1}-1}{p_i-1}')+'</div><div>'+tex('\\mu(n)=0\\text{ se algum }\\alpha_i\\ge2;\quad \\mu(n)=(-1)^k\\text{ se todos os }\\alpha_i=1.')+'</div></div>'+
+      '<div class="nt-conclusion good">'+tex('\\boxed{\\varphi('+n+')='+ntFormat(phi)+'},\\quad \\boxed{\\mu('+n+')='+mu+'},\\quad \\boxed{\\tau('+n+')='+tau+'},\\quad \\boxed{\\sigma('+n+')='+ntFormat(sigma)+'}')+'</div>'+
+      '<div class="nt-divisors"><b>Divisores de '+n+':</b> '+divisors.join(', ')+'</div>';
+    ntSetResult('num-func-result','Funções aritméticas — resolução completa',body);salvarHistorico('Funções aritméticas',String(n),'phi='+phi+', mu='+mu+', tau='+tau+', sigma='+sigma);toast('Funções aritméticas calculadas.','ok');
+  }catch(e){toast(e.message,'err');}
 }
-
-
-function potenciaModular(base, exp, mod){ let r=1, b=((base%mod)+mod)%mod; while(exp>0){ if(exp%2===1) r=(r*b)%mod; b=(b*b)%mod; exp=Math.floor(exp/2); } return r; }
-function isPrimeNumber(n){ if(n<2)return false; for(let i=2;i*i<=n;i++)if(n%i===0)return false; return true; }
+function potenciaModular(base,exp,mod){let r=1,b=((base%mod)+mod)%mod;while(exp>0){if(exp%2===1)r=(r*b)%mod;b=(b*b)%mod;exp=Math.floor(exp/2);}return r;}
 function demonstrarFermat(){
   try{
-    const p=parseInt(str('ferm-p')), a=parseInt(str('ferm-a'));
-    if(!isPrimeNumber(p)) throw new Error('p deve ser primo.');
-    if(a%p===0) throw new Error('É necessário que p não divida a.');
-
-    const mod=(x)=>((x%p)+p)%p;
-    const r=potenciaModular(a,p-1,p), ap=potenciaModular(a,p,p);
-    const restos=[];
-    for(let k=1;k<p;k++) restos.push(mod(a*k));
-    const unique=new Set(restos).size===p-1;
-
-    // Potências sucessivas, úteis para tornar a verificação concreta.
-    const potencias=[];
-    let valor=1;
-    for(let k=1;k<=p-1;k++){
-      valor=mod(valor*a);
-      potencias.push({k,valor});
-    }
-
-    // Demonstração do produto dos restos.
-    let produtoEsq=1, produtoDir=1;
-    for(let k=1;k<p;k++){
-      produtoEsq=mod(produtoEsq*mod(a*k));
-      produtoDir=mod(produtoDir*k);
-    }
-
-    // Algoritmo de exponenciação rápida, mostrado passo a passo.
-    let e=p-1, b=mod(a), acumulado=1, linhas=[];
-    let etapa=1;
-    while(e>0){
-      const bit=e%2;
-      if(bit===1) acumulado=mod(acumulado*b);
-      linhas.push(`<div class="fermat-mini-step"><span>${etapa}</span><div>e = ${e}, b = ${b}, bit = ${bit}. ${bit===1?'Como o bit é 1: acumulado ← '+acumulado+'.':'O bit é 0: não multiplicamos o acumulado.'}</div></div>`);
-      b=mod(b*b); e=Math.floor(e/2); etapa++;
-    }
-
-    const listaPot=potencias.map(x=>`a<sup>${x.k}</sup> ≡ ${x.valor} (mod ${p})`).join(' &nbsp;→&nbsp; ');
-    const listaRestos=restos.map((x,i)=>`<span class="fermat-rest-pill">${i+1}a ≡ ${x}</span>`).join(' ');
-
-    document.getElementById('ferm-result').innerHTML=`
-      <div class="fermat-proof-result">
-        <div class="proof-result-title">✓ Pequeno Teorema de Fermat — resolução passo a passo</div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>1</span> Dados e hipótese</div>
-          <div>Escolhemos <strong>a = ${a}</strong> e <strong>p = ${p}</strong>.</div>
-          <div>Verificação: <strong>${p} é primo</strong> e ${p} ∤ ${a} porque ${mod(a)} ≠ 0 (mod ${p}).</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>2</span> Construção dos múltiplos de a</div>
-          <div>Calculamos <strong>a, 2a, 3a, …, (p−1)a</strong> e reduzimos cada resultado módulo p:</div>
-          <div class="fermat-rests">${listaRestos}</div>
-          <div class="fermat-explain">Os ${p-1} restos são não nulos e todos distintos. Portanto, formam apenas uma reordenação de <strong>1, 2, …, ${p-1}</strong>.</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>3</span> Multiplicação dos restos</div>
-          <div>Multiplicando todos os ${p-1} congruências:</div>
-          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ 1·2·3·…·(p−1) = (p−1)! (mod ${p})</div>
-          <div>Na verificação numérica:</div>
-          <div class="formula-block">Lado esquerdo ≡ ${produtoEsq} (mod ${p}) &nbsp;&nbsp; | &nbsp;&nbsp; Lado direito ≡ ${produtoDir} (mod ${p})</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>4</span> Cancelamento de (p−1)!</div>
-          <div>Como p é primo, nenhum dos números <strong>1, 2, …, p−1</strong> é divisível por p. Assim, (p−1)! possui inverso módulo p.</div>
-          <div class="formula-block">a<sup>${p-1}</sup>(p−1)! ≡ (p−1)! (mod ${p})</div>
-          <div class="formula-block">a<sup>${p-1}</sup> ≡ 1 (mod ${p})</div>
-        </div>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>5</span> Conferência por potências sucessivas</div>
-          <div class="fermat-powers">${listaPot}</div>
-          <div>Logo, a potência exigida pelo teorema é:</div>
-          <div class="formula-block"><strong>${a}<sup>${p-1}</sup> ≡ ${r} ≡ 1 (mod ${p})</strong></div>
-        </div>
-
-        <details class="fermat-calculation"><summary>🔢 Ver como a potência modular foi calculada</summary><div class="fermat-mini-list">${linhas.join('')}</div></details>
-
-        <div class="fermat-stage">
-          <div class="fermat-stage-title"><span>6</span> Forma equivalente</div>
-          <div>Multiplicando a congruência por a:</div>
-          <div class="formula-block">a<sup>${p}</sup> ≡ a (mod ${p})</div>
-          <div>Na verificação: <strong>${a}<sup>${p}</sup> mod ${p} = ${ap}</strong>.</div>
-        </div>
-
-        <div class="proof-conclusion">∴ <strong>${a}<sup>${p-1}</sup> ≡ 1 (mod ${p})</strong>. O Pequeno Teorema de Fermat foi demonstrado e verificado para os valores escolhidos.</div>
-      </div>`;
+    const p=ntInteger('ferm-p','p',2),a=ntInteger('ferm-a','a');if(!ntIsPrime(p))throw new Error('p deve ser primo.');if(a%p===0)throw new Error('É necessário que p não divida a.');
+    const residues=[];for(let k=1;k<p;k++)residues.push((a*k)%p);const distinct=new Set(residues).size===p-1;const value=potenciaModular(a,p-1,p);
+    let prodA=1,prodBase=1;for(let k=1;k<p;k++){prodA=(prodA*((a*k)%p))%p;prodBase=(prodBase*k)%p;}
+    const steps='<div class="nt-step"><b>1. Hipóteses</b><div>'+tex('p='+p+'\\text{ é primo e }p\\nmid '+a)+'</div></div>'+ 
+      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a\\pmod p')+'</div><div class="nt-prime-list">'+residues.join(', ')+'</div><div>'+ (distinct?'Os '+(p-1)+' restos são distintos e não nulos.':'Os restos não formam uma permutação.')+'</div></div>'+ 
+      '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}\\pmod p')+'</div></div>'+ 
+      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!\\pmod p')+'</div><div>'+tex('a^{p-1}\\equiv1\\pmod p')+' porque '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+ 
+      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\pmod '+p)+'</div><div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div></div>'+ 
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\pmod '+p+'}')+'</div>';
+    ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);toast('Teorema verificado.','ok');
   }catch(e){toast(e.message,'err');}
 }
 
@@ -1466,7 +1513,7 @@ function scicalcSanitizeLatex(latex) {
   return s;
 }
 
-function scicalcRenderTex(latex, display) {
+function scicalcRenderTexLegacy(latex, display) {
   const seguro = scicalcSanitizeLatex(latex);
   try {
     if (typeof katex !== 'undefined') {
@@ -2344,194 +2391,6 @@ function scicalcGcd(a, b) {
   return left;
 }
 
-function testarPrimo() {
-  try {
-    var n = scicalcInteger('num-teste', 'n', 2, 2000000000);
-    var prime = true;
-    for (var i = 2; i * i <= n; i++) if (n % i === 0) { prime = false; break; }
-    document.getElementById('num-primos-result').innerHTML = '<div class="result">O número <strong>' + n + '</strong> ' + (prime ? '<span style="color:var(--ok)">é primo.</span>' : '<span style="color:var(--err)">não é primo.</span>') + '</div>';
-    salvarHistorico('Primalidade', String(n), prime ? 'primo' : 'não primo');
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function crivoEratostenes() {
-  try {
-    var max = scicalcInteger('num-crivo', 'N', 2, 1000000);
-    var sieve = new Uint8Array(max + 1), primes = [];
-    for (var i = 2; i <= max; i++) if (!sieve[i]) {
-      primes.push(i);
-      if (i * i <= max) for (var multiple = i * i; multiple <= max; multiple += i) sieve[multiple] = 1;
-    }
-    document.getElementById('num-primos-result').innerHTML = '<div class="result"><div><strong>Primos até ' + max + ':</strong> ' + primes.length + ' encontrados</div><div style="margin-top:10px;font-family:monospace;font-size:.9rem;max-height:200px;overflow-y:auto;word-wrap:break-word;">' + primes.join(', ') + '</div></div>';
-    salvarHistorico('Crivo de Eratóstenes', 'N=' + max, primes.length + ' primos');
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function calcularMDC() {
-  try {
-    var a = scicalcInteger('num-a', 'a', -2000000000, 2000000000);
-    var b = scicalcInteger('num-b', 'b', -2000000000, 2000000000);
-    var result = scicalcGcd(a, b);
-    document.getElementById('num-primos-result').innerHTML = '<div class="result">MDC(' + a + ', ' + b + ') = <strong>' + result + '</strong></div>';
-    salvarHistorico('MDC', a + ', ' + b, String(result));
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function calcularMMC() {
-  try {
-    var a = scicalcInteger('num-c', 'a', -2000000000, 2000000000);
-    var b = scicalcInteger('num-d', 'b', -2000000000, 2000000000);
-    var result = a === 0 || b === 0 ? 0 : Math.abs((a / scicalcGcd(a, b)) * b);
-    if (!Number.isSafeInteger(result)) throw new Error('O MMC excede a precisão segura do JavaScript para esses valores.');
-    document.getElementById('num-primos-result').innerHTML = '<div class="result">MMC(' + a + ', ' + b + ') = <strong>' + result + '</strong></div>';
-    salvarHistorico('MMC', a + ', ' + b, String(result));
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function fatorarNumero() {
-  try {
-    var n = scicalcInteger('num-fatorar', 'N', 2, 2000000000);
-    var original = n, factors = {};
-    for (var p = 2; p * p <= n; p++) while (n % p === 0) { factors[p] = (factors[p] || 0) + 1; n /= p; }
-    if (n > 1) factors[n] = (factors[n] || 0) + 1;
-    var expression = Object.entries(factors).map(function(entry) { return entry[1] > 1 ? entry[0] + '^{' + entry[1] + '}' : entry[0]; }).join(' \\cdot ');
-    document.getElementById('num-fator-result').innerHTML = '<div class="result">' + scicalcRenderTex(original + ' = ' + expression) + '</div>';
-    salvarHistorico('Fatoração', String(original), expression);
-  } catch (error) { toast(error.message, 'err'); }
-}
-
-function calcularFuncoesAritmeticas() {
-  try {
-    var n = scicalcInteger('num-func-n', 'n', 1, 200000);
-    var original = n, temp = n, factors = [], division = [];
-    if (n === 1) {
-      factors = [];
-    } else {
-      for (var p = 2; p * p <= temp; p++) {
-        if (temp % p === 0) {
-          var e = 0;
-          while (temp % p === 0) { var before = temp; temp /= p; e++; division.push(before + ' ÷ ' + p + ' = ' + temp); }
-          factors.push([p, e]);
-        }
-      }
-      if (temp > 1) { factors.push([temp, 1]); division.push(temp + ' é primo e permanece como fator.'); }
-    }
-    var phi = n;
-    factors.forEach(function(f){ phi -= phi / f[0]; });
-    var mu = 1, squarefree = true;
-    factors.forEach(function(f){ if(f[1] > 1) squarefree = false; mu *= -1; });
-    if(!squarefree) mu = 0;
-    var tau = 1, sigma = 1;
-    factors.forEach(function(f){ tau *= (f[1] + 1); sigma *= (Math.pow(f[0], f[1]+1)-1)/(f[0]-1); });
-    if(n === 1){phi=1;mu=1;tau=1;sigma=1;}
-    var divisors=[];
-    for(var d=1; d*d<=n; d++) if(n%d===0){divisors.push(d); if(d!==n/d) divisors.push(n/d);}
-    divisors.sort(function(a,b){return a-b;});
-    var divisorSum=divisors.reduce(function(a,b){return a+b;},0);
-    var facText=factors.length?factors.map(function(f){return f[1]>1?f[0]+'^'+f[1]:String(f[0]);}).join(' · '):'1';
-    var html='<div class="result"><h3>🔢 Resolução aritmética detalhada</h3>';
-    html+='<div class="fact-card"><div class="label">Fatoração prima</div><div class="value">'+original+' = '+facText+'</div></div>';
-    html+='<div class="didactic-step"><div class="step-num">1</div><div><strong>Fatoração por divisões sucessivas</strong><div>'+(division.length?division.join('<br>'):'1 não possui fatores primos.')+'</div></div></div>';
-    html+='<div class="didactic-step"><div class="step-num">2</div><div><strong>Totiente de Euler</strong><div>φ(n) = n · ∏(1 − 1/p), usando os primos distintos p.</div><div>φ('+n+') = '+phi+'</div></div></div>';
-    html+='<div class="didactic-step"><div class="step-num">3</div><div><strong>Função de Möbius</strong><div>'+(squarefree?'n é livre de quadrados: μ(n)=(-1)^k, com k='+factors.length+'.':'Existe expoente maior que 1: μ(n)=0.')+'</div><div>μ('+n+') = '+mu+'</div></div></div>';
-    html+='<div class="didactic-step"><div class="step-num">4</div><div><strong>Número de divisores</strong><div>Se n = ∏pᵢ^aᵢ, então τ(n)=∏(aᵢ+1).</div><div>τ('+n+') = '+tau+'</div></div></div>';
-    html+='<div class="didactic-step"><div class="step-num">5</div><div><strong>Soma dos divisores</strong><div>σ(n)=∏(1+p+...+p^a).</div><div>σ('+n+') = '+sigma+'</div></div></div>';
-    html+='<div class="didactic-step"><div class="step-num">6</div><div><strong>Conferência direta</strong><div>Divisores: '+divisors.join(', ')+'</div><div>Quantidade = '+divisors.length+' e soma = '+divisorSum+'.</div></div></div>';
-    html+='<div class="check-pill">✓ Conferência: τ('+n+') = '+divisors.length+' e σ('+n+') = '+divisorSum+'.</div></div>';
-    document.getElementById('num-func-result').innerHTML=html;
-    salvarHistorico('Funções aritméticas',String(n),'φ='+phi+', μ='+mu+', τ='+tau+', σ='+sigma);
-  } catch(error) { toast(error.message,'err'); }
-}
-
-function scicalcHistoryData() {
-  try {
-    var data = JSON.parse(localStorage.getItem('scicalc_hist') || '[]');
-    return Array.isArray(data) ? data : [];
-  } catch (error) { return []; }
-}
-
-function salvarHistorico(tipo, entrada, saida) {
-  var history = scicalcHistoryData();
-  history.unshift({tipo:String(tipo).slice(0,80),entrada:String(entrada).slice(0,500),saida:String(saida).slice(0,500),data:new Date().toLocaleString('pt-BR')});
-  localStorage.setItem('scicalc_hist', JSON.stringify(history.slice(0, 50)));
-}
-
-function renderHistorico() {
-  var history = scicalcHistoryData();
-  var destination = document.getElementById('hist-list');
-  if (!history.length) { destination.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Nenhum cálculo registrado.</p>'; return; }
-  destination.innerHTML = history.map(function(item) { return '<div class="history-item"><div class="time"><strong>' + scicalcEscape(item.tipo) + '</strong> · ' + scicalcEscape(item.data) + '</div><div class="content">In: ' + scicalcEscape(item.entrada) + '<br>Out: ' + scicalcEscape(item.saida) + '</div></div>'; }).join('');
-}
-
-function limparHistorico() { localStorage.removeItem('scicalc_hist'); renderHistorico(); toast('Histórico limpo.', 'ok'); }
-function exportarHistorico() {
-  var history = scicalcHistoryData();
-  if (!history.length) { toast('O histórico está vazio.', 'warn'); return; }
-  var url = URL.createObjectURL(new Blob([JSON.stringify(history, null, 2)], {type:'application/json'}));
-  var link = document.createElement('a');
-  link.href = url; link.download = 'scicalc_historico.json'; link.click();
-  setTimeout(function() { URL.revokeObjectURL(url); }, 0);
-}
-</script>
-
-<script>
-/* ================= FÍSICA: CALCULADORAS ================= */
-const physicsForms={
- cin:{title:'Cinemática',items:[['MRU','mru',[['s0','s₀ (m)',0],['v','v (m/s)',10],['t','t (s)',5]]],['MRUV','mruv',[['s0','s₀ (m)',0],['v0','v₀ (m/s)',10],['a','a (m/s²)',2],['t','t (s)',5]]],['Queda livre','queda',[['h','h (m)',20],['g','g (m/s²)',9.81]]]]},
- dyn:{title:'Dinâmica',items:[['2ª Lei de Newton','newton',[['F','F (N)',20],['m','m (kg)',5]]],['Atrito cinético','atrito',[['mu','μₖ',0.2],['m','m (kg)',5],['g','g (m/s²)',9.81]]],['Energia cinética','ec',[['m','m (kg)',2],['v','v (m/s)',10]]]]},
- grav:{title:'Gravitação',items:[['Gravitação universal','grav',[['m1','m₁ (kg)',5.972e24],['m2','m₂ (kg)',1000],['r','r (m)',6.771e6]]],['Órbita circular','orbita',[['M','M (kg)',5.972e24],['r','r (m)',6.771e6]]]]},
- termo:{title:'Termologia',items:[['Conversão de temperatura','temp',[['T','T (°C)',25]]],['Dilatação linear','dilat',[['L0','L₀ (m)',2],['alpha','α (1/K)',1.2e-5],['dT','ΔT (K)',80]]]]},
- termod:{title:'Termodinâmica',items:[['Calor sensível','calor',[['m','m (kg)',2],['c','c (J/kg·K)',4186],['dT','ΔT (K)',20]]],['1ª Lei da Termodinâmica','primeira',[['Q','Q (J)',500],['W','W realizado pelo sistema (J)',200]]],['Rendimento','rendimento',[['Qin','Q₁ (J)',1000],['Qout','Q₂ (J)',400]]]]},
- ondas:{title:'Ondas',items:[['Equação fundamental','onda',[['lambda','λ (m)',2],['f','f (Hz)',5]]],['Período','periodo',[['f','f (Hz)',2]]]]},
- opt:{title:'Óptica',items:[['Lentes e espelhos','lente',[['f','f (cm)',20],['p','p (cm)',30]]],['Aumento linear','aumento',[['q','q (cm)',40],['p','p (cm)',20]]]]},
- elec:{title:'Eletricidade',items:[['Lei de Ohm','ohm',[['V','V (V)',12],['R','R (Ω)',100]]],['Lei de Coulomb','coulomb',[['q1','q₁ (μC)',2],['q2','q₂ (μC)',3],['r','r (m)',0.5]]],['Capacitor','capacitor',[['C','C (F)',0.001],['V','V (V)',12]]]]},
- mag:{title:'Magnetismo',items:[['Força sobre carga','fmag',[['q','q (C)',1e-6],['v','v (m/s)',1000],['B','B (T)',0.2],['theta','θ (graus)',90]]],['Força sobre fio','fio',[['I','I (A)',5],['L','L (m)',0.4],['B','B (T)',0.3],['theta','θ (graus)',90]]]]},
- em:{title:'Eletromagnetismo',items:[['Lei de Faraday','faraday',[['N','N (espiras)',100],['dphi','ΔΦ (Wb)',0.02],['dt','Δt (s)',0.1]]],['Força de Lorentz','lorentz',[['q','q (C)',1e-6],['v','v (m/s)',1000],['B','B (T)',0.1],['theta','θ (graus)',90]]]]},
- mod:{title:'Física Moderna',items:[['Fator de Lorentz','lorentzRel',[['beta','β=v/c',0.8],['t0','Δt₀ (s)',10],['L0','L₀ (m)',100]]],['Energia de repouso','repouso',[['m','m (kg)',1]]],['Fóton','foton',[['lambda','λ (m)',5e-7]]]]}
-};
-function physicsCalculate(id,v){const d={steps:[],result:''};const add=x=>d.steps.push(x);let r;
-switch(id){
-case'mru':r=v.s0+v.v*v.t;add('1. Equação: s = s₀ + vt.');add(`2. Substituição: s = ${v.s0} + ${v.v}·${v.t}.`);add(`3. Resultado: s = ${r.toFixed(6)} m.`);d.result=`Posição final: <strong>${r.toFixed(6)} m</strong>`;break;
-case'mruv':{let vf=v.v0+v.a*v.t,s=v.s0+v.v0*v.t+.5*v.a*v.t*v.t;add('1. v = v₀ + at.');add(`2. v = ${v.v0} + ${v.a}·${v.t} = ${vf.toFixed(6)} m/s.`);add('3. s = s₀ + v₀t + ½at².');add(`4. s = ${s.toFixed(6)} m.`);d.result=`v = <strong>${vf.toFixed(6)} m/s</strong> · s = <strong>${s.toFixed(6)} m</strong>`;break;}
-case'queda':{let t=Math.sqrt(2*v.h/v.g),vf=v.g*t;add('1. h = ½gt².');add('2. t = √(2h/g).');add(`3. t = √(2·${v.h}/${v.g}) = ${t.toFixed(6)} s.`);add(`4. v = gt = ${vf.toFixed(6)} m/s.`);d.result=`t = <strong>${t.toFixed(6)} s</strong> · v = <strong>${vf.toFixed(6)} m/s</strong>`;break;}
-case'newton':r=v.F/v.m;add('1. F = ma.');add(`2. a = F/m = ${v.F}/${v.m}.`);add(`3. a = ${r.toFixed(6)} m/s².`);d.result=`Aceleração: <strong>${r.toFixed(6)} m/s²</strong>`;break;
-case'atrito':r=v.mu*v.m*v.g;add('1. N = mg.');add(`2. N = ${ (v.m*v.g).toFixed(6)} N.`);add('3. Fₐ = μₖN.');add(`4. Fₐ = ${r.toFixed(6)} N.`);d.result=`Atrito: <strong>${r.toFixed(6)} N</strong>`;break;
-case'ec':r=.5*v.m*v.v*v.v;add('1. E_c = ½mv².');add(`2. E_c = ½·${v.m}·${v.v}².`);add(`3. E_c = ${r.toFixed(6)} J.`);d.result=`E_c = <strong>${r.toFixed(6)} J</strong>`;break;
-case'grav':r=6.67430e-11*v.m1*v.m2/(v.r*v.r);add('1. F = Gm₁m₂/r².');add(`2. G = 6,67430×10⁻¹¹ N·m²/kg².`);add(`3. F = ${r.toExponential(8)} N.`);d.result=`F = <strong>${r.toExponential(8)} N</strong>`;break;
-case'orbita':r=Math.sqrt(6.67430e-11*v.M/v.r);add('1. GMm/r² = mv²/r.');add('2. v = √(GM/r).');add(`3. v = ${r.toFixed(6)} m/s.`);d.result=`Velocidade orbital: <strong>${r.toFixed(6)} m/s</strong>`;break;
-case'temp':{let K=v.T+273.15,F=v.T*9/5+32;add('1. K = °C + 273,15.');add(`2. K = ${K.toFixed(6)} K.`);add('3. °F = 9°C/5 + 32.');add(`4. °F = ${F.toFixed(6)} °F.`);d.result=`<strong>${K.toFixed(6)} K</strong> · <strong>${F.toFixed(6)} °F</strong>`;break;}
-case'dilat':{let dl=v.alpha*v.L0*v.dT,L=v.L0+dl;add('1. ΔL = αL₀ΔT.');add(`2. ΔL = ${v.alpha}·${v.L0}·${v.dT} = ${dl.toExponential(6)} m.`);add(`3. L = L₀ + ΔL = ${L.toFixed(6)} m.`);d.result=`ΔL = <strong>${dl.toExponential(6)} m</strong> · L = <strong>${L.toFixed(6)} m</strong>`;break;}
-case'calor':r=v.m*v.c*v.dT;add('1. Q = mcΔT.');add(`2. Q = ${v.m}·${v.c}·${v.dT}.`);add(`3. Q = ${r.toFixed(6)} J.`);d.result=`Q = <strong>${r.toFixed(6)} J</strong>`;break;
-case'primeira':r=v.Q-v.W;add('1. ΔU = Q − W.');add(`2. ΔU = ${v.Q} − ${v.W}.`);add(`3. ΔU = ${r.toFixed(6)} J.`);d.result=`ΔU = <strong>${r.toFixed(6)} J</strong>`;break;
-case'rendimento':r=1-v.Qout/v.Qin;add('1. η = 1 − Q₂/Q₁.');add(`2. η = 1 − ${v.Qout}/${v.Qin}.`);add(`3. η = ${(100*r).toFixed(6)}%.`);d.result=`η = <strong>${(100*r).toFixed(6)}%</strong>`;break;
-case'onda':r=v.lambda*v.f;add('1. v = λf.');add(`2. v = ${v.lambda}·${v.f}.`);add(`3. v = ${r.toFixed(6)} m/s.`);d.result=`v = <strong>${r.toFixed(6)} m/s</strong>`;break;
-case'periodo':r=1/v.f;add('1. T = 1/f.');add(`2. T = 1/${v.f}.`);add(`3. T = ${r.toFixed(6)} s.`);d.result=`T = <strong>${r.toFixed(6)} s</strong>`;break;
-case'lente':r=1/(1/v.f-1/v.p);add('1. 1/f = 1/p + 1/q.');add('2. q = 1/(1/f − 1/p).');add(`3. q = ${r.toFixed(6)} cm.`);d.result=`q = <strong>${r.toFixed(6)} cm</strong>`;break;
-case'aumento':r=-v.q/v.p;add('1. A = −q/p.');add(`2. A = −${v.q}/${v.p}.`);add(`3. A = ${r.toFixed(6)}.`);d.result=`A = <strong>${r.toFixed(6)}</strong>`;break;
-case'ohm':{let I=v.V/v.R,P=v.V*I;add('1. I = V/R.');add(`2. I = ${I.toFixed(6)} A.`);add(`3. P = VI = ${P.toFixed(6)} W.`);d.result=`I = <strong>${I.toFixed(6)} A</strong> · P = <strong>${P.toFixed(6)} W</strong>`;break;}
-case'coulomb':r=8.9875517923e9*Math.abs(v.q1*v.q2)*1e-12/(v.r*v.r);add('1. Converter μC para C.');add('2. F = k|q₁q₂|/r².');add(`3. F = ${r.toExponential(8)} N.`);d.result=`F = <strong>${r.toExponential(8)} N</strong>`;break;
-case'capacitor':{let Q=v.C*v.V,E=.5*v.C*v.V*v.V;add(`1. Q = CV = ${Q.toExponential(6)} C.`);add('2. E = ½CV².');add(`3. E = ${E.toExponential(6)} J.`);d.result=`Q = <strong>${Q.toExponential(6)} C</strong> · E = <strong>${E.toExponential(6)} J</strong>`;break;}
-case'fmag':r=Math.abs(v.q)*v.v*v.B*Math.sin(v.theta*Math.PI/180);add('1. F = |q|vB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toExponential(6)} N.`);d.result=`F = <strong>${r.toExponential(6)} N</strong>`;break;
-case'fio':r=v.I*v.L*v.B*Math.sin(v.theta*Math.PI/180);add('1. F = ILB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toFixed(6)} N.`);d.result=`F = <strong>${r.toFixed(6)} N</strong>`;break;
-case'faraday':r=Math.abs(v.N*v.dphi/v.dt);add('1. |ε| = N|ΔΦ/Δt|.');add(`2. |ε| = ${v.N}·${v.dphi}/${v.dt}.`);add(`3. |ε| = ${r.toFixed(6)} V.`);d.result=`ε = <strong>${r.toFixed(6)} V</strong>`;break;
-case'lorentz':r=Math.abs(v.q)*v.v*v.B*Math.sin(v.theta*Math.PI/180);add('1. Para E=0: F = |q|vB senθ.');add(`2. senθ = ${Math.sin(v.theta*Math.PI/180).toFixed(6)}.`);add(`3. F = ${r.toExponential(6)} N.`);d.result=`F = <strong>${r.toExponential(6)} N</strong>`;break;
-case'lorentzRel':{if(Math.abs(v.beta)>=1)throw Error('β deve ter módulo menor que 1.');let g=1/Math.sqrt(1-v.beta*v.beta),t=g*v.t0,L=v.L0/g;add('1. γ = 1/√(1−β²).');add(`2. γ = ${g.toFixed(8)}.`);add(`3. Δt = γΔt₀ = ${t.toFixed(8)} s.`);add(`4. L = L₀/γ = ${L.toFixed(8)} m.`);d.result=`γ = <strong>${g.toFixed(8)}</strong> · Δt = <strong>${t.toFixed(8)} s</strong>`;break;}
-case'repouso':r=v.m*299792458**2;add('1. E₀ = mc².');add('2. c = 299.792.458 m/s.');add(`3. E₀ = ${r.toExponential(8)} J.`);d.result=`E₀ = <strong>${r.toExponential(8)} J</strong>`;break;
-case'foton':{let f=299792458/v.lambda,E=6.62607015e-34*f;add('1. f = c/λ.');add(`2. f = ${f.toExponential(6)} Hz.`);add('3. E = hf.');add(`4. E = ${E.toExponential(6)} J.`);d.result=`f = <strong>${f.toExponential(6)} Hz</strong> · E = <strong>${E.toExponential(6)} J</strong>`;break;}}
-return d;}
-function renderPhysicsCalculator(){let area=document.getElementById('physics-area').value,data=physicsForms[area],sel=document.getElementById('physics-formula');sel.innerHTML=data.items.map(x=>`<option value="${x[1]}">${x[0]}</option>`).join('');renderPhysicsForm();}
-function renderPhysicsForm(){let area=document.getElementById('physics-area').value,data=physicsForms[area],id=document.getElementById('physics-formula').value,item=data.items.find(x=>x[1]===id);if(!item)return;document.getElementById('physics-form').innerHTML=`<h3>${data.title} — ${item[0]}</h3><div class="sim-controls">${item[2].map(x=>`<div><label>${x[1]}</label><input type="number" step="any" id="pfx-${x[0]}" value="${x[2]}"></div>`).join('')}</div><button class="btn" onclick="runPhysicsCalculator()">🧮 Calcular passo a passo</button>`;document.getElementById('physics-result').innerHTML='';}
-function runPhysicsCalculator(){try{let area=document.getElementById('physics-area').value,id=document.getElementById('physics-formula').value,data=physicsForms[area],item=data.items.find(x=>x[1]===id),v={};item[2].forEach(x=>{let n=Number(document.getElementById('pfx-'+x[0]).value);if(!Number.isFinite(n))throw Error('Valor inválido em '+x[1]);v[x[0]]=n});let o=physicsCalculate(id,v),html='<div class="result"><h3>📚 Resolução passo a passo</h3>';o.steps.forEach((st,i)=>html+=`<div class="didactic-step"><div class="step-num">${i+1}</div><div><strong>Passo ${i+1}</strong><div>${st}</div></div></div>`);html+=`<div class="check-pill">✓ ${o.result}</div></div>`;document.getElementById('physics-result').innerHTML=html;salvarHistorico('Física — '+data.title,item[0],o.result.replace(/<[^>]+>/g,''));}catch(e){toast(e.message,'err')}}
-window.addEventListener('load',renderPhysicsCalculator);
-</script>
-
-<script>
-/* ===== CORREÇÃO FINAL V5: ARITMÉTICA + FÍSICA ===== */
-function fmtNum(x){
-  if(!Number.isFinite(x)) return '—';
-  if(Math.abs(x)>=1e7 || (Math.abs(x)>0 && Math.abs(x)<1e-5)) return x.toExponential(8);
-  return Number(x.toFixed(8)).toString();
-}
 function fatoracaoDidatica(n){
   if(n===1) return {factors:[],lines:['1 não possui fatores primos.']};
   let temp=n, factors=[], lines=[];
@@ -2545,36 +2404,6 @@ function fatoracaoDidatica(n){
   if(temp>1){factors.push([temp,1]);lines.push(`${temp} é primo e permanece como fator.`);}
   return {factors,lines};
 }
-function calcularFuncoesAritmeticas(){
-  try{
-    const n=scicalcInteger('num-func-n','n',1,200000), F=fatoracaoDidatica(n), factors=F.factors;
-    let phi=n; factors.forEach(([p])=>phi-=phi/p);
-    let mu=1, squarefree=true; factors.forEach(([p,e])=>{mu*=-1;if(e>1)squarefree=false;}); if(!squarefree)mu=0;
-    let tau=1,sigma=1;
-    factors.forEach(([p,e])=>{tau*=e+1;sigma*=(Math.pow(p,e+1)-1)/(p-1);});
-    if(n===1){phi=mu=tau=sigma=1;}
-    const divisors=[]; for(let d=1;d*d<=n;d++) if(n%d===0){divisors.push(d);if(d*d!==n)divisors.push(n/d);} divisors.sort((a,b)=>a-b);
-    const directSum=divisors.reduce((a,b)=>a+b,0), directCount=divisors.length;
-    const facText=factors.length?factors.map(([p,e])=>e>1?`${p}<sup>${e}</sup>`:`${p}`).join(' · '):'1';
-    const primeList=factors.map(([p])=>p).join(', ')||'nenhum';
-    const phiFormula=n===1?'φ(1)=1':`${n} · ${factors.map(([p])=>`(1 − 1/${p})`).join(' · ')}`;
-    const tauFormula=n===1?'1':factors.map(([p,e])=>`(${e}+1)`).join(' · ');
-    const sigmaFormula=n===1?'1':factors.map(([p,e])=>`(1+${p}+…+${p}<sup>${e}</sup>)`).join(' · ');
-    let html=`<div class="result"><h3>🔢 Resolução completa de n = ${n}</h3>
-      <div class="fact-card"><div class="label">Fatoração prima</div><div class="value">${n} = ${facText}</div></div>
-      <div class="didactic-step"><div class="step-num">1</div><div><strong>Fatoração por divisões sucessivas</strong><div>${F.lines.join('<br>')}</div><div style="margin-top:6px">Primos distintos: <strong>${primeList}</strong></div></div></div>
-      <div class="didactic-step"><div class="step-num">2</div><div><strong>Totiente de Euler φ(n)</strong><div>Fórmula: φ(n)=n∏(1−1/p).</div><div>${phiFormula} = <strong>${fmtNum(phi)}</strong></div><div>Logo, há <strong>${fmtNum(phi)}</strong> inteiros entre 1 e n coprimos com n.</div></div></div>
-      <div class="didactic-step"><div class="step-num">3</div><div><strong>Função de Möbius μ(n)</strong><div>${squarefree?'n é livre de quadrados. Como possui '+factors.length+' primos distintos, μ(n)=(-1)^'+factors.length+'.':'n possui fator primo repetido; portanto μ(n)=0.'}</div><div>μ(${n}) = <strong>${mu}</strong></div></div></div>
-      <div class="didactic-step"><div class="step-num">4</div><div><strong>Número de divisores τ(n)</strong><div>Se n=∏p<sup>a</sup>, então τ(n)=∏(a+1).</div><div>${tauFormula} = <strong>${tau}</strong></div></div></div>
-      <div class="didactic-step"><div class="step-num">5</div><div><strong>Soma dos divisores σ(n)</strong><div>σ(n)=∏(1+p+p²+…+p<sup>a</sup>).</div><div>${sigmaFormula} = <strong>${sigma}</strong></div></div></div>
-      <div class="didactic-step"><div class="step-num">6</div><div><strong>Conferência direta</strong><div>Divisores (${directCount}): ${divisors.join(', ')}</div><div>Contagem direta: <strong>${directCount}</strong> → τ(${n}) = <strong>${tau}</strong>.</div><div>Soma direta: <strong>${directSum}</strong> → σ(${n}) = <strong>${sigma}</strong>.</div></div></div>
-      <div class="check-pill">✓ Conferência ${directCount===tau && directSum===sigma?'confirmada':'requer revisão'}: τ e σ coincidem com os divisores calculados diretamente.</div><div style="margin-top:18px"><label><strong>Gráfico das funções aritméticas</strong></label><select id="arith-chart-select" onchange="plotArithmetic(Number(document.getElementById('num-func-n').value))"><option value="phi">φ(n) — Totiente</option><option value="tau">τ(n) — Divisores</option><option value="sigma">σ(n) — Soma dos divisores</option><option value="mu">μ(n) — Möbius</option></select><div id="num-arith-plot" style="height:360px;margin-top:10px"></div></div></div>`;
-    document.getElementById('num-func-result').innerHTML=html;
-    if(typeof plotArithmetic==='function') plotArithmetic(n);
-    salvarHistorico('Funções aritméticas',String(n),`φ=${phi}, μ=${mu}, τ=${tau}, σ=${sigma}`);
-  }catch(e){toast(e.message,'err');}
-}
-
 /* Corrige a inicialização e torna as calculadoras de Física independentes dos simuladores. */
 function renderPhysicsCalculator(){
   const area=document.getElementById('physics-area').value, data=physicsForms[area];
@@ -2798,26 +2627,6 @@ window.addEventListener('unhandledrejection', function(ev){
     }catch(e){toast(e.message,'err');}
   };
 
-  var oldMdc=window.calcularMDC;
-  window.calcularMDC=function(){
-    try{var a=scicalcInteger('num-a','a',-2000000000,2000000000),b=scicalcInteger('num-b','b',-2000000000,2000000000),x=Math.abs(a),y=Math.abs(b),rows=[];while(y!==0){var q=Math.floor(x/y),r=x-q*y;rows.push(x+'='+q+'\\cdot '+y+'+'+r);x=y;y=r;}var html='<div class="result"><h3>📐 Algoritmo de Euclides</h3><div class="didactic-step"><div class="step-num">1</div><div><strong>Divisões sucessivas</strong><div>'+rows.map(function(r){return scicalcRenderTex(r);}).join('<br>')+'</div></div></div><div class="didactic-step"><div class="step-num">2</div><div><strong>Último resto não nulo</strong><div>'+x+' é o MDC.</div></div></div><div class="check-pill">✓ MDC('+a+','+b+') = '+x+'</div></div>';document.getElementById('num-primos-result').innerHTML=html;salvarHistorico('MDC',a+', '+b,String(x));toast('MDC calculado passo a passo.','ok');}catch(e){ if(typeof oldMdc==='function')return oldMdc();toast(e.message,'err'); }
-  };
-
-  var oldFactor=window.fatorarNumero;
-  window.fatorarNumero=function(){
-    try{var n=scicalcInteger('num-fatorar','N',2,2000000000), original=n,lines=[],fac=[];for(var p=2;p*p<=n;p++){if(n%p===0){var e=0;while(n%p===0){var before=n;n/=p;e++;lines.push(before+' ÷ '+p+' = '+n);}fac.push([p,e]);}}if(n>1){fac.push([n,1]);lines.push(n+' é primo e permanece como fator.');}var expr=fac.map(function(f){return f[1]>1?f[0]+'^{'+f[1]+'}':String(f[0]);}).join('\\cdot ');var html='<div class="result"><h3>🔎 Fatoração prima</h3><div class="didactic-step"><div class="step-num">1</div><div><strong>Divisões sucessivas</strong><div>'+lines.join('<br>')+'</div></div></div><div class="didactic-step"><div class="step-num">2</div><div><strong>Montagem da fatoração</strong><div>'+scicalcRenderTex(original+'='+expr)+'</div></div></div><div class="check-pill">✓ Fatoração concluída.</div></div>';document.getElementById('num-fator-result').innerHTML=html;salvarHistorico('Fatoração',String(original),expr);toast('Fatoração detalhada concluída.','ok');}catch(e){if(typeof oldFactor==='function')return oldFactor();toast(e.message,'err');}
-  };
-
-  /* A função aritmética já é didática na V14; acrescentamos uma seção explicando as fórmulas. */
-  var oldArith=window.calcularFuncoesAritmeticas;
-  window.calcularFuncoesAritmeticas=function(){
-    if(typeof oldArith==='function') oldArith();
-    var box=document.getElementById('num-func-result'); if(!box) return;
-    box.insertAdjacentHTML('beforeend','<div class="didactic-step" style="margin-top:14px"><div class="step-num">ℹ</div><div><strong>Como interpretar as funções</strong><div>Se n=∏pᵢ^{aᵢ}, então φ(n)=n∏(1−1/pᵢ), τ(n)=∏(aᵢ+1), σ(n)=∏(1+pᵢ+⋯+pᵢ^{aᵢ}). Para μ(n), qualquer expoente aᵢ≥2 torna μ(n)=0; se todos são 1, μ(n)=(-1)^k.</div></div></div>');
-  };
-
-  /* Mantém as demais rotinas da V14 intactas. */
-  window.SCICALC_V15=true;
 })();
 </script>
 
@@ -3001,7 +2810,7 @@ window.addEventListener('unhandledrejection', function(ev){
 (function(){
 'use strict';
 function esc(v){return typeof scicalcEscape==='function'?scicalcEscape(v):String(v??'');}
-function tex(v){return typeof scicalcRenderTex==='function'?scicalcRenderTex(v,false):'<code>'+esc(v)+'</code>';}
+function legacyTex(v){return typeof scicalcRenderTex==='function'?scicalcRenderTex(v,false):'<code>'+esc(v)+'</code>';}
 function step(t,f,n){return '<div class="step"><div class="step-title">'+esc(t)+'</div>'+(f?tex(f):'')+(n?'<div class="step-note">'+esc(n)+'</div>':'')+'</div>';}
 function did(title,intro,steps){return '<details class="didactic" open><summary>'+esc(title)+'</summary><div class="didactic-body"><p class="didactic-intro">'+esc(intro)+'</p><div class="step-list">'+steps.join('')+'</div></div></details>';}
 function add(id,html){var e=document.getElementById(id);if(e)e.insertAdjacentHTML('beforeend',html);}
@@ -3071,11 +2880,8 @@ hook('calcFourier',function(){
 });
 
 
-hook('calcularMDC',function(){var a=Number((document.getElementById('num-a')||{}).value),b=Number((document.getElementById('num-b')||{}).value);if(!Number.isFinite(a)||!Number.isFinite(b))return;var x=Math.abs(a),y=Math.abs(b),r=[];while(y){var q=Math.floor(x/y),z=x-q*y;r.push(x+'='+q+'\\cdot'+y+'+'+z);x=y;y=z;}add('num-primos-result',did('📚 MDC — algoritmo de Euclides','O último resto não nulo é o MDC.',[step('1. Dados','a='+a+',\\quad b='+b),step('2. Divisões sucessivas',r.join('\\\\')),step('3. Último resto não nulo','\\operatorname{MDC}('+a+','+b+')='+x),step('4. Resultado','\\boxed{'+x+'}') ]));});
 
-hook('calcularMMC',function(){var a=Number((document.getElementById('num-c')||{}).value),b=Number((document.getElementById('num-d')||{}).value);if(!Number.isFinite(a)||!Number.isFinite(b)||!a||!b)return;var g=gcd(Math.abs(a),Math.abs(b)),m=Math.abs(a*b)/g;add('num-primos-result',did('📚 MMC — passo a passo','Usamos a relação entre MDC e MMC.',[step('1. Dados','a='+a+',\\quad b='+b),step('2. MDC','\\operatorname{MDC}('+a+','+b+')='+g),step('3. Relação','\\operatorname{MMC}(a,b)\\operatorname{MDC}(a,b)=|ab|'),step('4. Substituição','\\operatorname{MMC}='+m),step('5. Resultado','\\boxed{'+m+'}') ]));});
 
-hook('fatorarNumero',function(){var n0=Number((document.getElementById('num-fatorar')||{}).value);if(!Number.isInteger(n0)||n0<2)return;var n=n0,rows=[],fac=[];for(var p=2;p*p<=n;p++)if(n%p===0){var e=0;while(n%p===0){n/=p;e++;rows.push('dividir por '+p+'\\Rightarrow '+n);}fac.push([p,e]);}if(n>1)fac.push([n,1]);var out=fac.map(function(x){return x[1]>1?x[0]+'^{'+x[1]+'}':x[0];}).join('\\cdot');add('num-fator-result',did('📚 Fatoração prima — passo a passo','Dividimos sucessivamente até restarem fatores primos.',[step('1. Número','N='+n0),step('2. Divisões sucessivas',rows.join('\\\\')),step('3. Agrupamento',out),step('4. Verificação',n0+'='+out),step('5. Resultado','\\boxed{'+out+'}') ]));});
 
 window.SCICALC_V25_DIDATIC=true;
 })();
@@ -3292,5 +3098,12 @@ window.SCICALC_V26_EXTRA=true;
 })();
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    try { scicalcRenderStaticMath(document.body); } catch(e) { console.warn('Renderização matemática:', e); }
+  }, 50);
+});
+</script>
 </body>
 </html>
