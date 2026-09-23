@@ -2617,15 +2617,7 @@ window.addEventListener('unhandledrejection', function(ev){
     }catch(e){ if(typeof oldPhysics==='function') return oldPhysics(); toast(e.message,'err'); }
   };
 
-  var oldPrime=window.testarPrimo;
-  window.testarPrimo=function(){
-    try{var n=scicalcInteger('num-teste','n',2,2000000000), divs=[];for(var i=2;i*i<=n;i++){if(n%i===0)divs.push(i);}var prime=divs.length===0,html='<div class="result"><h3>🔢 Teste de primalidade</h3>';
-      html+='<div class="didactic-step"><div class="step-num">1</div><div><strong>Critério</strong><div>É suficiente testar divisores inteiros até \\sqrt{n}, pois se n=ab e ambos fossem maiores que \\sqrt n, teríamos ab>n.</div></div></div>';
-      html+='<div class="didactic-step"><div class="step-num">2</div><div><strong>Limite da busca</strong><div>\\sqrt{'+n+'}\\approx '+Math.sqrt(n).toFixed(6)+'.</div></div></div>';
-      html+='<div class="didactic-step"><div class="step-num">3</div><div><strong>Divisores encontrados</strong><div>'+ (divs.length?divs.join(', '):'nenhum divisor entre 2 e \\sqrt n') +'.</div></div></div>';
-      html+='<div class="check-pill">✓ '+n+(prime?' é PRIMO.':' não é primo.')+'</div></div>';document.getElementById('num-primos-result').innerHTML=html;salvarHistorico('Teste de primo',String(n),prime?'primo':'composto');toast('Teste de primalidade concluído.','ok');
-    }catch(e){toast(e.message,'err');}
-  };
+
 
 })();
 </script>
