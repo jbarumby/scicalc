@@ -8,7 +8,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>SciCalc Avançada — Matemática, Física e Teoria dos Números — V26 Integrada</title>
+<title>SciCalc Avançada — Matemática, Física e Teoria dos Números — V36 Corrigida</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="João Carlos Barumby">
 <meta name="copyright" content="© 2026 João Carlos Barumby — Todos os direitos reservados">
@@ -1445,12 +1445,12 @@ function calcularFuncoesAritmeticas(){
     const directTau=divisors.length,directSigma=divisors.reduce((a,b)=>a+b,0);
     const fac=ntFactorTex(f);
     const body='<div class="nt-factor-summary">'+tex('n='+fac)+'</div>'+
-      '<div class="nt-step"><b>1. Totiente de Euler</b><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}\\left(1-\\frac1p\\right)')+'</div><div>'+tex('\\varphi('+n+')='+ntFormat(phi))+'</div></div>'+ 
+      '<div class="nt-step"><b>1. Totiente de Euler</b><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}(1-1/p)')+'</div><div>'+tex('\\varphi('+n+')='+ntFormat(phi))+'</div></div>'+ 
       '<div class="nt-step"><b>2. Função de Möbius</b><div>'+ (squarefree?'n é livre de quadrados; '+tex('\\mu(n)=(-1)^k'):'n possui um fator primo repetido; '+tex('\\mu(n)=0')) +'</div><div>'+tex('\\mu('+n+')='+mu)+'</div></div>'+ 
       '<div class="nt-step"><b>3. Número de divisores</b><div>'+tex('\\tau(n)=\\prod_i(\\alpha_i+1)')+'</div><div>'+tex('\\tau('+n+')='+tau)+'</div></div>'+ 
       '<div class="nt-step"><b>4. Soma dos divisores</b><div>'+tex('\\sigma(n)=\\prod_i\\frac{p_i^{\\alpha_i+1}-1}{p_i-1}')+'</div><div>'+tex('\\sigma('+n+')='+ntFormat(sigma))+'</div></div>'+ 
       '<div class="nt-step"><b>5. Conferência direta</b><div>'+tex('\\#\\{d:d\\mid '+n+'\\}='+directTau)+' e '+tex('\\sum_{d\\mid '+n+'}d='+directSigma)+'</div><div>Os resultados teóricos '+(directTau===tau&&Math.abs(directSigma-sigma)<1e-8?'coincidem':'não coincidem')+' com a enumeração dos divisores.</div></div>'+
-      '<div class="nt-step nt-interpret"><b>Interpretação das funções</b><div>Se '+tex('n=\\prod_i p_i^{\\alpha_i}')+', então:</div><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}\\left(1-\\frac{1}{p}\\right)')+'</div><div>'+tex('\\tau(n)=\\prod_i(\\alpha_i+1)')+'</div><div>'+tex('\\sigma(n)=\\prod_i\\frac{p_i^{\\alpha_i+1}-1}{p_i-1}')+'</div><div>'+tex('\\mu(n)=0\\text{ se algum }\\alpha_i\\ge2;\quad \\mu(n)=(-1)^k\\text{ se todos os }\\alpha_i=1.')+'</div></div>'+
+      '<div class="nt-step nt-interpret"><b>Interpretação das funções</b><div>Se '+tex('n=\\prod_i p_i^{\\alpha_i}')+', então:</div><div>'+tex('\\varphi(n)=n\\prod_{p\\mid n}(1-1/p)')+'</div><div>'+tex('\\tau(n)=\\prod_i(\\alpha_i+1)')+'</div><div>'+tex('\\sigma(n)=\\prod_i\\frac{p_i^{\\alpha_i+1}-1}{p_i-1}')+'</div><div>'+tex('\\mu(n)=0\\text{ se algum }\\alpha_i\\ge2;\quad \\mu(n)=(-1)^k\\text{ se todos os }\\alpha_i=1.')+'</div></div>'+
       '<div class="nt-conclusion good">'+tex('\\boxed{\\varphi('+n+')='+ntFormat(phi)+'},\\quad \\boxed{\\mu('+n+')='+mu+'},\\quad \\boxed{\\tau('+n+')='+tau+'},\\quad \\boxed{\\sigma('+n+')='+ntFormat(sigma)+'}')+'</div>'+
       '<div class="nt-divisors"><b>Divisores de '+n+':</b> '+divisors.join(', ')+'</div>';
     ntSetResult('num-func-result','Funções aritméticas — resolução completa',body);salvarHistorico('Funções aritméticas',String(n),'phi='+phi+', mu='+mu+', tau='+tau+', sigma='+sigma);toast('Funções aritméticas calculadas.','ok');
