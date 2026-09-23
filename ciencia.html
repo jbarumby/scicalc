@@ -2482,7 +2482,7 @@ window.physicsCalculate=function(id,v){
     case 'rendimento': result=(v.Qh-v.Qc)/v.Qh*100; unit='%'; add('η=(Qh−Qc)/Qh',`η=${result.toFixed(6)} %`); break;
     case 'waveV': result=v.lambda*v.f; unit='m/s'; add('v=λf',`v=${result.toFixed(6)} m/s`); break;
     case 'waveF': result=v.v/v.lambda; unit='Hz'; add('f=v/λ',`f=${result.toFixed(6)} Hz`); break;
-    case 'waveT': result=1/v.f; unit='s'; add('T=1/f',`T=${result.toFixed6} s`); break;
+    case 'waveT': result=1/v.f; unit='s'; add('T=1/f',`T=${result.toFixed(6)} s`); break;
     case 'lente': result=1/(1/v.f-1/v.do); unit='m'; add('1/f=1/dₒ+1/dᵢ',`dᵢ=${result.toFixed(6)} m`); break;
     case 'aumento': result=-v.di/v.do; unit=''; add('A=−dᵢ/dₒ',`A=${result.toFixed(6)}`); break;
     case 'refracao': result=v.c/v.v; unit=''; add('n=c/v',`n=${result.toFixed(6)}`); break;
