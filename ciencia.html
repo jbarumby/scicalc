@@ -1466,8 +1466,8 @@ function demonstrarFermat(){
       '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a\\pmod p')+'</div><div class="nt-prime-list">'+residues.join(', ')+'</div><div>'+ (distinct?'Os '+(p-1)+' restos são distintos e não nulos.':'Os restos não formam uma permutação.')+'</div></div>'+ 
       '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}\\pmod p')+'</div></div>'+ 
       '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!\\pmod p')+'</div><div>'+tex('a^{p-1}\\equiv1\\pmod p')+' porque '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+ 
-      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\pmod '+p)+'</div><div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div></div>'+ 
-      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\pmod '+p+'}')+'</div>';
+      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\pmod{'+p+'})+'</div><div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div></div>'+ 
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\pmod{'+p+'}')+'</div>';
     ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);toast('Teorema verificado.','ok');
   }catch(e){toast(e.message,'err');}
 }
