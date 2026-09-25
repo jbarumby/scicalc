@@ -3216,10 +3216,14 @@ window.SCICALC_V26_EXTRA=true;
 </script>
 
 <script>
+/* Renderização matemática inicial leve: não percorre todo o documento no carregamento. */
 document.addEventListener('DOMContentLoaded', function(){
   setTimeout(function(){
-    try { scicalcRenderStaticMath(document.body); } catch(e) { console.warn('Renderização matemática:', e); }
-  }, 50);
+    try {
+      var first=document.querySelector('.tab-content.active');
+      if(first && typeof scicalcRenderStaticMath==='function') scicalcRenderStaticMath(first);
+    } catch(e) { console.warn('Renderização matemática inicial:', e); }
+  }, 300);
 });
 </script>
 
