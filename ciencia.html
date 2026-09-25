@@ -1489,7 +1489,7 @@ function demonstrarFermat(){
       '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}')+' módulo '+p+'.</div></div>'+
       '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!')+' módulo '+p+'.</div><div>'+tex('a^{p-1}\\equiv1')+' módulo '+p+', pois '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+
       '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</div></div>'+
-      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\;\\;(\\mathrm{mod}\\;'+p+')')+'</div>';
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\;\\;(\\mathrm{mod}\\;'+p+')'+'}')+'</div>';
     ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);
     salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);
     toast('Teorema verificado.','ok');
