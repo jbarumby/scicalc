@@ -645,6 +645,16 @@ document.querySelectorAll('.tab').forEach(t => {
     if(t.dataset.tab === 'historico') renderHistorico();
     if(t.dataset.tab === 'fisica' && typeof window.initPhysics === 'function') window.initPhysics();
     if(t.dataset.tab === 'simulacoes' && typeof window.v26InitLab === 'function') window.v26InitLab();
+
+    // Renderiza somente a aba aberta. Isso evita travar o carregamento
+    // e impede que \(...\) e \[...\] fiquem visíveis como texto bruto.
+    var activePanel=document.getElementById(t.dataset.tab);
+    if(activePanel && typeof scicalcRenderStaticMath==='function' && !activePanel.dataset.mathRendered){
+      try{
+        scicalcRenderStaticMath(activePanel);
+        activePanel.dataset.mathRendered='1';
+      }catch(err){ console.warn('Renderização matemática da aba:',err); }
+    }
   };
 });
 
