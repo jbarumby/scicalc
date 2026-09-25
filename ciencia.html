@@ -643,6 +643,8 @@ document.querySelectorAll('.tab').forEach(t => {
     t.classList.add('active');
     document.getElementById(t.dataset.tab).classList.add('active');
     if(t.dataset.tab === 'historico') renderHistorico();
+    if(t.dataset.tab === 'fisica' && typeof window.initPhysics === 'function') window.initPhysics();
+    if(t.dataset.tab === 'simulacoes' && typeof window.v26InitLab === 'function') window.v26InitLab();
   };
 });
 
@@ -1461,40 +1463,23 @@ function potenciaModular(base,exp,mod){let r=1,b=((base%mod)+mod)%mod;while(exp>
 function demonstrarFermat(){
   try{
     const p=ntInteger('ferm-p','p',2),a=ntInteger('ferm-a','a');
-    if(p>1000000)throw new Error('Para a demonstração passo a passo, use um primo p ≤ 1.000.000.');
-    if(!ntIsPrime(p))throw new Error('p deve ser primo.');
-    if(a%p===0)throw new Error('É necessário que p não divida a.');
+    if(p>1000000) throw new Error('Para a demonstração passo a passo, use um primo p ≤ 1.000.000.');
+    if(!ntIsPrime(p)) throw new Error('p deve ser primo.');
+    if(a%p===0) throw new Error('É necessário que p não divida a.');
 
     const value=potenciaModular(a,p-1,p);
-    const showAll=p<=1000;
-    const residues=[];
-    if(showAll){
-      for(let k=1;k<p;k++)residues.push((a*k)%p);
-    }
-    const distinct=showAll ? new Set(residues).size===p-1 : true;
-    let prodA=null,prodBase=null;
-    if(showAll){
-      prodA=1;prodBase=1;
-      for(let k=1;k<p;k++){
-        prodA=(prodA*((a*k)%p))%p;
-        prodBase=(prodBase*k)%p;
-      }
-    }
-
-    const modText='\\equiv '+value+'\\;\\;(\\mathrm{mod}\\;'+p+')';
-    const proofText='\\equiv 1\\;\\;(\\mathrm{mod}\\;'+p+')';
-    const residuesHtml=showAll
-      ? '<div class="nt-prime-list">'+residues.join(', ')+'</div>'
-      : '<div class="nt-note">Para p&gt;1000, os restos não são exibidos individualmente para evitar sobrecarregar o navegador. A verificação modular continua sendo calculada exatamente.</div>';
+    const sample=[];
+    for(let k=1;k<=Math.min(p-1,20);k++) sample.push((a*k)%p);
 
     const steps=
       '<div class="nt-step"><b>1. Hipóteses</b><div>'+tex('p='+p+'\\text{ é primo e }p\\nmid '+a)+'</div></div>'+
-      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a')+' são considerados módulo '+p+'.</div>'+residuesHtml+'<div>'+ (showAll?(distinct?'Os '+(p-1)+' restos são distintos e não nulos.':'Os restos não formam uma permutação.'):'A permutação dos restos não nulos é usada na demonstração, sem listar todos os termos.')+'</div></div>'+
+      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a')+' são considerados módulo '+p+'.</div>'+
+        '<div class="nt-prime-list">'+sample.join(', ')+(p-1>20?' , …':'')+'</div>'+
+        '<div class="nt-note">Na prova geral, esses restos formam uma permutação dos resíduos não nulos módulo p. Apenas uma amostra é exibida para manter a página responsiva.</div></div>'+
       '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}')+' módulo '+p+'.</div></div>'+
-      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!')+' é congruente a '+tex('(p-1)!')+' módulo '+p+'.</div><div>'+tex('a^{p-1}\\equiv1')+' módulo '+p+', pois '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+
-      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}'+modText)+'</div>'+ (showAll?'<div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div>':'<div class="nt-note">Para p&gt;1000, os produtos completos também são omitidos para manter a página responsiva.</div>') +'</div>'+
-      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}'+proofText+'}')+'</div>';
-
+      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!')+' módulo '+p+'.</div><div>'+tex('a^{p-1}\\equiv1')+' módulo '+p+', pois '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+
+      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</div></div>'+
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\;\\;(\\mathrm{mod}\\;'+p+')')+'</div>';
     ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);
     salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);
     toast('Teorema verificado.','ok');
@@ -3210,21 +3195,13 @@ window.v26RunLab=function(){
 };
 
 document.getElementById('v26-lab-model').addEventListener('change',v26SetupLab);
-v26SetupLab();
+window.v26InitLab=v26SetupLab;
 window.SCICALC_V26_EXTRA=true;
 })();
 </script>
 
 <script>
-/* Renderização matemática inicial leve: não percorre todo o documento no carregamento. */
-document.addEventListener('DOMContentLoaded', function(){
-  setTimeout(function(){
-    try {
-      var first=document.querySelector('.tab-content.active');
-      if(first && typeof scicalcRenderStaticMath==='function') scicalcRenderStaticMath(first);
-    } catch(e) { console.warn('Renderização matemática inicial:', e); }
-  }, 300);
-});
+/* Renderização matemática sob demanda; nenhuma varredura do DOM no carregamento. */
 </script>
 
 <script id="scicalc-physics-runtime-fix">
@@ -3443,13 +3420,13 @@ window.runPhysicsCalculator=function(){
   }catch(e){if(typeof toast==='function')toast(e.message,'err');else console.error(e);}
 };
 
-function initPhysics(){
+window.initPhysics=function(){
   try{
     var area=document.getElementById('physics-area');
     if(area)window.renderPhysicsCalculator();
   }catch(e){console.error('[SciCalc Física]',e);}
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPhysics);else setTimeout(initPhysics,0);
+/* Física é inicializada somente quando a aba é aberta. */
 })();
 </script>
 </body>
