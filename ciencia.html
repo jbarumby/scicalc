@@ -687,6 +687,7 @@ function scicalcMathFallback(source, display) {
   s = s.replace(/\\theta/g, 'θ').replace(/\\Delta/g, 'Δ').replace(/\\lambda/g, 'λ');
   s = s.replace(/\\prod/g, '∏').replace(/\\sum/g, '∑').replace(/\\mid/g, '∣');
   s = s.replace(/\\ldots/g, '…').replace(/\\cdots/g, '⋯');
+  s = s.replace(/\\pmod\{([^{}]*)\}/g, '<span class="math-pmod">mod $1</span>');
   s = s.replace(/\\pmod\s+([^\s<]+)/g, '<span class="math-pmod">mod $1</span>');
   s = s.replace(/\\gcd/g, '<span class="math-op">gcd</span>');
   s = s.replace(/\\operatorname\{mmc\}/g, '<span class="math-op">mmc</span>');
@@ -1459,16 +1460,40 @@ function calcularFuncoesAritmeticas(){
 function potenciaModular(base,exp,mod){let r=1,b=((base%mod)+mod)%mod;while(exp>0){if(exp%2===1)r=(r*b)%mod;b=(b*b)%mod;exp=Math.floor(exp/2);}return r;}
 function demonstrarFermat(){
   try{
-    const p=ntInteger('ferm-p','p',2),a=ntInteger('ferm-a','a');if(!ntIsPrime(p))throw new Error('p deve ser primo.');if(a%p===0)throw new Error('É necessário que p não divida a.');
-    const residues=[];for(let k=1;k<p;k++)residues.push((a*k)%p);const distinct=new Set(residues).size===p-1;const value=potenciaModular(a,p-1,p);
-    let prodA=1,prodBase=1;for(let k=1;k<p;k++){prodA=(prodA*((a*k)%p))%p;prodBase=(prodBase*k)%p;}
-    const steps='<div class="nt-step"><b>1. Hipóteses</b><div>'+tex('p='+p+'\\text{ é primo e }p\\nmid '+a)+'</div></div>'+ 
-      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a\\pmod{'+p+'}')+'</div><div class="nt-prime-list">'+residues.join(', ')+'</div><div>'+ (distinct?'Os '+(p-1)+' restos são distintos e não nulos.':'Os restos não formam uma permutação.')+'</div></div>'+ 
-      '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}\\pmod{'+p+'}')+'</div></div>'+ 
-      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!\\pmod{'+p+'}')+'</div><div>'+tex('a^{p-1}\\equiv1\\pmod{'+p+'}')+' porque '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+ 
-      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\pmod{'+p+'})+'</div><div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div></div>'+ 
-      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\pmod{'+p+'}')+'</div>';
-    ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);toast('Teorema verificado.','ok');
+    const p=ntInteger('ferm-p','p',2),a=ntInteger('ferm-a','a');
+    if(!ntIsPrime(p))throw new Error('p deve ser primo.');
+    if(a%p===0)throw new Error('É necessário que p não divida a.');
+
+    const value=potenciaModular(a,p-1,p);
+    const showAll=p<=1000;
+    const residues=[];
+    if(showAll){
+      for(let k=1;k<p;k++)residues.push((a*k)%p);
+    }
+    const distinct=showAll ? new Set(residues).size===p-1 : true;
+    let prodA=1,prodBase=1;
+    for(let k=1;k<p;k++){
+      prodA=(prodA*((a*k)%p))%p;
+      prodBase=(prodBase*k)%p;
+    }
+
+    const modText='\\equiv '+value+'\\;\\;(\\mathrm{mod}\\;'+p+')';
+    const proofText='\\equiv 1\\;\\;(\\mathrm{mod}\\;'+p+')';
+    const residuesHtml=showAll
+      ? '<div class="nt-prime-list">'+residues.join(', ')+'</div>'
+      : '<div class="nt-note">Para p&gt;1000, os restos não são exibidos individualmente para evitar sobrecarregar o navegador. A verificação modular continua sendo calculada exatamente.</div>';
+
+    const steps=
+      '<div class="nt-step"><b>1. Hipóteses</b><div>'+tex('p='+p+'\\text{ é primo e }p\\nmid '+a)+'</div></div>'+
+      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a')+' são considerados módulo '+p+'.</div>'+residuesHtml+'<div>'+ (showAll?(distinct?'Os '+(p-1)+' restos são distintos e não nulos.':'Os restos não formam uma permutação.'):'A permutação dos restos não nulos é usada na demonstração, sem listar todos os termos.')+'</div></div>'+
+      '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}')+' módulo '+p+'.</div></div>'+
+      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!')+' é congruente a '+tex('(p-1)!')+' módulo '+p+'.</div><div>'+tex('a^{p-1}\\equiv1')+' módulo '+p+', pois '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+
+      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}'+modText)+'</div><div>Produto dos restos à esquerda: '+prodA+'; produto dos representantes: '+prodBase+'.</div></div>'+
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}'+proofText+'}')+'</div>';
+
+    ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);
+    salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);
+    toast('Teorema verificado.','ok');
   }catch(e){toast(e.message,'err');}
 }
 
