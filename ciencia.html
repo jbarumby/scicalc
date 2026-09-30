@@ -3674,5 +3674,77 @@ function loopLenz(now){
 drawLenzFinal();requestAnimationFrame(loopLenz);
 })();
 </script>
+<script>
+<!-- FARADAY-RUNTIME-FIX-V4 -->
+(function(){
+'use strict';
+var F4={d:.65,dir:0,run:false,last:0,N:200,A:.01,B0:.20,speed:.35};
+function E4(id){return document.getElementById(id);}
+function V4(id,d){var e=E4(id),v=e?parseFloat(e.value):NaN;return Number.isFinite(v)?v:d;}
+function read4(){
+ F4.N=Math.max(1,Math.round(V4('fl-n',200)));
+ F4.A=Math.max(.0001,V4('fl-area',.01));
+ F4.B0=Math.max(.001,V4('fl-b0',.20));
+ F4.speed=Math.max(.01,V4('fl-speed',.35));
+}
+function B4(d){return F4.B0/(1+Math.pow(Math.max(.08,d)/.12,4));}
+function P4(d){return F4.N*F4.A*B4(d);}
+function arrow4(ctx,x1,y1,x2,y2,col){
+ ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=5;
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ var a=Math.atan2(y2-y1,x2-x1),L=15;
+ ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-L*Math.cos(a-.5),y2-L*Math.sin(a-.5));
+ ctx.lineTo(x2-L*Math.cos(a+.5),y2-L*Math.sin(a+.5));ctx.closePath();ctx.fill();
+}
+window.flDraw=function(){
+ var c=E4('fl-canvas');if(!c)return;
+ var x=c.getContext('2d'),w=c.width,h=c.height;x.clearRect(0,0,w,h);
+ x.fillStyle='#24304a';x.font='700 22px Arial';x.fillText('Experimento de Faraday–Lenz',28,34);
+ var cx=570,cy=125,cw=155,ch=190;
+ x.fillStyle='#d9dde5';x.strokeStyle='#4b5563';x.lineWidth=3;x.fillRect(cx,cy,cw,ch);x.strokeRect(cx,cy,cw,ch);
+ x.strokeStyle='#31506b';x.lineWidth=4;
+ for(var i=0;i<8;i++){var yy=cy+18+i*22;x.beginPath();x.ellipse(cx+cw/2,yy,76,15,0,0,Math.PI*2);x.stroke();}
+ var d=Math.max(.08,Math.min(.65,F4.d)),q=(.65-d)/.57,mx=105+q*375;
+ x.fillStyle='#c93b3b';x.fillRect(mx,170,92,48);x.fillStyle='#fff';x.font='700 25px Arial';x.fillText('N',mx+65,202);
+ x.fillStyle='#2467a8';x.fillRect(mx,218,92,48);x.fillText('S',mx+65,250);
+ x.fillStyle='#24304a';x.font='18px Arial';x.fillText('Ímã',mx+20,295);
+ if(F4.dir!==0)arrow4(x,mx+46,330,mx+46,330+(F4.dir<0?-55:55),F4.dir<0?'#26734d':'#b23b3b');
+ var moving=F4.run&&F4.dir!==0, emf=0;
+ if(moving){var h=.001,d2=Math.max(.08,Math.min(.65,d+F4.dir*F4.speed*.001));emf=-F4.N*F4.A*(B4(d2)-B4(d))/.001;}
+ var B=B4(d),phi=P4(d),sg=emf>=0?1:-1;
+ x.fillStyle='#24304a';x.font='700 20px Arial';x.fillText(F4.dir<0?'Aproximação':F4.dir>0?'Afastamento':'Parado',28,390);
+ x.font='17px Arial';x.fillText('Bobina',615,350);
+ arrow4(x,648,245,648,245+(sg>0?-70:70),sg>0?'#26734d':'#b23b3b');
+ x.fillStyle='#24304a';x.font='700 17px Arial';x.fillText('B induzido',730,245);
+ x.strokeStyle='#333';x.lineWidth=4;x.beginPath();x.arc(845,215,55,0,Math.PI*2);x.stroke();
+ var ang=moving?(sg>0?-1.05:1.05):-1.05;x.beginPath();x.moveTo(845,215);x.lineTo(845+40*Math.cos(ang),215+40*Math.sin(ang));x.stroke();
+ x.font='700 16px Arial';x.fillText('Galvanômetro',795,295);
+ var m=E4('fl-metrics');
+ if(m)m.innerHTML='<div class="v26-extra-metric"><small>Distância</small><strong>'+d.toFixed(2)+' m</strong></div>'+
+ '<div class="v26-extra-metric"><small>Campo B</small><strong>'+B.toFixed(3)+' T</strong></div>'+
+ '<div class="v26-extra-metric"><small>Fluxo Φ</small><strong>'+phi.toExponential(3)+' Wb</strong></div>'+
+ '<div class="v26-extra-metric"><small>Fem |ε|</small><strong>'+Math.abs(emf).toFixed(3)+' V</strong></div>'+
+ '<div class="v26-extra-metric"><small>Estado</small><strong>'+(moving?(F4.dir<0?'aproximando':'afastando'):'parado')+'</strong></div>';
+};
+window.flStart=function(dir){
+ read4();F4.dir=dir==='approach'?-1:1;F4.run=true;F4.last=performance.now();
+ F4.d=dir==='approach'?.65:.08;flDraw();
+};
+window.flStop=function(){F4.run=false;F4.dir=0;flDraw();};
+window.flReset=function(){read4();F4.run=false;F4.dir=0;F4.d=.65;flDraw();};
+window.flSetMode=function(v){F4.run=false;F4.dir=0;F4.d=v==='approach'?.65:.08;flDraw();};
+function loop4(now){
+ if(F4.run&&F4.dir!==0){
+  var dt=Math.min(.04,Math.max(.001,(now-F4.last)/1000));F4.last=now;
+  F4.d+=F4.dir*F4.speed*dt;
+  if(F4.d<=.08){F4.d=.08;F4.run=false;F4.dir=0;}
+  if(F4.d>=.65){F4.d=.65;F4.run=false;F4.dir=0;}
+  flDraw();
+ }
+ requestAnimationFrame(loop4);
+}
+read4();flDraw();requestAnimationFrame(loop4);
+})();
+</script>
 </body>
 </html>
