@@ -3526,7 +3526,8 @@ function flRead(){
  fl.speed=Math.max(0.01,num('fl-speed',0.35));
 }
 function fieldAt(x){
- return fl.B0/(1+Math.pow(x/0.22,3));
+ var d=Math.max(0.08,Math.min(0.65,x));
+ return fl.B0/(1+Math.pow(d/0.12,4));
 }
 function fluxAt(x){return fl.N*fl.A*fieldAt(x);}
 function drawArrow(ctx,x1,y1,x2,y2,color){
@@ -3544,13 +3545,13 @@ function flDraw(){
  ctx.fillRect(coilX,coilY,coilW,coilH);ctx.strokeRect(coilX,coilY,coilW,coilH);
  ctx.strokeStyle='#31506b';ctx.lineWidth=4;
  for(var i=0;i<8;i++){var yy=coilY+18+i*22;ctx.beginPath();ctx.ellipse(coilX+coilW/2,yy,76,15,0,0,Math.PI*2);ctx.stroke();}
- ctx.fillStyle='#c93b3b';ctx.fillRect(fl.x*100+40,170,92,48);
- ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('N',fl.x*100+105,202);
- ctx.fillStyle='#2467a8';ctx.fillRect(fl.x*100+40,218,92,48);ctx.fillStyle='#fff';ctx.fillText('S',fl.x*100+105,250);
- ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',fl.x*100+60,295);
+ ctx.fillStyle='#c93b3b';var mx=105+(.65-fl.x)/.57*375;ctx.fillRect(mx,170,92,48);
+ ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('N',mx+65,202);
+ ctx.fillStyle='#2467a8';ctx.fillRect(mx,218,92,48);ctx.fillStyle='#fff';ctx.fillText('S',mx+65,250);
+ ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',mx+20,295);
  var moving=fl.dir!==0;
- if(moving) drawArrow(ctx,fl.x*100+86,330,fl.x*100+86,330+(fl.dir<0?-55:55),fl.dir<0?'#26734d':'#b23b3b');
- ctx.font='700 20px Arial';ctx.fillStyle='#24304a';ctx.fillText(fl.dir<0?'Aproximação':'Afastamento',28,390);
+ if(moving) drawArrow(ctx,mx+46,330,mx+46,330+(fl.dir<0?-55:55),fl.dir<0?'#26734d':'#b23b3b');
+ ctx.font='700 20px Arial';ctx.fillStyle='#24304a';ctx.fillText(fl.dir<0?'Aproximação':fl.dir>0?'Afastamento':'Parado',28,390);
  ctx.font='17px Arial';ctx.fillText('Bobina',615,350);
  var B=fieldAt(fl.x),Phi=fluxAt(fl.x),emf=0;
  if(fl.run && fl.dir!==0){
@@ -3588,8 +3589,8 @@ function tick(now){
  if(fl.run && fl.dir!==0){
    var dt=Math.min(0.04,(now-fl.last)/1000||0.016);fl.last=now;
    fl.x+=fl.dir*fl.speed*dt;
-   if(fl.x<0.18){fl.x=0.18;fl.dir=0;fl.run=false;}
-   if(fl.x>1.75){fl.x=1.75;fl.dir=0;fl.run=false;}
+   if(fl.x<0.08){fl.x=0.08;fl.dir=0;fl.run=false;}
+   if(fl.x>0.65){fl.x=0.65;fl.dir=0;fl.run=false;}
    flDraw();
  }
  requestAnimationFrame(tick);
@@ -3644,14 +3645,14 @@ function drawLenzFinal(){
   var r=FLel('fl-lenz-result');if(r)r.innerHTML='<div class="result"><strong>'+ (approach?'Aproximação':'Afastamento') +'</strong>: o campo induzido aponta '+(approach?'para cima':'para baixo')+' para se opor à variação do fluxo.</div>';
 }
 window.flStart=function(dir){
-  flRead();fl.dir=dir==='approach'?1:-1;fl.run=true;fl.last=performance.now();
+  flRead();fl.dir=dir==='approach'?-1:1;fl.run=true;fl.last=performance.now();
   /* Aproximação começa longe e vai para a direita; afastamento começa perto e vai para a esquerda. */
-  fl.x=dir==='approach'?.18:1.25;
+  fl.x=dir==='approach'?.65:.08;
   var z=FLel('fl-lenz-mode');if(z)z.value=dir;
   flDraw();
 };
 window.flSetMode=function(v){
-  fl.run=false;fl.dir=0;fl.x=v==='approach'?.18:1.25;flDraw();
+  fl.run=false;fl.dir=0;fl.x=v==='approach'?.65:.08;flDraw();
 };
 window.flStartLenz=function(mode){
   FLZ.mode=mode;FLZ.dir=mode==='approach'?1:-1;FLZ.run=true;FLZ.last=performance.now();
