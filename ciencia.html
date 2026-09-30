@@ -3449,7 +3449,7 @@ function abrirLaboratorioFermat(){
   var wrap=document.getElementById('ferm-lab-wrap');
   var frame=document.getElementById('ferm-lab-frame');
   if(!wrap||!frame)return;
-  if(!frame.src || frame.src==='about:blank'){
+  if(frame.getAttribute('src')!=='fermat.html'){
     frame.src='fermat.html';
   }
   wrap.style.display='block';
