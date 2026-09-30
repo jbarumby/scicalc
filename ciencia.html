@@ -1513,11 +1513,11 @@ function demonstrarFermat(){
     });
 
     const powerRows=powers.map(function(q){
-      return '<tr><td>'+tex(a+'^{'+q.exp}'+(q.exp===1?'': ''))+'</td><td>'+tex('\\equiv '+q.base+'\\pmod{'+p+'}')+'</td></tr>';
+      return '<tr><td>'+tex(a+'^{'+q.exp}'+(q.exp===1?'': ''))+'</td><td>'+tex('\\equiv '+q.base+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</td></tr>';
     }).join('');
 
     const calcRows=calcSteps.map(function(q){
-      return '<tr><td>'+tex(q.old+'\\cdot'+q.base)+'</td><td>'+tex('\\equiv '+q.result+'\\pmod{'+p+'}')+'</td></tr>';
+      return '<tr><td>'+tex(q.old+'\\cdot'+q.base)+'</td><td>'+tex('\\equiv '+q.result+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</td></tr>';
     }).join('');
 
     const decomposition=bits.join('+');
