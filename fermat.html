@@ -56,15 +56,15 @@ th{background:#eeeaff}
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js"></script>
 <script>
 (function(){
 'use strict';
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const math=latex=>'<div class="formula">\\('+latex+'\\)</div>';
-const mathLarge=latex=>'<div class="formula large">\\('+latex+'\\)</div>';
+const texAttr=latex=>String(latex).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const math=latex=>'<div class="formula" data-tex="'+texAttr(latex)+'"></div>';
+const mathLarge=latex=>'<div class="formula large" data-tex="'+texAttr(latex)+'"></div>';
 
 function prime(n){
  if(!Number.isInteger(n)||n<2)return false;
@@ -85,13 +85,14 @@ function modPow(base,exp,mod){
 }
 
 function renderMath(){
- if(typeof renderMathInElement==='function'){
-   renderMathInElement(document.getElementById('result'),{
-     delimiters:[
-       {left:'\\[',right:'\\]',display:true},
-       {left:'\\(',right:'\\)',display:false}
-     ],
-     throwOnError:false
+ if(typeof katex!=='undefined'){
+   document.querySelectorAll('[data-tex]').forEach(function(el){
+     try{
+       katex.render(el.getAttribute('data-tex')||'',el,{displayMode:true,throwOnError:false,strict:false});
+     }catch(e){el.textContent=el.getAttribute('data-tex')||'';}
+   });
+   document.querySelectorAll('.katex-inline').forEach(function(el){
+     try{katex.render(el.getAttribute('data-tex')||'',el,{displayMode:false,throwOnError:false,strict:false});}catch(e){}
    });
  }
 }
