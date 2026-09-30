@@ -512,7 +512,7 @@
         <div class="nt-card"><label for="ferm-p">Primo \(p\)</label><input id="ferm-p" type="number" value="7" min="2"></div>
         <div class="nt-card"><label for="ferm-a">Inteiro \(a\)</label><input id="ferm-a" type="number" value="3"></div>
       </div>
-      <button class="btn" onclick="demonstrarFermatCompletoSeguro()">Demonstrar e verificar</button>
+      <button class="btn" onclick="window.demonstrarFermatCompletoSeguro()">Demonstrar e verificar</button>
       <div id="ferm-result"></div>
     </div>
   </div>
@@ -3443,7 +3443,7 @@ window.initPhysics=function(){
 <script>
 /* Fermat completo — módulo isolado e seguro.
    Não altera a função demonstrarFermat original. */
-function demonstrarFermatCompletoSeguro(){
+window.demonstrarFermatCompletoSeguro=function(){
   try{
     var p=ntInteger('ferm-p','p',2);
     var a=ntInteger('ferm-a','a');
