@@ -234,6 +234,11 @@
 .v26-extra-metric strong{color:var(--primary)}
 </style>
 
+<style id="faraday-lenz-css">
+#fl-canvas{height:430px;background:linear-gradient(#fbfcff,#f2f4fa);display:block}
+#fl-metrics .v26-extra-metric strong{font-size:1.02rem}
+.fl-arrow{font-weight:700}
+</style>
 </head>
 <body>
 <header>
@@ -594,6 +599,49 @@
   </div>
 </section>
 
+  <div class="panel">
+    <h2>🧲 Experimentos de Faraday e Lenz</h2>
+    <p class="sub">Laboratório interativo baseado nos esquemas enviados: movimento de um ímã diante de uma bobina, corrente induzida e sentido do campo induzido segundo a Lei de Lenz.</p>
+
+    <div class="v26-extra-card">
+      <h3>Experimento 1 — Indução eletromagnética de Faraday</h3>
+      <div class="form-row">
+        <div><label>Número de espiras N</label><input id="fl-n" type="number" value="200" min="1"></div>
+        <div><label>Área da bobina A (m²)</label><input id="fl-area" type="number" value="0.01" step="0.001" min="0.0001"></div>
+        <div><label>Campo máximo B₀ (T)</label><input id="fl-b0" type="number" value="0.20" step="0.01" min="0.001"></div>
+        <div><label>Velocidade do ímã (m/s)</label><input id="fl-speed" type="number" value="0.35" step="0.05" min="0.01"></div>
+      </div>
+      <div class="v26-extra-actions">
+        <button class="btn" type="button" onclick="flStart('approach')">⬇️ Aproximar ímã</button>
+        <button class="btn" type="button" onclick="flStart('away')">⬆️ Afastar ímã</button>
+        <button class="btn" type="button" onclick="flStop()">⏸️ Parar</button>
+        <button class="btn" type="button" onclick="flReset()">↺ Reiniciar</button>
+      </div>
+      <canvas id="fl-canvas" class="v26-extra-canvas" width="1000" height="430" aria-label="Simulação de indução eletromagnética"></canvas>
+      <div id="fl-metrics" class="v26-extra-metrics"></div>
+      <div id="fl-theory" class="result"></div>
+    </div>
+
+    <div class="v26-extra-card" style="margin-top:18px">
+      <h3>Experimento 2 — Lei de Lenz</h3>
+      <p>Observe como o campo magnético induzido se orienta para <strong>se opor à variação do fluxo magnético</strong>, tanto na aproximação quanto no afastamento do ímã.</p>
+      <div class="form-row">
+        <div><label>Movimento</label>
+          <select id="fl-lenz-mode" onchange="flSetMode(this.value)">
+            <option value="approach">Aproximação do ímã</option>
+            <option value="away">Afastamento do ímã</option>
+          </select>
+        </div>
+        <div><label>Intensidade do movimento</label><input id="fl-lenz-speed" type="range" min="0.05" max="1" step="0.05" value="0.35" oninput="document.getElementById('fl-lenz-value').textContent=this.value+' m/s'"></div>
+        <div><label>Valor</label><div id="fl-lenz-value" style="padding:12px 0;font-weight:700">0,35 m/s</div></div>
+      </div>
+      <div class="v26-extra-actions">
+        <button class="btn" type="button" onclick="flStart(document.getElementById('fl-lenz-mode').value)">▶️ Executar experimento</button>
+      </div>
+      <div id="fl-lenz-result" class="result"></div>
+    </div>
+  </div>
+
 <section class="tab-content" id="historico">
   <div class="panel">
     <h2>📋 Histórico de Consultas</h2>
@@ -649,7 +697,8 @@ document.querySelectorAll('.tab').forEach(t => {
     document.getElementById(t.dataset.tab).classList.add('active');
     if(t.dataset.tab === 'historico') renderHistorico();
     if(t.dataset.tab === 'fisica' && typeof window.initPhysics === 'function') window.initPhysics();
-    if(t.dataset.tab === 'simulacoes' && typeof window.v26InitLab === 'function') window.v26InitLab();
+    if(t.dataset.tab === 'simuladores-v26' && typeof window.v26InitLab === 'function') window.v26InitLab();
+    if(t.dataset.tab === 'simuladores-v26' && typeof window.flInit === 'function') window.flInit();
 
     // Renderiza somente a aba aberta. Isso evita travar o carregamento
     // e impede que \(...\) e \[...\] fiquem visíveis como texto bruto.
@@ -3455,6 +3504,91 @@ function abrirLaboratorioFermat(){
   wrap.style.display='block';
   wrap.scrollIntoView({behavior:'smooth',block:'start'});
 }
+</script>
+<script id="faraday-lenz-runtime">
+(function(){
+'use strict';
+var fl={x:0.72,dir:0,run:false,last:0,N:200,A:0.01,B0:0.20,speed:0.35};
+function el(id){return document.getElementById(id);}
+function num(id,d){var v=parseFloat(el(id).value);return Number.isFinite(v)?v:d;}
+function flRead(){
+ fl.N=Math.max(1,Math.round(num('fl-n',200)));
+ fl.A=Math.max(0.0001,num('fl-area',0.01));
+ fl.B0=Math.max(0.001,num('fl-b0',0.2));
+ fl.speed=Math.max(0.01,num('fl-speed',0.35));
+}
+function fieldAt(x){
+ return fl.B0/(1+Math.pow(x/0.22,3));
+}
+function fluxAt(x){return fl.N*fl.A*fieldAt(x);}
+function drawArrow(ctx,x1,y1,x2,y2,color){
+ ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=5;
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ var ang=Math.atan2(y2-y1,x2-x1),l=15;
+ ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-l*Math.cos(ang-0.5),y2-l*Math.sin(ang-0.5));ctx.lineTo(x2-l*Math.cos(ang+0.5),y2-l*Math.sin(ang+0.5));ctx.closePath();ctx.fill();
+}
+function flDraw(){
+ var c=el('fl-canvas');if(!c)return;var ctx=c.getContext('2d'),w=c.width,h=c.height;
+ ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#24304a';ctx.font='700 22px Arial';ctx.fillText('Experimento de Faraday–Lenz',28,34);
+ var coilX=570, coilY=125, coilW=155, coilH=190;
+ ctx.fillStyle='#d9dde5';ctx.strokeStyle='#4b5563';ctx.lineWidth=3;
+ ctx.fillRect(coilX,coilY,coilW,coilH);ctx.strokeRect(coilX,coilY,coilW,coilH);
+ ctx.strokeStyle='#31506b';ctx.lineWidth=4;
+ for(var i=0;i<8;i++){var yy=coilY+18+i*22;ctx.beginPath();ctx.ellipse(coilX+coilW/2,yy,76,15,0,0,Math.PI*2);ctx.stroke();}
+ ctx.fillStyle='#c93b3b';ctx.fillRect(fl.x*100+40,170,92,48);
+ ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('N',fl.x*100+105,202);
+ ctx.fillStyle='#2467a8';ctx.fillRect(fl.x*100+40,218,92,48);ctx.fillStyle='#fff';ctx.fillText('S',fl.x*100+105,250);
+ ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',fl.x*100+60,295);
+ var moving=fl.dir!==0;
+ if(moving) drawArrow(ctx,fl.x*100+86,330,fl.x*100+86,330+(fl.dir<0?-55:55),fl.dir<0?'#26734d':'#b23b3b');
+ ctx.font='700 20px Arial';ctx.fillStyle='#24304a';ctx.fillText(fl.dir<0?'Aproximação':'Afastamento',28,390);
+ ctx.font='17px Arial';ctx.fillText('Bobina',615,350);
+ var B=fieldAt(fl.x),Phi=fluxAt(fl.x),emf=0;
+ if(fl.run && fl.dir!==0){
+   var dx=fl.dir*fl.speed*0.016;
+   var x2=Math.max(0.18,Math.min(1.75,fl.x+dx));
+   emf=-(fluxAt(x2)-Phi)/0.016;
+ }
+ var sign=emf>=0?1:-1;
+ drawArrow(ctx,648,245,648,245+(sign>0?-70:70),sign>0?'#26734d':'#b23b3b');
+ ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('B induzido',730,245);
+ ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(845,215,55,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(845,215);ctx.lineTo(845+40*Math.cos(-1.1+Math.max(-0.8,Math.min(0.8,emf*0.4))),215+40*Math.sin(-1.1+Math.max(-0.8,Math.min(0.8,emf*0.4))));ctx.stroke();
+ ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',795,295);
+ var m=el('fl-metrics');
+ if(m)m.innerHTML='<div class="v26-extra-metric"><small>Campo B</small><strong>'+B.toFixed(3)+' T</strong></div>'+
+ '<div class="v26-extra-metric"><small>Fluxo Φ</small><strong>'+Phi.toExponential(3)+' Wb</strong></div>'+
+ '<div class="v26-extra-metric"><small>Fem |ε|</small><strong>'+Math.abs(emf).toFixed(3)+' V</strong></div>'+
+ '<div class="v26-extra-metric"><small>Sentido</small><strong>'+(emf===0?'sem corrente':(sign>0?'corrente →':'corrente ←'))+'</strong></div>';
+}
+function flTheory(){
+ var t=el('fl-theory');if(!t)return;
+ t.innerHTML='<div class="didactic"><details open><summary>📚 Princípio físico</summary><div class="didactic-body">'+
+ '<div class="step"><strong>Lei de Faraday:</strong> ε = −N dΦ/dt.</div>'+
+ '<div class="step"><strong>Fluxo magnético:</strong> Φ = BA cos θ.</div>'+
+ '<div class="step"><strong>Lei de Lenz:</strong> o sinal negativo indica que a corrente induzida produz um campo que se opõe à variação do fluxo.</div>'+
+ '<div class="step"><strong>Interpretação:</strong> aproximar o ímã aumenta o fluxo e produz corrente; afastá-lo diminui o fluxo e inverte o sentido da corrente.</div>'+
+ '</div></details></div>';
+}
+window.flStart=function(dir){flRead();fl.dir=dir==='away'?1:-1;fl.run=true;fl.last=performance.now();if(dir==='away')fl.x=Math.min(fl.x,1.25);else fl.x=Math.max(fl.x,0.25);var z=el('fl-lenz-mode');if(z)z.value=dir;var ls=el('fl-lenz-speed');if(ls){fl.speed=parseFloat(ls.value)||fl.speed;el('fl-speed').value=fl.speed;}var r=el('fl-lenz-result');if(r)r.innerHTML='<div class="result"><strong>'+ (dir==='away'?'Afastamento':'Aproximação') +'</strong>: observe a inversão do sentido da corrente quando o movimento é invertido.</div>';flDraw();};
+window.flStop=function(){fl.run=false;fl.dir=0;flDraw();};
+window.flReset=function(){fl.run=false;fl.dir=0;fl.x=0.72;flRead();flDraw();flTheory();};
+window.flSetMode=function(v){fl.dir=v==='away'?1:-1;flDraw();};
+window.flInit=function(){flRead();flDraw();flTheory();};
+function tick(now){
+ if(fl.run && fl.dir!==0){
+   var dt=Math.min(0.04,(now-fl.last)/1000||0.016);fl.last=now;
+   fl.x+=fl.dir*fl.speed*dt;
+   if(fl.x<0.18){fl.x=0.18;fl.dir=0;fl.run=false;}
+   if(fl.x>1.75){fl.x=1.75;fl.dir=0;fl.run=false;}
+   flDraw();
+ }
+ requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+window.addEventListener('load',function(){flInit();});
+})();
 </script>
 </body>
 </html>
