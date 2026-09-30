@@ -17,9 +17,9 @@ label{font-weight:700;display:block;margin-bottom:7px}
 input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd1df;border-radius:9px;font-size:17px}
 button{padding:13px 20px;border:0;border-radius:9px;background:#5b3df5;color:white;font-weight:700;cursor:pointer}
 button:hover{filter:brightness(1.08)}
-.example{display:inline-block;margin:5px;padding:8px 12px;border-radius:20px;background:#eeeaff;color:#4d3be7;cursor:pointer}
+.example{display:inline-flex;align-items:center;justify-content:center;margin:5px;padding:8px 12px;border-radius:20px;background:#eeeaff;color:#4d3be7;cursor:pointer;min-height:24px}
 .step{border-left:4px solid #5b3df5;background:#f7f8fc;padding:16px;margin:12px 0;border-radius:8px;line-height:1.55}
-.formula{text-align:center;font-size:1.2rem;margin:16px 0;overflow-x:auto;padding:4px}
+.formula{text-align:center;font-size:1.2rem;margin:16px 0;overflow-x:auto;padding:4px;min-height:1.5em}
 .formula.large{font-size:1.35rem}
 table{width:100%;border-collapse:collapse;margin:14px 0}
 th,td{padding:9px;border-bottom:1px solid #ddd;text-align:center}
@@ -27,45 +27,43 @@ th{background:#eeeaff}
 .ok{background:#e5f8ef;border:1px solid #8ed9b4;padding:18px;border-radius:10px;text-align:center;font-size:1.15rem}
 .note{background:#fff8df;padding:12px;border-radius:8px;line-height:1.5}
 .error{color:#a00;font-weight:bold}
-.katex-display{margin:1em 0}
 @media(max-width:700px){.controls{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
-<h1>Pequeno Teorema de Fermat</h1>
-<div>SciCalc — laboratório matemático independente</div>
-</header>
-
+<header><h1>Pequeno Teorema de Fermat</h1><div>SciCalc — laboratório matemático independente</div></header>
 <main>
 <div class="card">
 <h2>Dados</h2>
 <div class="controls">
-<div><label for="p">Primo (p)</label><input id="p" type="number" min="2" value="41"></div>
-<div><label for="a">Inteiro (a)</label><input id="a" type="number" value="3"></div>
+<div><label for="p">Primo <span class="math-inline" data-tex="p"></span></label><input id="p" type="number" min="2" value="41"></div>
+<div><label for="a">Inteiro <span class="math-inline" data-tex="a"></span></label><input id="a" type="number" value="3"></div>
 <button id="run">Demonstrar e calcular</button>
 </div>
 <div style="margin-top:15px"><b>Exemplos:</b>
-<span class="example" data-p="41" data-a="3"><span class="katex-inline" data-tex="3^{40}\bmod 41"></span></span>
-<span class="example" data-p="17" data-a="2"><span class="katex-inline" data-tex="2^{16}\bmod 17"></span></span>
-<span class="example" data-p="7" data-a="3"><span class="katex-inline" data-tex="3^6\bmod 7"></span></span>
+<span class="example" data-p="41" data-a="3"><span class="math-inline" data-tex="3^{40}\bmod 41"></span></span>
+<span class="example" data-p="17" data-a="2"><span class="math-inline" data-tex="2^{16}\bmod 17"></span></span>
+<span class="example" data-p="7" data-a="3"><span class="math-inline" data-tex="3^6\bmod 7"></span></span>
 </div>
 </div>
-
 <div id="result"></div>
 </main>
-
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
 <script>
 (function(){
 'use strict';
-
 const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const texAttr=latex=>String(latex).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const math=latex=>'<div class="formula" data-tex="'+texAttr(latex)+'"></div>';
-const mathLarge=latex=>'<div class="formula large" data-tex="'+texAttr(latex)+'"></div>';
+const texAttr=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const math=s=>'<div class="formula" data-tex="'+texAttr(s)+'"></div>';
+const mathLarge=s=>'<div class="formula large" data-tex="'+texAttr(s)+'"></div>';
 
+function renderMath(root){
+ if(typeof katex==='undefined')return;
+ (root||document).querySelectorAll('[data-tex]').forEach(function(el){
+  try{katex.render(el.getAttribute('data-tex')||'',el,{displayMode:el.classList.contains('formula'),throwOnError:false,strict:false});}
+  catch(e){el.textContent=el.getAttribute('data-tex')||'';}
+ });
+}
 function prime(n){
  if(!Number.isInteger(n)||n<2)return false;
  if(n===2)return true;
@@ -73,142 +71,88 @@ function prime(n){
  for(let d=3;d*d<=n;d+=2)if(n%d===0)return false;
  return true;
 }
-
 function modPow(base,exp,mod){
  let b=((base%mod)+mod)%mod,r=1;
- while(exp>0){
-   if(exp%2===1)r=(r*b)%mod;
-   b=(b*b)%mod;
-   exp=Math.floor(exp/2);
- }
+ while(exp>0){if(exp%2===1)r=(r*b)%mod;b=(b*b)%mod;exp=Math.floor(exp/2);}
  return r;
 }
-
-function renderMath(){
- if(typeof katex!=='undefined'){
-   document.querySelectorAll('[data-tex]').forEach(function(el){
-     try{
-       katex.render(el.getAttribute('data-tex')||'',el,{displayMode:true,throwOnError:false,strict:false});
-     }catch(e){el.textContent=el.getAttribute('data-tex')||'';}
-   });
-   document.querySelectorAll('.katex-inline').forEach(function(el){
-     try{katex.render(el.getAttribute('data-tex')||'',el,{displayMode:false,throwOnError:false,strict:false});}catch(e){}
-   });
- }
-}
-
 function calculate(){
  const p=Number($('p').value),a=Number($('a').value);
- if(!Number.isInteger(p)||!Number.isInteger(a)||p<2){
-   $('result').innerHTML='<div class="card error">(p) e (a) devem ser inteiros válidos.</div>';
-   return;
- }
- if(p>1000000){
-   $('result').innerHTML='<div class="card error">Use (p\le 1\,000\,000) para esta demonstração.</div>';
-   return;
- }
- if(!prime(p)){
-   $('result').innerHTML='<div class="card error">(p) deve ser primo.</div>';
-   return;
- }
- if(a%p===0){
-   $('result').innerHTML='<div class="card error">É necessário que (p\nmid a).</div>';
-   return;
- }
+ if(!Number.isInteger(p)||!Number.isInteger(a)||p<2){$('result').innerHTML='<div class="card error">p e a devem ser inteiros válidos.</div>';return;}
+ if(p>1000000){$('result').innerHTML='<div class="card error">Use p ≤ 1.000.000 para esta demonstração.</div>';return;}
+ if(!prime(p)){$('result').innerHTML='<div class="card error">p deve ser primo.</div>';return;}
+ if(a%p===0){$('result').innerHTML='<div class="card error">É necessário que p não divida a.</div>';return;}
 
- const n=p-1;
- const final=modPow(a,n,p);
- const amod=((a%p)+p)%p;
- let html='';
-
- html+='<div class="card"><h2>Demonstração teórica</h2>';
+ const n=p-1,final=modPow(a,n,p),amod=((a%p)+p)%p;
+ let html='<div class="card"><h2>Demonstração teórica</h2>';
 
  html+='<div class="step"><b>1. Hipóteses</b>';
- html+mathLarge('p\\text{ é primo},\\qquad p\\nmid a.');
- html+='<div>Queremos provar o Pequeno Teorema de Fermat na forma multiplicativa.</div>';
- html+mathLarge('a^{p-1}\\equiv 1\\pmod{p}');
+ html+=mathLarge(String.raw`p\text{ é primo},\qquad p\nmid a`);
+ html+='<div>Queremos provar o Pequeno Teorema de Fermat:</div>';
+ html+=mathLarge(String.raw`a^{p-1}\equiv1\pmod{p}`);
  html+='</div>';
 
  html+='<div class="step"><b>2. Os resíduos são distintos</b>';
- html+='<div>Considere os números (a,2a,\\ldots,(p-1)a) módulo (p). Suponha que dois deles sejam congruentes:</div>';
- html+math('ia\\equiv ja\\pmod{p}');
- html+='<div>Então</div>';
- html+math('a(i-j)\\equiv0\\pmod{p}');
- html+='<div>Como (p) é primo e (p\\nmid a), segue que (p\\mid(i-j)). Como (1\\le i,j\\le p-1), necessariamente (i=j). Portanto, os resíduos são todos distintos.</div>';
+ html+='<div>Considere os números a, 2a, …, (p−1)a módulo p. Se dois deles forem congruentes, então:</div>';
+ html+=math(String.raw`ia\equiv ja\pmod{p}`);
+ html+='<div>Logo:</div>';
+ html+=math(String.raw`a(i-j)\equiv0\pmod{p}`);
+ html+='<div>Como p é primo e p não divide a, temos p divide i−j. Como 1 ≤ i,j ≤ p−1, segue que i=j.</div>';
  html+='</div>';
 
  html+='<div class="step"><b>3. Permutação dos resíduos não nulos</b>';
- html+='<div>Há exatamente (p-1) resíduos não nulos módulo (p). Logo, (a,2a,\\ldots,(p-1)a) formam uma permutação de (1,2,\\ldots,p-1).</div>';
- html+math('(a)(2a)\\cdots((p-1)a)\\equiv1\\cdot2\\cdots(p-1)\\pmod{p}');
- html+math('a^{p-1}(p-1)!\\equiv(p-1)!\\pmod{p}');
+ html+='<div>Portanto, a, 2a, …, (p−1)a formam uma permutação de 1,2,…,p−1 módulo p.</div>';
+ html+=math(String.raw`(a)(2a)\cdots((p-1)a)\equiv1\cdot2\cdots(p-1)\pmod{p}`);
+ html+=math(String.raw`a^{p-1}(p-1)!\equiv(p-1)!\pmod{p}`);
  html+='</div>';
 
  html+='<div class="step"><b>4. Cancelamento</b>';
- html+='<div>Nenhum fator de ((p-1)!) é divisível por (p). Assim,</div>';
- html+math('\\gcd((p-1)!,p)=1');
- html+='<div>e ((p-1)!) possui inverso módulo (p). Podemos cancelá-lo na congruência anterior:</div>';
- html+mathLarge('a^{p-1}\\equiv1\\pmod{p}');
+ html+='<div>Nenhum fator de (p−1)! é divisível por p. Assim:</div>';
+ html+=math(String.raw`\gcd((p-1)!,p)=1`);
+ html+='<div>Logo (p−1)! possui inverso módulo p e pode ser cancelado:</div>';
+ html+=mathLarge(String.raw`a^{p-1}\equiv1\pmod{p}`);
  html+='</div>';
 
- html+='<div class="step"><b>5. Forma equivalente</b>';
- html+='<div>Multiplicando ambos os lados por (a), obtemos:</div>';
- html+mathLarge('a^p\\equiv a\\pmod{p}');
- html+='</div>';
- html+='</div>';
+ html+='<div class="step"><b>5. Forma equivalente</b><div>Multiplicando ambos os lados por a:</div>';
+ html+=mathLarge(String.raw`a^p\equiv a\pmod{p}`);
+ html+='</div></div>';
 
  html+='<div class="card"><h2>Cálculo numérico passo a passo</h2>';
- html+='<div class="note">O cálculo usa <b>exponenciação modular por quadratura</b>. Assim, o navegador trabalha apenas com restos módulo (p), sem construir o inteiro gigantesco (a^{p-1}).</div>';
-
+ html+='<div class="note">O cálculo usa <b>exponenciação modular por quadratura</b>. O navegador trabalha apenas com restos módulo p.</div>';
  html+='<h3>1. Decomposição do expoente</h3>';
  let bits=[],q=n,bit=1;
- while(q>0){
-   if(q%2)bits.push(bit);
-   q=Math.floor(q/2);
-   bit*=2;
- }
- html+=math(n+'='+bits.join('+'));
- html+='<div>Portanto, precisamos apenas das potências correspondentes aos bits (1) da expansão binária de (p-1).</div>';
+ while(q>0){if(q%2)bits.push(bit);q=Math.floor(q/2);bit*=2;}
+ html+=math(String(n)+'='+bits.join('+'));
 
  html+='<h3>2. Quadratura modular</h3>';
  let rows='',powers={},e=1,b=amod;
  while(e<=n){
-   powers[e]=b;
-   rows+='<tr><td>'+math('a^{'+e+'}')+'</td><td>'+math(b+'\\pmod{'+p}')}</td></tr>';
-   if(e*2>n)break;
-   b=(b*b)%p;
-   e*=2;
+  powers[e]=b;
+  rows+='<tr><td>'+math('a^{'+e+'}')+'</td><td>'+math(String(b)+String.raw`\pmod{`+p+'}')+'</td></tr>';
+  if(e*2>n)break;
+  b=(b*b)%p;e*=2;
  }
- html+='<table><tr><th>Potência</th><th>Resto módulo (p)</th></tr>'+rows+'</table>';
+ html+='<table><tr><th>Potência</th><th>Resto módulo p</th></tr>'+rows+'</table>';
 
  html+='<h3>3. Produto das potências selecionadas</h3>';
  let acc=1,prod='';
- bits.forEach(x=>{
-   const before=acc;
-   acc=(acc*powers[x])%p;
-   prod+='<tr><td>'+math(before+'\\times '+powers[x])+'</td><td>'+math(acc+'\\pmod{'+p}')}</td></tr>';
+ bits.forEach(function(x){
+  const before=acc;acc=(acc*powers[x])%p;
+  prod+='<tr><td>'+math(String(before)+String.raw`\times `+String(powers[x]))+'</td><td>'+math(String(acc)+String.raw`\pmod{`+p+'}')+'</td></tr>';
  });
  html+='<table><tr><th>Produto acumulado</th><th>Resto</th></tr>'+prod+'</table>';
-
- html+=mathLarge(a+'^{'+n+'}\\equiv'+final+'\\pmod{'+p+'}');
+ html+=mathLarge(String(a)+'^{'+n+'}'+String.raw`\equiv`+String(final)+String.raw`\pmod{`+p+'}');
  html+='</div>';
 
  html+='<div class="card ok"><b>Conclusão</b>';
- html+=mathLarge(a+'^{'+n+'}\\equiv1\\pmod{'+p});
- html+='<div>Para os dados escolhidos, o resto calculado é <b>'+final+'</b>. Portanto, a verificação numérica confirma a congruência prevista pelo teorema.</div>';
- html+='</div>';
-
+ html+=mathLarge(String(a)+'^{'+n+'}'+String.raw`\equiv1\pmod{`+p+'}');
+ html+='<div>Valor calculado: <b>'+final+'</b>. A verificação numérica confirma a congruência.</div></div>';
  $('result').innerHTML=html;
- renderMath();
+ renderMath($('result'));
 }
-
 $('run').addEventListener('click',calculate);
-document.querySelectorAll('.example').forEach(x=>x.addEventListener('click',()=>{
- $('p').value=x.dataset.p;
- $('a').value=x.dataset.a;
- calculate();
-}));
-
-window.addEventListener('load',function(){calculate();});
+document.querySelectorAll('.example').forEach(function(x){x.addEventListener('click',function(){$('p').value=x.dataset.p;$('a').value=x.dataset.a;calculate();});});
+window.addEventListener('load',function(){renderMath(document);calculate();});
 })();
 </script>
 </body>
