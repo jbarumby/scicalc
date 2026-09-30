@@ -644,7 +644,7 @@ document.querySelectorAll('.tab').forEach(t => {
     document.getElementById(t.dataset.tab).classList.add('active');
     if(t.dataset.tab === 'historico') renderHistorico();
     if(t.dataset.tab === 'fisica' && typeof window.initPhysics === 'function') window.initPhysics();
-    if(t.dataset.tab === 'simuladores-v26' && typeof window.v26InitLab === 'function') window.v26InitLab();
+    if(t.dataset.tab === 'simulacoes' && typeof window.v26InitLab === 'function') window.v26InitLab();
 
     // Renderiza somente a aba aberta. Isso evita travar o carregamento
     // e impede que \(...\) e \[...\] fiquem visíveis como texto bruto.
@@ -1478,69 +1478,21 @@ function demonstrarFermat(){
     if(a%p===0) throw new Error('É necessário que p não divida a.');
 
     const value=potenciaModular(a,p-1,p);
-
-    // Cálculo didático por exponenciação sucessiva: reduzimos cada potência
-    // módulo p, como nos exemplos clássicos de aplicações do teorema.
-    const powers=[];
-    let base=((a%p)+p)%p;
-    let exp=1;
-    const target=p-1;
-    while(exp<=target){
-      powers.push({exp:exp,base:base});
-      if(exp*2<=target){
-        base=(base*base)%p;
-        exp*=2;
-      }else break;
-    }
-
-    // Decomposição binária de p-1 para mostrar como a potência final é obtida.
-    const bits=[];
-    let rem=target;
-    let bitExp=1;
-    while(rem>0){
-      if(rem%2===1) bits.push(bitExp);
-      rem=Math.floor(rem/2);
-      bitExp*=2;
-    }
-
-    let calc=1;
-    const calcSteps=[];
-    bits.forEach(function(e){
-      const row=powers.find(function(q){return q.exp===e;});
-      const old=calc;
-      calc=(calc*row.base)%p;
-      calcSteps.push({e:e,base:row.base,old:old,result:calc});
-    });
-
-    const powerRows=powers.map(function(q){
-      return '<tr><td>'+tex(a+'^{'+q.exp}'+(q.exp===1?'': ''))+'</td><td>'+tex('\\equiv '+q.base+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</td></tr>';
-    }).join('');
-
-    const calcRows=calcSteps.map(function(q){
-      return '<tr><td>'+tex(q.old+'\\cdot'+q.base)+'</td><td>'+tex('\\equiv '+q.result+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</td></tr>';
-    }).join('');
-
-    const decomposition=bits.join('+');
+    const sample=[];
+    for(let k=1;k<=Math.min(p-1,20);k++) sample.push((a*k)%p);
 
     const steps=
       '<div class="nt-step"><b>1. Hipóteses</b><div>'+tex('p='+p+'\\text{ é primo e }p\\nmid '+a)+'</div></div>'+
-      '<div class="nt-step"><b>2. Redução sucessiva das potências</b>'+
-        '<div>Calculamos as potências por quadratura, sempre reduzindo o resultado módulo '+p+'.</div>'+
-        '<table class="step-table"><thead><tr><th>Potência</th><th>Resto módulo '+p+'</th></tr></thead><tbody>'+powerRows+'</tbody></table></div>'+
-      '<div class="nt-step"><b>3. Decomposição do expoente</b>'+
-        '<div>'+tex(p+'-1='+target+'='+decomposition)+'</div>'+
-        '<div>Assim, selecionamos somente as potências correspondentes aos expoentes que aparecem na decomposição binária.</div></div>'+
-      '<div class="nt-step"><b>4. Cálculo do produto módulo '+p+'</b>'+
-        '<table class="step-table"><thead><tr><th>Produto acumulado</th><th>Resto</th></tr></thead><tbody>'+calcRows+'</tbody></table>'+
-        '<div>'+tex(a+'^{'+target+'}\\equiv'+calc+'\\pmod{'+p+'}')+'</div></div>'+
-      '<div class="nt-step"><b>5. Conclusão pelo Pequeno Teorema de Fermat</b>'+
-        '<div>'+tex(a+'^{p-1}\\equiv1\\pmod p')+' para primo '+tex('p')+' e '+tex('p\\nmid a')+'.</div>'+
-        '<div>Na verificação numérica obtivemos '+tex(a+'^{'+target+'}\\equiv'+value+'\\pmod{'+p+'}')+'.</div></div>'+
-      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+target+'}\\equiv1\\pmod{'+p+'}}')+'</div>';
-
-    ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração e cálculo',steps);
+      '<div class="nt-step"><b>2. Restos dos múltiplos de a</b><div>'+tex('a,2a,\\ldots,(p-1)a')+' são considerados módulo '+p+'.</div>'+
+        '<div class="nt-prime-list">'+sample.join(', ')+(p-1>20?' , …':'')+'</div>'+
+        '<div class="nt-note">Na prova geral, esses restos formam uma permutação dos resíduos não nulos módulo p. Apenas uma amostra é exibida para manter a página responsiva.</div></div>'+
+      '<div class="nt-step"><b>3. Permutação dos restos não nulos</b><div>'+tex('\\{a,2a,\\ldots,(p-1)a\\}\\equiv\\{1,2,\\ldots,p-1\\}')+' módulo '+p+'.</div></div>'+
+      '<div class="nt-step"><b>4. Multiplicação</b><div>'+tex('a^{p-1}(p-1)!\\equiv(p-1)!')+' módulo '+p+'.</div><div>'+tex('a^{p-1}\\equiv1')+' módulo '+p+', pois '+tex('(p-1)!')+' é invertível módulo '+p+'.</div></div>'+
+      '<div class="nt-step"><b>5. Verificação numérica</b><div>'+tex(a+'^{'+(p-1)+'}\\equiv'+value+'\\;\\;(\\mathrm{mod}\\;'+p+')')+'</div></div>'+
+      '<div class="nt-conclusion good">'+tex('\\boxed{'+a+'^{'+(p-1)+'}\\equiv1\\;\\;(\\mathrm{mod}\\;'+p+')'+'}')+'</div>';
+    ntSetResult('ferm-result','Pequeno Teorema de Fermat — demonstração',steps);
     salvarHistorico('Fermat',`a=${a}, p=${p}`,`${value} mod ${p}`);
-    toast('Teorema verificado com cálculo passo a passo.','ok');
+    toast('Teorema verificado.','ok');
   }catch(e){toast(e.message,'err');}
 }
 
