@@ -512,8 +512,13 @@
         <div class="nt-card"><label for="ferm-p">Primo \(p\)</label><input id="ferm-p" type="number" value="7" min="2"></div>
         <div class="nt-card"><label for="ferm-a">Inteiro \(a\)</label><input id="ferm-a" type="number" value="3"></div>
       </div>
-      <button class="btn" onclick="demonstrarFermat()">Demonstrar e verificar</button>
+      <div class="nt-note" style="margin:14px 0">A demonstração completa foi isolada em um laboratório independente para preservar a estabilidade do SciCalc.</div>
+      <button class="btn" onclick="abrirLaboratorioFermat()">Abrir laboratório completo de Fermat</button>
       <div id="ferm-result"></div>
+      <div id="ferm-lab-wrap" style="display:none;margin-top:16px">
+        <iframe id="ferm-lab-frame" title="Laboratório completo do Pequeno Teorema de Fermat"
+          src="" style="width:100%;height:900px;border:1px solid var(--border);border-radius:14px;background:#fff"></iframe>
+      </div>
     </div>
   </div>
 </section>
@@ -3438,6 +3443,18 @@ window.initPhysics=function(){
 }
 /* Física é inicializada somente quando a aba é aberta. */
 })();
+</script>
+<script>
+function abrirLaboratorioFermat(){
+  var wrap=document.getElementById('ferm-lab-wrap');
+  var frame=document.getElementById('ferm-lab-frame');
+  if(!wrap||!frame)return;
+  if(!frame.src || frame.src==='about:blank'){
+    frame.src='fermat.html';
+  }
+  wrap.style.display='block';
+  wrap.scrollIntoView({behavior:'smooth',block:'start'});
+}
 </script>
 </body>
 </html>
