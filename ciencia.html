@@ -3571,10 +3571,10 @@ function flTheory(){
  '<div class="step"><strong>Interpretação:</strong> aproximar o ímã aumenta o fluxo e produz corrente; afastá-lo diminui o fluxo e inverte o sentido da corrente.</div>'+
  '</div></details></div>';
 }
-window.flStart=function(dir){flRead();fl.dir=dir==='away'?1:-1;fl.run=true;fl.last=performance.now();if(dir==='away')fl.x=Math.min(fl.x,1.25);else fl.x=Math.max(fl.x,0.25);var z=el('fl-lenz-mode');if(z)z.value=dir;var ls=el('fl-lenz-speed');if(ls){fl.speed=parseFloat(ls.value)||fl.speed;el('fl-speed').value=fl.speed;}var r=el('fl-lenz-result');if(r)r.innerHTML='<div class="result"><strong>'+ (dir==='away'?'Afastamento':'Aproximação') +'</strong>: observe a inversão do sentido da corrente quando o movimento é invertido.</div>';flDraw();};
+window.flStart=function(dir){flRead();fl.dir=dir==='away'?-1:1;fl.run=true;fl.last=performance.now();if(dir==='away')fl.x=Math.min(fl.x,1.25);else fl.x=Math.max(fl.x,0.25);var z=el('fl-lenz-mode');if(z)z.value=dir;var ls=el('fl-lenz-speed');if(ls){fl.speed=parseFloat(ls.value)||fl.speed;el('fl-speed').value=fl.speed;}var r=el('fl-lenz-result');if(r)r.innerHTML='<div class="result"><strong>'+ (dir==='away'?'Afastamento':'Aproximação') +'</strong>: observe a inversão do sentido da corrente quando o movimento é invertido.</div>';flDraw();};
 window.flStop=function(){fl.run=false;fl.dir=0;flDraw();};
 window.flReset=function(){fl.run=false;fl.dir=0;fl.x=0.72;flRead();flDraw();flTheory();};
-window.flSetMode=function(v){fl.dir=v==='away'?1:-1;flDraw();};
+window.flSetMode=function(v){fl.dir=v==='away'?-1:1;flDraw();};
 window.flInit=function(){flRead();flDraw();flTheory();};
 function tick(now){
  if(fl.run && fl.dir!==0){
