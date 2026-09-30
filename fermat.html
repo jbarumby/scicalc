@@ -4,51 +4,68 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pequeno Teorema de Fermat — SciCalc</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css">
 <style>
 body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f5fb;color:#24304a}
 header{background:linear-gradient(135deg,#5b3df5,#7b35e8);color:white;padding:24px}
 main{max-width:1100px;margin:24px auto;padding:0 16px}
 .card{background:white;border-radius:16px;padding:22px;margin:18px 0;box-shadow:0 4px 18px #0001}
 h1,h2{margin-top:0;color:#4d3be7}
+header h1{color:white;margin-bottom:8px}
 .controls{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end}
 label{font-weight:700;display:block;margin-bottom:7px}
 input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #ccd1df;border-radius:9px;font-size:17px}
 button{padding:13px 20px;border:0;border-radius:9px;background:#5b3df5;color:white;font-weight:700;cursor:pointer}
 button:hover{filter:brightness(1.08)}
 .example{display:inline-block;margin:5px;padding:8px 12px;border-radius:20px;background:#eeeaff;color:#4d3be7;cursor:pointer}
-.step{border-left:4px solid #5b3df5;background:#f7f8fc;padding:16px;margin:12px 0;border-radius:8px}
-.formula{text-align:center;font-size:1.25rem;margin:14px 0}
-table{width:100%;border-collapse:collapse;margin:12px 0}
+.step{border-left:4px solid #5b3df5;background:#f7f8fc;padding:16px;margin:12px 0;border-radius:8px;line-height:1.55}
+.formula{text-align:center;font-size:1.2rem;margin:16px 0;overflow-x:auto;padding:4px}
+.formula.large{font-size:1.35rem}
+table{width:100%;border-collapse:collapse;margin:14px 0}
 th,td{padding:9px;border-bottom:1px solid #ddd;text-align:center}
 th{background:#eeeaff}
-.ok{background:#e5f8ef;border:1px solid #8ed9b4;padding:18px;border-radius:10px;text-align:center;font-size:1.3rem}
-.note{background:#fff8df;padding:12px;border-radius:8px}
+.ok{background:#e5f8ef;border:1px solid #8ed9b4;padding:18px;border-radius:10px;text-align:center;font-size:1.15rem}
+.note{background:#fff8df;padding:12px;border-radius:8px;line-height:1.5}
 .error{color:#a00;font-weight:bold}
+.katex-display{margin:1em 0}
 @media(max-width:700px){.controls{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header><h1>Pequeno Teorema de Fermat</h1><div>SciCalc — laboratório matemático independente</div></header>
+<header>
+<h1>Pequeno Teorema de Fermat</h1>
+<div>SciCalc — laboratório matemático independente</div>
+</header>
+
 <main>
 <div class="card">
 <h2>Dados</h2>
 <div class="controls">
-<div><label for="p">Primo p</label><input id="p" type="number" min="2" value="41"></div>
-<div><label for="a">Inteiro a</label><input id="a" type="number" value="3"></div>
+<div><label for="p">Primo (p)</label><input id="p" type="number" min="2" value="41"></div>
+<div><label for="a">Inteiro (a)</label><input id="a" type="number" value="3"></div>
 <button id="run">Demonstrar e calcular</button>
 </div>
 <div style="margin-top:15px"><b>Exemplos:</b>
-<span class="example" data-p="41" data-a="3">3⁴⁰ mod 41</span>
-<span class="example" data-p="17" data-a="2">2¹⁶ mod 17</span>
-<span class="example" data-p="7" data-a="3">3⁶ mod 7</span>
+<span class="example" data-p="41" data-a="3">(3^{40}mod 41)</span>
+<span class="example" data-p="17" data-a="2">(2^{16}mod 17)</span>
+<span class="example" data-p="7" data-a="3">(3^6mod 7)</span>
 </div>
 </div>
+
 <div id="result"></div>
 </main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/contrib/auto-render.min.js"></script>
 <script>
 (function(){
 'use strict';
+
 const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const math=latex=>'<div class="formula">\\('+latex+'\\)</div>';
+const mathLarge=latex=>'<div class="formula large">\\('+latex+'\\)</div>';
+
 function prime(n){
  if(!Number.isInteger(n)||n<2)return false;
  if(n===2)return true;
@@ -56,50 +73,141 @@ function prime(n){
  for(let d=3;d*d<=n;d+=2)if(n%d===0)return false;
  return true;
 }
+
 function modPow(base,exp,mod){
  let b=((base%mod)+mod)%mod,r=1;
- while(exp>0){if(exp%2===1)r=(r*b)%mod;b=(b*b)%mod;exp=Math.floor(exp/2);}
+ while(exp>0){
+   if(exp%2===1)r=(r*b)%mod;
+   b=(b*b)%mod;
+   exp=Math.floor(exp/2);
+ }
  return r;
 }
-function superscript(n){
- const m={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
- return String(n).split('').map(c=>m[c]||c).join('');
+
+function renderMath(){
+ if(typeof renderMathInElement==='function'){
+   renderMathInElement(document.getElementById('result'),{
+     delimiters:[
+       {left:'\\[',right:'\\]',display:true},
+       {left:'\\(',right:'\\)',display:false}
+     ],
+     throwOnError:false
+   });
+ }
 }
+
 function calculate(){
  const p=Number($('p').value),a=Number($('a').value);
- if(!Number.isInteger(p)||!Number.isInteger(a)||p<2){$('result').innerHTML='<div class="card error">p e a devem ser inteiros válidos.</div>';return}
- if(p>1000000){$('result').innerHTML='<div class="card error">Use p ≤ 1.000.000 para esta demonstração.</div>';return}
- if(!prime(p)){$('result').innerHTML='<div class="card error">p deve ser primo.</div>';return}
- if(a%p===0){$('result').innerHTML='<div class="card error">É necessário que p não divida a.</div>';return}
+ if(!Number.isInteger(p)||!Number.isInteger(a)||p<2){
+   $('result').innerHTML='<div class="card error">(p) e (a) devem ser inteiros válidos.</div>';
+   return;
+ }
+ if(p>1000000){
+   $('result').innerHTML='<div class="card error">Use (p\le 1\,000\,000) para esta demonstração.</div>';
+   return;
+ }
+ if(!prime(p)){
+   $('result').innerHTML='<div class="card error">(p) deve ser primo.</div>';
+   return;
+ }
+ if(a%p===0){
+   $('result').innerHTML='<div class="card error">É necessário que (p\nmid a).</div>';
+   return;
+ }
+
  const n=p-1;
  const final=modPow(a,n,p);
+ const amod=((a%p)+p)%p;
  let html='';
+
  html+='<div class="card"><h2>Demonstração teórica</h2>';
- html+='<div class="step"><b>1. Hipóteses</b><div class="formula">p é primo e p ∤ a.</div><div>Queremos provar a<sup>p−1</sup> ≡ 1 (mod p).</div></div>';
- html+='<div class="step"><b>2. Os resíduos são distintos</b><div>Suponha ia ≡ ja (mod p). Então a(i−j) ≡ 0 (mod p). Como p é primo e p ∤ a, temos p ∣ (i−j). Para 1 ≤ i,j ≤ p−1, isso implica i=j.</div></div>';
- html+='<div class="step"><b>3. Permutação dos resíduos não nulos</b><div>Logo, a, 2a, …, (p−1)a formam uma permutação de 1,2,…,p−1 módulo p.</div><div class="formula">(a)(2a)…((p−1)a) ≡ 1·2·…·(p−1) (mod p)</div><div class="formula">a<sup>p−1</sup>(p−1)! ≡ (p−1)! (mod p)</div></div>';
- html+='<div class="step"><b>4. Cancelamento</b><div>Nenhum fator de (p−1)! é divisível por p. Portanto gcd((p−1)!,p)=1 e (p−1)! possui inverso módulo p.</div><div class="formula">a<sup>p−1</sup> ≡ 1 (mod p)</div></div>';
- html+='<div class="step"><b>5. Forma equivalente</b><div class="formula">a<sup>p</sup> ≡ a (mod p)</div></div>';
+
+ html+='<div class="step"><b>1. Hipóteses</b>';
+ html+mathLarge('p\\text{ é primo},\\qquad p\\nmid a.');
+ html+='<div>Queremos provar o Pequeno Teorema de Fermat na forma multiplicativa.</div>';
+ html+mathLarge('a^{p-1}\\equiv 1\\pmod{p}');
  html+='</div>';
+
+ html+='<div class="step"><b>2. Os resíduos são distintos</b>';
+ html+='<div>Considere os números (a,2a,\\ldots,(p-1)a) módulo (p). Suponha que dois deles sejam congruentes:</div>';
+ html+math('ia\\equiv ja\\pmod{p}');
+ html+='<div>Então</div>';
+ html+math('a(i-j)\\equiv0\\pmod{p}');
+ html+='<div>Como (p) é primo e (p\\nmid a), segue que (p\\mid(i-j)). Como (1\\le i,j\\le p-1), necessariamente (i=j). Portanto, os resíduos são todos distintos.</div>';
+ html+='</div>';
+
+ html+='<div class="step"><b>3. Permutação dos resíduos não nulos</b>';
+ html+='<div>Há exatamente (p-1) resíduos não nulos módulo (p). Logo, (a,2a,\\ldots,(p-1)a) formam uma permutação de (1,2,\\ldots,p-1).</div>';
+ html+math('(a)(2a)\\cdots((p-1)a)\\equiv1\\cdot2\\cdots(p-1)\\pmod{p}');
+ html+math('a^{p-1}(p-1)!\\equiv(p-1)!\\pmod{p}');
+ html+='</div>';
+
+ html+='<div class="step"><b>4. Cancelamento</b>';
+ html+='<div>Nenhum fator de ((p-1)!) é divisível por (p). Assim,</div>';
+ html+math('\\gcd((p-1)!,p)=1');
+ html+='<div>e ((p-1)!) possui inverso módulo (p). Podemos cancelá-lo na congruência anterior:</div>';
+ html+mathLarge('a^{p-1}\\equiv1\\pmod{p}');
+ html+='</div>';
+
+ html+='<div class="step"><b>5. Forma equivalente</b>';
+ html+='<div>Multiplicando ambos os lados por (a), obtemos:</div>';
+ html+mathLarge('a^p\\equiv a\\pmod{p}');
+ html+='</div>';
+ html+='</div>';
+
  html+='<div class="card"><h2>Cálculo numérico passo a passo</h2>';
- html+='<div class="note">O cálculo usa exponenciação modular por quadratura. O navegador nunca calcula o inteiro gigantesco a<sup>p−1</sup>.</div>';
- let rows='', powers={},e=1,b=((a%p)+p)%p;
- while(e<=n){powers[e]=b;rows+='<tr><td>'+a+superscript(e)+'</td><td>'+b+'</td></tr>';if(e*2>n)break;b=(b*b)%p;e*=2}
- html+='<table><tr><th>Potência</th><th>Resto módulo '+p+'</th></tr>'+rows+'</table>';
+ html+='<div class="note">O cálculo usa <b>exponenciação modular por quadratura</b>. Assim, o navegador trabalha apenas com restos módulo (p), sem construir o inteiro gigantesco (a^{p-1}).</div>';
+
+ html+='<h3>1. Decomposição do expoente</h3>';
  let bits=[],q=n,bit=1;
- while(q){if(q%2)bits.push(bit);q=Math.floor(q/2);bit*=2}
- html+='<div class="formula">'+n+' = '+bits.join(' + ')+'</div>';
+ while(q>0){
+   if(q%2)bits.push(bit);
+   q=Math.floor(q/2);
+   bit*=2;
+ }
+ html+=math(n+'='+bits.join('+'));
+ html+='<div>Portanto, precisamos apenas das potências correspondentes aos bits (1) da expansão binária de (p-1).</div>';
+
+ html+='<h3>2. Quadratura modular</h3>';
+ let rows='',powers={},e=1,b=amod;
+ while(e<=n){
+   powers[e]=b;
+   rows+='<tr><td>'+math('a^{'+e+'}')+'</td><td>'+math(b+'\\pmod{'+p}')}</td></tr>';
+   if(e*2>n)break;
+   b=(b*b)%p;
+   e*=2;
+ }
+ html+='<table><tr><th>Potência</th><th>Resto módulo (p)</th></tr>'+rows+'</table>';
+
+ html+='<h3>3. Produto das potências selecionadas</h3>';
  let acc=1,prod='';
- bits.forEach(x=>{const before=acc;acc=(acc*powers[x])%p;prod+='<tr><td>'+before+' × '+powers[x]+'</td><td>'+acc+'</td></tr>'});
+ bits.forEach(x=>{
+   const before=acc;
+   acc=(acc*powers[x])%p;
+   prod+='<tr><td>'+math(before+'\\times '+powers[x])+'</td><td>'+math(acc+'\\pmod{'+p}')}</td></tr>';
+ });
  html+='<table><tr><th>Produto acumulado</th><th>Resto</th></tr>'+prod+'</table>';
- html+='<div class="formula">'+a+superscript(n)+' ≡ '+final+' (mod '+p+')</div>';
+
+ html+=mathLarge(a+'^{'+n+'}\\equiv'+final+'\\pmod{'+p+'}');
  html+='</div>';
- html+='<div class="card ok"><b>Conclusão</b><div class="formula">'+a+superscript(n)+' ≡ 1 (mod '+p+')</div><div>Valor calculado: '+final+'.</div></div>';
+
+ html+='<div class="card ok"><b>Conclusão</b>';
+ html+=mathLarge(a+'^{'+n+'}\\equiv1\\pmod{'+p});
+ html+='<div>Para os dados escolhidos, o resto calculado é <b>'+final+'</b>. Portanto, a verificação numérica confirma a congruência prevista pelo teorema.</div>';
+ html+='</div>';
+
  $('result').innerHTML=html;
+ renderMath();
 }
+
 $('run').addEventListener('click',calculate);
-document.querySelectorAll('.example').forEach(x=>x.addEventListener('click',()=>{$('p').value=x.dataset.p;$('a').value=x.dataset.a;calculate()}));
-calculate();
+document.querySelectorAll('.example').forEach(x=>x.addEventListener('click',()=>{
+ $('p').value=x.dataset.p;
+ $('a').value=x.dataset.a;
+ calculate();
+}));
+
+window.addEventListener('load',calculate);
 })();
 </script>
 </body>
