@@ -3592,7 +3592,7 @@ function flDraw(){
  /* Galvanômetro: ponteiro fica no zero parado e deflete durante o movimento. */
  ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(850,215,55,0,Math.PI*2);ctx.stroke();
  ctx.fillStyle='#24304a';ctx.font='700 15px Arial';ctx.fillText('−1',815,225);ctx.fillText('0',845,155);ctx.fillText('+1',875,225);
- var ang=-Math.PI/2 + sign*mag*1.05;
+ var ang=-Math.PI/2 - sign*mag*1.05;
  ctx.strokeStyle='#d33';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(850,215);ctx.lineTo(850+40*Math.cos(ang),215+40*Math.sin(ang));ctx.stroke();
  ctx.fillStyle='#24304a';ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',790,295);
 
