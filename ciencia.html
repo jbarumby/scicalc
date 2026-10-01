@@ -3626,7 +3626,7 @@ function drawPF(){
    emf=-(flux(d2)-flux(d))/dt;
  }
  var sign=emf>0?1:emf<0?-1:0;
- fieldLines(ctx,mx,coilX,coilY,coilH,performance.now()/18,Math.min(1,Bfield(d)/PF.B0));
+ fieldLines(ctx,mx,coilX,coilY,coilHgt,performance.now()/18,Math.min(1,Bfield(d)/PF.B0));
  if(moving) arrow(ctx,mx+56,300,mx+56,300+(PF.dir<0?-72:72),'#18a56b',8);
 
  // Circuit and current animation
@@ -3664,51 +3664,63 @@ function drawLZ(){
  ctx.fillStyle='#174a91';ctx.font='700 28px Arial';ctx.fillText('Lei de Lenz — oposição à variação do fluxo',28,38);
  ctx.fillStyle='#475569';ctx.font='17px Arial';ctx.fillText('A corrente induzida cria um campo que se opõe à mudança do fluxo magnético.',28,65);
 
- // vertical experiment: N pole faces the top of the coil
- var coilX=690,coilY=255,coilW=220,coilHgt=155;
+ // Mesmo arranjo físico do experimento de Faraday: ímã horizontal com N voltado para a bobina.
+ var coilX=650,coilY=145,coilW=205,coilHgt=230;
  coilH(ctx,coilX,coilY,coilW,coilHgt);
- var my=95+LZ.y*145;
- magnet(ctx,610,my,90,120,false);
- ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('Ímã',630,my+140);
+
+ // x = posição da face N do ímã. Aproximação: esquerda -> direita.
+ var x=120+LZ.y*430;
+ var my=225;
+ magnet(ctx,x,my,112,62,true);
+ ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('Ímã',x+34,my+88);
 
  var moving=LZ.run&&LZ.dir!==0, approach=LZ.mode==='approach';
- // animate magnetic field lines entering/leaving the coil
- ctx.save();ctx.setLineDash([16,12]);ctx.lineDashOffset=-(performance.now()/14)*(approach?1:-1);
- for(var i=0;i<5;i++){
-   var x=625+i*18;
-   ctx.beginPath();ctx.strokeStyle=approach?'#2bbf91':'#6a8fe8';ctx.lineWidth=3;
-   ctx.moveTo(x,my+120);ctx.lineTo(x,coilY+5);ctx.stroke();
+
+ // Linhas de campo do ímã em direção à bobina.
+ ctx.save();
+ ctx.setLineDash([16,11]);
+ ctx.lineDashOffset=-(performance.now()/15)*(approach?1:-1);
+ for(var i=0;i<7;i++){
+   var yy=170+i*34;
+   ctx.beginPath();
+   ctx.strokeStyle=approach?'rgba(35,184,154,.78)':'rgba(78,134,232,.68)';
+   ctx.lineWidth=3;
+   ctx.moveTo(x+112,my+31);
+   ctx.bezierCurveTo(x+190,yy-30,coilX-80,yy-30,coilX,yy);
+   ctx.stroke();
  }
  ctx.restore();
 
- // motion arrow
- if(moving)arrow(ctx,560,my+60,560,my+60+(approach?75:-75),'#18a56b',9);
+ // Seta do movimento.
+ if(moving) arrow(ctx,x+56,my+95,x+56,my+95+(approach?75:-75),'#18a56b',8);
 
- // induced field opposes change
- var by=approach?coilY+115:coilY+45;
- arrow(ctx,820,by,820,by+(approach?-95:95),approach?'#2563eb':'#dc2626',8);
- ctx.fillStyle='#174a91';ctx.font='700 18px Arial';ctx.fillText('B induzido',845,by+(approach?-95:95));
+ // Campo induzido: na aproximação aponta para fora da bobina, no afastamento aponta para dentro.
+ var bx=coilX+coilW/2;
+ var by=coilY+coilHgt/2;
+ if(approach) arrow(ctx,bx,by,bx-125,by,'#2563eb',9);
+ else arrow(ctx,bx,by,bx+125,by,'#dc2626',9);
+ ctx.fillStyle='#174a91';ctx.font='700 18px Arial';
+ ctx.fillText('B induzido',bx+(approach?-205:130),by-12);
 
- // induced current around coil
+ // Corrente induzida: sentido oposto nos dois casos.
  ctx.strokeStyle=approach?'#18a56b':'#dc2626';ctx.lineWidth=7;
- ctx.beginPath();
- ctx.ellipse(coilX+coilW/2,coilY+coilH/2,82,52,0,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.ellipse(bx,by,84,52,0,0,Math.PI*2);ctx.stroke();
  if(moving){
-   var phase=performance.now()/250;
-   var ax=coilX+coilW/2+82*Math.cos(phase);
-   var ay=coilY+coilH/2+52*Math.sin(phase);
-   var tx=coilX+coilW/2-82*Math.sin(phase)*.5;
-   var ty=coilY+coilH/2+52*Math.cos(phase)*.5;
-   arrow(ctx,ax,ay,tx,ty,approach?'#18a56b':'#dc2626',5);
+   var phase=performance.now()/230*(approach?1:-1);
+   var ax=bx+84*Math.cos(phase), ay=by+52*Math.sin(phase);
+   var tx=bx-84*Math.sin(phase)*.45, ty=by+52*Math.cos(phase)*.45;
+   arrow(ctx,ax,ay,tx,ty,approach?'#18a56b':'#dc2626',6);
  }
- gauge(ctx,1030,300,moving?(approach?-0.8:0.8):0);
+
+ gauge(ctx,1030,250,moving?(approach?-0.8:0.8):0);
 
  ctx.fillStyle=approach?'#174a91':'#991b1b';ctx.font='700 22px Arial';
- ctx.fillText(approach?'Aproximação do ímã':'Afastamento do ímã',28,445);
+ ctx.fillText(approach?'Aproximação do ímã':'Afastamento do ímã',28,420);
  ctx.fillStyle='#334155';ctx.font='18px Arial';
- ctx.fillText(approach?'Fluxo aumenta → o campo induzido se opõe ao aumento.':'Fluxo diminui → o campo induzido se opõe à diminuição.',28,475);
+ ctx.fillText(approach?'Fluxo aumenta → o campo induzido se opõe ao aumento.':'Fluxo diminui → o campo induzido se opõe à diminuição.',28,450);
+
  var rr=E('pro-lenz-result');
- if(rr)rr.innerHTML='<div class="step"><strong>Lei de Lenz:</strong> na aproximação, o campo induzido se opõe ao aumento do fluxo; no afastamento, ele inverte o sentido para se opor à diminuição.</div>';
+ if(rr)rr.innerHTML='<div class="step"><strong>Lei de Lenz:</strong> na aproximação, a bobina reage ao aumento do fluxo; no afastamento, o sentido da corrente se inverte para se opor à diminuição do fluxo.</div>';
 }
 
 window.proFlStart=function(mode){
@@ -3718,7 +3730,7 @@ window.proFlStop=function(){PF.run=false;PF.dir=0;drawPF();};
 window.proFlReset=function(){readPF();PF.run=false;PF.dir=0;PF.d=.72;drawPF();};
 
 window.proLenzStart=function(mode){
- LZ.mode=mode;LZ.dir=mode==='approach'?-1:1;LZ.y=mode==='approach'?.02:.90;LZ.speed=Math.max(.05,N('pfl-speed',.35));LZ.run=true;LZ.last=performance.now();drawLZ();
+ LZ.mode=mode;LZ.dir=mode==='approach'?1:-1;LZ.y=mode==='approach'?.02:.92;LZ.speed=Math.max(.05,N('pfl-speed',.35));LZ.run=true;LZ.last=performance.now();drawLZ();
 };
 window.proLenzStop=function(){LZ.run=false;LZ.dir=0;drawLZ();};
 window.proLenzReset=function(){LZ.run=false;LZ.dir=0;LZ.mode='approach';LZ.y=.45;drawLZ();};
