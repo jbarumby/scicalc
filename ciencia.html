@@ -3542,34 +3542,56 @@ function drawArrow(ctx,x1,y1,x2,y2,color){
  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-l*Math.cos(ang-0.5),y2-l*Math.sin(ang-0.5));ctx.lineTo(x2-l*Math.cos(ang+0.5),y2-l*Math.sin(ang+0.5));ctx.closePath();ctx.fill();
 }
 function flDraw(){
- var c=el('fl-canvas');if(!c)return;var ctx=c.getContext('2d'),w=c.width,h=c.height;
- ctx.clearRect(0,0,w,h);
+ var c=el('fl-canvas');if(!c)return;
+ var ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
  ctx.fillStyle='#24304a';ctx.font='700 22px Arial';ctx.fillText('Experimento de Faraday–Lenz',28,34);
- var coilX=570, coilY=125, coilW=155, coilH=190;
+
+ var coilX=570,coilY=105,coilW=155,coilH=210;
  ctx.fillStyle='#d9dde5';ctx.strokeStyle='#4b5563';ctx.lineWidth=3;
  ctx.fillRect(coilX,coilY,coilW,coilH);ctx.strokeRect(coilX,coilY,coilW,coilH);
  ctx.strokeStyle='#31506b';ctx.lineWidth=4;
- for(var i=0;i<8;i++){var yy=coilY+18+i*22;ctx.beginPath();ctx.ellipse(coilX+coilW/2,yy,76,15,0,0,Math.PI*2);ctx.stroke();}
- ctx.fillStyle='#c93b3b';ctx.fillRect(fl.x*100+40,170,92,48);
- ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('N',fl.x*100+105,202);
- ctx.fillStyle='#2467a8';ctx.fillRect(fl.x*100+40,218,92,48);ctx.fillStyle='#fff';ctx.fillText('S',fl.x*100+105,250);
- ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',fl.x*100+60,295);
- var moving=fl.dir!==0;
- if(moving) drawArrow(ctx,fl.x*100+86,330,fl.x*100+86,330+(fl.dir<0?-55:55),fl.dir<0?'#26734d':'#b23b3b');
- ctx.font='700 20px Arial';ctx.fillStyle='#24304a';ctx.fillText(fl.dir<0?'Aproximação':'Afastamento',28,390);
- ctx.font='17px Arial';ctx.fillText('Bobina',615,350);
+ for(var i=0;i<9;i++){
+   var yy=coilY+15+i*22;
+   ctx.beginPath();ctx.ellipse(coilX+coilW/2,yy,76,15,0,0,Math.PI*2);ctx.stroke();
+ }
+
+ /* x é a distância adimensional: menor = ímã mais perto da bobina. */
+ var px=135+(1.75-fl.x)/(1.75-.18)*350;
+ var my=175;
+ ctx.fillStyle='#c93b3b';ctx.fillRect(px,my,92,48);
+ ctx.fillStyle='#2467a8';ctx.fillRect(px,my+48,92,48);
+ ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('N',px+54,my+33);ctx.fillText('S',px+54,my+81);
+ ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',px+30,my+122);
+
+ if(fl.dir!==0){
+   var ax=fl.dir>0?px+105:px-15;
+   drawArrow(ctx,ax,my+72,ax+(fl.dir>0?70:-70),my+72,fl.dir>0?'#26734d':'#b23b3b');
+   ctx.font='700 17px Arial';ctx.fillStyle=fl.dir>0?'#26734d':'#b23b3b';
+   ctx.fillText(fl.dir>0?'Aproximação':'Afastamento',px-5,my+155);
+ }else{
+   ctx.font='700 20px Arial';ctx.fillStyle='#24304a';ctx.fillText('Parado',28,390);
+ }
+
  var B=fieldAt(fl.x),Phi=fluxAt(fl.x),emf=0;
  if(fl.run && fl.dir!==0){
    var dx=fl.dir*fl.speed*0.016;
    var x2=Math.max(0.18,Math.min(1.75,fl.x+dx));
    emf=-(fluxAt(x2)-Phi)/0.016;
  }
+ var mag=Math.min(1,Math.abs(emf)/0.08);
  var sign=emf>=0?1:-1;
- drawArrow(ctx,648,245,648,245+(sign>0?-70:70),sign>0?'#26734d':'#b23b3b');
+
+ /* Campo induzido na bobina. */
+ drawArrow(ctx,648,245,648,245+(sign>0?-75:75),sign>0?'#26734d':'#b23b3b');
  ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('B induzido',730,245);
- ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(845,215,55,0,Math.PI*2);ctx.stroke();
- ctx.beginPath();ctx.moveTo(845,215);ctx.lineTo(845+40*Math.cos(-1.1+Math.max(-0.8,Math.min(0.8,emf*0.4))),215+40*Math.sin(-1.1+Math.max(-0.8,Math.min(0.8,emf*0.4))));ctx.stroke();
- ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',795,295);
+
+ /* Galvanômetro: ponteiro fica no zero parado e deflete durante o movimento. */
+ ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(850,215,55,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle='#24304a';ctx.font='700 15px Arial';ctx.fillText('−1',815,225);ctx.fillText('0',845,155);ctx.fillText('+1',875,225);
+ var ang=-Math.PI/2 + sign*mag*1.05;
+ ctx.strokeStyle='#d33';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(850,215);ctx.lineTo(850+40*Math.cos(ang),215+40*Math.sin(ang));ctx.stroke();
+ ctx.fillStyle='#24304a';ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',790,295);
+
  var m=el('fl-metrics');
  if(m)m.innerHTML='<div class="v26-extra-metric"><small>Campo B</small><strong>'+B.toFixed(3)+' T</strong></div>'+
  '<div class="v26-extra-metric"><small>Fluxo Φ</small><strong>'+Phi.toExponential(3)+' Wb</strong></div>'+
@@ -3607,74 +3629,85 @@ window.addEventListener('load',function(){flInit();});
 <script id="faraday-lenz-final-runtime">
 (function(){
 'use strict';
-/* Correção final dos sentidos e animação de Lenz. */
-var FLZ={x:.20,dir:0,run:false,speed:.35,last:0,mode:'approach'};
+var FLZ={x:.15,dir:0,run:false,speed:.35,last:0,mode:'approach'};
 function FLel(id){return document.getElementById(id);}
 function FLarrow(ctx,x1,y1,x2,y2,color,width){
-  ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=width||5;
-  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-  var a=Math.atan2(y2-y1,x2-x1),L=16;
-  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-L*Math.cos(a-.5),y2-L*Math.sin(a-.5));ctx.lineTo(x2-L*Math.cos(a+.5),y2-L*Math.sin(a+.5));ctx.closePath();ctx.fill();
+ ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=width||5;
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+ var a=Math.atan2(y2-y1,x2-x1),L=15;
+ ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-L*Math.cos(a-.5),y2-L*Math.sin(a-.5));ctx.lineTo(x2-L*Math.cos(a+.5),y2-L*Math.sin(a+.5));ctx.closePath();ctx.fill();
 }
 function drawLenzFinal(){
-  var c=FLel('fl-lenz-canvas');if(!c)return;
-  var ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#24304a';ctx.font='700 24px Arial';ctx.fillText('Experimento da Lei de Lenz',28,34);
-  var cx=555,cy=250;
-  ctx.strokeStyle='#536477';ctx.lineWidth=5;
-  for(var i=0;i<8;i++){ctx.beginPath();ctx.ellipse(cx,cy,145,17,0,0,Math.PI*2);ctx.stroke();}
-  ctx.fillStyle='#24304a';ctx.font='700 18px Arial';ctx.fillText('Bobina',525,320);
-  /* N voltado para a bobina. */
-  var my=70+FLZ.x*145;
-  ctx.fillStyle='#c83c3c';ctx.fillRect(cx-48,my,96,58);
-  ctx.fillStyle='#2369a8';ctx.fillRect(cx-48,my+58,96,58);
-  ctx.fillStyle='#fff';ctx.font='700 28px Arial';ctx.fillText('S',cx-10,my+40);ctx.fillText('N',cx-10,my+100);
-  ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',cx-20,my+142);
-  if(FLZ.dir!==0){
-    FLarrow(ctx,cx+125,my+58,cx+125,my+58+(FLZ.dir>0?55:-55),FLZ.dir>0?'#26734d':'#b23b3b',6);
-    ctx.font='700 17px Arial';ctx.fillText(FLZ.dir>0?'Aproximação':'Afastamento',700,my+65);
-  }
-  var approach=FLZ.mode==='approach';
-  /* Exatamente como no esquema: aproximação -> B induzido para cima; afastamento -> para baixo. */
-  FLarrow(ctx,cx,approach?205:285,cx,approach?105:385,approach?'#26734d':'#b23b3b',7);
-  ctx.fillStyle='#24304a';ctx.font='700 18px Arial';ctx.fillText('B induzido',cx+25,approach?145:335);
-  /* Corrente qualitativa na bobina: sentido oposto nos dois casos. */
-  ctx.strokeStyle=approach?'#26734d':'#b23b3b';ctx.lineWidth=6;
-  ctx.beginPath();ctx.arc(cx,cy,112,approach?0.2:3.35,approach?5.9:9.05);ctx.stroke();
-  FLarrow(ctx,approach?cx+108:cx-108,cy,approach?cx+108:cx-108,approach?cy-48:cy+48,approach?'#26734d':'#b23b3b',5);
-  /* galvanômetro */
-  ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(850,245,55,0,Math.PI*2);ctx.stroke();
-  var ga=approach?-1.0:1.0;ctx.beginPath();ctx.moveTo(850,245);ctx.lineTo(850+42*Math.cos(ga),245+42*Math.sin(ga));ctx.stroke();
-  ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('Galvanômetro',790,330);
-  ctx.font='700 20px Arial';ctx.fillText(approach?'Aproximação: fluxo aumenta':'Afastamento: fluxo diminui',28,395);
-  var r=FLel('fl-lenz-result');if(r)r.innerHTML='<div class="result"><strong>'+ (approach?'Aproximação':'Afastamento') +'</strong>: o campo induzido aponta '+(approach?'para cima':'para baixo')+' para se opor à variação do fluxo.</div>';
+ var c=FLel('fl-lenz-canvas');if(!c)return;
+ var ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);
+ ctx.fillStyle='#24304a';ctx.font='700 24px Arial';ctx.fillText('Experimento da Lei de Lenz',28,34);
+
+ var coilX=575,coilY=125,coilW=150,coilH=210;
+ ctx.fillStyle='#d9dde5';ctx.strokeStyle='#536477';ctx.lineWidth=3;
+ ctx.fillRect(coilX,coilY,coilW,coilH);ctx.strokeRect(coilX,coilY,coilW,coilH);
+ ctx.strokeStyle='#c87518';ctx.lineWidth=4;
+ for(var i=0;i<9;i++){
+   var yy=coilY+15+i*22;
+   ctx.beginPath();ctx.ellipse(coilX+coilW/2,yy,73,14,0,0,Math.PI*2);ctx.stroke();
+ }
+
+ /* Ímã sempre à esquerda da bobina, com N voltado para a bobina. */
+ var px=130+FLZ.x*360,my=200;
+ ctx.fillStyle='#2467a8';ctx.fillRect(px,my,92,48);
+ ctx.fillStyle='#c83c3c';ctx.fillRect(px+92,my,48,48);
+ ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText('S',px+33,my+32);ctx.fillText('N',px+108,my+32);
+ ctx.fillStyle='#24304a';ctx.font='18px Arial';ctx.fillText('Ímã',px+45,my+78);
+
+ if(FLZ.dir!==0){
+   var toward=FLZ.dir>0;
+   FLarrow(ctx,toward?px+150:px-12,my+24,toward?px+215:px-75,my+24,toward?'#26734d':'#b23b3b',6);
+   ctx.fillStyle=toward?'#26734d':'#b23b3b';ctx.font='700 17px Arial';
+   ctx.fillText(toward?'Aproximação':'Afastamento',px-10,my+112);
+ }
+
+ var approach=FLZ.mode==='approach';
+ /* Para o polo N voltado para a bobina:
+    aproximação -> a bobina cria um polo N voltado ao ímã;
+    afastamento -> a bobina cria um polo S voltado ao ímã. */
+ var inducedColor=approach?'#26734d':'#b23b3b';
+ var inducedText=approach?'N induzido':'S induzido';
+ ctx.fillStyle=approach?'#c83c3c':'#2467a8';
+ ctx.fillRect(coilX-42,200,42,55);
+ ctx.fillStyle='#fff';ctx.font='700 25px Arial';ctx.fillText(approach?'N':'S',coilX-30,235);
+
+ FLarrow(ctx,coilX+75,250,coilX+75,approach?165:335,inducedColor,7);
+ ctx.fillStyle=inducedColor;ctx.font='700 18px Arial';ctx.fillText('B induzido',coilX+95,approach?180:330);
+
+ /* Galvanômetro deflete e inverte o sentido. */
+ ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(875,225,55,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle='#24304a';ctx.font='700 15px Arial';ctx.fillText('−1',840,235);ctx.fillText('0',870,165);ctx.fillText('+1',900,235);
+ var mag=FLZ.dir===0?0:.9;
+ var ang=-Math.PI/2+(approach?1:-1)*mag;
+ ctx.strokeStyle='#d33';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(875,225);ctx.lineTo(875+40*Math.cos(ang),225+40*Math.sin(ang));ctx.stroke();
+ ctx.fillStyle='#24304a';ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',815,305);
+
+ ctx.font='700 20px Arial';ctx.fillStyle=approach?'#26734d':'#b23b3b';
+ ctx.fillText(approach?'Aproximação: fluxo aumenta':'Afastamento: fluxo diminui',28,395);
+ var r=FLel('fl-lenz-result');
+ if(r)r.innerHTML='<div class="result"><strong>'+ (approach?'Aproximação':'Afastamento') +'</strong>: '+(approach?'o polo N induzido se opõe à aproximação.':'o polo S induzido se opõe ao afastamento.')+'</div>';
 }
-window.flStart=function(dir){
-  flRead();fl.dir=dir==='approach'?1:-1;fl.run=true;fl.last=performance.now();
-  /* Aproximação começa longe e vai para a direita; afastamento começa perto e vai para a esquerda. */
-  fl.x=dir==='approach'?.18:1.25;
-  var z=FLel('fl-lenz-mode');if(z)z.value=dir;
-  flDraw();
-};
-window.flSetMode=function(v){
-  fl.run=false;fl.dir=0;fl.x=v==='approach'?.18:1.25;flDraw();
-};
 window.flStartLenz=function(mode){
-  FLZ.mode=mode;FLZ.dir=mode==='approach'?1:-1;FLZ.run=true;FLZ.last=performance.now();
-  FLZ.x=mode==='approach'?.05:.95;
-  var sp=FLel('fl-lenz-speed');FLZ.speed=sp?parseFloat(sp.value)||.35:.35;
-  drawLenzFinal();
+ FLZ.mode=mode;FLZ.dir=mode==='approach'?1:-1;FLZ.run=true;FLZ.last=performance.now();
+ FLZ.x=mode==='approach'?.05:.95;
+ var sp=FLel('fl-lenz-speed');FLZ.speed=sp?parseFloat(sp.value)||.35:.35;
+ drawLenzFinal();
 };
 window.flStopLenz=function(){FLZ.run=false;FLZ.dir=0;drawLenzFinal();};
-window.flResetLenz=function(){FLZ.run=false;FLZ.dir=0;FLZ.mode='approach';FLZ.x=.20;drawLenzFinal();};
+window.flResetLenz=function(){FLZ.run=false;FLZ.dir=0;FLZ.mode='approach';FLZ.x=.05;drawLenzFinal();};
 function loopLenz(now){
-  if(FLZ.run){
-    var dt=Math.min(.04,(now-FLZ.last)/1000||.016);FLZ.last=now;FLZ.x+=FLZ.dir*FLZ.speed*dt;
-    if(FLZ.x>=.95){FLZ.x=.95;FLZ.run=false;FLZ.dir=0;}
-    if(FLZ.x<=.05){FLZ.x=.05;FLZ.run=false;FLZ.dir=0;}
-    drawLenzFinal();
-  }
-  requestAnimationFrame(loopLenz);
+ if(FLZ.run){
+   var dt=Math.min(.04,(now-FLZ.last)/1000||.016);
+   FLZ.last=now;FLZ.x+=FLZ.dir*FLZ.speed*dt;
+   if(FLZ.x>=.95){FLZ.x=.95;FLZ.run=false;FLZ.dir=0;}
+   if(FLZ.x<=.05){FLZ.x=.05;FLZ.run=false;FLZ.dir=0;}
+   drawLenzFinal();
+ }
+ requestAnimationFrame(loopLenz);
 }
 drawLenzFinal();requestAnimationFrame(loopLenz);
 })();
