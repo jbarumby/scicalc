@@ -3611,8 +3611,8 @@ function drawPF(){
  ctx.fillStyle='#174a91';ctx.font='700 28px Arial';ctx.fillText('Indução eletromagnética de Faraday',28,38);
  ctx.fillStyle='#475569';ctx.font='17px Arial';ctx.fillText('Variação do fluxo magnético → fem induzida → corrente no circuito',28,65);
 
- var coilX=570,coilY=115,coilW=185,coilH=250;
- coilH(ctx,coilX,coilY,coilW,coilH);
+ var coilX=570,coilY=115,coilW=185,coilHgt=250;
+ coilH(ctx,coilX,coilY,coilW,coilHgt);
 
  var d=Math.max(.06,Math.min(.72,PF.d));
  var q=(.72-d)/.66;
@@ -3665,8 +3665,8 @@ function drawLZ(){
  ctx.fillStyle='#475569';ctx.font='17px Arial';ctx.fillText('A corrente induzida cria um campo que se opõe à mudança do fluxo magnético.',28,65);
 
  // vertical experiment: N pole faces the top of the coil
- var coilX=690,coilY=255,coilW=220,coilH=155;
- coilH(ctx,coilX,coilY,coilW,coilH);
+ var coilX=690,coilY=255,coilW=220,coilHgt=155;
+ coilH(ctx,coilX,coilY,coilW,coilHgt);
  var my=95+LZ.y*145;
  magnet(ctx,610,my,90,120,false);
  ctx.fillStyle='#24304a';ctx.font='700 17px Arial';ctx.fillText('Ímã',630,my+140);
