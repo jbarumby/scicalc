@@ -3047,11 +3047,11 @@ window.v26RunLab=function(){
     const key=document.getElementById('v26-lab-model').value;
     let x,y,title,xTitle,yTitle,metrics,steps;
     if(key==='inclined'){
-      const angleDeg=v26num('v26-lab-angulo'), th=angleDeg*Math.PI/180, mu=v26num('v26-lab-mu'), T=v26num('v26-lab-tempo'), g=9.80665;
-      if(m<=0||T<=0||mu<0)throw new Error('Massa e tempo devem ser positivos; μ não pode ser negativo.');
+      const mass=v26num('v26-lab-massa'), angleDeg=v26num('v26-lab-angulo'), th=angleDeg*Math.PI/180, mu=v26num('v26-lab-mu'), T=v26num('v26-lab-tempo'), g=9.80665;
+      if(mass<=0||T<=0||mu<0)throw new Error('Massa e tempo devem ser positivos; μ não pode ser negativo.');
       const a=g*(Math.sin(th)-mu*Math.cos(th)), ts=Array.from({length:240},(_,i)=>T*i/239), s=ts.map(t=>Math.max(0,.5*a*t*t));
       x=ts;y=s;title='Plano inclinado — posição';xTitle='tempo (s)';yTitle='posição (m)';
-      metrics=[['Aceleração',v26fmt(a,'m/s²')],['Força resultante',v26fmt(m*a,'N')],['Velocidade final',v26fmt(a*T,'m/s')]];
+      metrics=[['Aceleração',v26fmt(a,'m/s²')],['Força resultante',v26fmt(mass*a,'N')],['Velocidade final',v26fmt(a*T,'m/s')]];
       steps=[
         ['1. Aceleração','a=g(senθ−μ cosθ)'],
         ['2. Substituição',`a=9,80665(sen(${angleDeg}°)−${mu} cos(${angleDeg}°))`],
@@ -3963,5 +3963,4 @@ window.addEventListener('load', function () {
   if (principal) principal.insertBefore(barra, principal.firstChild);
 });
 </script></body>
-</html>
 </html>
