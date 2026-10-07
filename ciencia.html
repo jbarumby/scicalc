@@ -3685,7 +3685,7 @@ function drawLenzFinal(){
  /* Galvanômetro deflete e inverte o sentido. */
  ctx.strokeStyle='#333';ctx.lineWidth=4;ctx.beginPath();ctx.arc(875,225,55,0,Math.PI*2);ctx.stroke();
  ctx.fillStyle='#24304a';ctx.font='700 15px Arial';ctx.fillText('−1',840,235);ctx.fillText('0',870,165);ctx.fillText('+1',900,235);
- var mag=FLZ.dir===0?0:.9;
+ var mag=FLZ.dir===0?0:1.15;
  var ang=-Math.PI/2+(approach?1:-1)*mag;
  ctx.strokeStyle='#d33';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(875,225);ctx.lineTo(875+40*Math.cos(ang),225+40*Math.sin(ang));ctx.stroke();
  ctx.fillStyle='#24304a';ctx.font='700 16px Arial';ctx.fillText('Galvanômetro',815,305);
@@ -3697,16 +3697,16 @@ function drawLenzFinal(){
 }
 window.flStartLenz=function(mode){
  FLZ.mode=mode;FLZ.dir=mode==='approach'?1:-1;FLZ.run=true;FLZ.last=performance.now();
- FLZ.x=mode==='approach'?.05:.95;
- var sp=FLel('fl-lenz-speed');FLZ.speed=sp?parseFloat(sp.value)||.35:.35;
+ FLZ.x=mode==='approach'?.08:.92;
+ var sp=FLel('fl-lenz-speed');FLZ.speed=sp?Math.max(.08,Math.min(.6,parseFloat(sp.value)||.35)):.35;
  drawLenzFinal();
 };
 window.flStopLenz=function(){FLZ.run=false;FLZ.dir=0;drawLenzFinal();};
-window.flResetLenz=function(){FLZ.run=false;FLZ.dir=0;FLZ.mode='approach';FLZ.x=.05;drawLenzFinal();};
+window.flResetLenz=function(){FLZ.run=false;FLZ.dir=0;FLZ.mode='approach';FLZ.x=.08;drawLenzFinal();};
 function loopLenz(now){
  if(FLZ.run){
    var dt=Math.min(.04,(now-FLZ.last)/1000||.016);
-   FLZ.last=now;FLZ.x+=FLZ.dir*FLZ.speed*dt;
+   FLZ.last=now;FLZ.x+=FLZ.dir*FLZ.speed*dt*0.85;
    if(FLZ.x>=.95){FLZ.x=.95;FLZ.run=false;FLZ.dir=0;}
    if(FLZ.x<=.05){FLZ.x=.05;FLZ.run=false;FLZ.dir=0;}
    drawLenzFinal();
