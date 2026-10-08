@@ -1311,7 +1311,6 @@ function calcLimite() {
         ys.push((Math.abs(y)<1e4) ? y : null); // Evitar plotar linhas pro infinito
       } catch(e) { ys.push(null); }
     }
-    Plotly.newPlot('lim-plot', [{x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'}}], getPlotLayout({title:'Comportamento de f(x)', xaxis:{title:'x'}, yaxis:{title:'f(x)'}}), {responsive:true});
     salvarHistorico('Limite', `x->${limitTex} (${fStr})`, finalL);
   } catch(e) { toast(e.message, 'err'); }
 }
