@@ -4062,7 +4062,8 @@ function limExemplo(funcao,ponto,direcao){
             if(Math.abs(lv-direct)<=tol && Math.abs(rv-direct)<=tol){
               var result=document.getElementById('lim-result');
               if(result){
-                var formula='\\lim_{x\\to '+aNum+'}\\left('+node.toTex()+'\\right)='+scicalcFormat(direct,10);
+                var exactText=(Number.isInteger(direct)?String(direct):Number(direct.toPrecision(12)).toString());
+                var formula='\\lim_{x\\to '+aNum+'}\\left('+node.toTex()+'\\right)='+exactText;
                 var rendered;
                 try{
                   rendered=(typeof scicalcRenderTex==='function') ? scicalcRenderTex(formula) : formula;
