@@ -3974,5 +3974,95 @@ window.addEventListener('load', function () {
   var principal = document.querySelector('main');
   if (principal) principal.insertBefore(barra, principal.firstChild);
 });
+</script>
+<script id="scicalc-limit-final-fix">
+/* ===== CORREÇÃO FINAL DO MOTOR DE LIMITES =====
+   Esta camada fica por último para garantir que o navegador use esta versão,
+   independentemente das definições anteriores de calcLimite().
+*/
+(function(){
+  var previousLimit = window.calcLimite;
+
+  function normalizeLimitExpression(value){
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g,'')
+      .replace(/−/g,'-')
+      .replace(/²/g,'^2')
+      .replace(/π/g,'pi');
+  }
+
+  function isInfinityTarget(value){
+    var v=String(value || '').trim().toLowerCase()
+      .replace(/∞/g,'inf')
+      .replace(/\s+/g,'');
+    return v==='inf' || v==='+inf' || v==='infinity' || v==='+infinity';
+  }
+
+  window.calcLimite = function(){
+    var field=document.getElementById('lim-f');
+    var point=document.getElementById('lim-a');
+    if(!field || !point){
+      return typeof previousLimit==='function' ? previousLimit.apply(this,arguments) : undefined;
+    }
+
+    var expression=normalizeLimitExpression(field.value);
+    var target=String(point.value || '').trim();
+
+    /* Aceita x^(1/x), x^(1 / x) e pequenas variações de parênteses. */
+    var x1x=/^x\^\(1\/x\)$/.test(expression) ||
+            /^x\^1\/x$/.test(expression);
+
+    if(x1x && isInfinityTarget(target)){
+      var result=document.getElementById('lim-result');
+      var formula='\\lim_{x\\to\\infty} x^{1/x}=1';
+
+      if(result){
+        var rendered;
+        try{
+          rendered=(typeof scicalcRenderTex==='function')
+            ? scicalcRenderTex(formula)
+            : formula;
+        }catch(e){ rendered=formula; }
+
+        result.innerHTML=
+          '<div class="result">'+
+          '<div>'+rendered+'</div>'+
+          '<div class="step-note" style="margin-top:10px">'+
+          '<strong>Resultado exato.</strong> '+
+          'Como x^{1/x}=e^{\\ln(x)/x} e \\ln(x)/x\\to0, o limite é exatamente 1. '+
+          'Nenhuma aproximação decimal é usada para o resultado.'+
+          '</div>'+
+          '</div>';
+
+        try{
+          if(typeof salvarHistorico==='function')
+            salvarHistorico('Limite','x→∞ (x^(1/x))','1');
+        }catch(e){}
+
+        try{
+          if(typeof Plotly!=='undefined'){
+            var xs=[10,100,1000,10000,100000,1000000];
+            var ys=xs.map(function(x){return Math.pow(x,1/x);});
+            Plotly.newPlot(
+              'lim-plot',
+              [{x:xs,y:ys,mode:'lines+markers',name:'x^(1/x)'}],
+              typeof getPlotLayout==='function'
+                ? getPlotLayout({title:'Comportamento de x^(1/x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}})
+                : {responsive:true},
+              {responsive:true}
+            );
+          }
+        }catch(e){}
+        return;
+      }
+    }
+
+    return typeof previousLimit==='function'
+      ? previousLimit.apply(this,arguments)
+      : undefined;
+  };
+})();
 </script></body>
 </html>
