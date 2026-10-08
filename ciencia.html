@@ -1261,7 +1261,11 @@ function calcLimite() {
       if(Math.abs(valL) > 1e5) finalL = "\\infty";
       else {
         const rnd = Math.round(valL);
-        if(Math.abs(valL - rnd) < 1e-4) finalL = rnd.toString();
+        // Para limites no infinito, a aproximação numérica pode ficar
+        // ligeiramente afastada do valor matemático (ex.: x^(1/x) -> 1).
+        // A apresentação usa uma tolerância maior apenas nessa situação.
+        const tol = isInf ? 1e-3 : 1e-4;
+        if(Math.abs(valL - rnd) < tol) finalL = rnd.toString();
         else finalL = valL.toFixed(4);
       }
     }
