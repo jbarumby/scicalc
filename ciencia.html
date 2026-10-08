@@ -4041,6 +4041,57 @@ function limExemplo(funcao,ponto,direcao){
     var expression=normalizeLimitExpression(field.value);
     var target=String(point.value || '').trim();
 
+    /* CORREÇÃO DEFINITIVA:
+       Se f(a) existe e os valores imediatamente à esquerda/direita
+       convergem para o mesmo valor, o limite é exatamente f(a).
+       Não usamos a média das amostras como resultado final. */
+    if(!isInfinityTarget(target)){
+      var aNum=Number(target.replace(',','.'));
+      if(Number.isFinite(aNum)){
+        try{
+          var node=math.parse(field.value);
+          var code=node.compile();
+          var direct=code.evaluate({x:aNum});
+          var h=1e-6*Math.max(1,Math.abs(aNum));
+          var lv=code.evaluate({x:aNum-h});
+          var rv=code.evaluate({x:aNum+h});
+
+          if(Number.isFinite(direct) && Number.isFinite(lv) && Number.isFinite(rv)){
+            var scale=Math.max(1,Math.abs(direct),Math.abs(lv),Math.abs(rv));
+            var tol=1e-5*scale;
+            if(Math.abs(lv-direct)<=tol && Math.abs(rv-direct)<=tol){
+              var result=document.getElementById('lim-result');
+              if(result){
+                var formula='\\lim_{x\\to '+aNum+'}\\left('+node.toTex()+'\\right)='+scicalcFormat(direct,10);
+                var rendered;
+                try{
+                  rendered=(typeof scicalcRenderTex==='function') ? scicalcRenderTex(formula) : formula;
+                }catch(e){ rendered=formula; }
+
+                result.innerHTML=
+                  '<div class="result">'+
+                  '<div>'+rendered+'</div>'+
+                  '<div class="step-note" style="margin-top:10px">'+
+                  '<strong>Resultado exato por substituição direta.</strong> '+
+                  'Como a função está definida no ponto e os valores dos dois lados convergem para o mesmo valor, '+
+                  'o limite é f(a). A média numérica das amostras não é usada como resultado.'+
+                  '</div>'+
+                  '</div>';
+
+                try{
+                  if(typeof salvarHistorico==='function')
+                    salvarHistorico('Limite',field.value+'; x→'+aNum,scicalcFormat(direct,10));
+                }catch(e){}
+
+                try{ toast('Limite calculado exatamente por substituição direta.','ok'); }catch(e){}
+                return;
+              }
+            }
+          }
+        }catch(e){}
+      }
+    }
+
     /* Aceita x^(1/x), x^(1 / x) e pequenas variações de parênteses. */
     var x1x=/^x\^\(1\/x\)$/.test(expression) ||
             /^x\^1\/x$/.test(expression);
