@@ -1237,7 +1237,7 @@ function calcParcial() {
       const pt = ptRaw.split(',').map(x => Number(x.trim()));
       if(pt.length === 2 && !isNaN(pt[0]) && !isNaN(pt[1])) {
         const val = dfNode.compile().evaluate({x: pt[0], y: pt[1]});
-        html += `<div style="color:var(--ok)">${tex(`\\left. \\frac{\\partial f}{\\partial ${varName}} \\right|_{(x=${pt[0]}, y=${pt[1]})} = ${val.toFixed(6)}`)}</div>`;
+        html += `<div style="color:var(--ok)">${tex(`\\left. \\frac{\\partial f}{\\partial ${varName}} \\right|_{(x=${pt[0]}, y=${pt[1]})} = ${scicalcFormat(val,6)}`)}</div>`;
       }
     }
     html += `</div>`;
@@ -2884,8 +2884,8 @@ hook('calcParcial',function(){
   st.push(step('4. Resultado simbólico','\\boxed{\\frac{\\partial f}{\\partial '+v+'}='+scicalcNodeTex(d)+'}','Esta é a derivada parcial em forma simbólica.'));
   if(pt){
    var p=scicalcPoint(pt), val=d.compile().evaluate({x:p[0],y:p[1]});
-   st.push(step('5. Substituição do ponto','\\left.\\frac{\\partial f}{\\partial '+v+'}\\right|_{('+p[0]+','+p[1]+')}='+Number(val).toFixed(8),'Substituímos as coordenadas do ponto.'));
-   st.push(step('6. Valor final','\\boxed{'+Number(val).toFixed(8)+'}','Resultado numérico.'));
+   st.push(step('5. Substituição do ponto','\\left.\\frac{\\partial f}{\\partial '+v+'}\\right|_{('+p[0]+','+p[1]+')}='+scicalcFormat(Number(val),8),'Substituímos as coordenadas do ponto.'));
+   st.push(step('6. Valor final','\\boxed{'+scicalcFormat(Number(val),8)+'}','Resultado numérico.'));
   }
   add('par-result',did('📚 Derivada parcial — passo a passo','A resolução distingue a forma simbólica da avaliação numérica.',st));
  }catch(e){}
