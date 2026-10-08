@@ -2400,6 +2400,18 @@ function calcLimite() {
       exactReason='Identidade trigonométrica: 1−cos(x)=2sin²(x/2). Assim, (1−cos x)/x² = 1/2·[sin(x/2)/(x/2)]² → 1/2.';
     }
 
+    // Se a substituição direta produz um número finito, para as funções
+    // elementares tratadas pelo SciCalc o limite é o próprio valor da função.
+    // Isso evita o erro artificial criado por médias de amostras, por exemplo
+    // x² em x→2 deve resultar exatamente 4, e não 3.999997.
+    if(exact===null && !target.infinite){
+      var directCandidate=scicalcEvaluateOrNull(fCode,{x:target.value});
+      if(directCandidate!==null && Number.isFinite(directCandidate)){
+        exact=directCandidate;
+        exactReason='Substituição direta: a função está definida e finita no ponto, portanto o limite coincide com f(a).';
+      }
+    }
+
     // Para limites laterais, os valores exatos finitos acima continuam válidos.
     var leftSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,-1);
     var rightSamples=target.infinite?[]:scicalcLimitSamples(fCode,target,1);
