@@ -383,6 +383,26 @@
     <button class="btn" onclick="calcLimite()">Calcular Limite</button>
     <div id="lim-result" aria-live="polite"></div>
     <div id="lim-plot" class="plot"></div>
+
+    <div style="margin-top:16px;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border,#ddd)">
+      <div style="font-weight:700;color:var(--primary);margin-bottom:6px">🧪 Exemplos para testar os limites</div>
+      <div style="font-size:.86rem;color:var(--muted);margin-bottom:10px">
+        Clique em um exemplo para preencher os campos e calcular automaticamente.
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn small example-btn" onclick="limExemplo('sin(x)/x','0','auto')">sin(x)/x → 1</button>
+        <button class="btn small example-btn" onclick="limExemplo('(x^2-9)/(x-3)','3','auto')">(x²−9)/(x−3) → 6</button>
+        <button class="btn small example-btn" onclick="limExemplo('(1-cos(x))/x^2','0','auto')">(1−cos x)/x² → 1/2</button>
+        <button class="btn small example-btn" onclick="limExemplo('(2*x+1)/x','inf','auto')">(2x+1)/x → 2</button>
+        <button class="btn small example-btn" onclick="limExemplo('(3*x^2+5*x+1)/(2*x^2-7*x+4)','inf','auto')">Razão de polinômios → 3/2</button>
+        <button class="btn small example-btn" onclick="limExemplo('sqrt(x^2+1)-x','inf','auto')">√(x²+1)−x → 0</button>
+        <button class="btn small example-btn" onclick="limExemplo('x*(sqrt(x^2+1)-x)','inf','auto')">x[√(x²+1)−x] → 1/2</button>
+        <button class="btn small example-btn" onclick="limExemplo('x^(1/x)','inf','auto')">x^(1/x) → 1</button>
+        <button class="btn small example-btn" onclick="limExemplo('1/x','0','left')">1/x, x→0⁻ → −∞</button>
+        <button class="btn small example-btn" onclick="limExemplo('1/x','0','right')">1/x, x→0⁺ → +∞</button>
+        <button class="btn small example-btn" onclick="limExemplo('x^2','2','auto')">x², x→2 → 4</button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -3974,6 +3994,17 @@ window.addEventListener('load', function () {
   var principal = document.querySelector('main');
   if (principal) principal.insertBefore(barra, principal.firstChild);
 });
+</script>
+<script id="scicalc-limit-examples">
+function limExemplo(funcao,ponto,direcao){
+  var f=document.getElementById('lim-f');
+  var a=document.getElementById('lim-a');
+  var d=document.getElementById('lim-dir');
+  if(f) f.value=funcao;
+  if(a) a.value=ponto;
+  if(d) d.value=direcao||'auto';
+  if(typeof window.calcLimite==='function') window.calcLimite();
+}
 </script>
 <script id="scicalc-limit-final-fix">
 /* ===== CORREÇÃO FINAL DO MOTOR DE LIMITES =====
