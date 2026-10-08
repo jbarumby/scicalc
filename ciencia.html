@@ -2365,7 +2365,10 @@ function calcLimite() {
     }
     if(target.infinite && target.sign===1 && normalized==='x*(sqrt(x^2+1)-x)'){
       exact=0.5; exactReason='Racionalizando: x/(sqrt(x²+1)+x) → 1/2.';
-    }
+
+    if(target.infinite && target.sign===1 && normalized==='x^(1/x)'){
+      exact=1; exactReason='Limite clássico: x^(1/x) = e^(ln(x)/x), e ln(x)/x → 0; portanto o limite é exatamente 1.';
+    }    }
 
     // IMPORTANTE: estes dois casos nunca dependem de ponto flutuante.
     // Mesmo que a aproximação numérica produza 5.9999 ou declare instabilidade,
