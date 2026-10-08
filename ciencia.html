@@ -1237,90 +1237,54 @@ function calcLimite() {
     const dir = document.getElementById('lim-dir').value;
     const isInf = aStr.includes('inf');
     const aVal = isInf ? null : Number(aStr.replace(',','.'));
-
-    const fNode = math.parse(fStr);
-    const fCode = fNode.compile();
+    
+    const fCode = math.parse(fStr).compile();
     let valL = NaN;
     let limitTex = isInf ? "\\infty" : aVal;
-    let convergenceInfo = 'Limite calculado por métodos numéricos.';
-
+    
+    // Aproximação numérica 
     if(isInf) {
-      // Para x -> infinito, uma única avaliação em 10^6 pode ficar
-      // visivelmente afastada do limite. Usamos uma sequência crescente
-      // e exigimos estabilidade dos últimos valores.
-      const xsInf = [1e2,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,1e12];
-      const valsInf = [];
-
-      for(const x of xsInf) {
-        try {
-          const y = fCode.evaluate({x});
-          if(typeof y === 'number' && Number.isFinite(y)) valsInf.push({x,y});
-        } catch(e) {}
-      }
-
-      if(valsInf.length < 3) throw new Error('Não foi possível obter valores numéricos suficientes para avaliar o limite no infinito.');
-
-      valL = valsInf[valsInf.length-1].y;
-
-      // Verifica convergência da cauda. Para funções como x^(1/x),
-      // os valores aproximam-se progressivamente de 1.
-      if(valsInf.length >= 5) {
-        const tail = valsInf.slice(-5).map(p=>p.y);
-        const diffs = [];
-        for(let i=1;i<tail.length;i++) diffs.push(Math.abs(tail[i]-tail[i-1]));
-        const scale = Math.max(1, Math.abs(tail[tail.length-1]));
-        const stable = diffs.every(d => d <= 1e-7 * scale);
-        if(stable) {
-          convergenceInfo = 'Convergência verificada numericamente usando pontos até x = 10¹².';
-        } else {
-          // Ainda assim usamos o último ponto, mas deixamos claro que a
-          // aproximação numérica pode não representar um limite convergente.
-          convergenceInfo = 'Aproximação numérica no maior ponto avaliado (x = 10¹²); a convergência não foi totalmente estabilizada.';
-        }
-      }
+      valL = fCode.evaluate({x: 1e6});
     } else {
-      if(!Number.isFinite(aVal)) throw new Error('Informe um valor válido para x.');
-      const h = 1e-6 * Math.max(1, Math.abs(aVal));
+      const h = 1e-6;
       const vRight = fCode.evaluate({x: aVal + h});
       const vLeft = fCode.evaluate({x: aVal - h});
-
+      
       if(dir === 'right') valL = vRight;
-      else if(dir === 'left') valL = vLeft;
-      else valL = (vRight + vLeft) / 2;
+      else if (dir === 'left') valL = vLeft;
+      else valL = (vRight + vLeft) / 2; 
     }
-
-    // Tratamento numérico/estético. Valores extremamente próximos de
-    // inteiros são apresentados como o inteiro matemático correspondente.
+    
+    // Tratamento estético
     let finalL = "Indefinido";
-    if(Number.isFinite(valL)) {
+    if(isFinite(valL)) {
       if(Math.abs(valL) > 1e5) finalL = "\\infty";
       else {
         const rnd = Math.round(valL);
-        const tolInteiro = Math.max(1e-8, 1e-8 * Math.max(1,Math.abs(rnd)));
-        if(Math.abs(valL-rnd) < tolInteiro) finalL = rnd.toString();
-        else finalL = Number(valL.toFixed(8)).toString();
+        if(Math.abs(valL - rnd) < 1e-4) finalL = rnd.toString();
+        else finalL = valL.toFixed(4);
       }
     }
-
+    
     document.getElementById('lim-result').innerHTML = `<div class="result">
-      <div>${tex(\`\\\\lim_{x \\to ${limitTex}} \\left( ${fNode.toTex()} \\right) \\approx ${finalL}\`)}</div>
-      <div style="font-size:0.85rem; color:var(--muted); margin-top:8px">${convergenceInfo}</div>
+      <div>${tex(`\\lim_{x \\to ${limitTex}} \\left( ${math.parse(fStr).toTex()} \\right) \\approx ${finalL}`)}</div>
+      <div style="font-size:0.85rem; color:var(--muted); margin-top:8px">Nota: Limite calculado por métodos numéricos.</div>
     </div>`;
-
+    
     // Plot ao redor do ponto
     const xs = [], ys = [];
     let start = isInf ? 0 : aVal - 2;
     let end = isInf ? 100 : aVal + 2;
     for(let i=0; i<=100; i++) {
-      const x = start + (end-start)*(i/100);
-      if(!isInf && Math.abs(x-aVal) < 1e-5) continue;
+      let x = start + (end-start)*(i/100);
+      if(!isInf && Math.abs(x - aVal) < 1e-5) continue; // Pula a singularidade exata
       xs.push(x);
-      try {
-        const y = fCode.evaluate({x});
-        ys.push((typeof y === 'number' && Math.abs(y)<1e4) ? y : null);
+      try { 
+        let y = fCode.evaluate({x:x});
+        ys.push((Math.abs(y)<1e4) ? y : null); // Evitar plotar linhas pro infinito
       } catch(e) { ys.push(null); }
     }
-    Plotly.newPlot('lim-plot', [{x:xs,y:ys,type:'scatter',mode:'lines',name:'f(x)',line:{color:'#4f46e5'}}], getPlotLayout({title:'Comportamento de f(x)',xaxis:{title:'x'},yaxis:{title:'f(x)'}}), {responsive:true});
+    Plotly.newPlot('lim-plot', [{x:xs, y:ys, type:'scatter', mode:'lines', name:'f(x)', line:{color:'#4f46e5'}}], getPlotLayout({title:'Comportamento de f(x)', xaxis:{title:'x'}, yaxis:{title:'f(x)'}}), {responsive:true});
     salvarHistorico('Limite', `x->${limitTex} (${fStr})`, finalL);
   } catch(e) { toast(e.message, 'err'); }
 }
