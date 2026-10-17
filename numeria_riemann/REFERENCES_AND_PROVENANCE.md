@@ -26,9 +26,14 @@ versions before adapting any implementation.
   ALL RIGHTS RESERVED absent separate written permission. Therefore no code
   from it is copied into NUMERIA. Any future code reuse requires permission.
 - **zeta-lab** — https://github.com/teal-sea/zeta-lab
-  Candidate for future independent audit of explicit-formula workflows.
-  Verify current source licenses and validate claims independently before
-  reusing code or treating any stated mathematical result as established.
+  MIT-licensed upstream reference for explicit-formula and prime/zero workflows.
+  NUMERIA currently records it as a reference rather than copying code; validate
+  all mathematical claims independently before treating them as established.
+- **SymPy** — https://github.com/sympy/sympy
+  Optional independent factorization, prime-range, and Möbius-value backend.
+- **primesieve** — https://github.com/kimwalisch/primesieve
+  Optional high-throughput prime generation backend; the Python binding must be
+  installed separately and is not required by the core package.
 
 ## Interpretation rules
 
