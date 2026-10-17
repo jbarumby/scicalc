@@ -5,3 +5,8 @@ mpmath>=1.3
 # python -m pip install python-flint
 # python-flint uses Arb/FLINT ball arithmetic; inspect enclosure radii
 # rather than treating midpoint agreement as a proof.
+
+# Optional exact factorization, prime ranges, and Mobius cross-checks:
+# python -m pip install sympy
+# Optional high-throughput prime sieve:
+# install the primesieve Python binding separately; availability depends on platform.
