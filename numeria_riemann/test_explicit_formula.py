@@ -19,9 +19,9 @@ class ExplicitFormulaTests(unittest.TestCase):
 
     def test_exact_psi_inclusive(self):
         self.assertAlmostEqual(psi_exact(2), math.log(2))
-        self.assertAlmostEqual(psi_exact(8), 3 * math.log(2))
+        self.assertAlmostEqual(psi_exact(8), 3 * math.log(2) + math.log(3) + math.log(5) + math.log(7))
         self.assertAlmostEqual(
-            psi_exact(10), 3 * math.log(2) + 2 * math.log(3) + math.log(5)
+            psi_exact(10), 3 * math.log(2) + 2 * math.log(3) + math.log(5) + math.log(7)
         )
         self.assertAlmostEqual(psi_exact(1), 0.0)
 
