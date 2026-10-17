@@ -1,0 +1,7 @@
+# Required for the explicit-formula prototype and zero residual checks
+mpmath>=1.3
+
+# Optional independent numerical cross-check backend:
+# python -m pip install python-flint
+# python-flint uses Arb/FLINT ball arithmetic; inspect enclosure radii
+# rather than treating midpoint agreement as a proof.
