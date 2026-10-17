@@ -23,14 +23,14 @@ Python 3.10+:
 
 ```bash
 python -m pip install -r numeria_riemann/requirements.txt sympy
-python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends -v
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends numeria_riemann.test_flint_integration -v
 ```
 
 The optional independent backend can be installed with:
 
 ```bash
 python -m pip install python-flint sympy
-python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends -v
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends numeria_riemann.test_flint_integration -v
 ```
 
 ## Run a reproducible benchmark
