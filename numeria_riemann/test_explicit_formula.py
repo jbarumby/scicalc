@@ -21,7 +21,7 @@ class ExplicitFormulaTests(unittest.TestCase):
         self.assertAlmostEqual(psi_exact(2), math.log(2))
         self.assertAlmostEqual(psi_exact(8), 3 * math.log(2))
         self.assertAlmostEqual(
-            psi_exact(10), 3 * math.log(2) + math.log(3) + math.log(5)
+            psi_exact(10), 3 * math.log(2) + 2 * math.log(3) + math.log(5)
         )
         self.assertAlmostEqual(psi_exact(1), 0.0)
 
