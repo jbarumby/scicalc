@@ -10,6 +10,8 @@ files or claiming to prove the Riemann Hypothesis.
   Chebyshev ψ baseline, and a truncated explicit-formula diagnostic.
 - `backend_compare.py`: zero-residual reports with mpmath and optional
   cross-backend ζ evaluation using python-flint.
+- `number_theory_backends.py`: optional SymPy checks for von Mangoldt values,
+  prime lists, and Möbius values; optional primesieve prime-list comparison.
 - `benchmark.py`: CSV outputs, environment/version metadata, and SHA-256
   manifest for repeatable runs.
 - `test_*.py`: unit tests run by GitHub Actions.
@@ -20,15 +22,15 @@ files or claiming to prove the Riemann Hypothesis.
 Python 3.10+:
 
 ```bash
-python -m pip install -r numeria_riemann/requirements.txt
-python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare -v
+python -m pip install -r numeria_riemann/requirements.txt sympy
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends -v
 ```
 
 The optional independent backend can be installed with:
 
 ```bash
-python -m pip install python-flint
-python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare -v
+python -m pip install python-flint sympy
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends -v
 ```
 
 ## Run a reproducible benchmark
@@ -38,7 +40,9 @@ python -m numeria_riemann.benchmark --out numeria_riemann/results/run1 --zeros 2
 ```
 
 The output folder contains `zero_residuals.csv`, `explicit_formula_convergence.csv`,
-`metadata.json`, and `SHA256SUMS.json`. Do not commit generated results as
+`metadata.json`, and `SHA256SUMS.json`. Additional optional checks are available via
+`compare_prime_lists(limit)` and `compare_mobius_values(limit)` in
+`number_theory_backends.py`. Do not commit generated results as
 validated evidence without recording the exact runtime and reviewing outputs.
 
 ## Scientific status and limitations
