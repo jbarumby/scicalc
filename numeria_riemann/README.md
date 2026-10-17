@@ -1,39 +1,59 @@
-# NUMERIA-RIEMANN: explicit-formula prototype
+# NUMERIA-RIEMANN: integrated numerical research module
 
-This is an isolated research prototype inside the SciCalc repository. It does
-not modify existing calculator files or claim to prove the Riemann Hypothesis.
+This package is isolated from the SciCalc application. It adds reproducible
+numerical experiments and optional cross-checks without changing calculator
+files or claiming to prove the Riemann Hypothesis.
 
-## Purpose
+## Integrated components
 
-- Compute the von Mangoldt function and the exact finite baseline
-  psi(x) = sum_{n <= x} Lambda(n).
-- Evaluate a finite truncation of the classical explicit formula using
-  ordinates of non-trivial zeta zeros.
-- Report truncation error against the inclusive exact baseline.
+- `explicit_formula.py`: von Mangoldt function, finite exact inclusive
+  Chebyshev ψ baseline, and a truncated explicit-formula diagnostic.
+- `backend_compare.py`: zero-residual reports with mpmath and optional
+  cross-backend ζ evaluation using python-flint.
+- `benchmark.py`: CSV outputs, environment/version metadata, and SHA-256
+  manifest for repeatable runs.
+- `test_*.py`: unit tests run by GitHub Actions.
+- `REFERENCES_AND_PROVENANCE.md`: upstream references and licensing boundaries.
 
-## Run
+## Install and test
 
-Requires Python 3.10+ and mpmath:
+Python 3.10+:
 
-    python -m pip install mpmath
-    python -m unittest numeria_riemann.test_explicit_formula
+```bash
+python -m pip install -r numeria_riemann/requirements.txt
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare -v
+```
 
-Example:
+The optional independent backend can be installed with:
 
-    from numeria_riemann.explicit_formula import convergence_report
-    for row in convergence_report(10.5, (1, 5, 10, 20), dps=30):
-        print(row)
+```bash
+python -m pip install python-flint
+python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare -v
+```
 
-## Scientific limitations
+## Run a reproducible benchmark
 
-The finite zero sum is a diagnostic, not a certified evaluation. Its behavior
-depends on truncation and can be oscillatory. The standard explicit formula
-uses a midpoint convention at prime powers; psi_exact instead returns the
-inclusive staircase value. This prototype does not yet implement smoothing,
-rigorous interval arithmetic, or an independently certified zero list.
+```bash
+python -m numeria_riemann.benchmark --out numeria_riemann/results/run1 --zeros 20 --dps 40 --x 10.5
+```
 
-## Next validation step
+The output folder contains `zero_residuals.csv`, `explicit_formula_convergence.csv`,
+`metadata.json`, and `SHA256SUMS.json`. Do not commit generated results as
+validated evidence without recording the exact runtime and reviewing outputs.
 
-Run the unit tests, compare multiple truncation levels at points away from
-prime powers, and record dependency versions, inputs, output CSV, precision,
-and a hash manifest before treating results as benchmark evidence.
+## Scientific status and limitations
+
+- mpmath zeros are numerical approximations; small `|zeta(rho)|` is a
+  residual check, not a proof that a zero is certified or isolated.
+- python-flint/Arb can provide ball enclosures. Midpoint agreement between
+  libraries alone does not constitute a rigorous certificate.
+- The truncated explicit formula can oscillate and is not a certified
+  evaluation. At prime powers the usual formula uses a midpoint convention,
+  while `psi_exact` reports the inclusive staircase value.
+- No code from the Riemann-Zeta-Zero-Finding-Suite is copied: its licensing
+  notice reserves software artifacts absent separate written permission.
+- The package does not prove RH, global Weil positivity, or a Hilbert–Pólya
+  operator construction.
+
+See [REFERENCES_AND_PROVENANCE.md](REFERENCES_AND_PROVENANCE.md) for sources,
+license checks, and what remains to be independently validated.
