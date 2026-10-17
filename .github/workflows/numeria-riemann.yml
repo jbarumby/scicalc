@@ -1,0 +1,33 @@
+name: NUMERIA-RIEMANN isolated tests
+
+on:
+  push:
+    branches:
+      - numeria-riemann/explicit-formula-prototype
+  pull_request:
+    paths:
+      - "numeria_riemann/**"
+      - ".github/workflows/numeria-riemann.yml"
+
+jobs:
+  base-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r numeria_riemann/requirements.txt
+      - run: python -m unittest discover -s numeria_riemann -p "test_*.py" -v
+
+  optional-flint-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r numeria_riemann/requirements.txt python-flint
+      - run: python -m unittest discover -s numeria_riemann -p "test_*.py" -v
