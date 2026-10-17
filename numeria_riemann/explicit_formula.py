@@ -20,11 +20,23 @@ def von_mangoldt(n: int) -> float:
         raise ValueError("n must be a positive integer")
     if n == 1:
         return 0.0
-    factors = mp.factorint(n)
-    if len(factors) == 1:
-        p, exponent = next(iter(factors.items()))
-        if int(p) ** int(exponent) == n:
-            return float(mp.log(p))
+    remaining = n
+    prime_factor = None
+    divisor = 2
+    while divisor * divisor <= remaining:
+        if remaining % divisor == 0:
+            if prime_factor is not None:
+                return 0.0
+            prime_factor = divisor
+            while remaining % divisor == 0:
+                remaining //= divisor
+        divisor = 3 if divisor == 2 else divisor + 2
+    if remaining > 1:
+        if prime_factor is not None:
+            return 0.0
+        prime_factor = remaining
+    if prime_factor is not None:
+        return float(mp.log(prime_factor))
     return 0.0
 
 
