@@ -29,5 +29,5 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -r numeria_riemann/requirements.txt python-flint
-      - run: python -m unittest discover -s numeria_riemann -p "test_*.py" -v
+      - run: python -m pip install -r numeria_riemann/requirements.txt sympy python-flint
+      - run: python -m unittest numeria_riemann.test_explicit_formula numeria_riemann.test_backend_compare numeria_riemann.test_number_theory_backends numeria_riemann.test_flint_integration -v
