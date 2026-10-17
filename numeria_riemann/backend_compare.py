@@ -49,7 +49,7 @@ def compare_zeta_values(
                 # Use midpoint values for a transparent diagnostic. python-flint's
                 # enclosure/radius should be inspected separately for certification.
                 flint_mid = z_flint.mid()
-                z_flint_mp = mp.mpc(str(flint_mid.real), str(flint_mid.imag))
+                z_flint_mp = mp.mpc(flint_mid.real.str(dps, radius=False), flint_mid.imag.str(dps, radius=False))
                 difference = abs(z_mp - z_flint_mp)
                 rows.append({
                     "real": float(re),
@@ -82,4 +82,49 @@ def zero_residual_report(count: int = 10, *, dps: int = 40) -> list[dict[str, fl
                 "zeta_abs_residual": float(residual),
                 "status": "numerical_residual_not_zero_certificate",
             })
+    return rows
+
+
+
+def compare_zero_ordinates(count: int = 10, *, dps: int = 40) -> list[dict[str, float | int | str]]:
+    """Compare mpmath zeros with python-flint/Arb zero enclosures.
+
+    python-flint's Acb result includes an enclosure radius. This function
+    records that radius and the midpoint discrepancy; it does not independently
+    audit the root-counting algorithm or certify the full zero list.
+    """
+    try:
+        from flint import acb, ctx
+    except ImportError as exc:
+        raise ImportError(
+            "python-flint is optional; install it with "
+            "'python -m pip install python-flint'"
+        ) from exc
+    if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+        raise ValueError("count must be a positive integer")
+    if not isinstance(dps, int) or dps < 15:
+        raise ValueError("dps must be an integer >= 15")
+
+    old_flint_dps = ctx.dps
+    rows = []
+    try:
+        ctx.dps = dps
+        with mp.workdps(dps):
+            for n in range(1, count + 1):
+                rho_mp = mp.zetazero(n)
+                rho_ball = acb.zeta_zero(n)
+                rho_mid = rho_ball.mid()
+                re = mp.mpf(rho_mid.real.str(dps, radius=False))
+                im = mp.mpf(rho_mid.imag.str(dps, radius=False))
+                discrepancy = abs(rho_mp - mp.mpc(re, im))
+                rows.append({
+                    "index": n,
+                    "mpmath_ordinate": float(mp.im(rho_mp)),
+                    "flint_ordinate_midpoint": float(im),
+                    "midpoint_difference": float(discrepancy),
+                    "flint_radius_upper_bound": float(rho_ball.rad()),
+                    "status": "cross_backend_enclosure_diagnostic_review_root_count",
+                })
+    finally:
+        ctx.dps = old_flint_dps
     return rows
