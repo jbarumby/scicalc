@@ -71,7 +71,7 @@ def append_mcx(gates: list[Gate], controls: tuple[int, ...], target: int,
         gates.append(Gate("CCX", (a[-1], controls[-1], target)))
         for j in range(k - 2, 1, -1):
             gates.append(Gate("CCX", (a[j - 2], controls[j], a[j - 1])))
-        gates.append(Gate("CCX", (controls[0], controls[1], a[0]))
+        gates.append(Gate("CCX", (controls[0], controls[1], a[0])))
 
 def append_pattern_controlled_x(gates: list[Gate], controls: tuple[int, ...],
                                 values: tuple[int, ...], target: int,
