@@ -1,0 +1,79 @@
+{
+  "project": "NUMERIA-RIEMANN",
+  "benchmark_date_local": "2026-10-17",
+  "source_commit": "bdd0144295a08198890730d7115d1c1fa1103dc7",
+  "execution_note": "Benchmark executed successfully in a temporary local workspace using the exact source text fetched from the branch at source_commit. It was not run by GitHub Actions; Python version differs from CI.",
+  "command": "python -m numeria_riemann.benchmark --out benchmark-results --zeros 20 --dps 40 --x 10.5",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "mpmath": "1.3.0",
+    "python_flint": null
+  },
+  "status": "exploratory_numerical_benchmark_not_certified",
+  "parameters": {
+    "zero_count": 20,
+    "decimal_precision": 40,
+    "explicit_formula_x": 10.5
+  },
+  "results": {
+    "residual_rows": 20,
+    "first_zero": {
+      "ordinate": 14.134725141734695,
+      "zeta_abs_residual": 3.4147274494130153e-41
+    },
+    "twentieth_zero": {
+      "ordinate": 77.1448400688748,
+      "zeta_abs_residual": 5.075837084596232e-40
+    },
+    "maximum_residual_among_20": 1.0107241382742523e-39,
+    "convergence": [
+      {
+        "zero_count": 1,
+        "psi_exact_inclusive": 7.832014180505469,
+        "psi_truncated_diagnostic": 8.226909726294144,
+        "absolute_error_vs_inclusive": 0.3948955457886747
+      },
+      {
+        "zero_count": 5,
+        "psi_exact_inclusive": 7.832014180505469,
+        "psi_truncated_diagnostic": 7.943058330319928,
+        "absolute_error_vs_inclusive": 0.11104414981445832
+      },
+      {
+        "zero_count": 10,
+        "psi_exact_inclusive": 7.832014180505469,
+        "psi_truncated_diagnostic": 7.702091212246241,
+        "absolute_error_vs_inclusive": 0.129922968259228
+      },
+      {
+        "zero_count": 20,
+        "psi_exact_inclusive": 7.832014180505469,
+        "psi_truncated_diagnostic": 7.584083390581519,
+        "absolute_error_vs_inclusive": 0.24793078992395046
+      }
+    ]
+  },
+  "output_files": {
+    "zero_residuals.csv": {
+      "bytes": 1805,
+      "sha256": "124d68fbc304b3d415cd777ef4c52b09015afd015ec35d4b1595ceb3043f7a3f",
+      "content": "index,real_part,ordinate,zeta_abs_residual,status\n1,0.5,14.134725141734695,3.4147274494130153e-41,numerical_residual_not_zero_certificate\n2,0.5,21.022039638771556,1.0479626003866916e-40,numerical_residual_not_zero_certificate\n3,0.5,25.01085758014569,2.227639520124134e-40,numerical_residual_not_zero_certificate\n4,0.5,30.424876125859512,8.207133451891773e-41,numerical_residual_not_zero_certificate\n5,0.5,32.93506158773919,5.019107192462956e-40,numerical_residual_not_zero_certificate\n6,0.5,37.586178158825675,6.244205759551129e-40,numerical_residual_not_zero_certificate\n7,0.5,40.9187190121475,3.193385412446077e-40,numerical_residual_not_zero_certificate\n8,0.5,43.327073280915,2.419764981617777e-40,numerical_residual_not_zero_certificate\n9,0.5,48.00515088116716,4.692795557471014e-40,numerical_residual_not_zero_certificate\n10,0.5,49.7738324776723,3.905478244951264e-40,numerical_residual_not_zero_certificate\n11,0.5,52.970321477714464,5.327787426547375e-40,numerical_residual_not_zero_certificate\n12,0.5,56.44624769706339,7.824572337651722e-40,numerical_residual_not_zero_certificate\n13,0.5,59.34704400260235,5.206159425742408e-41,numerical_residual_not_zero_certificate\n14,0.5,60.83177852460981,1.1509415436373627e-40,numerical_residual_not_zero_certificate\n15,0.5,65.1125440480816,5.093674295931331e-40,numerical_residual_not_zero_certificate\n16,0.5,67.07981052949417,3.661785291504641e-41,numerical_residual_not_zero_certificate\n17,0.5,69.54640171117398,2.151289708813849e-40,numerical_residual_not_zero_certificate\n18,0.5,72.0671576744819,1.0107241382742523e-39,numerical_residual_not_zero_certificate\n19,0.5,75.70469069908393,2.6428650371923224e-40,numerical_residual_not_zero_certificate\n20,0.5,77.1448400688748,5.075837084596232e-40,numerical_residual_not_zero_certificate\n"
+    },
+    "explicit_formula_convergence.csv": {
+      "bytes": 469,
+      "sha256": "41d8422f3931c9939d737983fe1aa56bb05746994ddf386fcd5c447c608cecf8",
+      "content": "x,zero_count,psi_exact_inclusive,psi_truncated_diagnostic,absolute_error_vs_inclusive,status\n10.5,1,7.832014180505469,8.226909726294144,0.3948955457886747,diagnostic_only_not_certified\n10.5,5,7.832014180505469,7.943058330319928,0.11104414981445832,diagnostic_only_not_certified\n10.5,10,7.832014180505469,7.702091212246241,0.129922968259228,diagnostic_only_not_certified\n10.5,20,7.832014180505469,7.584083390581519,0.24793078992395046,diagnostic_only_not_certified\n"
+    }
+  },
+  "manifest": {
+    "explicit_formula_convergence.csv": "41d8422f3931c9939d737983fe1aa56bb05746994ddf386fcd5c447c608cecf8",
+    "metadata.json": "facbf7865be76854c5763cff621f169bf24c4e4c2e16d274362c36e301817e78",
+    "zero_residuals.csv": "124d68fbc304b3d415cd777ef4c52b09015afd015ec35d4b1595ceb3043f7a3f"
+  },
+  "limitations": [
+    "mpmath zero residuals are numerical diagnostics, not zero certificates",
+    "finite explicit-formula truncations may oscillate",
+    "this benchmark does not prove the Riemann Hypothesis"
+  ]
+}
