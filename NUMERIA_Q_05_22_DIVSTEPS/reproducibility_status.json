@@ -1,0 +1,18 @@
+{
+  "project": "NUMERIA-Q",
+  "milestone": "independent-divsteps-reproduction",
+  "branch": "research/divsteps-reproduction-2026-10",
+  "status": "protocol-created-upstream-reproduction-pending",
+  "upstream": "https://github.com/andigu/uncompute",
+  "paper": "https://arxiv.org/abs/2610.22367",
+  "checks": {
+    "classical_reference_tests": "implemented-not-yet-run-on-github",
+    "upstream_circuit_evaluator": "pending",
+    "lean_divsteps_proof": "pending",
+    "matched_resource_comparison": "pending",
+    "novelty_claim": "not-claimed"
+  },
+  "frozen_versions_untouched": ["05.19.1", "05.20"],
+  "main_branch_modified": false,
+  "quantum_jobs_submitted": false
+}
