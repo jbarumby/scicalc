@@ -2,36 +2,44 @@
   "project": "NUMERIA-Q",
   "milestone": "independent-divsteps-reproduction",
   "branch": "research/divsteps-reproduction-2026-10",
-  "workflow_run": "https://github.com/jbarumby/scicalc/actions/runs/39131118399",
-  "status": "upstream-evaluator-passed-lean-build-passed-with-axiom-review-required",
-  "upstream": "https://github.com/andigu/uncompute",
-  "paper": "https://arxiv.org/abs/2610.22367",
+  "pr": 5,
+  "updated_at": "2026-10-19",
+  "workflow_runs": [
+    {
+      "url": "https://github.com/jbarumby/scicalc/actions/runs/39131118399",
+      "observed": "3 CI jobs successful; evaluator verdict OK; Lean build 1518 tasks; classical tests 3/3"
+    },
+    {
+      "url": "https://github.com/jbarumby/scicalc/actions/runs/39180629421",
+      "observed": "classical tests 3/3; evaluator verdict OK; pure-Python reference executor"
+    }
+  ],
+  "upstream": {
+    "repository": "https://github.com/andigu/uncompute",
+    "pinned_commit": "64b5a13aa249f1360846657392e6c66817b26d0f",
+    "circuit_ops_hash": "f3436a16c61b3e91109b9cb65cc130d4c00cd07f1e4ab977248d36815c23fcf1"
+  },
+  "status": "upstream-evaluator-ok-lean-build-passed-axiom-audit-and-failure-cause-open",
   "checks": {
-    "classical_reference_tests": "passed-3-of-3-on-github-actions",
-    "upstream_circuit_evaluator": "verdict-ok-100000-randomized-shots-4-failed-budget-20",
-    "lean_divsteps_proof": "lake-build-success-1518-jobs-axiom-audit-required",
-    "matched_resource_comparison": "published-reference-cost-confirmed-no-numq-implementation-comparison-yet",
+    "ci_classical_tests": "3-of-3-on-recorded-CI-runs",
+    "independent_python_hddivsteps_tests": "5-of-5-local",
+    "independent_monte_carlo": "100000 samples; seed 20261018; max 532; mean 516.83705; 0 samples >533; sampling-not-proof",
+    "upstream_circuit_evaluator": "verdict-ok-100000-shots-4-failed-budget-20",
+    "lean_build": "success-1518-tasks-native_decide-dependency-documented",
+    "axiom_audit_independent": "pending",
+    "failure_inputs_and_cause": "pending-no-failed-inputs-in-available-logs",
+    "matched_resource_comparison": "pending-no-measured-numq-implementation",
     "novelty_claim": "not-claimed"
   },
-  "upstream_evaluator": {
-    "expanded_ops": 20333427,
-    "qubits": 935,
-    "outcomes": 878175,
-    "live_shots": 100000,
-    "wrong_output_shots": 4,
-    "wrong_sign_shots": 3,
-    "dirty_qubits": 0,
-    "failed_shots": 4,
-    "failure_budget": 20,
-    "toffoli_count_per_shot": 4006673,
-    "clifford_count_per_shot": 15391673,
-    "tq_cost": 3746239255
+  "discrepancies": {
+    "proposed_patch_elapsed_seconds": "text says 134 s; report.json says 95.26365566253662 s; unresolved",
+    "local_c_kernel_reexecution": "not independently verified; available CI jobs used pure-Python reference executor"
   },
-  "lean_build": {
-    "result": "Build completed successfully (1518 jobs)",
-    "caveat": "build log reports theorem dependencies including example590_par._native.native_decide.ax_1_1 for some declarations; this is not a claim that every theorem is axiom-free"
-  },
-  "frozen_versions_untouched": ["05.19.1", "05.20"],
+  "frozen_versions_untouched": [
+    "05.19.1",
+    "05.20"
+  ],
   "main_branch_modified": false,
-  "quantum_jobs_submitted": false
+  "merged": false,
+  "ibm_quantum_jobs_submitted": false
 }

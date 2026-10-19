@@ -1,15 +1,14 @@
 # Auditoria da referência upstream — divsteps
 
-**Data da consulta:** 2026-10-18  
-**Repositório consultado:** https://github.com/andigu/uncompute  
-**Tarefa:** `tasks/modinv-point-add`  
-**Artigo:** https://arxiv.org/abs/2610.22367
+**Data da atualização:** 2026-10-19  
+**Revisão fixada para auditoria:** `64b5a13aa249f1360846657392e6c66817b26d0f`  
+**Repositório:** https://github.com/andigu/uncompute
 
-## Valores publicados no README upstream
+## Resultados de recursos
 
 | Construção | Toffoli | Qubits de pico | Toffoli × qubits |
 |---|---:|---:|---:|
-| Divsteps, configuração padrão (`j_store=5`) | 4.006.673 | 935 | 3.746.239.255 |
+| Divsteps, padrão (`j_store=5`) | 4.006.673 | 935 | 3.746.239.255 |
 | Divsteps, variante `wide` | 3.293.278 | 1.191 | 3.922.294.098 |
 | Divsteps, variante `fill` | 3.637.655 | 1.031 | 3.750.422.305 |
 | Divsteps, variante `j5` | 4.317.926 | 927 | 4.002.717.402 |
@@ -20,30 +19,27 @@
 | Euclidiano especializado | 20.521.949 | 843 | 17.300.003.007 |
 | Baseline Luo et al. | 69.529.757 | 838 | 58.265.936.366 |
 
-Fonte dos números: README da tarefa upstream. São resultados reportados pelos autores, não uma descoberta original do NUMERIA-Q.
+São resultados reportados pelo upstream, não uma descoberta do NUMERIA-Q.
 
-Link direto: https://github.com/andigu/uncompute/blob/main/tasks/modinv-point-add/README.md
+## Confiança formal e `native_decide`
 
-## Auditoria de confiança da prova Lean
+O arquivo `Hddivsteps590/Certificate.lean` declara `example590_par` com `native_decide` sobre o certificado Booleano `certEmptyPar Mstar 590`. O teorema `example590` deriva desse resultado usando `certEmptyPar_eq`. A versão paralela usa `Task.spawn`/`Task.get`; o próprio código prova que ela é definicionalmente equivalente à especificação serial, descrevendo a paralelização como otimização de velocidade.
 
-A documentação pública de `lean/divsteps/README.md` declara que a prova usa os axiomas padrão reportados pelo Mathlib (`propext`, `Classical.choice`, `Quot.sound`) e que os teoremas de limite de 590 passos dependem adicionalmente de `native_decide`, gerado para `Hddivsteps.example590_par`. O projeto explica que essa dependência representa a avaliação compilada de um certificado Booleano fechado e requer confiança no compilador/runtime de Lean para esse cálculo, além do kernel e Mathlib.
+`Hddivsteps590/Main.lean` contém `#print axioms` para os teoremas públicos, incluindo `hddivsteps590_prime_inverse`, `zWalk590_bound` e `zWalk590`. Esses teoremas de limite dependem da prova do certificado e, portanto, herdam a dependência `native_decide`. A documentação upstream explicita que isso amplia a base de confiança para incluir o caminho de compilação/runtime usado na avaliação nativa, além do kernel e dos axiomas usuais de Lean/Mathlib.
 
-O README upstream também afirma que `Main.lean` termina com comandos `#print axioms` para os teoremas públicos e que o projeto não contém `sorry`. Assim, o achado `native_decide` é uma dependência de confiança declarada pela própria referência, não evidência isolada de erro lógico. A ressalva formal permanece importante: não descrever os teoremas de 590 passos como verificados exclusivamente pelo kernel.
+**Verificado:** código fonte da revisão fixada e logs CI mostram build concluído.  
+**Ainda em aberto:** uma auditoria independente de cada saída `#print axioms`; uma prova alternativa sem `native_decide`; qualquer alegação de que a dependência torna a prova incorreta (não há evidência para essa alegação).
 
-## O que foi verificado nesta etapa
+## Avaliador e falhas
 
-- Os resultados de recurso foram lidos da documentação pública upstream.
-- O avaliador upstream foi executado em GitHub Actions: 100.000 testes aleatórios, 4 falhas agregadas diante de orçamento 20, veredito `OK`.
-- A compilação Lean foi concluída com sucesso (1.518 tarefas).
-- Os testes clássicos independentes do NUMERIA-Q passaram (3/3).
-- A documentação upstream esclarece explicitamente a dependência adicional de `native_decide`.
+Duas execuções CI observadas retornaram `verdict OK`, com 100.000 disparos, quatro falhas agregadas, três sinais incorretos, zero qubits sujos, 4.006.673 Toffoli, 15.391.673 Clifford, 935 qubits e o mesmo hash de operações `f3436a16c61b3e91109b9cb65cc130d4c00cd07f1e4ab977248d36815c23fcf1`.
 
-## O que ainda não foi verificado
+O README upstream informa que o circuito agenda 533 passos e que caminhadas raras mais longas são cobradas contra o orçamento de falhas. A amostra independente de 100.000 entradas uniformes com semente 20261018 teve máximo 532 e zero caminhadas acima de 533; isso é compatível com uma ocorrência rara não amostrada, mas não explica as quatro falhas do avaliador. Os logs acessíveis só mostram contagens agregadas, não as entradas falhas. A causa permanece **não confirmada**.
 
-- Comparação quantitativa independente entre implementações NUMERIA-Q e upstream sob especificação e custos equivalentes.
-- Qualquer melhoria nova do NUMERIA-Q em relação ao circuito publicado.
-- Execução em hardware quântico; não foi enviado nenhum novo job à IBM Quantum.
+## Estado científico
 
-## Conclusão
-
-A reprodução do avaliador upstream passou e a prova Lean compilou. A dependência `native_decide` está explicitada na base de confiança do upstream. A etapa de maior valor científico agora é a comparação controlada entre implementações, sem alegação de novidade antes dos resultados.
+- Reproduzir a avaliação do circuito publicado: sim, pelo avaliador upstream.
+- Validar o build Lean: sim; ressalva de confiança `native_decide` explícita.
+- Comparar custos NUMERIA-Q com upstream em condições equivalentes: pendente.
+- Demonstrar novidade ou vantagem quântica: não demonstrado.
+- Execução em hardware quântico: não realizada; nenhum novo job IBM Quantum enviado.

@@ -31,30 +31,44 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: andigu/uncompute
-          ref: main
+          ref: 64b5a13aa249f1360846657392e6c66817b26d0f
           path: upstream
       - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          working-directory: upstream
+          cache-dependency-glob: upstream/uv.lock
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install upstream dependencies
         working-directory: upstream
         run: uv sync
+      - name: Record provenance
+        working-directory: upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "upstream commit: $(git rev-parse HEAD)"
+            echo "python: $(python --version 2>&1)"
+            echo "uv: $(uv --version)"
+            sha256sum tasks/modinv-point-add/circuits/divsteps/circuit.py tasks/modinv-point-add/contract.json uv.lock
+          } | tee provenance.txt
       - name: Evaluate published divsteps circuit
         working-directory: upstream
         shell: bash
         run: |
           set -o pipefail
-          uv run python tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py 2>&1 | tee divsteps-evaluator.log
-      - name: Upload evaluator log
+          uv run python tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py --out eval-out 2>&1 | tee divsteps-evaluator.log
+      - name: Upload evaluator log and structured report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: divsteps-evaluator-log
-          path: upstream/divsteps-evaluator.log
+          name: divsteps-evaluator-evidence
+          path: |
+            upstream/divsteps-evaluator.log
+            upstream/provenance.txt
+            upstream/eval-out
           if-no-files-found: ignore
 
   lean-proof:
@@ -65,7 +79,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: andigu/uncompute
-          ref: main
+          ref: 64b5a13aa249f1360846657392e6c66817b26d0f
           path: upstream
       - name: Install elan and Lean toolchain
         shell: bash

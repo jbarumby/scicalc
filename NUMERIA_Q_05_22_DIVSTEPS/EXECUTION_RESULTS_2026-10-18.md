@@ -1,31 +1,27 @@
-# Resultado da execução independente — divsteps
+# Resultado da execução e auditoria independente — divsteps
 
-**Workflow:** https://github.com/jbarumby/scicalc/actions/runs/39131118399  
-**Data da execução:** 2026-10-18  
-**Branch:** `research/divsteps-reproduction-2026-10`
+**Branch:** `research/divsteps-reproduction-2026-10`  
+**Atualização documental:** 2026-10-19  
+**Execução CI principal:** https://github.com/jbarumby/scicalc/actions/runs/39131118399  
+**Reexecução CI do avaliador:** https://github.com/jbarumby/scicalc/actions/runs/39180629421  
+**Revisão upstream fixada para execuções futuras:** `andigu/uncompute@64b5a13aa249f1360846657392e6c66817b26d0f`
 
-## Resultado geral
+## 1. Resultados CI observados
 
-O workflow concluiu com sucesso. Os testes clássicos do NUMERIA-Q passaram; o avaliador oficial upstream emitiu `verdict OK`; e a compilação Lean concluiu 1.518 tarefas. Isso valida a execução do circuito publicado sob o avaliador upstream, mas não prova novidade do NUMERIA-Q nem comparação de desempenho contra a implementação do NUMERIA-Q.
+Na execução 39131118399, os três jobs — testes clássicos, avaliador upstream e build Lean — terminaram com sucesso. O job do avaliador usou o executor de referência em Python puro e levou cerca de 16 min 35 s na execução de 18/10. Na execução 39180629421, os testes clássicos registrados continuaram em 3/3 e o avaliador levou cerca de 12 min 11 s, também com executor Python puro. Essas durações são tempos do job no CI, não tempos de uma reexecução local com kernel C.
 
-## 1. Testes clássicos NUMERIA-Q
+O workflow antigo baixava `andigu/uncompute@main` e não registrava o SHA efetivamente usado. O workflow foi atualizado neste branch para fixar o commit e registrar procedência e artefatos estruturados nas execuções futuras. Isso não permite inferir retroativamente o commit exato das execuções históricas.
 
-- Resultado: sucesso.
-- 3 testes aprovados.
-- Estes testes cobrem a referência clássica de inversão modular, não a correção do circuito reversível.
+## 2. Avaliador oficial do circuito
 
-## 2. Avaliador oficial do circuito divsteps
-
-O log do avaliador upstream reporta:
-
-| Métrica | Resultado |
+| Métrica | Resultado observado |
 |---|---:|
-| Veredito | OK |
-| Disparos de teste aleatórios | 100.000 |
-| Disparos com saída incorreta | 4 |
-| Disparos com sinal incorreto | 3 |
-| Disparos falhos segundo o critério agregado | 4 |
-| Orçamento permitido de falhas | 20 |
+| Veredito | `OK` |
+| Disparos aleatórios | 100.000 |
+| Saídas incorretas | 4 |
+| Sinais incorretos | 3 |
+| Disparos falhos agregados | 4 |
+| Orçamento de falhas | 20 |
 | Qubits de pico | 935 |
 | Operações expandidas | 20.333.427 |
 | Toffoli por disparo | 4.006.673 |
@@ -33,42 +29,55 @@ O log do avaliador upstream reporta:
 | Custo Toffoli × qubits | 3.746.239.255 |
 | Qubits sujos no fim | 0 |
 
-As 3 ocorrências de sinal incorreto estão contidas no conjunto das 4 saídas incorretas; portanto, são categorias sobrepostas e **não devem ser somadas** como 7 falhas. O total agregado de eventos falhos é 4 em 100.000 disparos (0,004%), abaixo do orçamento de 20 em 100.000 (0,02%). O avaliador emitiu `verdict OK`. Isso significa que o circuito foi aceito segundo o critério do avaliador upstream, não que tenha fidelidade perfeita nem que tenha sido executado em hardware quântico: trata-se de avaliação de circuito reversível com o modelo e teste aleatório do repositório upstream.
+As categorias de sinal incorreto e saída incorreta se sobrepõem; não se devem somar 4 e 3 como sete falhas. O veredito confirma a aceitação pelo critério do avaliador, não perfeição do circuito nem execução em hardware quântico.
 
-Log completo e artefato: https://github.com/jbarumby/scicalc/actions/runs/39131118399/artifacts/12137999957
+O log acessível registra apenas contagens agregadas. Não contém os valores das quatro entradas que falharam; portanto, a causa específica ainda não está demonstrada.
 
-## 3. Métricas de custo quântico (preliminares)
+## 3. Investigação das quatro falhas e agenda de 533 passos
 
-Esta tabela separa os valores observados no avaliador upstream das métricas ainda não calculadas para uma implementação própria do NUMERIA-Q. **N/D** significa “não disponível/verificado”; não é zero.
+O README upstream diz que o circuito agenda 533 passos e atribui caminhadas raras mais longas ao orçamento de falhas. Isso torna o excesso de passos uma hipótese plausível, mas os logs agregados não permitem confirmá-la para as quatro falhas observadas.
 
-| Implementação | Qubits lógicos | Contagem T | Contagem Toffoli | Profundidade T |
-|---|---:|---:|---:|---:|
-| Baseline (upstream, divsteps padrão) | N/D¹ | ≈ 28.046.711² | 4.006.673 | N/D |
-| **NUMERIA-Q (este PR)** | **N/D** | **N/D** | **N/D** | **N/D** |
-| **Delta (%)** | **N/D** | **N/D** | **N/D** | **N/D** |
+Foi executada uma estimativa independente usando a recorrência `delta,f,g` em Python, semente fixa 20261018 e 100.000 entradas uniformes em `[1,p-1]`, com `p = 2^256 - 2^32 - 977`:
 
-¹ O avaliador upstream reporta **935 qubits de pico**, mas não classifica esse valor como “qubits lógicos”; por isso, não foi copiado para a coluna de qubits lógicos.  
-² Estimativa aritmética de referência: 4.006.673 Toffoli × 7 portas T por Toffoli = 28.046.711 portas T. É apenas uma conversão nominal, **não** uma contagem T obtida por síntese/decomposição otimizada do circuito.  
-**Ferramenta/fonte:** avaliador de referência do repositório upstream `andigu/uncompute`, comando `tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py`; log da execução GitHub Actions: https://github.com/jbarumby/scicalc/actions/runs/39180629421/artifacts/12156900427. O avaliador fornece Toffoli, Clifford e pico de qubits, mas não reporta profundidade T nem uma contagem T de circuito decomposto. Não foi executado Qiskit transpiler, Stim ou outro sintetizador para obter essas métricas.
+- mínimo observado: 502 passos;
+- máximo observado: 532 passos;
+- média: 516,83705 passos;
+- entradas com mais de 533 passos: 0;
+- entradas com mais de 590 passos: 0.
 
-**Delta percentual ainda não calculável:** falta uma implementação NUMERIA-Q funcional e comparável, avaliada sob a mesma especificação, decomposição, modelo de ancillas e convenção de custo. Preencher os campos agora com números inferidos seria enganoso. A comparação só deve ser publicada após medir ambos os circuitos com o mesmo pipeline e registrar versão, opções de síntese e tratamento de Toffoli.
+Essa amostra independente não é a mesma sequência de entradas usada pelo avaliador e não é prova do pior caso. Zero ocorrências acima de 533 não permite identificar a causa dos quatro disparos falhos. A próxima investigação deve preservar ou registrar as entradas exatas dos disparos falhos, se o avaliador suportar essa instrumentação, e comparar cada entrada com a referência clássica. Até lá, a causa fica marcada como **não confirmada**.
 
-## 4. Auditoria da dependência `native_decide` em Lean
+## 4. Referência Python de hddivsteps
 
-A documentação upstream de `lean/divsteps/README.md` esclarece expressamente que os teoremas de álgebra, teoria dos números, ponte entre recorrências e recuperação de ramos usam os axiomas usuais reportados pelo Mathlib (`propext`, `Classical.choice`, `Quot.sound`). Os teoremas de limite de 590 passos dependem adicionalmente do axioma `native_decide` gerado para `Hddivsteps.example590_par`.
+A referência local usa a recorrência meio-delta e compara os inversos com `pow(x, -1, p)` ou verifica `x * inv ≡ 1 (mod p)`. Os cinco novos testes passaram localmente: primo correto, casos de borda, 1.500 entradas aleatórias, rejeição de entradas não canônicas e propriedade de inverso. A execução Monte Carlo de 100.000 amostras reproduziu média 516,83705 e máximo 532.
 
-A documentação descreve essa dependência como parte explícita da base de confiança: o certificado Booleano fechado é avaliado por compilação e runtime do Lean, e aceitar os teoremas que dependem dele implica confiar também nesse caminho de avaliação, além do kernel Lean e Mathlib. A documentação informa que `Main.lean` contém comandos `#print axioms` para os resultados públicos e que o projeto não contém `sorry`.
+Limites: é uma referência clássica escrita separadamente; não simula nem prova o circuito reversível, não mede recursos quânticos e não substitui a prova Lean. O script de estimativa é informativo, não critério de aceitação.
 
-**Conclusão precisa:** o build Lean passou (1.518 tarefas), e a dependência adicional de `native_decide` é documentada intencionalmente pelo projeto upstream; não é, por si só, evidência de prova incorreta. Entretanto, a garantia formal dos teoremas de limite de 590 passos tem essa base de confiança computacional ampliada. Não é correto descrevê-los como verificados exclusivamente pelo kernel sem ressalva.
+## 5. Lean e `native_decide`
 
-Referência upstream: https://github.com/andigu/uncompute/tree/main/lean/divsteps
+Na revisão upstream fixada, `Hddivsteps590/Certificate.lean` prova `example590_par` com `native_decide`; `example590` deriva do certificado por `certEmptyPar_eq`. `Main.lean` imprime as dependências de axiomas de `hddivsteps590_prime_inverse`, `zWalk590_bound`, `zWalk590` e de resultados de recuperação.
 
-## 5. Limites científicos
+A documentação e o código confirmam que a dependência de `native_decide` é intencional e faz parte da base de confiança computacional declarada. A avaliação compilada do certificado implica confiar no caminho de compilação/runtime relevante, além do kernel e dos axiomas usuais de Lean/Mathlib. Não é evidência, por si só, de prova incorreta; também não é correto chamar os teoremas de limite de 590 passos de exclusivamente kernel-verificados.
 
-- **Reprodução do avaliador upstream:** passou no ambiente GitHub Actions.
-- **Compilação Lean:** passou; a dependência `native_decide` e sua base de confiança foram esclarecidas pela documentação upstream.
-- **NUMERIA-Q ter descoberto uma melhoria:** não demonstrado.
-- **Comparação quantitativa independente entre NUMERIA-Q e a arquitetura publicada:** ainda pendente.
-- **Execução em hardware quântico:** não realizada; nenhum job novo foi enviado à IBM Quantum.
+O build CI concluiu 1.518 tarefas, mas esta auditoria ainda não fez uma execução independente, teorema por teorema, dos resultados `#print axioms` nem construiu uma alternativa kernel-only. Essas tarefas permanecem abertas.
 
-Próximo passo: comparar implementações sob a mesma especificação, testes e convenções de custo, sem confundir reprodução upstream com resultado novo do NUMERIA-Q.
+Fontes upstream fixadas:
+- [Certificate.lean](https://github.com/andigu/uncompute/blob/64b5a13aa249f1360846657392e6c66817b26d0f/lean/divsteps/Hddivsteps590/Certificate.lean)
+- [Main.lean](https://github.com/andigu/uncompute/blob/64b5a13aa249f1360846657392e6c66817b26d0f/lean/divsteps/Hddivsteps590/Main.lean)
+- [README Lean](https://github.com/andigu/uncompute/blob/64b5a13aa249f1360846657392e6c66817b26d0f/lean/divsteps/README.md)
+
+## 6. Procedência, métricas e comparação
+
+Baseline observado: 4.006.673 Toffoli, 15.391.673 Clifford e 935 qubits de pico; `h_ops = f3436a16c61b3e91109b9cb65cc130d4c00cd07f1e4ab977248d36815c23fcf1`. A conversão nominal `4.006.673 × 7 = 28.046.711 T` é apenas estimativa aritmética, não contagem T obtida por síntese. Qubits lógicos e profundidade T não foram reportados pelo avaliador.
+
+A comparação de recursos com NUMERIA-Q permanece **N/D**: não há nesta trilha uma implementação NUMERIA-Q funcional e medida sob a mesma especificação, decomposição, tratamento de ancillas e convenção de custo. Nenhum delta percentual deve ser inferido.
+
+## 7. Inconsistências e pendências
+
+- O patch proposto fora do branch menciona 134 s no texto e 95,2637 s em `report.json`; esses números não são reconciliados aqui e não foram usados como duração verificada.
+- A referência a reexecução com kernel C precisa de log/procedência verificáveis antes de ser declarada confirmada; os dois jobs CI observados usaram Python puro.
+- Ainda faltam entradas de falha reproduzíveis e diagnóstico da causa.
+- Ainda falta auditoria independente da base de axiomas e uma estratégia kernel-only, se exigida.
+- Ainda falta comparação equivalente NUMERIA-Q vs. referência.
+
+**Restrições preservadas:** nenhum merge; nenhuma alteração em `main` ou nas versões congeladas 05.19.1/05.20; nenhum novo job enviado à IBM Quantum.

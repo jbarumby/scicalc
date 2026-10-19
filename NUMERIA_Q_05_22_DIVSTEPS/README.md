@@ -1,51 +1,44 @@
 # NUMERIA-Q — Marco de reprodução independente de divsteps
 
 **Branch:** `research/divsteps-reproduction-2026-10`  
-**Estado:** protocolo e testes de referência inicial; reprodução do circuito publicado ainda não executada.
+**Estado atualizado:** 2026-10-19 — avaliador upstream reproduzido no CI; auditoria de confiança Lean documentada; comparação NUMERIA-Q ainda pendente.
 
 ## Objetivo
 
-Criar uma trilha verificável para comparar o protótipo NUMERIA-Q 05.21 com o circuito reversível de inversão modular publicado por Gu, Kemeny, Yelin e Lukin (2026). Não reivindicamos descoberta, equivalência com o circuito publicado, nem vantagem quântica nesta etapa.
+Estabelecer uma trilha rastreável para comparar o protótipo NUMERIA-Q com o circuito reversível de inversão modular publicado por Gu, Kemeny, Yelin e Lukin (2026). Não se reivindica descoberta, equivalência com o circuito publicado nem vantagem quântica nesta etapa.
 
-## Referência primária
+## Referência primária e procedência
 
 - Artigo: https://arxiv.org/abs/2610.22367
-- Código, circuitos e avaliador dos autores: https://github.com/andigu/uncompute
-- Tarefa relevante: `tasks/modinv-point-add`
-- Circuito de referência: `tasks/modinv-point-add/circuits/divsteps/`
-- Prova de recuperação de decisões: `lean/divsteps`
+- Código, circuitos e avaliador: https://github.com/andigu/uncompute
+- Tarefa: `tasks/modinv-point-add`
+- Circuito: `tasks/modinv-point-add/circuits/divsteps/circuit.py`
+- Prova: `lean/divsteps`
+- Commit fixado pelo workflow: `64b5a13aa249f1360846657392e6c66817b26d0f`
 
-O repositório dos autores informa para a construção divsteps padrão aproximadamente 4.006.673 portas Toffoli, 935 qubits de pico e custo Toffoli × qubits de 3.746.239.255. Esses valores são referências publicadas, não resultados reproduzidos por este branch.
+O workflow registra o commit efetivo, versões de Python/uv e SHA-256 do circuito, contrato e lockfile. A fixação torna futuras execuções repetíveis; não prova retroativamente qual commit foi usado nas execuções históricas.
 
-## O que foi implementado neste marco
+## O que está verificado
 
-1. Testes independentes da referência clássica de inversão modular: resíduos de primos pequenos, entrada sem inverso, caso grande com 59 bits e exemplo pequeno com coeficientes intermediários negativos.
-2. Uma especificação de reprodução, com os comandos do avaliador oficial.
-3. Critérios explícitos para impedir que os testes clássicos sejam confundidos com a reprodução do circuito quântico reversível.
+1. A execução CI de 18/10 concluiu os três testes clássicos então existentes.
+2. O avaliador oficial aceitou o circuito em 100.000 disparos: `verdict OK`, 4 disparos falhos diante de orçamento 20, 935 qubits de pico, 4.006.673 Toffoli, 15.391.673 Clifford e custo Toffoli × qubits de 3.746.239.255.
+3. O build Lean upstream concluiu 1.518 tarefas.
+4. Uma referência independente Python para `hddivsteps` foi testada localmente: 5 testes passaram, incluindo casos de borda e 1.500 entradas aleatórias. Esses testes são validação algébrica amostral, não prova formal nem teste do circuito reversível.
+5. Uma amostragem independente de 100.000 entradas uniformes (semente 20261018) observou mínimo 502, máximo 532 e média 516,83705 passos; nenhuma amostra excedeu 533. A amostragem não prova um limite universal.
 
-## Ambiente recomendado
-
-O projeto upstream requer Python e `uv`; consulte o README upstream para a versão e dependências exatas. Execute em um clone separado, sem copiar arquivos para `main` nem alterar as versões congeladas 05.19.1 e 05.20.
-
-```bash
-git clone https://github.com/andigu/uncompute.git
-cd uncompute
-uv sync
-uv run python tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py
-```
-
-O avaliador pode levar minutos ou horas para circuitos grandes. Guarde o log integral, o commit upstream, a versão do Python/uv e o resultado certificado. Não declare reprodução concluída apenas porque o comando terminou: confira o veredito, as contagens certificadas e o hash do fluxo de operações.
+Detalhes e limites: [relatório de execução](EXECUTION_RESULTS_2026-10-18.md) e [auditoria de 19/10](AUDIT_2026-10-19.md).
 
 ## Critérios de aceitação
 
-- [ ] Testes da referência clássica passam.
-- [ ] O commit upstream e o hash dos arquivos usados estão registrados.
-- [ ] O avaliador upstream aceita o circuito divsteps e emite as contagens certificadas.
-- [ ] A prova Lean `lean/divsteps` é executada e seu resultado é registrado.
-- [ ] O protótipo NUMERIA-Q e a referência são comparados com a mesma especificação e convenções de custo.
-- [ ] Qualquer diferença de resultados é reproduzida e explicada antes de conclusões científicas.
+- [x] Testes clássicos preexistentes passam no CI (3/3 na execução registrada).
+- [x] Avaliador upstream emite `verdict OK` e registra as contagens.
+- [x] Build Lean conclui; a ressalva de `native_decide` está documentada.
+- [x] Reexecução local da referência Python `hddivsteps`: 5/5 testes nesta auditoria.
+- [x] Workflow passa a fixar a revisão upstream e a guardar evidências de procedência nas próximas execuções.
+- [ ] Reproduzir os quatro disparos falhos com entradas identificadas; os logs disponíveis registram contagens agregadas, não os valores das entradas que falharam.
+- [ ] Auditar independentemente a lista de axiomas de todos os teoremas relevantes e avaliar uma alternativa sem `native_decide`.
+- [ ] Comparar NUMERIA-Q e upstream com a mesma especificação e convenções de custo.
 
 ## Limites e transparência
 
-Os testes locais deste branch verificam aritmética modular clássica, incluindo casos de borda; não verificam o pior caso de iterações nem inspecionam o sinal do parâmetro interno `delta` de divsteps. Isso exige testar a implementação divsteps real e sua instrumentação, ainda não definida neste arquivo. A reprodução do circuito e a execução da prova Lean são tarefas pendentes. Não se afirma novidade científica, ganho de recursos, vantagem quântica ou validação independente do artigo.
-
+O avaliador `OK` significa aceitação segundo a política do avaliador, não perfeição nem execução em hardware quântico. O build Lean não significa que os teoremas de limite sejam verificados exclusivamente pelo kernel: os resultados de limite de 590 passos dependem de `native_decide`, conforme a documentação upstream. Não há ainda comparação quantitativa de implementação própria NUMERIA-Q. Nenhum novo job foi enviado à IBM Quantum; `main` e as versões congeladas 05.19.1/05.20 não são alvo desta trilha.
