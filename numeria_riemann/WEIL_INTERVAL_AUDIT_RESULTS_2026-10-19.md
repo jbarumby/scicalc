@@ -32,6 +32,21 @@ Artifact: [N=8 and subsequent interval reports](https://github.com/jbarumby/scic
 
 A further controlled step to N = 10 has been added to the workflow, with both the baseline and refined configurations. Its result must be recorded only after the corresponding CI run finishes.
 
+## Controlled dimension increase: N = 10
+
+The follow-up workflow [#39337323734](https://github.com/jbarumby/scicalc/actions/runs/39337323734) completed successfully. For N = 10 (projected dimension 8):
+
+| Configuration | Status | Interval LDL pivot lower bounds |
+|---|---|---|
+| step = 0.02, 128 series terms, 192 bits, 8,000 cells | inconclusive | first five computed lower bounds: 0.2149252225; 0.6591348762; 0.3643216324; 0.9835229030; -0.2238731886 |
+| step = 0.01, 256 series terms, 256 bits, 16,000 cells | certified positive definite finite matrix | 0.2263857073; 0.7849070623; 0.4694446513; 1.0920803137; 0.6082769443; 1.2479011409; 0.5969515469; 1.4503530679 |
+
+The refined N = 10 run therefore certifies positive definiteness of the finite projected matrix of dimension 8. The baseline's inconclusive result is not a negative-eigenvalue certificate. The first five baseline pivot lower bounds repeat those seen at N = 8; the extra coordinates only appear after the earlier pivots.
+
+Artifact (N=8 and N=10, baseline and refined): [download from GitHub Actions](https://github.com/jbarumby/scicalc/actions/runs/39337323734/artifacts/12227530705).
+
+This is a second finite-dimensional certificate under the same support/cutoff settings, not evidence that the full Weil quadratic form is positive on all admissible test functions.
+
 ## Error-control path
 
 1. The finite archimedean integral on [0,R] is enclosed by Arb interval range sums. For each cell I, the integral is contained in width(I) times the interval enclosure of the integrand over I.
