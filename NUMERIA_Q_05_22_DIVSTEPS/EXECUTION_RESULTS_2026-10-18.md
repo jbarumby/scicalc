@@ -33,7 +33,7 @@ O log do avaliador upstream reporta:
 | Custo Toffoli × qubits | 3.746.239.255 |
 | Qubits sujos no fim | 0 |
 
-A taxa agregada de falhas observada foi 4/100.000 = 0,004%, abaixo do orçamento de 20/100.000 = 0,02%. O avaliador aceitou o circuito. Não confundir esse resultado com fidelidade de estado quântico ou execução em hardware quântico: trata-se do avaliador de circuitos reversíveis do repositório upstream, usando seu modelo e teste aleatório.
+As 3 ocorrências de sinal incorreto estão contidas no conjunto das 4 saídas incorretas; portanto, são categorias sobrepostas e **não devem ser somadas** como 7 falhas. O total agregado de eventos falhos é 4 em 100.000 disparos (0,004%), abaixo do orçamento de 20 em 100.000 (0,02%). O avaliador emitiu `verdict OK`. Isso significa que o circuito foi aceito segundo o critério do avaliador upstream, não que tenha fidelidade perfeita nem que tenha sido executado em hardware quântico: trata-se de avaliação de circuito reversível com o modelo e teste aleatório do repositório upstream.
 
 Log completo e artefato: https://github.com/jbarumby/scicalc/actions/runs/39131118399/artifacts/12137999957
 
