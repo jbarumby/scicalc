@@ -1,7 +1,7 @@
 # Resultado da execução independente — divsteps
 
 **Workflow:** https://github.com/jbarumby/scicalc/actions/runs/39131118399  
-**Data:** 2026-10-18  
+**Data da execução:** 2026-10-18  
 **Branch:** `research/divsteps-reproduction-2026-10`
 
 ## Resultado geral
@@ -37,20 +37,22 @@ A taxa agregada de falhas observada foi 4/100.000 = 0,004%, abaixo do orçamento
 
 Log completo e artefato: https://github.com/jbarumby/scicalc/actions/runs/39131118399/artifacts/12137999957
 
-## 3. Prova Lean
+## 3. Auditoria da dependência `native_decide` em Lean
 
-- Resultado do build: `Build completed successfully (1518 jobs)`.
-- Artefato com logs: https://github.com/jbarumby/scicalc/actions/runs/39131118399/artifacts/12138998509
+A documentação upstream de `lean/divsteps/README.md` esclarece expressamente que os teoremas de álgebra, teoria dos números, ponte entre recorrências e recuperação de ramos usam os axiomas usuais reportados pelo Mathlib (`propext`, `Classical.choice`, `Quot.sound`). Os teoremas de limite de 590 passos dependem adicionalmente do axioma `native_decide` gerado para `Hddivsteps.example590_par`.
 
-### Ressalva de auditoria formal
+A documentação descreve essa dependência como parte explícita da base de confiança: o certificado Booleano fechado é avaliado por compilação e runtime do Lean, e aceitar os teoremas que dependem dele implica confiar também nesse caminho de avaliação, além do kernel Lean e Mathlib. A documentação informa que `Main.lean` contém comandos `#print axioms` para os resultados públicos e que o projeto não contém `sorry`.
 
-O log de Lean informa que alguns teoremas dependem de axiomas, incluindo `example590_par._native.native_decide.ax_1_1`, além dos axiomas usuais `propext`, `Classical.choice` e `Quot.sound`. Portanto, o build compilou, mas antes de afirmar que todos os resultados são derivados sem axiomas adicionais, é necessário auditar essa dependência de `native_decide` e confirmar a intenção do projeto Lean upstream. Não se deve resumir o resultado como "toda a prova é axiom-free".
+**Conclusão precisa:** o build Lean passou (1.518 tarefas), e a dependência adicional de `native_decide` é documentada intencionalmente pelo projeto upstream; não é, por si só, evidência de prova incorreta. Entretanto, a garantia formal dos teoremas de limite de 590 passos tem essa base de confiança computacional ampliada. Não é correto descrevê-los como verificados exclusivamente pelo kernel sem ressalva.
 
-## Conclusão científica
+Referência upstream: https://github.com/andigu/uncompute/tree/main/lean/divsteps
+
+## 4. Limites científicos
 
 - **Reprodução do avaliador upstream:** passou no ambiente GitHub Actions.
-- **Compilação da prova Lean:** passou, com ressalva de dependências axiomáticas que precisam ser inspecionadas.
+- **Compilação Lean:** passou; a dependência `native_decide` e sua base de confiança foram esclarecidas pela documentação upstream.
 - **NUMERIA-Q ter descoberto uma melhoria:** não demonstrado.
 - **Comparação quantitativa independente entre NUMERIA-Q e a arquitetura publicada:** ainda pendente.
+- **Execução em hardware quântico:** não realizada; nenhum job novo foi enviado à IBM Quantum.
 
-Próximo passo: auditar o uso de `native_decide` nos arquivos Lean e comparar, em condições equivalentes, as arquiteturas do NUMERIA-Q com a referência upstream. Não enviar trabalhos à IBM Quantum para essa etapa.
+Próximo passo: comparar implementações sob a mesma especificação, testes e convenções de custo, sem confundir reprodução upstream com resultado novo do NUMERIA-Q.
