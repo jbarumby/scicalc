@@ -36,6 +36,19 @@ class ExplicitFormulaTests(unittest.TestCase):
         value = psi_from_zeros_truncated(10.5, zeros, dps=20)
         self.assertTrue(math.isfinite(value))
 
+    def test_explicit_formula_complex_zeros_do_not_double_count_pairs(self):
+        x = 10.5
+        ordinate_form = psi_from_zeros_truncated(
+            x, [14.134725141734695], dps=30, assume_critical_line=True
+        )
+        complex_pair_form = psi_from_zeros_truncated(
+            x,
+            [complex(0.5, 14.134725141734695), complex(0.5, -14.134725141734695)],
+            dps=30,
+            assume_critical_line=False,
+        )
+        self.assertAlmostEqual(ordinate_form, complex_pair_form, places=12)
+
 
 if __name__ == "__main__":
     unittest.main()
