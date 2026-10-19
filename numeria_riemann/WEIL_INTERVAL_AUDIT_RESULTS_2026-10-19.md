@@ -17,6 +17,21 @@ The GitHub Actions run for commit `97e832b61b3479b1c261e54d6dc81f2484ea6cbc` rep
 
 All four pivot intervals have strictly positive lower bounds. For the interval-enclosed symmetric matrix and the exact constrained subspace represented by the interval basis, this certifies positive definiteness of this **finite-dimensional matrix**, rather than merely reporting a floating-point eigenvalue.
 
+## Controlled dimension increase: N = 8
+
+The workflow run [#39337029515](https://github.com/jbarumby/scicalc/actions/runs/39337029515) tested the same parameters with N = 8 (projected dimension 6) at two resolutions:
+
+| Configuration | Status | Interval LDL pivot lower bounds |
+|---|---|---|
+| step = 0.02, 128 series terms, 192 bits, 8,000 cells | inconclusive | 0.2149252225; 0.6591348762; 0.3643216324; 0.983522902995; -0.2238731886 |
+| step = 0.01, 256 series terms, 256 bits, 16,000 cells | certified positive definite finite matrix | 0.2263857073; 0.7849070623; 0.4694446513; 1.0920803137; 0.6082769443; 1.2479011409 |
+
+The baseline run became inconclusive at the fifth pivot. This is **not** a certified negative direction: interval LDL returns “inconclusive” whenever a pivot interval is not provably positive. Refining the mesh and increasing precision/series terms produced six strictly positive pivot lower bounds. This comparison is evidence of sensitivity of the *certificate procedure* to enclosure width, not evidence for or against global Weil positivity.
+
+Artifact: [N=8 and subsequent interval reports](https://github.com/jbarumby/scicalc/actions/runs/39337029515/artifacts/12226434916).
+
+A further controlled step to N = 10 has been added to the workflow, with both the baseline and refined configurations. Its result must be recorded only after the corresponding CI run finishes.
+
 ## Error-control path
 
 1. The finite archimedean integral on [0,R] is enclosed by Arb interval range sums. For each cell I, the integral is contained in width(I) times the interval enclosure of the integrand over I.
