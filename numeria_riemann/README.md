@@ -67,3 +67,16 @@ license checks, and what remains to be independently validated.
 The key findings from the supplied 2026-10-18 NUMERIA–RIEMANN audit package are summarized in [AUDIT_ADENDUM_2026-10-18.md](AUDIT_ADENDUM_2026-10-18.md). Its reported finite checks are not a proof of RH or related conjectures. In particular, the Weil-matrix sweep did not resolve any negative minimum eigenvalue beyond estimated quadrature spread, and the Lean source-integrity checks did not include `lake build` or `#print axioms`.
 
 GitHub Actions also runs an exploratory benchmark and publishes its CSVs, metadata, and SHA-256 manifest as a downloadable workflow artifact. These artifacts record the computation; they are not mathematical certificates.
+
+## Weil matrix: interval audit (experimental)
+
+`weil_interval_audit.py` is a separate Arb-based path for the finite sine-basis matrix. It encloses the finite archimedean integral by interval range sums, bounds the remaining integral tail analytically, computes prime-overlap terms and the two pole constraints with Arb intervals, then attempts interval LDL factorization on a parameterization of the exact constrained subspace.
+
+Run the reference case:
+
+```bash
+python -m pip install python-flint==0.9.0
+python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit.json
+```
+
+The report status is either `certified_positive_definite_finite_matrix` (all interval LDL pivot lower bounds are positive) or `inconclusive_interval_ldl`. The latter is not evidence of a negative eigenvalue. Even a successful result certifies only the selected finite-dimensional constrained matrix, not positivity of the full Weil criterion and not RH. The workflow publishes the report as an artifact. Review the assumptions and interval bounds before interpreting any certificate.
