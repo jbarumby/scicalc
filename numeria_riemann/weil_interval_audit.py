@@ -107,12 +107,10 @@ def _archimedean_matrix(L, N, R, step, terms):
     # |F_k(r)| <= 4*w_k/(sqrt(L)*r^2), and
     # |Omega(r)| <= log(r)+log(pi)+4/(3r), from Binet's formula.
     wmax = arb(N) * pi / (2 * L)
-    if not (R >= 2 * wmax).is_true():
-        # Arb comparison can be undecidable; use a conservative explicit check.
-        if not (R.lower() >= (2 * wmax).upper()):
-            raise ValueError("R must be rigorously >= 2*w_max for the tail bound")
+    if not (R.lower() >= (2 * wmax).upper()):
+        raise ValueError("R must be rigorously >= 2*w_max for the tail bound")
     logR = R.log()
-    tail_factor = ((logR + arb("0.3333333333333333333333333333333333") + pi.log())
+    tail_factor = ((logR + arb(1) / 3 + pi.log())
                    / (3 * R ** 3) + 1 / (3 * R ** 4))
     for i in range(N):
         wi = arb(i + 1) * pi / (2 * L)
