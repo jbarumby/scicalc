@@ -38,13 +38,14 @@ def _sinc(x):
         return x.sin() / x
     if not x.abs_upper() < arb("0.1"):
         raise ValueError("interval crossing sinc's removable singularity is too wide")
-    total = arb(0)
-    for n in range(9):
-        term = (x ** (2 * n)) / math.factorial(2 * n + 1)
+    total = arb(1)
+    term = arb(1)
+    for n in range(1, 9):
+        term = term * x * x / ((2 * n) * (2 * n + 1))
         total += term if n % 2 == 0 else -term
     # For |x| <= 0.1, the alternating-series remainder after x^16/17!
     # is bounded by 0.1^18/19! < 1e-34.
-    return total + arb(0, "1e-34")
+    return total + arb("0 +/- 1e-34")
 
 
 def _omega(r, terms):
