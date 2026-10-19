@@ -37,7 +37,23 @@ A taxa agregada de falhas observada foi 4/100.000 = 0,004%, abaixo do orçamento
 
 Log completo e artefato: https://github.com/jbarumby/scicalc/actions/runs/39131118399/artifacts/12137999957
 
-## 3. Auditoria da dependência `native_decide` em Lean
+## 3. Métricas de custo quântico (preliminares)
+
+Esta tabela separa os valores observados no avaliador upstream das métricas ainda não calculadas para uma implementação própria do NUMERIA-Q. **N/D** significa “não disponível/verificado”; não é zero.
+
+| Implementação | Qubits lógicos | Contagem T | Contagem Toffoli | Profundidade T |
+|---|---:|---:|---:|---:|
+| Baseline (upstream, divsteps padrão) | N/D¹ | ≈ 28.046.711² | 4.006.673 | N/D |
+| **NUMERIA-Q (este PR)** | **N/D** | **N/D** | **N/D** | **N/D** |
+| **Delta (%)** | **N/D** | **N/D** | **N/D** | **N/D** |
+
+¹ O avaliador upstream reporta **935 qubits de pico**, mas não classifica esse valor como “qubits lógicos”; por isso, não foi copiado para a coluna de qubits lógicos.  
+² Estimativa aritmética de referência: 4.006.673 Toffoli × 7 portas T por Toffoli = 28.046.711 portas T. É apenas uma conversão nominal, **não** uma contagem T obtida por síntese/decomposição otimizada do circuito.  
+**Ferramenta/fonte:** avaliador de referência do repositório upstream `andigu/uncompute`, comando `tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py`; log da execução GitHub Actions: https://github.com/jbarumby/scicalc/actions/runs/39180629421/artifacts/12156900427. O avaliador fornece Toffoli, Clifford e pico de qubits, mas não reporta profundidade T nem uma contagem T de circuito decomposto. Não foi executado Qiskit transpiler, Stim ou outro sintetizador para obter essas métricas.
+
+**Delta percentual ainda não calculável:** falta uma implementação NUMERIA-Q funcional e comparável, avaliada sob a mesma especificação, decomposição, modelo de ancillas e convenção de custo. Preencher os campos agora com números inferidos seria enganoso. A comparação só deve ser publicada após medir ambos os circuitos com o mesmo pipeline e registrar versão, opções de síntese e tratamento de Toffoli.
+
+## 4. Auditoria da dependência `native_decide` em Lean
 
 A documentação upstream de `lean/divsteps/README.md` esclarece expressamente que os teoremas de álgebra, teoria dos números, ponte entre recorrências e recuperação de ramos usam os axiomas usuais reportados pelo Mathlib (`propext`, `Classical.choice`, `Quot.sound`). Os teoremas de limite de 590 passos dependem adicionalmente do axioma `native_decide` gerado para `Hddivsteps.example590_par`.
 
@@ -47,7 +63,7 @@ A documentação descreve essa dependência como parte explícita da base de con
 
 Referência upstream: https://github.com/andigu/uncompute/tree/main/lean/divsteps
 
-## 4. Limites científicos
+## 5. Limites científicos
 
 - **Reprodução do avaliador upstream:** passou no ambiente GitHub Actions.
 - **Compilação Lean:** passou; a dependência `native_decide` e sua base de confiança foram esclarecidas pela documentação upstream.
