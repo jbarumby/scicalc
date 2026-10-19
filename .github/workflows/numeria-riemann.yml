@@ -77,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: numeria-riemann-weil-interval-N8-N10-${{ github.sha }}
-          path: 
+          path: |
             weil-interval-audit-N6.json
             weil-interval-audit-N8.json
             weil-interval-audit-N8-fine.json
