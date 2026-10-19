@@ -158,6 +158,7 @@ def _overlap(a, L, i, j):
             first = ((delta * b + first_phase).sin() - first_phase.sin()) / delta
         total = wk + wm
         second = ((total * b + first_phase).sin() - first_phase.sin()) / total
+        # g_k(x)=sin(w_k*x)/sqrt(L) has unit norm; product-to-sum gives 1/(2L).
         return (first - second) / (2 * L)
 
     return (directed(i, j) + directed(j, i)) / 2

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - numeria-riemann/explicit-formula-prototype
+      - numeria-riemann/overlap-normalization-fix-ci
   pull_request:
     paths:
       - "numeria_riemann/**"
