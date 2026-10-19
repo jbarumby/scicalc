@@ -66,12 +66,18 @@ jobs:
         run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-N8.json
       - name: Run N=8 interval audit (finer mesh and higher precision)
         run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --step 0.01 --series-terms 256 --precision 256 --out weil-interval-audit-N8-fine.json
+      - name: Run N=10 interval audit (baseline mesh)
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-N10.json
+      - name: Run N=10 interval audit (finer mesh and higher precision)
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --step 0.01 --series-terms 256 --precision 256 --out weil-interval-audit-N10-fine.json
       - name: Publish interval audit reports
         uses: actions/upload-artifact@v5
         with:
-          name: numeria-riemann-weil-interval-N8-${{ github.sha }}
+          name: numeria-riemann-weil-interval-N8-N10-${{ github.sha }}
           path: |
             weil-interval-audit-N8.json
             weil-interval-audit-N8-fine.json
+            weil-interval-audit-N10.json
+            weil-interval-audit-N10-fine.json
           if-no-files-found: error
           retention-days: 30
