@@ -16,6 +16,17 @@ class WeilIntervalAuditTests(unittest.TestCase):
         value = _omega(arb("1 +/- 0.001"), terms=32)
         self.assertTrue(value.is_finite())
 
+    def test_overlap_normalization_matches_unit_norm_basis(self):
+        # At zero shift, the normalized sine basis has Gram matrix I.
+        from numeria_riemann.weil_interval_audit import _overlap
+        L = arb("0.45")
+        diagonal = _overlap(arb(0), L, 2, 2)
+        off_diagonal = _overlap(arb(0), L, 1, 2)
+        self.assertTrue(diagonal.lower() <= arb(1))
+        self.assertTrue(diagonal.upper() >= arb(1))
+        self.assertTrue(off_diagonal.lower() <= arb(0))
+        self.assertTrue(off_diagonal.upper() >= arb(0))
+
     def test_small_interval_audit_returns_explicit_status(self):
         report = run(L_value=0.45, N=4, R_value=40, step_value=0.05,
                      terms=32, precision=128)

@@ -1,5 +1,7 @@
 # NUMERIA–RIEMANN: interval audit of the finite Weil matrix
 
+> **Audit status update — normalization defect found (2026-10-19).** Independent review found that the prime-overlap routine used `(first-second)/(4L)`, while the Fourier amplitudes and pole-constraint vectors use the unit-normalized basis (g_k(x)=\sin(w_kx)/\sqrt L) on ([0,2L]). Product-to-sum gives the normalized overlap ((first-second)/(2L)), so the previous prime matrix was smaller by a factor of two. Accordingly, the N=6, N=8 and N=10 certificates recorded below are **not certificates for the intended normalized Weil form** and must be treated as superseded. The correction and a zero-shift Gram-matrix regression test are being rerun in CI; do not cite the earlier pivot values as publication-grade evidence.
+
 **Reference configuration:** L = 0.45, N = 6, R = 160, requested step = 0.02, 8,000 integration cells, 128 terms in the digamma series, Arb precision = 192 bits.
 
 ## Result
