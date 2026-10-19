@@ -61,3 +61,9 @@ validated evidence without recording the exact runtime and reviewing outputs.
 
 See [REFERENCES_AND_PROVENANCE.md](REFERENCES_AND_PROVENANCE.md) for sources,
 license checks, and what remains to be independently validated.
+
+## Latest audit adendum
+
+The key findings from the supplied 2026-10-18 NUMERIA–RIEMANN audit package are summarized in [AUDIT_ADENDUM_2026-10-18.md](AUDIT_ADENDUM_2026-10-18.md). Its reported finite checks are not a proof of RH or related conjectures. In particular, the Weil-matrix sweep did not resolve any negative minimum eigenvalue beyond estimated quadrature spread, and the Lean source-integrity checks did not include `lake build` or `#print axioms`.
+
+GitHub Actions also runs an exploratory benchmark and publishes its CSVs, metadata, and SHA-256 manifest as a downloadable workflow artifact. These artifacts record the computation; they are not mathematical certificates.
