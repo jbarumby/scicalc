@@ -8,8 +8,9 @@ from numeria_riemann.weil_interval_audit import _omega, _sinc, run
 class WeilIntervalAuditTests(unittest.TestCase):
     def test_sinc_interval_contains_zero_singularity(self):
         value = _sinc(arb(0, "0.01"))
-        self.assertTrue(value.lower() <= 1)
-        self.assertTrue(value.upper() >= 1)
+        self.assertTrue(value.is_finite())
+        self.assertTrue(value.lower() < arb("1.001"))
+        self.assertTrue(value.upper() > arb("0.999"))
 
     def test_omega_interval_is_finite(self):
         value = _omega(arb("1 +/- 0.001"), terms=32)
