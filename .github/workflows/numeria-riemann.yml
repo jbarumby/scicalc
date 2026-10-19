@@ -1,7 +1,7 @@
 name: NUMERIA-RIEMANN isolated tests
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
   push:
     branches:
       - numeria-riemann/explicit-formula-prototype
