@@ -69,9 +69,11 @@ def psi_from_zeros_truncated(
 ) -> float:
     """Evaluate a finite explicit-formula diagnostic at x > 1.
 
-    If assume_critical_line is true, each input is an ordinate gamma and
-    rho=1/2+i*gamma is assumed. Otherwise each input is a complex zero rho.
-    Positive ordinates are paired with their conjugates through 2*Re(...).
+    If assume_critical_line is true, each input is a positive ordinate gamma
+    and rho=1/2+i*gamma is assumed; each represents a conjugate pair.
+    Otherwise each input is an individual complex zero rho. Supply both
+    members of each conjugate pair; their real contributions are summed
+    without an extra factor of two.
 
     This finite truncation is not certified and may converge slowly. At prime
     powers the standard psi_0 formula uses the midpoint of the jump, while
@@ -88,11 +90,20 @@ def psi_from_zeros_truncated(
         xx = mp.mpf(x)
         oscillation = mp.mpf("0")
         for item in zeros:
-            rho = (mp.mpf("0.5") + 1j * mp.mpf(item)
-                   if assume_critical_line else mp.mpc(item))
-            if abs(rho) == 0:
-                raise ValueError("zero location cannot be 0")
-            oscillation += 2 * mp.re(mp.power(xx, rho) / rho)
+            if assume_critical_line:
+                rho = mp.mpf("0.5") + 1j * mp.mpf(item)
+                if abs(rho) == 0:
+                    raise ValueError("zero location cannot be 0")
+                # One positive ordinate represents the conjugate pair.
+                oscillation += 2 * mp.re(mp.power(xx, rho) / rho)
+            else:
+                rho = mp.mpc(item)
+                if abs(rho) == 0:
+                    raise ValueError("zero location cannot be 0")
+                # Here callers supply individual complex zeros. To reproduce
+                # the real sum, include both members of each conjugate pair.
+                # Do not double each term: that would count each pair twice.
+                oscillation += mp.re(mp.power(xx, rho) / rho)
         correction = mp.log(2 * mp.pi) + mp.mpf("0.5") * mp.log1p(-1 / (xx * xx))
         return float(xx - oscillation - correction)
 
