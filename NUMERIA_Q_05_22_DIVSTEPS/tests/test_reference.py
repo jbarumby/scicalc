@@ -7,7 +7,7 @@ import unittest
 
 
 def inverse_extended_euclid(a: int, p: int) -> int:
-    """Inverso modular independente via Euclides estendido; p deve ser primo."""
+    """Inverso modular independente via Euclides estendido; gcd(a, p) deve ser 1."""
     old_r, r = a, p
     old_s, s = 1, 0
     while r:
@@ -35,6 +35,25 @@ class TestClassicalReference(unittest.TestCase):
         for a, p in ((2, 4), (6, 9), (0, 13)):
             with self.assertRaises(ValueError):
                 inverse_extended_euclid(a, p)
+
+    def test_large_modular_inverse_edge_case(self):
+        # Para a = 2**59 - 1 e p = 2**59 + 1, a = p - 2.
+        # O inverso é 2**58, pois (p - 2) * 2**58 = 2**59 * 2**58
+        # é congruente a 1 módulo p, já que 2**59 = p - 1.
+        a = 2**59 - 1
+        p = 2**59 + 1
+        expected_result = 2**58
+        self.assertEqual(inverse_extended_euclid(a, p), expected_result)
+        self.assertEqual((a * expected_result) % p, 1)
+
+    def test_example_with_negative_intermediate_coefficients(self):
+        # Euclides estendido pode produzir coeficientes intermediários negativos.
+        # Para 3 modulo 7, o inverso é 5. Isso não inspeciona o delta interno
+        # do algoritmo divsteps; testa apenas a referência modular clássica.
+        a, p = 3, 7
+        expected_result = 5
+        self.assertEqual(inverse_extended_euclid(a, p), expected_result)
+        self.assertEqual((a * expected_result) % p, 1)
 
 
 if __name__ == "__main__":
