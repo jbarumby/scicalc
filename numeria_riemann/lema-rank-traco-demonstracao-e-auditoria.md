@@ -175,6 +175,8 @@ Taxa final (Remark 6.1 da fonte): $N_0^s \geq \bigl(2 - R(\psi) - c_\psi \frac{\
 7. **Livro-contábil do $o(N)$:** a versão acumulada por janelas diádicas e a dedução de $N_d \geq \tfrac12(3 - R(\psi))N$.
 8. **Formalização:** conferir no repositório da fonte (tag v1.0) os enunciados de topo (`two_thirds_on_critical_line` e correlatos) e o resultado de `#print axioms` relatado.
 
+**Checagem documental adicional (19/10/2026).** O repositório público [`anthropics/formal-math/zeta23`](https://github.com/anthropics/formal-math/tree/main/zeta23) contém `AUDIT.md`, `Solution.lean` e os módulos Lean. O `AUDIT.md` registra builds anteriores bem-sucedidos e resultados de `#print axioms` usando apenas os três axiomas padrão de Lean. Porém, a própria nota da revisão de layout mais recente diz que nessa revisão não foi executado um build completo nem o Comparator; a justificativa é que as fontes Lean sem comentários seriam idênticas à revisão anterior, cujos testes estão registrados. Isso é uma trilha documental útil, mas não equivale a termos reproduzido esses comandos nesta auditoria. Também não substitui a conferência analítica, linha a linha, das Proposições 4.1–4.3 e do Teorema 5.7.
+
 ### Limites inerentes (para dimensionar a auditoria)
 
 - A desigualdade (3.1) é **sharp** nas cargas declaradas: a configuração $\tfrac23 N$ zeros simples ortogonais na reta $+ \tfrac16 N$ duplos realiza $\operatorname{tr} = N$, $\|\cdot\|_{\mathrm{HS}}^2 = \tfrac43 N$, $s_1 = \tfrac23 N$. Nada na cadeia distingue "dois terços" de "todos" com informação de ordem 1.
