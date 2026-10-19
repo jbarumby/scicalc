@@ -304,6 +304,8 @@ def main():
     parser.add_argument("--series-terms", type=int, default=128)
     parser.add_argument("--precision", type=int, default=192)
     parser.add_argument("--out", type=Path, default=Path("weil-interval-audit.json"))
+    parser.add_argument("--require-positive", action="store_true",
+                        help="exit nonzero unless interval LDL certifies positive definiteness")
     args = parser.parse_args()
     report = run(args.L, args.N, args.R, args.step, args.series_terms, args.precision)
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -312,6 +314,8 @@ def main():
         "status", "parameters", "active_prime_powers", "projected_dimension",
         "interval_ldl_pivot_lower_bounds", "limitations"
     )}, indent=2))
+    if args.require_positive and report["status"] != "certified_positive_definite_finite_matrix":
+        raise SystemExit("interval LDL did not certify the reference finite matrix")
 
 
 if __name__ == "__main__":
