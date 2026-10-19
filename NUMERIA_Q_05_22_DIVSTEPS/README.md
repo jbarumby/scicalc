@@ -19,7 +19,7 @@ O repositório dos autores informa para a construção divsteps padrão aproxima
 
 ## O que foi implementado neste marco
 
-1. Um teste independente da referência clássica de inversão modular em primos pequenos.
+1. Testes independentes da referência clássica de inversão modular: resíduos de primos pequenos, entrada sem inverso, caso grande com 59 bits e exemplo pequeno com coeficientes intermediários negativos.
 2. Uma especificação de reprodução, com os comandos do avaliador oficial.
 3. Critérios explícitos para impedir que os testes clássicos sejam confundidos com a reprodução do circuito quântico reversível.
 
@@ -47,5 +47,5 @@ O avaliador pode levar minutos ou horas para circuitos grandes. Guarde o log int
 
 ## Limites e transparência
 
-Os testes locais deste branch verificam aritmética modular clássica, não a regra de reconstrução de decisões intermediárias de divsteps. A reprodução do circuito e a execução da prova Lean são tarefas pendentes. Não se afirma novidade científica, ganho de recursos, vantagem quântica ou validação independente do artigo.
+Os testes locais deste branch verificam aritmética modular clássica, incluindo casos de borda; não verificam o pior caso de iterações nem inspecionam o sinal do parâmetro interno `delta` de divsteps. Isso exige testar a implementação divsteps real e sua instrumentação, ainda não definida neste arquivo. A reprodução do circuito e a execução da prova Lean são tarefas pendentes. Não se afirma novidade científica, ganho de recursos, vantagem quântica ou validação independente do artigo.
 
