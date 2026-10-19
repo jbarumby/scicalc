@@ -63,7 +63,7 @@ jobs:
       - name: Test interval arithmetic helpers
         run: python -m unittest numeria_riemann.test_weil_interval_audit -v
       - name: Run finite Weil matrix interval audit
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit.json
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit.json --require-positive
       - name: Publish interval audit report
         uses: actions/upload-artifact@v5
         with:
