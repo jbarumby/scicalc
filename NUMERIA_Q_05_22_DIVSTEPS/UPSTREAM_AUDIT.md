@@ -20,23 +20,30 @@
 | Euclidiano especializado | 20.521.949 | 843 | 17.300.003.007 |
 | Baseline Luo et al. | 69.529.757 | 838 | 58.265.936.366 |
 
-Fonte dos números: README da tarefa upstream, consultado via GitHub. Eles são resultados reportados pelos autores, **não uma reprodução independente realizada pelo NUMERIA-Q**.
+Fonte dos números: README da tarefa upstream. São resultados reportados pelos autores, não uma descoberta original do NUMERIA-Q.
 
 Link direto: https://github.com/andigu/uncompute/blob/main/tasks/modinv-point-add/README.md
 
+## Auditoria de confiança da prova Lean
+
+A documentação pública de `lean/divsteps/README.md` declara que a prova usa os axiomas padrão reportados pelo Mathlib (`propext`, `Classical.choice`, `Quot.sound`) e que os teoremas de limite de 590 passos dependem adicionalmente de `native_decide`, gerado para `Hddivsteps.example590_par`. O projeto explica que essa dependência representa a avaliação compilada de um certificado Booleano fechado e requer confiança no compilador/runtime de Lean para esse cálculo, além do kernel e Mathlib.
+
+O README upstream também afirma que `Main.lean` termina com comandos `#print axioms` para os teoremas públicos e que o projeto não contém `sorry`. Assim, o achado `native_decide` é uma dependência de confiança declarada pela própria referência, não evidência isolada de erro lógico. A ressalva formal permanece importante: não descrever os teoremas de 590 passos como verificados exclusivamente pelo kernel.
+
 ## O que foi verificado nesta etapa
 
-- O repositório upstream disponibiliza circuitos, avaliador, arquivos de resultados e uma prova Lean relacionada à recuperação de decisões de divsteps.
-- Os números de recursos acima foram lidos da documentação pública upstream.
-- A referência clássica independente do NUMERIA-Q passou em 3 testes locais.
+- Os resultados de recurso foram lidos da documentação pública upstream.
+- O avaliador upstream foi executado em GitHub Actions: 100.000 testes aleatórios, 4 falhas agregadas diante de orçamento 20, veredito `OK`.
+- A compilação Lean foi concluída com sucesso (1.518 tarefas).
+- Os testes clássicos independentes do NUMERIA-Q passaram (3/3).
+- A documentação upstream esclarece explicitamente a dependência adicional de `native_decide`.
 
 ## O que ainda não foi verificado
 
-- Execução local do avaliador upstream e conferência do veredito certificado.
-- Execução da prova Lean `lean/divsteps`.
-- Comparação de implementações com a mesma especificação, mesmos testes e mesmas convenções de custo.
+- Comparação quantitativa independente entre implementações NUMERIA-Q e upstream sob especificação e custos equivalentes.
 - Qualquer melhoria nova do NUMERIA-Q em relação ao circuito publicado.
+- Execução em hardware quântico; não foi enviado nenhum novo job à IBM Quantum.
 
-## Bloqueio de execução
+## Conclusão
 
-A tentativa de clonar o repositório upstream no ambiente de execução falhou porque o ambiente não conseguiu resolver o host `github.com` (falha de DNS). Portanto, não é correto afirmar que o circuito ou a prova Lean foram executados aqui. Os comandos reproduzíveis permanecem documentados em `README.md`.
+A reprodução do avaliador upstream passou e a prova Lean compilou. A dependência `native_decide` está explicitada na base de confiança do upstream. A etapa de maior valor científico agora é a comparação controlada entre implementações, sem alegação de novidade antes dos resultados.
