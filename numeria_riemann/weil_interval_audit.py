@@ -44,7 +44,7 @@ def _sinc(x):
         total += term if n % 2 == 0 else -term
     # For |x| <= 0.1, the alternating-series remainder after x^16/17!
     # is bounded by 0.1^18/19! < 1e-34.
-    return total + arb(0, arb("1e-34"))
+    return total + arb(0, "1e-34")
 
 
 def _omega(r, terms):
