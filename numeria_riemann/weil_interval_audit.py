@@ -21,7 +21,6 @@ from __future__ import annotations
 import unittest
 from flint import arb, ctx
 
-from numeria_riemann.weil_interval_audit import _interval_ldl_pivots
 
 
 class TestIntervalLDL(unittest.TestCase):
