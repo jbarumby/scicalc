@@ -17,7 +17,7 @@ This certifies only the finite-dimensional constrained matrix for the stated
 basis/parameters, if the interval LDL test succeeds. It is not a proof of the
 global Weil criterion or of the Riemann Hypothesis.
 """
-
+from __future__ import annotations
 import unittest
 from flint import arb, ctx
 
@@ -60,7 +60,6 @@ class TestIntervalLDL(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-from __future__ import annotations
 
 import argparse
 import json
