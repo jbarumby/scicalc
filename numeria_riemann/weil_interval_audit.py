@@ -228,7 +228,7 @@ def _project(B, W):
     return A
 
 
- def _interval_ldl_pivots(A):
+def _interval_ldl_pivots(A):
     """Interval LDL^T without in-place updates to input matrix entries.
 
     Positive lower bounds for every pivot certify positive
