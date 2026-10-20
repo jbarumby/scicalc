@@ -17,6 +17,49 @@ This certifies only the finite-dimensional constrained matrix for the stated
 basis/parameters, if the interval LDL test succeeds. It is not a proof of the
 global Weil criterion or of the Riemann Hypothesis.
 """
+
+import unittest
+from flint import arb, ctx
+
+from numeria_riemann.weil_interval_audit import _interval_ldl_pivots
+
+
+class TestIntervalLDL(unittest.TestCase):
+    def test_positive_matrix(self):
+        A = [
+            [arb(2), arb(0)],
+            [arb(0), arb(3)],
+        ]
+        pivots, certified = _interval_ldl_pivots(A)
+        self.assertTrue(certified)
+        self.assertTrue(all(p.lower() > 0 for p in pivots))
+
+    def test_inconclusive_matrix(self):
+        A = [
+            [arb("0 +/- 1"), arb(0)],
+            [arb(0), arb(3)],
+        ]
+        _, certified = _interval_ldl_pivots(A)
+        self.assertFalse(certified)
+
+    def test_exported_bounds(self):
+        p = arb("0.3 +/- 0.1")
+        lo = p.lower()
+        hi = p.upper()
+
+        self.assertTrue(lo > 0)
+        self.assertTrue(hi > lo)
+        self.assertTrue(lo <= p)
+        self.assertTrue(p <= hi)
+
+        print("Intervalo:", p.str(40))
+        print("Inferior:", lo.str(40, radius=False))
+        print("Superior:", hi.str(40, radius=False))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
 from __future__ import annotations
 
 import argparse
