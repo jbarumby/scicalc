@@ -229,23 +229,45 @@ def _project(B, W):
 
 
 def _interval_ldl_pivots(A):
-    """Interval LDL^T; positive lower bounds certify positive definiteness."""
+    """Interval LDL^T without in-place updates to input matrix entries.
+
+    Positive lower bounds for every pivot certify positive
+    definiteness, assuming A is a symmetric interval enclosure
+    of the intended real matrix.
+    """
     n = len(A)
+
+    if any(len(row) != n for row in A):
+        raise ValueError("A matriz deve ser quadrada.")
+
     lower = [[arb(0) for _ in range(n)] for _ in range(n)]
     diagonal = []
+
     for i in range(n):
         lower[i][i] = arb(1)
-        pivot = A[i][i]
+
+        # Evita modificar diretamente A[i][i].
+        pivot = A[i][i] + arb(0)
+
         for k in range(i):
-            pivot -= lower[i][k] * lower[i][k] * diagonal[k]
+            correction = lower[i][k] * lower[i][k] * diagonal[k]
+            pivot = pivot - correction
+
         diagonal.append(pivot)
+
         if not (pivot.lower() > 0):
             return diagonal, False
+
         for j in range(i + 1, n):
-            value = A[j][i]
+            # Evita modificar diretamente A[j][i].
+            value = A[j][i] + arb(0)
+
             for k in range(i):
-                value -= lower[j][k] * lower[i][k] * diagonal[k]
+                correction = lower[j][k] * lower[i][k] * diagonal[k]
+                value = value - correction
+
             lower[j][i] = value / pivot
+
     return diagonal, True
 
 
