@@ -37,3 +37,6 @@ Foi adicionada uma segunda execução para (N=8), com passo (0{,}01), 256 termos
 - O resultado é uma auditoria finita, intervalar e exploratória da matriz projetada.
 - `inconclusive_interval_ldl` não é um certificado de positividade nem uma prova de indefinição.
 - Nenhuma conclusão global sobre positividade de Weil ou a Hipótese de Riemann decorre deste cálculo.
+
+
+Atualizacao: o workflow refinado 39180676723 terminou com sucesso; consulte os resultados detalhados no registro desta auditoria.
