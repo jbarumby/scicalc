@@ -6,6 +6,7 @@ on:
       - numeria-riemann/explicit-formula-prototype
       - numeria-riemann/overlap-normalization-fix-ci
       - numeria-riemann/overlap-normalization-fix-ci3
+      - numeria-riemann/overlap-normalization-fix-ci4
   pull_request:
     paths:
       - "numeria_riemann/**"
@@ -79,14 +80,12 @@ jobs:
       - name: Publish interval audit reports
         uses: actions/upload-artifact@v5
         with:
-          name: numeria-riemann-weil-interval-N8-N10-${{ github.sha }}
+          name: numeria-riemann-weil-interval-N6-N10-${{ github.sha }}
           path: |
             weil-interval-audit-N6.json
             weil-interval-audit-N6-fine.json
             weil-interval-audit-N8.json
             weil-interval-audit-N8-fine.json
-            weil-interval-audit-N10.json
-            weil-interval-audit-N10-fine.json
             weil-interval-audit-N10.json
             weil-interval-audit-N10-fine.json
           if-no-files-found: error

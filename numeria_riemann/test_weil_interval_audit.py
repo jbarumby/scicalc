@@ -27,6 +27,11 @@ class WeilIntervalAuditTests(unittest.TestCase):
         self.assertTrue(off_diagonal.lower() <= arb(0))
         self.assertTrue(off_diagonal.upper() >= arb(0))
 
+    def test_tail_bound_rejects_cutoff_below_proven_range(self):
+        from numeria_riemann.weil_interval_audit import _archimedean_matrix
+        with self.assertRaises(ValueError):
+            _archimedean_matrix(arb("100"), 4, arb("10"), arb("1"), 32)
+
     def test_small_interval_audit_returns_explicit_status(self):
         report = run(L_value=0.45, N=4, R_value=40, step_value=0.05,
                      terms=32, precision=128)

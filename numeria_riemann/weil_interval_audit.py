@@ -83,6 +83,8 @@ def _fourier_amplitude(r, L, k):
 
 def _archimedean_matrix(L, N, R, step, terms):
     """Rigorous entrywise enclosure of (1/pi) integral_0^R Re(F_i conj(F_j))*Omega dr."""
+    if R.lower() < arb(32):
+        raise ValueError("R must be >= 32 for the documented absolute Omega tail bound")
     count = int(math.ceil(float(R) / float(step)))
     width = R / count
     pi = arb.pi()
@@ -259,6 +261,8 @@ def run(L_value=0.45, N=6, R_value=160.0, step_value=0.02, terms=128, precision=
     ctx.prec = precision
     try:
         L, R, step = _a(L_value), _a(R_value), _a(step_value)
+        if R.lower() < arb(32):
+            raise ValueError("R must be >= 32 for the documented absolute Omega tail bound")
         wmax = arb(N) * arb.pi() / (2 * L)
         if not (R.lower() >= (2 * wmax).upper()):
             raise ValueError("R must be >= 2*w_max to use the analytic tail bound")
