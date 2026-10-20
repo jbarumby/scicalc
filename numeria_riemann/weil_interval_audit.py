@@ -277,8 +277,9 @@ def run(L_value=0.45, N=6, R_value=160.0, step_value=0.02, terms=128, precision=
                            "arb_precision_bits": precision},
             "active_prime_powers": active,
             "projected_dimension": N - 2,
-            "interval_ldl_pivots": [str(p) for p in pivots],
-            "interval_ldl_pivot_lower_bounds": [p.lower().str(40, radius=False) for p in pivots],
+           "interval_ldl_pivots": [p.str(40) for p in pivots],
+           "interval_ldl_pivot_lower_bounds": [p.lower().str(40, radius=False) for p in pivots],
+           "interval_ldl_pivot_upper_bounds": [p.upper().str(40, radius=False) for p in pivots],
             "archimedean_entry_enclosures": [[str(G[i][j]) for j in range(N)] for i in range(N)],
             "projected_matrix_enclosures": [[str(projected[i][j]) for j in range(N - 2)] for i in range(N - 2)],
             "limitations": [
