@@ -80,3 +80,8 @@ python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --step 0.0
 ```
 
 The correction is isolated on branch `numeria-riemann/overlap-normalization-fix-ci4`; no branch was merged into `main`. The original PR #1 remains unmerged. Before publication, the exact full pivot intervals and a second independent implementation of the prime-overlap formula should be retained alongside the JSON artifact.
+
+
+## Final guarded rerun
+
+The implementation now explicitly rejects cutoffs below R=32 for the stated absolute Omega tail bound, and a regression test checks this guard. The complete workflow was rerun at commit `7629b8c87cbcafefc05929ce5d9119f95fa27378`: [run #39345501884](https://github.com/jbarumby/scicalc/actions/runs/39345501884). All four jobs passed, including the new cutoff-guard test and all six N=6/N=8/N=10 runs. The pivot lower bounds and inconclusive status are unchanged from the table above. Final artifact: [N=6 through N=10 JSON reports](https://github.com/jbarumby/scicalc/actions/runs/39345501884/artifacts/12231150827).
