@@ -1,15 +1,44 @@
-"""Finite-dimensional NUMERIA–RIEMANN Weil interval audit.
+"""Interval enclosure audit for a finite NUMERIA-RIEMANN Weil matrix.
 
-Uses python-flint/Arb for enclosures. A positive interval LDL result concerns
-only the stated finite constrained matrix, not global Weil positivity or RH.
+This is a deliberately small, independent audit path for the L=0.45, N=6
+prototype. It uses python-flint/Arb ball arithmetic throughout the matrix
+construction, pole constraints, finite-interval integral, prime overlaps,
+and a conservative analytic tail bound. It certifies positivity only if the
+interval LDL pivots are all strictly positive. Otherwise it reports
+"inconclusive"; it never infers a sign from mesh stability.
+
+The archimedean integral is enclosed by interval range sums: on each cell I,
+the integral of a continuous f lies in width(I)*f(I). The digamma real part
+is evaluated using a positive series with an integral-test tail enclosure.
+The remaining integral tail uses an elementary digamma-series bound
+(see TAIL_PROOF.md), avoiding an unverified Binet remainder constant.
+
+This certifies only the finite-dimensional constrained matrix for the stated
+basis/parameters, if the interval LDL test succeeds. It is not a proof of the
+global Weil criterion or of the Riemann Hypothesis.
 """
 from __future__ import annotations
 
 import argparse
 import json
-import math
+from decimal import Decimal, ROUND_CEILING
 from pathlib import Path
+
 from flint import arb, ctx
+
+try:
+    from .exact_mesh import exact_cell_count, validate_decimal
+except ImportError:  # standalone audit execution
+    from exact_mesh import exact_cell_count, validate_decimal
+
+
+
+def _assert_ball_radius_semantics():
+    """Fail closed if installed python-flint ball radius semantics differ."""
+    for radius in (arb("0.1"), arb("1e-30"), arb("123456789")):
+        ball = arb(0, radius)
+        if not (ball.contains(radius) and ball.contains(-radius)):
+            raise ArithmeticError("Arb midpoint/radius constructor failed containment test")
 
 def _a(value):
     """Parse a user decimal as an Arb ball, avoiding binary-float constants."""
@@ -52,7 +81,7 @@ def _omega(r, terms):
     integral_tail = arb("0.5") * (1 + r2 / (y * y)).log()
     first_omitted = r2 / (y * (y * y + r2))
     # Enclose [integral_tail, integral_tail + first_omitted].
-    sum_tail = integral_tail + first_omitted / 2 + arb(0, (first_omitted / 2).upper())
+    sum_tail = integral_tail + arb(first_omitted / 2, first_omitted / 2)
     q = (-pi * r).exp()
     sech_term = pi * q / (1 + q * q)
     return total + sum_tail - sech_term
@@ -65,9 +94,9 @@ def _fourier_amplitude(r, L, k):
     return 2 * L.sqrt() * w / (w + r) * _sinc(L * (r - w))
 
 
-def _archimedean_matrix(L, N, R, step, terms):
+def _archimedean_matrix(L, N, R, step, terms, _input_R, _input_step):
     """Rigorous entrywise enclosure of (1/pi) integral_0^R Re(F_i conj(F_j))*Omega dr."""
-    count = int(math.ceil(float(R.upper()) / float(step.lower())))
+    count = exact_cell_count(_input_R, _input_step)
     width = R / count
     pi = arb.pi()
     G = [[arb(0) for _ in range(N)] for _ in range(N)]
@@ -88,23 +117,24 @@ def _archimedean_matrix(L, N, R, step, terms):
                 G[i][j] += contribution
                 if i != j:
                     G[j][i] += contribution
-    # Conservative analytic tail bound, r >= max(1, 2*w_max):
-    # |F_k(r)| <= 4*w_k/(sqrt(L)*r^2),
-    # |Omega(r)| <= 8 + log(3*r) (see TAIL_PROOF.md).
-    # Integrating (8+log(3*r))/r^4 from R to infinity gives
-    # (8+log(3*R)+1/3)/(3*R^3).
+    # Analytic tail enclosure for each entry. For r >= R >= 2*w_max:
+    # |F_k(r)| <= 4*w_k/(sqrt(L)*r^2), and
+    # |Omega(r)| <= 8+log(3r) for r>=1; proof in TAIL_PROOF.md.
     wmax = arb(N) * pi / (2 * L)
     if not (R.lower() >= (2 * wmax).upper()):
         raise ValueError("R must be rigorously >= 2*w_max for the tail bound")
-    tail_factor = (arb(8) + (3 * R).log() + arb(1) / 3) / (3 * R ** 3)
+    if not (R.lower() >= 1):
+        raise ValueError("R must be rigorously >= 1 for elementary tail bound")
+    # Integral_R^infty [8+log(3r)]/r^4 dr
+    tail_factor = (8 + (3 * R).log() + arb(1) / 3) / (3 * R ** 3)
     for i in range(N):
         wi = arb(i + 1) * pi / (2 * L)
         for j in range(i, N):
             wj = arb(j + 1) * pi / (2 * L)
             tail = 16 * wi * wj / (pi * L) * tail_factor
-            G[i][j] += arb(0, tail.upper())
+            G[i][j] += arb(0, tail)
             if i != j:
-                G[j][i] += arb(0, tail.upper())
+                G[j][i] += arb(0, tail)
     return G, count
 
 
@@ -142,22 +172,29 @@ def _overlap(a, L, i, j):
             first = ((delta * b + first_phase).sin() - first_phase.sin()) / delta
         total = wk + wm
         second = ((total * b + first_phase).sin() - first_phase.sin()) / total
-        return (first - second) / (4 * L)
+        return (first - second) / (2 * L)
 
     return (directed(i, j) + directed(j, i)) / 2
 
 
 def _prime_matrix(L, N):
     twoL = 2 * L
-    # A safe finite search bound; each candidate is classified using Arb logs.
-    nstop = int(math.ceil(math.exp(2 * float(L)))) + 1
+    # Search ends only after Arb proves log(n) > 2L; no float exp cutoff.
+    # Decimal is used only to propose a search ceiling. The Arb comparisons
+    # below decide membership rigorously; avoid float overflow here.
+    upper = (Decimal(str(L.upper())) * 2).exp()
+    nstop = int(upper.to_integral_value(rounding=ROUND_CEILING)) + 1
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
-    for n in range(2, nstop + 1):
+    n = 2
+    while True:
+        logn = arb(n).log()
+        if logn.lower() > twoL.upper():
+            break
         p = _von_mangoldt_prime(n)
         if p is None:
+            n += 1
             continue
-        logn = arb(n).log()
         if logn.upper() < twoL.lower():
             active.append(n)
             coefficient = -2 * arb(p).log() / arb(n).sqrt()
@@ -168,8 +205,9 @@ def _prime_matrix(L, N):
                     P[i - 1][j - 1] += value
                     if i != j:
                         P[j - 1][i - 1] += value
-        elif logn.lower() < twoL.upper():
+        elif logn.lower() <= twoL.upper():
             raise ValueError(f"prime-power cutoff is not separated from n={n}")
+        n += 1
     return P, active
 
 
@@ -213,61 +251,43 @@ def _project(B, W):
 
 
 def _interval_ldl_pivots(A):
-    """Interval LDL^T without in-place updates to input matrix entries.
-
-    Positive lower bounds for every pivot certify positive
-    definiteness, assuming A is a symmetric interval enclosure
-    of the intended real matrix.
-    """
+    """Interval LDL^T; positive lower bounds certify positive definiteness."""
     n = len(A)
-
-    if any(len(row) != n for row in A):
-        raise ValueError("A matriz deve ser quadrada.")
-
     lower = [[arb(0) for _ in range(n)] for _ in range(n)]
     diagonal = []
-
     for i in range(n):
         lower[i][i] = arb(1)
-
-        # Evita modificar diretamente A[i][i].
-        pivot = A[i][i] + arb(0)
-
+        pivot = A[i][i]
         for k in range(i):
-            correction = lower[i][k] * lower[i][k] * diagonal[k]
-            pivot = pivot - correction
-
+            pivot -= lower[i][k] * lower[i][k] * diagonal[k]
         diagonal.append(pivot)
-
         if not (pivot.lower() > 0):
             return diagonal, False
-
         for j in range(i + 1, n):
-            # Evita modificar diretamente A[j][i].
-            value = A[j][i] + arb(0)
-
+            value = A[j][i]
             for k in range(i):
-                correction = lower[j][k] * lower[i][k] * diagonal[k]
-                value = value - correction
-
+                value -= lower[j][k] * lower[i][k] * diagonal[k]
             lower[j][i] = value / pivot
-
     return diagonal, True
 
 
 def run(L_value=0.45, N=6, R_value=160.0, step_value=0.02, terms=128, precision=192):
-    if N < 4 or L_value <= 0 or R_value <= 0 or step_value <= 0 or terms < 16:
-        raise ValueError("Require N>=4, L/R/step>0, and at least 16 series terms")
-    if L_value * step_value / 2 >= 0.1:
-        raise ValueError("step too wide for the removable-singularity sinc enclosure")
+    if N < 4 or terms < 16 or precision < 64:
+        raise ValueError("Require N>=4, terms>=16, precision>=64 bits")
     old_precision = ctx.prec
     ctx.prec = precision
     try:
-        L, R, step = _a(L_value), _a(R_value), _a(step_value)
+        L_input, R_input, step_input = (validate_decimal(v) for v in (L_value, R_value, step_value))
+        L, R, step = _a(L_input), _a(R_input), _a(step_input)
+        if not (L.lower() > 0 and R.lower() > 0 and step.lower() > 0):
+            raise ValueError("L, R and step must be strictly positive")
+        if not ((L * step / 2).upper() < arb("0.1")):
+            raise ValueError("step too wide for sinc enclosure")
         wmax = arb(N) * arb.pi() / (2 * L)
         if not (R.lower() >= (2 * wmax).upper()):
             raise ValueError("R must be >= 2*w_max to use the analytic tail bound")
-        G, cells = _archimedean_matrix(L, N, R, step, terms)
+        _assert_ball_radius_semantics()
+        G, cells = _archimedean_matrix(L, N, R, step, terms, R_input, step_input)
         P, active = _prime_matrix(L, N)
         W = [[G[i][j] + P[i][j] for j in range(N)] for i in range(N)]
         B = _constraint_nullspace(L, N)
@@ -283,9 +303,8 @@ def run(L_value=0.45, N=6, R_value=160.0, step_value=0.02, terms=128, precision=
                            "arb_precision_bits": precision},
             "active_prime_powers": active,
             "projected_dimension": N - 2,
-           "interval_ldl_pivots": [p.str(40) for p in pivots],
-           "interval_ldl_pivot_lower_bounds": [p.lower().str(40, radius=False) for p in pivots],
-           "interval_ldl_pivot_upper_bounds": [p.upper().str(40, radius=False) for p in pivots],
+            "interval_ldl_pivots": [str(p) for p in pivots],
+            "interval_ldl_pivot_lower_bounds": [p.lower().str(40, radius=False) for p in pivots],
             "archimedean_entry_enclosures": [[str(G[i][j]) for j in range(N)] for i in range(N)],
             "projected_matrix_enclosures": [[str(projected[i][j]) for j in range(N - 2)] for i in range(N - 2)],
             "limitations": [
@@ -304,10 +323,10 @@ def run(L_value=0.45, N=6, R_value=160.0, step_value=0.02, terms=128, precision=
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--L", type=float, default=0.45)
+    parser.add_argument("--L", type=str, default="0.45")
     parser.add_argument("--N", type=int, default=6)
-    parser.add_argument("--R", type=float, default=160.0)
-    parser.add_argument("--step", type=float, default=0.02)
+    parser.add_argument("--R", type=str, default="160")
+    parser.add_argument("--step", type=str, default="0.02")
     parser.add_argument("--series-terms", type=int, default=128)
     parser.add_argument("--precision", type=int, default=192)
     parser.add_argument("--out", type=Path, default=Path("weil-interval-audit.json"))
@@ -326,4 +345,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main() 
