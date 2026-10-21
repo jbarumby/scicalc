@@ -179,7 +179,7 @@ def _overlap(a, L, i, j):
 
 
 def _prime_matrix(L, N):
-     twol = 2 * L
+    twol = 2 * L
 
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
@@ -187,26 +187,18 @@ def _prime_matrix(L, N):
 
     while True:
         logn = arb(n).log()
+
         if logn.lower() > twol.upper():
             break
+
         p = _von_mangoldt_prime(n)
+
         if p is None:
             n += 1
             continue
-        if logn.upper() < twoL.lower():
+
+        if logn.upper() < twol.lower():
             active.append(n)
-            coefficient = -2 * arb(p).log() / arb(n).sqrt()
-            a = logn
-            for i in range(1, N + 1):
-                for j in range(i, N + 1):
-                    value = coefficient * _overlap(a, L, i, j)
-                    P[i - 1][j - 1] += value
-                    if i != j:
-                        P[j - 1][i - 1] += value
-        elif logn.lower() <= twoL.upper():
-            raise ValueError(f"prime-power cutoff is not separated from n={n}")
-        n += 1
-    return P, active
 
 
 def _constraint_nullspace(L, N):
