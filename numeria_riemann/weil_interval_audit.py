@@ -179,9 +179,8 @@ def _overlap(a, L, i, j):
 
 
 def _prime_matrix(L, N):
-    twol = 2 * L
+     twol = 2 * L
 
-    # Inicialização da matriz
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
     n = 2
