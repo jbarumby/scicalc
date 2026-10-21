@@ -54,34 +54,42 @@ jobs:
 
   weil-interval-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install python-flint==0.9.0
-      - name: Test interval arithmetic helpers
+      - run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Test interval arithmetic helpers and mpmath cross-checks
         run: python -m unittest numeria_riemann.test_weil_interval_audit -v
-      - name: Run N=6 interval audit
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-N6.json
-      - name: Run N=8 interval audit (baseline mesh)
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-N8.json
-      - name: Run N=8 interval audit (finer mesh and higher precision)
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --step 0.01 --series-terms 256 --precision 256 --out weil-interval-audit-N8-fine.json
-      - name: Run N=10 interval audit (baseline mesh)
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-N10.json
-      - name: Run N=10 interval audit (finer mesh and higher precision)
-        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --step 0.01 --series-terms 256 --precision 256 --out weil-interval-audit-N10-fine.json
+      - name: End-to-end check against real zeta zeros (slow)
+        run: NUMERIA_SLOW=1 python -m unittest numeria_riemann.test_weil_interval_audit.WeilEndToEndZeros -v
+      - name: Run N=6 interval audit (adaptive certified quadrature)
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --precision 192 --out weil-interval-audit-v2-N6.json
+      - name: Run N=8 interval audit (adaptive)
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --precision 192 --out weil-interval-audit-v2-N8.json
+      - name: Run N=10 interval audit (adaptive)
+        run: python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --precision 192 --out weil-interval-audit-v2-N10.json
+      - name: Legacy range-sum cross-check N=6 (wide enclosures, may be inconclusive)
+        run: python -m numeria_riemann.weil_interval_audit --archimedean rangesum --L 0.45 --N 6 --R 160 --step 0.02 --series-terms 128 --precision 192 --out weil-interval-audit-legacy-N6.json
+      - name: Exact rational re-verification of the exported enclosures
+        run: |
+          for n in 6 8 10; do python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N$n.json; done
+          python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N6-256bits.json
+          python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N6-256bits.json --compare weil-interval-audit-v2-N6.json
+      - name: Summarize
+        run: |
+          python -m numeria_riemann.audit_diagnostics weil-interval-audit-v2-N6.json weil-interval-audit-v2-N8.json weil-interval-audit-v2-N10.json weil-interval-audit-legacy-N6.json --out-dir diagnostics || true
+          cat diagnostics/*.md >> "$GITHUB_STEP_SUMMARY"
       - name: Publish interval audit reports
+        if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: numeria-riemann-weil-interval-N8-N10-${{ github.sha }}
+          name: numeria-riemann-weil-interval-${{ github.sha }}
           path: |
-            weil-interval-audit-N6.json
-            weil-interval-audit-N8.json
-            weil-interval-audit-N8-fine.json
-            weil-interval-audit-N10.json
-            weil-interval-audit-N10-fine.json
+            weil-interval-audit-*.json
+            diagnostics/
           if-no-files-found: error
           retention-days: 30
