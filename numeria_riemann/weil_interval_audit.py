@@ -188,7 +188,7 @@ def _prime_matrix(L, N):
 
     while True:
         logn = arb(n).log()
-        if logn.lower() > twoL.upper():
+        if logn.lower() > twol.upper():
             break
         p = _von_mangoldt_prime(n)
         if p is None:
