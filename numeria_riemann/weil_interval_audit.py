@@ -179,6 +179,7 @@ def _overlap(a, L, i, j):
 
 
 def _prime_matrix(L, N):
+    """Construct the prime-power matrix, with rigorous cutoff decisions."""
     twol = 2 * L
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
@@ -186,18 +187,29 @@ def _prime_matrix(L, N):
 
     while True:
         logn = arb(n).log()
-
         if logn.lower() > twol.upper():
             break
 
+        # An interval overlapping the cutoff cannot be silently included/excluded.
+        if logn.upper() >= twol.lower():
+            raise ArithmeticError(
+                f"Cannot separate prime-power cutoff at n={n}; increase precision"
+            )
+
         p = _von_mangoldt_prime(n)
-
-        if p is None:
-            n += 1
-            continue
-
-        if logn.upper() < twol.lower():
+        if p is not None:
             active.append(n)
+            coefficient = -2 * arb(p).log() / arb(n).sqrt()
+            for i in range(1, N + 1):
+                for j in range(i, N + 1):
+                    value = coefficient * _overlap(logn, L, i, j)
+                    P[i - 1][j - 1] += value
+                    if i != j:
+                        P[j - 1][i - 1] += value
+
+        n += 1  # Always advance, including for prime powers.
+
+    return P, active
 
 
 def _constraint_nullspace(L, N):
