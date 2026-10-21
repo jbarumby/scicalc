@@ -182,8 +182,12 @@ def _prime_matrix(L, N):
     # Search ends only after Arb proves log(n) > 2L; no float exp cutoff.
     # Decimal is used only to propose a search ceiling. The Arb comparisons
     # below decide membership rigorously; avoid float overflow here.
+
+# Limite superior para a busca de potências de primos.
    upper = (L * 2).exp().upper()
    nstop = int(float(upper)) + 2
+
+
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
     n = 2
