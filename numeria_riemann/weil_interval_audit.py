@@ -177,10 +177,11 @@ def _overlap(a, L, i, j):
     return (directed(i, j) + directed(j, i)) / 2
 
 
-def _prime_matrix(L, N):
-        twoL = 2 * L
 
-    # Inicialização da matriz de contribuições dos primos
+def _prime_matrix(L, N):
+    twol = 2 * L
+
+    # Inicialização da matriz
     P = [[arb(0) for _ in range(N)] for _ in range(N)]
     active = []
     n = 2
