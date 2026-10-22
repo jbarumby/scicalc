@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - numeria-riemann/explicit-formula-prototype
+      - numeria-riemann/weil-v2-adaptive-ci-fix
   pull_request:
     paths:
       - "numeria_riemann/**"
@@ -79,6 +80,14 @@ jobs:
           for n in 6 8 10; do python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N$n.json; done
           python -m numeria_riemann.weil_interval_audit --L 0.45 --N 6 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N6-256bits.json
           python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N6-256bits.json --compare weil-interval-audit-v2-N6.json
+          python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N8-256bits.json
+          python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N8-256bits.json --compare weil-interval-audit-v2-N8.json
+          python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N10-256bits.json
+          python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N10-256bits.json --compare weil-interval-audit-v2-N10.json
+          python -m numeria_riemann.weil_interval_audit --L 0.45 --N 8 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N8-256bits.json
+          python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N8-256bits.json --compare weil-interval-audit-v2-N8.json
+          python -m numeria_riemann.weil_interval_audit --L 0.45 --N 10 --R 160 --precision 256 --integral-tol-bits 70 --out weil-interval-audit-v2-N10-256bits.json
+          python -m numeria_riemann.verify_certificate weil-interval-audit-v2-N10-256bits.json --compare weil-interval-audit-v2-N10.json
       - name: Independent double-precision check (not rigorous)
         run: python -m numeria_riemann.check_enclosures_float weil-interval-audit-v2-N6.json weil-interval-audit-v2-N8.json weil-interval-audit-v2-N10.json
       - name: Summarize
