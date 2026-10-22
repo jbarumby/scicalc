@@ -70,7 +70,7 @@ Para $c=Bc'$, a identidade formal de (W), se aplicável à função teste e com 
 $\sum_\rho F_c(\gamma_\rho)F_c(-\gamma_\rho)=c'^{\mathsf T}Ac',\qquad A=B^{\mathsf T}(G+P)B,$
 sem termos de polo. É a matriz projetada (`_project`) cuja positividade definida o código certifica.
 
-**Distinção essencial:** se $\gamma_\rho\in\mathbb R$, então $F_c(-\gamma_\rho)=\overline{F_c(\gamma_\rho)}$ e o termo é $|F_c(\gamma_\rho)|^2\ge0$. Se $\gamma_\rho$ é complexo, essa igualdade em geral é falsa; portanto a matriz positiva calculada não pode ser interpretada, sem argumento adicional, como positividade da soma de módulos quadrados sobre todos os zeros. A forma hermitiana geral do critério de Weil envolve a conjugação e a simetria corretas da função teste e dos zeros; a identificação entre essa forma e a forma quadrática construída aqui ainda precisa ser demonstrada. Não usar a equação acima como prova do critério global.
+**Distinção essencial:** se $\gamma_\rho\in\mathbb R$, então $F_c(-\gamma_\rho)=\overline{F_c(\gamma_\rho)}$ e o termo é $|F_c(\gamma_\rho)|^2\ge0$. Se $\gamma_\rho$ é complexo, não se pode substituir o produto por $|F_c(\gamma_\rho)|^2$. Porém, para $f$ real, vale a identidade algébrica $F_c(-z)=\overline{F_c(\bar z)}$ para todo $z\in\mathbb C$; assim, $F_c(\gamma_\rho)F_c(-\gamma_\rho)=F_c(\gamma_\rho)\overline{F_c(\overline{\gamma_\rho})}$, que tem a forma diagonal hermitiana usual do critério de Weil. Isso resolve a correspondência algébrica para esta autocorrelação real, mas **não** resolve por si só a aplicabilidade do teorema à classe de teste usada: continuam pendentes a verificação literal das hipóteses, convergência, multiplicidades e termos de polo/fronteira. Nem a positividade desta matriz finita nem o teste com zeros reais demonstram a positividade global exigida pelo critério.
 
 ## 4. Sinais e fatores: conferência item a item
 
@@ -105,4 +105,4 @@ Limites: o teste usa os zeros reais (portanto assume RH nos zeros usados), é nu
 3. A correção da avaliação do Arb é assumida; `verify_certificate.py` cobre só o passo final.
 4. Nada aqui diz algo sobre outros $L$, outras bases ou o critério global.
 
-5. Derivar, sem assumir RH, a correspondência exata entre a forma quadrática real $F_c(r)F_c(-r)$ implementada e a forma hermitiana de Weil para a classe de teste escolhida. Até isso ser feito, os resultados são certificados de matriz finita e verificações numéricas restritas, não uma verificação do critério global.
+5. Completar a auditoria das hipóteses da fórmula explícita para esta função teste (regularidade, decaimento, convergência da soma sobre zeros, multiplicidades e termos de polo). A identidade $F_c(-z)=\overline{F_c(\bar z)}$ já identifica algebricamente o produto implementado com o termo diagonal hermitiano para $f$ real; falta documentar rigorosamente a aplicação do teorema e a positividade global para a classe completa de funções teste.
