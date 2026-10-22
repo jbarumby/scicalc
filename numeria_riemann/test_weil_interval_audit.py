@@ -271,10 +271,13 @@ class WeilMpmathCrossChecks(_Precision):
                      "lento: defina NUMERIA_SLOW=1 (precisa de mpmath)")
 class WeilEndToEndZeros(_Precision):
     def test_quadratic_form_equals_sum_over_real_zeta_zeros(self):
-        """c^T A c (+ cauda arquimediana) == Σ_{todos os zeros} |F_c(γ)|² (+ cauda dos zeros).
+        """Cross-check numérico condicionado a zeros conhecidos na linha crítica.
 
-        Checagem numérica (não rigorosa) da construção inteira: arquimediana,
-        primos, restrições de polo, normalização e sinais.
+        NÃO verifica zeros fora da linha crítica nem prova a fórmula para zeros
+        complexos. A identidade |F_c(gamma)|^2 usa gamma real. A cauda da soma
+        de zeros é estimada, não certificada. Este teste é evidência numérica
+        de consistência da implementação para os zeros consultados, não uma
+        validação independente do critério global de Weil nem da RH.
         """
         mp.mp.dps = 20
         N = 6
