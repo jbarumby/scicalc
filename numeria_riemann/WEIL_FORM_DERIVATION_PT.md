@@ -1,6 +1,6 @@
 # NUMERIA–RIEMANN: derivação da forma quadrática de Weil implementada
 
-**Data:** 2026-10-21. **Escopo:** deduzir, a partir de um teorema citado (fórmula explícita de Guinand–Weil), cada termo da matriz que `weil_interval_audit.py` constrói, incluindo sinais, fatores de normalização e restrições, e mapear cada passo para o código e para um teste.
+**Data:** 2026-10-21 (revisão crítica proposta em 2026-10-22). **Escopo:** deduzir, a partir de um teorema citado (fórmula explícita de Guinand–Weil), cada termo da matriz que `weil_interval_audit.py` constrói, incluindo sinais, fatores de normalização e restrições, e mapear cada passo para o código e para um teste. Esta revisão separa explicitamente a identidade computada da forma hermitiana usada no critério global de Weil.
 
 **O que "rigoroso" significa aqui.** Há três camadas, e este documento não as mistura:
 
@@ -12,7 +12,7 @@ Nada aqui demonstra a hipótese de Riemann nem a positividade global de Weil.
 
 ## 1. O teorema citado (Guinand–Weil)
 
-Seja $h$ inteira (ou analítica numa faixa $|\operatorname{Im}r|\le\tfrac12+\varepsilon$) com decaimento suficiente, e $g(u)=\frac1{2\pi}\int_{\mathbb R}h(r)e^{-iur}dr$ par, contínua e de suporte compacto. Escrevendo os zeros não triviais como $\rho=\tfrac12+i\gamma_\rho$:
+Seja $h$ inteira (ou analítica numa faixa $|\operatorname{Im}r|\le\tfrac12+\varepsilon$) com decaimento suficiente, e $g(u)=\frac1{2\pi}\int_{\mathbb R}h(r)e^{-iur}dr$ par, contínua e de suporte compacto. Para cada zero não trivial $\rho$, defina $\gamma_\rho=-i(\rho-\tfrac12)$, de modo que $\rho=\tfrac12+i\gamma_\rho$. **Não se assume que $\gamma_\rho$ seja real.** A realidade de todos os $\gamma_\rho$ equivale à Hipótese de Riemann. A soma em (W) deve ser entendida com multiplicidades e sob as hipóteses de convergência da versão exata da fórmula explícita citada; a verificação dessas hipóteses para a função teste usada aqui permanece pendente.
 $$\sum_\rho h(\gamma_\rho)=h\!\left(\tfrac i2\right)+h\!\left(-\tfrac i2\right)-g(0)\log\pi+\frac1{2\pi}\int_{\mathbb R}h(r)\operatorname{Re}\psi\!\left(\tfrac14+\tfrac{ir}2\right)dr-2\sum_{n\ge1}\frac{\Lambda(n)}{\sqrt n}\,g(\log n).\tag{W}$$
 
 *Fontes consultadas* (a forma é a mesma, a menos de notação):
@@ -66,9 +66,11 @@ Observação de escopo: exigir os dois fatores nulos é **suficiente** para anul
 
 ### 3.4 Forma restrita
 
-Para $c=Bc'$, (W) dá
-$$\sum_\rho h(\gamma_\rho)=c'^{\mathsf T}Ac',\qquad A=B^{\mathsf T}(G+P)B,$$
+Para $c=Bc'$, a identidade formal de (W), se aplicável à função teste e com a convergência justificada, dá
+$\sum_\rho F_c(\gamma_\rho)F_c(-\gamma_\rho)=c'^{\mathsf T}Ac',\qquad A=B^{\mathsf T}(G+P)B,$
 sem termos de polo. É a matriz projetada (`_project`) cuja positividade definida o código certifica.
+
+**Distinção essencial:** se $\gamma_\rho\in\mathbb R$, então $F_c(-\gamma_\rho)=\overline{F_c(\gamma_\rho)}$ e o termo é $|F_c(\gamma_\rho)|^2\ge0$. Se $\gamma_\rho$ é complexo, essa igualdade em geral é falsa; portanto a matriz positiva calculada não pode ser interpretada, sem argumento adicional, como positividade da soma de módulos quadrados sobre todos os zeros. A forma hermitiana geral do critério de Weil envolve a conjugação e a simetria corretas da função teste e dos zeros; a identificação entre essa forma e a forma quadrática construída aqui ainda precisa ser demonstrada. Não usar a equação acima como prova do critério global.
 
 ## 4. Sinais e fatores: conferência item a item
 
@@ -84,7 +86,7 @@ sem termos de polo. É a matriz projetada (`_project`) cuja positividade definid
 
 ## 5. Verificação numérica ponta a ponta (evidência, não prova)
 
-`test_quadratic_form_equals_sum_over_real_zeta_zeros` (`NUMERIA_SLOW=1`) compara, para $c'$ aleatório, $c'^{\mathsf T}Ac'$ mais a cauda arquimediana além de $R$ com $2\sum_{\gamma>0}|F_c(\gamma)|^2$ sobre zeros reais da zeta mais uma cauda de zeros pela densidade de Riemann–von Mangoldt. Com 300 zeros ($\gamma_{\max}\approx541{,}8$) a diferença foi de $7{,}9\times10^{-9}$ e $1{,}2\times10^{-8}$ em dois vetores (valores $0{,}105$ e $2{,}051$).
+`test_quadratic_form_equals_sum_over_real_zeta_zeros` (`NUMERIA_SLOW=1`) compara, para $c'$ aleatório, $c'^{\mathsf T}Ac'$ mais a cauda arquimediana além de $R$ com $2\sum_{\gamma>0}|F_c(\gamma)|^2$ sobre zeros conhecidos na linha crítica e uma cauda de zeros estimada pela densidade de Riemann–von Mangoldt. Esta é uma **checagem de consistência condicionada aos zeros reais usados**, não uma verificação independente da fórmula para zeros fora da linha crítica, nem uma prova de que o resto da soma de zeros esteja limitado. Os números reportados devem ser vinculados ao log/artifact exato da execução antes de serem tratados como reprodução atual.
 
 *Sensibilidade.* Nesses mesmos vetores o termo de primos vale $-0{,}097$ e $-0{,}069$. Um sinal trocado ou um fator 2 a mais ou a menos deslocaria a comparação em $0{,}07$ a $0{,}19$, cerca de sete ordens de grandeza acima da diferença observada. Por isso o teste distingue os erros de fator e de sinal que já ocorreram nesta linha de trabalho.
 
@@ -92,13 +94,15 @@ Limites: o teste usa os zeros reais (portanto assume RH nos zeros usados), é nu
 
 ## 6. O que os certificados dizem e não dizem
 
-- O certificado de positividade de $A$ é um fato **sobre esta matriz**, calculado sem usar RH nem a localização de zeros. Via (W), ele implica $\sum_\rho h(\gamma_\rho)=c'^{\mathsf T}Ac'>0$ para todo $c'\ne0$ nesta família.
-- Esse resultado é **consistente com** RH, que implica $\sum_\rho h=\sum|F_c(\gamma)|^2\ge0$. Ele não a implica: a família é de dimensão finita e suporte pequeno ($L=0{,}45$, só $n=2$ entra), enquanto o critério de Weil exige positividade para todas as funções teste.
+- O certificado de positividade de $A$ é um fato **sobre esta matriz**, calculado sem usar RH nem a localização de zeros. A interpretação pela fórmula explícita depende das hipóteses e convergência de (W), ainda pendentes de auditoria independente.
+- Se RH for assumida, os parâmetros $\gamma_\rho$ são reais e a soma correspondente se torna uma soma de módulos quadrados para esta escolha de $h$. Sem RH, não se pode usar essa identidade de módulos quadrados. Em qualquer caso, esta família é de dimensão finita e tem suporte pequeno ($L=0{,}45$, só $n=2$ entra), enquanto o critério global exige a classe completa de funções teste apropriadas; a positividade desta matriz não implica RH.
 - Os relatórios exportam extremos decimais arredondados **para fora** (inferior por baixo, superior por cima) e ponto médio e raio exatos. `verify_certificate.py` refaz o teste final em racionais exatos a partir do JSON, sem Arb e sem ponto flutuante.
 
 ## 7. O que continua aberto
 
-1. Conferir literalmente as hipóteses de (W) contra o enunciado de Poitou/Lang (ou de Weil) para esta classe de $h$; aqui só se verificou que $g_\star$ é contínua, $C^1$, par, de suporte compacto e que $h$ é inteira com $O(r^{-4})$.
+1. Conferir literalmente as hipóteses de (W) contra o enunciado primário de Poitou/Lang (ou de Weil) para esta classe de $h$, incluindo a variável complexa $\gamma_\rho$, multiplicidades, simetrias, convergência e eventuais termos de fronteira; aqui só se verificou que $g_\star$ é contínua, $C^1$, par, de suporte compacto e que $h$ é inteira com $O(r^{-4})$ na reta real.
 2. Revisão independente deste documento e de `TAIL_PROOF.md`: ambos são novos.
 3. A correção da avaliação do Arb é assumida; `verify_certificate.py` cobre só o passo final.
 4. Nada aqui diz algo sobre outros $L$, outras bases ou o critério global.
+
+5. Derivar, sem assumir RH, a correspondência exata entre a forma quadrática real $F_c(r)F_c(-r)$ implementada e a forma hermitiana de Weil para a classe de teste escolhida. Até isso ser feito, os resultados são certificados de matriz finita e verificações numéricas restritas, não uma verificação do critério global.
