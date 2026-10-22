@@ -154,6 +154,10 @@ class WeilExportAndVerifierTests(_Precision):
         b = {"projected_matrix_enclosures": [[{"lower": "2", "upper": "3"}]]}
         self.assertTrue(ver.compare(a, a))
         self.assertFalse(ver.compare(a, b))
+        details = ver.compare_details(a, b)
+        self.assertFalse(details["enclosures_intersect"])
+        self.assertEqual(details["max_midpoint_difference"], 2.0)
+        self.assertEqual(details["max_entry_width_first"], 1.0)
 
 
 @unittest.skipIf(mp is None, "mpmath não instalado")

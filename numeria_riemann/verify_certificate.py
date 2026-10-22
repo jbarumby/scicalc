@@ -86,6 +86,22 @@ def compare(report_a, report_b):
     return all(la[i][j] <= hb[i][j] and lb[i][j] <= ha[i][j] for i in range(n) for j in range(n))
 
 
+def compare_details(report_a, report_b):
+    """Detalhes exatos da comparação: interseção, maior diferença de pontos médios e larguras."""
+    la, ha = load_matrix(report_a)
+    lb, hb = load_matrix(report_b)
+    n = len(la)
+    mid_diff = max(abs((la[i][j] + ha[i][j]) - (lb[i][j] + hb[i][j])) / 2 for i in range(n) for j in range(n))
+    width_a = max(ha[i][j] - la[i][j] for i in range(n) for j in range(n))
+    width_b = max(hb[i][j] - lb[i][j] for i in range(n) for j in range(n))
+    return {
+        "enclosures_intersect": compare(report_a, report_b),
+        "max_midpoint_difference": float(mid_diff),
+        "max_entry_width_first": float(width_a),
+        "max_entry_width_second": float(width_b),
+    }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("report", type=Path)
@@ -99,6 +115,7 @@ def main(argv=None):
     if args.compare:
         other = json.loads(args.compare.read_text(encoding="utf-8"))
         result["consistent_with_other_report"] = compare(report, other)
+        result["comparison"] = compare_details(report, other)
         ok = ok and result["consistent_with_other_report"]
     print(json.dumps(result, indent=2))
     return 0 if ok else 1
