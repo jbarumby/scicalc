@@ -1,0 +1,7 @@
+{
+  "schema": "NUMERIA.E8K.CI.SOURCE.1",
+  "source_zip_sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+  "b5_source_sha256": "a1753d3010e34f29371a9706cd6bb05b3b0c8491ca3cafb44bf98b7cd53d3df9",
+  "source_member": "fontes/AUDITOR_PONTOS_B5.py",
+  "verified": true
+}
