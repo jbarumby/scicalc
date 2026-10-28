@@ -1,38 +1,37 @@
 # NUMERIA E8-K V14 — replay, testemunhas e controle independente
 
-Este diretório prepara a incorporação do pacote **E8K V14** recebido em `E8K_V14_GITHUB_COMPLETO.zip`.
+## Pacote de origem
 
-## Escopo declarado pelo pacote
+Pacote recebido nesta conversa: `NUMERIA_E8K_V14_TODOS_ARQUIVOS.zip`.
 
-- Replay da fonte B5 com 15.754 registros (G11: 9.524; G22: 6.230).
-- Recomputação racional das somas em 11 bandas e reconciliação dos registros JSONL.
-- Oráculo racional independente para uma amostra de 128 integrandos.
-- Conferidor fail-closed e autotestes de mutação.
-- Formalização Lean associada à revisão V13.
-- Relatórios de resultados, proveniência e hashes SHA-256.
+- SHA-256 do ZIP recebido: `794ac407aa2278639fd2182a65f1ea36f02fa37044676ba90b8f71cdc5c29d12`
+- Integridade estrutural ZIP: passou (`testzip` sem erro).
+- Entradas: 29.
+- Tamanho descompactado total: aproximadamente 10,0 MB.
 
-## Arquivos de referência no pacote
+O manifesto original do pacote foi preservado em [SHA256SUMS_ORIGINAL_PACKAGE.txt](SHA256SUMS_ORIGINAL_PACKAGE.txt). Não confundir a publicação desse manifesto com o upload dos próprios arquivos listados.
 
-O ZIP contém os scripts `VERIFICAR_E8K_V12.py`, `VERIFICAR_E8K_V13.py`, `GERAR_E8K_V14.py`, `GERAR_SHA256_V14.py`, `ORACULO_RACIONAL_V14.py` e `CONFERIR_E8K_V14.py`; relatórios JSON; `b5/*.jsonl`; evidências B3; a fonte Lean; o ZIP E7 original; e dois workflows GitHub Actions.
+## O que implementa
 
-## Comandos locais
+1. Replay de 15.754 registros B5, com hashes fixados e proveniência.
+2. Recomposição racional das somas exatas de 11 bandas e reconciliação dos JSONL.
+3. Métricas B3/B5 explicitamente limitadas às somas finitas agregadas; não inventa métricas por ponto quando não há intervalos B3 individuais.
+4. Oráculo racional independente para 128 integrandos em 11 bandas.
+5. Arredondamento para fora e verificação por aritmética racional.
+6. Conferidor fail-closed com gates e testes de mutação.
+7. Código Lean V13 incluído no pacote, mas a compilação Lean permanece não verificada.
 
-```bash
-python VERIFICAR_E8K_V12.py --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --provenance-dir proveniencia_b3 --strict-provenance --out REPLAY_E8K_V12_INTEGRAL.json
-python VERIFICAR_E8K_V13.py --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out RESULTADO_E8K_V13.json
-python GERAR_E8K_V14.py --root .
-python GERAR_SHA256_V14.py --root .
-python CONFERIR_E8K_V14.py --root . --selftest --out CONFERENCIA_E8K_V14.json
-```
+## Validação local executada sobre o ZIP completo
+
+- `py_compile` dos sete scripts Python: passou.
+- `VERIFICAR_E8K_V12.py`: código de saída 0.
+- `VERIFICAR_E8K_V13.py`: código de saída 0.
+- `GERAR_E8K_V14.py`: código de saída 0.
+- `CONFERIR_E8K_V14.py --selftest`: **9/9 gates PASS**, zero FAIL.
+- `sha256sum -c SHA256SUMS.txt`: todos os 27 itens listados passaram.
+
+Esses testes foram executados na cópia local descompactada, não no GitHub Actions. Os arquivos completos ainda precisam ser enviados à raiz do repositório preservando exatamente os caminhos e bytes; consulte [STATUS_INCORPORACAO_V14.md](STATUS_INCORPORACAO_V14.md).
 
 ## Limites científicos
 
-Os resultados de replay, hashes e testes de mutação verificam aspectos computacionais definidos pelo pacote. Não demonstram, por si sós, a fórmula global de Weil, todas as premissas analíticas, positividade para dimensões arbitrárias ou a Hipótese de Riemann. O relatório do pacote também declara que a compilação Lean não foi verificada.
-
-## Integridade do pacote
-
-O arquivo ZIP recebido foi verificado localmente quanto à integridade estrutural (CRC do ZIP). SHA-256 do ZIP recebido:
-
-`043183f0313f7e62ac106402181327f9b7b82e3769d84d42ebc9e75ed6a12c3a`
-
-Esse hash identifica o ZIP enviado nesta conversa; não é uma assinatura externa nem substitui a conferência de `SHA256SUMS.txt` depois que os arquivos forem extraídos e colocados nos caminhos finais do repositório.
+Esses resultados verificam apenas as propriedades computacionais e as premissas declaradas no pacote. Não comprovam a fórmula global de Weil, todos os majorantes analíticos, positividade em dimensões arbitrárias nem a Hipótese de Riemann.
