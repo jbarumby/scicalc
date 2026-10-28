@@ -1,0 +1,81 @@
+name: auditoria-e8k
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_v11_strict_preview:
+        description: 'Executar V11 --strict experimental (deve falhar enquanto houver SKIP)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Instalar dependências de testes
+        run: python -m pip install pytest hypothesis
+
+      - name: Conferir hashes e extrair fonte B5 fixa
+        run: |
+          python ci/verify_e7.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --extract-to audit/extracted/AUDITOR_PONTOS_B5.py \
+            --report audit/origem_e7.json
+
+      - name: Cotejo independente V11 (sem fonte; SKIP esperado)
+        run: |
+          python ci/v11_gate.py independent \
+            --script VERIFICADOR_E8K_V11.py \
+            --out audit/resultado_v11_independente.json
+
+      - name: Núcleo B5 — AST, racionais, constantes e mutações (bloqueante)
+        run: |
+          python VERIFICAR_E8K_V10_UNIFICADO_CORRIGIDO.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out audit/resultado_core_v10.json --trials 1800
+
+      - name: Inspeção V11 sobre o ZIP (SKIP registrados; não é aprovação estrita)
+        run: |
+          python ci/v11_gate.py sourced \
+            --script VERIFICADOR_E8K_V11.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out audit/resultado_v11_fonte.json
+
+      - name: Hypothesis contra a classe real B5
+        env:
+          E8K_SOURCE: audit/extracted/AUDITOR_PONTOS_B5.py
+        run: python -m pytest -q -x testes_property_e8k.py
+
+      - name: Lean — inventário do rascunho (NÃO prova compilada)
+        run: |
+          python ci/lean_draft_status.py \
+            --source lean_draft/E8K_Intervalos.lean \
+            --out audit/lean_draft_status.json
+
+      - name: Prévia V11 --strict (pode falhar legitimamente)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_v11_strict_preview }}
+        run: |
+          python VERIFICADOR_E8K_V11.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out audit/resultado_v11_strict_preview.json --strict
+
+      - name: Publicar JSONs mesmo quando houver falhas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-auditoria-e8k
+          path: audit/*.json
+          if-no-files-found: warn
+          retention-days: 30
