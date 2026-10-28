@@ -1,0 +1,58 @@
+name: auditoria-e8k-v15-bloco-arquimediano
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'v15/**'
+      - 'RESULTADO_E8K_V14.json'
+      - 'RESULTADO_E8K_V13.json'
+      - 'b5/**'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - 'SHA256SUMS.txt'
+      - '.github/workflows/auditoria-e8k-v15.yml'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar-v15:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Integridade do pacote V14 de referencia
+        shell: bash
+        run: sha256sum -c SHA256SUMS.txt
+      - name: Certificado racional condicional V15 e controles negativos
+        run: >
+          python v15/VERIFICAR_E8K_V15_BLOCO.py
+          --root .
+          --out v15/RESULTADO_E8K_V15.json
+      - name: Verificar reproducibilidade do JSON V15 no proprio runner
+        shell: bash
+        run: |
+          cp v15/RESULTADO_E8K_V15.json /tmp/v15_primeiro.json
+          python v15/VERIFICAR_E8K_V15_BLOCO.py --root . --out v15/RESULTADO_E8K_V15.json
+          cmp -s /tmp/v15_primeiro.json v15/RESULTADO_E8K_V15.json
+      - name: Publicar evidencias mesmo em falha
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: num-e8k-v15-certificado-condicional
+          if-no-files-found: warn
+          path: |
+            v15/RESULTADO_E8K_V15.json
+            v15/PARECER_TECNICO_V15.md
+            v15/SHA256SUMS_V15.txt
+            RESULTADO_E8K_V14.json
+            RESULTADO_E8K_V13.json
+            CONFERENCIA_E8K_V14.json
+
+# Lean permanece em workflow SEPARADO (auditoria-e8k-v13) e nao e
+# declarado aprovado por este workflow racional. Sem compilacao local,
+# NAO considerar a formalizacao como prova Lean certificada.
