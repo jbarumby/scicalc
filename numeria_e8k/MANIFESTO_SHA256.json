@@ -1,0 +1,19 @@
+{
+  "schema": "NUMERIA.E8K.CI.MANIFEST.1",
+  "files": {
+    "VERIFICAR_E8K_V10_UNIFICADO_CORRIGIDO.py": "c3ad3ef7996c52c0bf88570d76dc09ff8a521f8d8464df089314780160f542c4",
+    "testes_property_e8k.py": "c5345f666c2cec0021289bb55b388995f2434530b280d92fe79f124c57ac1ceb",
+    "README.md": "72182d265c6d388579901b62b2702529486e56700aedcf6bf718ded3004e0545",
+    "VERIFICADOR_E8K_V11.py": "bdaf007b413601acc0f9def40f87087993dbbe466c3bf0496e8ab5bc287d0d7e",
+    "lean_draft/E8K_Intervalos.lean": "35cfddf11664794da570dcc0b20deca31b58575df240e6db9b652499947782d4",
+    "audit/resultado_core_v10.json": "7b0eff23c3b2db246d989d49faeb2b281305402f648354b61469f17fa35068fc",
+    "audit/origem_e7.json": "6a775ca76264e48c33e17eb5ec2f8bf85556ed20308f889aabd07715d58fc909",
+    "audit/resultado_v11_independente.json": "29b4fc567f10c6c44e8059c6627616a7707735b105089a66e424c12ed84b3c89",
+    "audit/resultado_v11_fonte.json": "522ed64cc2c296c0a385625e85ca98bc3ea9c4c85b6248d497d067d9e4cf0e1d",
+    "audit/lean_draft_status.json": "f0300b0f4400d7ad1add581962ca3e19683fd3746a2b5d6da0fdcdac3aadda60",
+    "ci/lean_draft_status.py": "b1bd17f0ab0313ab5d11c16e01aa6a9b74ebd97c494ab249d5c5227eeb7a79f0",
+    "ci/verify_e7.py": "05c8aaec2432ec670e3342833d33760819dc28a96db42f82221465080d384e18",
+    "ci/v11_gate.py": "be4a16bfcffa6c0f8d3d58ad51da8f68481b9122b71636bbc3bf467ed4723030",
+    ".github/workflows/auditoria-e8k.yml": "160e6eadbdc239cf34f4bb65e394b84afffcfaa75e3954df292706ea771d9f90"
+  }
+}
