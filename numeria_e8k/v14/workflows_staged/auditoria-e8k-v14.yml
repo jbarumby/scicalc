@@ -1,0 +1,56 @@
+name: auditoria-e8k-v14-testemunhas
+on:
+  push:
+    paths:
+      - "GERAR_E8K_V14.py"
+      - "CONFERIR_E8K_V14.py"
+      - "ORACULO_RACIONAL_V14.py"
+      - "VERIFICAR_E8K_V12.py"
+      - "VERIFICAR_E8K_V13.py"
+      - "NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip"
+      - "b5/**"
+      - "proveniencia_b3/**"
+      - ".github/workflows/auditoria-e8k-v14.yml"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reproducao-com-testemunhas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Reproduzir todos os pontos com B5 (hash fixado)
+        run: >
+          python VERIFICAR_E8K_V12.py
+          --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip
+          --provenance-dir proveniencia_b3
+          --strict-provenance
+          --out REPLAY_E8K_V12_INTEGRAL.json
+      - name: Conferir cotas V13 sob premissas analiticas
+        run: >
+          python VERIFICAR_E8K_V13.py
+          --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip
+          --out RESULTADO_E8K_V13.json
+      - name: Gerar testemunhas V14 e 128 oraculos racionais independentes
+        run: python GERAR_E8K_V14.py --root .
+      - name: Gerar SHA256SUMS de todas entradas e testemunhas
+        run: python GERAR_SHA256_V14.py --root .
+      - name: Auditoria fail-closed e mutacoes negativas
+        run: python CONFERIR_E8K_V14.py --root . --out CONFERENCIA_E8K_V14.json --selftest
+      - name: Publicar testemunhas e JSONs mesmo em caso de falha
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: num-e8k-v14-testemunhas
+          if-no-files-found: warn
+          path: |
+            RESULTADO_E8K_V14.json
+            REPLAY_E8K_V12_INTEGRAL.json
+            RESULTADO_E8K_V13.json
+            oraculo/AMOSTRA_128.json
+            CONFERENCIA_E8K_V14.json
+            SHA256SUMS.txt
