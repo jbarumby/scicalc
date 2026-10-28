@@ -1,0 +1,63 @@
+name: auditoria-e8k-v12
+
+on:
+  push:
+    paths:
+      - 'VERIFICAR_E8K_V12.py'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - 'proveniencia_b3/**'
+      - '.github/workflows/auditoria-e8k-v12.yml'
+  pull_request:
+    paths:
+      - 'VERIFICAR_E8K_V12.py'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - 'proveniencia_b3/**'
+      - '.github/workflows/auditoria-e8k-v12.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduzir-pontos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Reproduzir todos os 15.754 pontos e as somas E7
+        run: |
+          python VERIFICAR_E8K_V12.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --provenance-dir proveniencia_b3 \
+            --strict-provenance \
+            --out RESULTADO_E8K_V12.json
+      - name: Publicar diagnóstico da proveniência (estrita)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('RESULTADO_E8K_V12.json').read_text(encoding='utf-8'))
+          gaps = r['provenance_gaps']
+          if gaps:
+              raise SystemExit('Proveniência B5 ainda contém lacunas: %s' % gaps)
+          with Path('RESULTADO_E8K_V12_RESUMO.md').open('w', encoding='utf-8') as f:
+              f.write('## NUMERIA E8-K V12\n')
+              f.write('- Reprodução integral: **%s**\n' % r['all_point_exports_reproduced'])
+              f.write('- Pontos: **%s**\n' % r['point_counts']['total'])
+              f.write('- Lacunas de proveniência: **%s**\n' % len(gaps))
+              f.write('- Cotas analíticas de quadratura/cauda: **não provadas nesta suíte**\n')
+          summary = Path(__import__('os').environ.get('GITHUB_STEP_SUMMARY', 'RESULTADO_E8K_V12_RESUMO.md'))
+          with summary.open('a', encoding='utf-8') as f:
+              f.write(Path('RESULTADO_E8K_V12_RESUMO.md').read_text(encoding='utf-8'))
+          PY
+      - name: Publicar resultados (inclusive se falhar)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-auditoria-e8k-v12
+          path: |
+            RESULTADO_E8K_V12.json
+            RESULTADO_E8K_V12_RESUMO.md
+          if-no-files-found: warn
