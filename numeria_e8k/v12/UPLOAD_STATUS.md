@@ -4,21 +4,30 @@ Data: 2026-10-28.
 
 Esta branch é uma **área de staging**, não uma integração pronta para merge.
 
-## Arquivos enviados nesta etapa
-- Verificador de replay V12.
-- Conferidor de evidências V2.
-- Relatório V12 (cópia textual de trabalho).
-- Documentação V12 e das melhorias.
-- Manifestos de hashes do pacote original, renomeados/retidos como referências.
-- Registro de origem dos arquivos B3.
-- Workflows YAML preservados em `workflows/` dentro da área de staging; não são workflows ativos do GitHub Actions.
+## Arquivos disponíveis nesta branch
+
+- `VERIFICAR_E8K_V12.py`: verificador de replay V12.
+- `CONFERIR_E8K_V12_V2.py`: conferidor independente das evidências exportadas.
+- `RESULTADO_E8K_V12.json`: relatório textual de resultado.
+- `README_E8K_V12.md` e `README_MELHORIAS.md`: documentação de escopo e limitações.
+- `proveniencia_b3/ORIGEM_DOS_ARQUIVOS.json`: metadados de proveniência.
+- `proveniencia_b3/RESULTADO_B3_G11_WINDOWS.json`: relatório B3 G11 em cópia de trabalho.
+- `workflows/auditoria-e8k-v12.yml` e `workflows/auditoria-e8k-v12-evidencias.yml`: YAMLs preservados em staging; não são workflows ativos do GitHub Actions.
+- `VALIDACAO_LOCAL.md`: resultados da execução local do pacote de origem.
+- `SHA256SUMS_ORIGINAL_RELEASE_REFERENCE.txt` e `SHA256_MELHORIAS_ORIGINAL_RELEASE_REFERENCE.txt`: referências aos hashes declarados pelo pacote original, não atestados de integridade da árvore staged.
 
 ## Pendências bloqueantes
-1. O ZIP binário `NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip` (SHA-256 esperado `4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7`) **não foi transferido para o repositório** por esta integração.
-2. Os relatórios B3 precisam ser conferidos byte a byte contra os SHA-256 originais antes de serem tratados como evidência executável.
-3. Os arquivos devem ser comparados com os hashes dos pacotes de origem; os manifestos originais não devem ser usados para certificar cópias de trabalho modificadas.
-4. Só depois de incorporar o ZIP binário e verificar os hashes será seguro mover os workflows para `.github/workflows/` na raiz e executar CI.
-5. Não abrir/mesclar PR de produção nem declarar CI verde antes dessa conferência.
+
+1. O ZIP binário `NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip` (SHA-256 esperado `4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7`) **não foi transferido para o repositório**.
+2. As cópias textuais staged precisam ser comparadas byte a byte com o ZIP original; os hashes de referência não certificam automaticamente esses arquivos.
+3. O segundo JSON de proveniência B3 G22 e o relatório detalhado de conferência V2 ainda não foram adicionados.
+4. Os arquivos precisam ser postos nos caminhos de raiz esperados pelo workflow. Só depois de incorporar o ZIP E7, confirmar todos os hashes e ajustar os caminhos será seguro mover os YAMLs para `.github/workflows/`.
+5. Não abrir nem mesclar PR de produção e não declarar GitHub Actions verde antes de concluir essas verificações.
+
+## Validação local do pacote original
+
+O ZIP completo fornecido foi testado localmente: ZIP íntegro; `py_compile` passou; o replay V12 estrito retornou código 0 para 15.754 pontos e zero lacunas de proveniência; o conferidor V2 retornou 8/8 gates PASS e 6/6 mutações isoladas detectadas. Esses resultados referem-se ao pacote local completo, não à árvore staged nem ao GitHub Actions.
 
 ## Escopo científico
-A reprodução de 15.754 pontos alegada pelos relatórios é uma checagem computacional, não valida independentemente as cotas analíticas de quadratura ou cauda, a positividade global de Weil ou a Hipótese de Riemann.
+
+A reprodução de pontos e a consistência dos certificados exportados não demonstram independentemente as cotas analíticas de quadratura ou cauda, a positividade global de Weil ou a Hipótese de Riemann.
