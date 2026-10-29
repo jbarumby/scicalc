@@ -1,0 +1,218 @@
+{
+  "schema": "NUMERIA.B3.G12G22.RATIONAL.1",
+  "scope": "G12 paridade exata e G22 integral arquimediana, L=9/20,R=160, sem Arb",
+  "method": "even-odd Fourier parity; midpoint rational directed intervals, second-derivative and tail bounds",
+  "implementation_source_sha256": "d8459b7845b5391f76554247cbf50560b84edd99a46702bbafaca958eea48de4",
+  "shared_G11_helpers_sha256": "47676b1fdaccc65e19e005b76b2f37a7964e9d5a9db1a914a103c558e84636f0",
+  "G12_exact_zero": true,
+  "G22_fixed_point_midpoint": [
+    {
+      "numerator": "-25645474225474457092288939380407082572264537",
+      "denominator": "250000000000000000000000000000000000000000000",
+      "decimal_approx": "-0.102581896901898"
+    },
+    {
+      "numerator": "-102576193654240981482909319237863371323571613",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-0.102576193654241"
+    }
+  ],
+  "G22_quadrature_error_upper": {
+    "numerator": "24971309261805265845085287772406383999927",
+    "denominator": "250000000000000000000000000000000000000000000",
+    "decimal_approx": "9.98852370472211e-05"
+  },
+  "G22_tail_error_upper": {
+    "numerator": "128521322504095505536502618190115016306223",
+    "denominator": "1000000000000000000000000000000000000000000000",
+    "decimal_approx": "0.000128521322504096"
+  },
+  "G22_enclosure": [
+    {
+      "numerator": "-102810303461449144938072601290908070841364079",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-0.102810303461449"
+    },
+    {
+      "numerator": "-51173893547344832456996237734291815385632841",
+      "denominator": "500000000000000000000000000000000000000000000",
+      "decimal_approx": "-0.10234778709469"
+    }
+  ],
+  "mesh": [
+    {
+      "from": "0",
+      "to": "12",
+      "cells": 4635,
+      "f2_bound": {
+        "numerator": "693890746501304263267182524441705456217092033",
+        "denominator": "31250000000000000000000000000000000000000000",
+        "decimal_approx": "22.2045038880417"
+      },
+      "error_bound": {
+        "numerator": "74417331659422876340381322465025124073513",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "7.44173316594229e-05"
+      }
+    },
+    {
+      "from": "12",
+      "to": "24",
+      "cells": 749,
+      "f2_bound": {
+        "numerator": "93504400134925578653324599914474670232565219",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "0.0935044001349256"
+      },
+      "error_bound": {
+        "numerator": "300013583296404180341896502583871341439",
+        "denominator": "25000000000000000000000000000000000000000000",
+        "decimal_approx": "1.20005433318562e-05"
+      }
+    },
+    {
+      "from": "24",
+      "to": "48",
+      "cells": 400,
+      "f2_bound": {
+        "numerator": "110895779981672878076269964563854223263453",
+        "denominator": "62500000000000000000000000000000000000000000",
+        "decimal_approx": "0.00177433247970677"
+      },
+      "error_bound": {
+        "numerator": "255503877077774311087725998355120130399",
+        "denominator": "40000000000000000000000000000000000000000000",
+        "decimal_approx": "6.38759692694436e-06"
+      }
+    },
+    {
+      "from": "48",
+      "to": "96",
+      "cells": 294,
+      "f2_bound": {
+        "numerator": "87900847933886932045037579126700742415721",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "8.79008479338869e-05"
+      },
+      "error_bound": {
+        "numerator": "2343046342261042753387090822202768644151",
+        "denominator": "500000000000000000000000000000000000000000000",
+        "decimal_approx": "4.68609268452209e-06"
+      }
+    },
+    {
+      "from": "96",
+      "to": "160",
+      "cells": 152,
+      "f2_bound": {
+        "numerator": "5063178237045018350251792543267314826463",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "5.06317823704502e-06"
+      },
+      "error_bound": {
+        "numerator": "2393672444475576542316636917962017720359",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "2.39367244447558e-06"
+      }
+    }
+  ],
+  "references": [
+    {
+      "filename": "controle_256_tol50_N10.json",
+      "sha256": "a009462305c2e375a565f509b65cd6e6be2ba8aba25ecf5da53dfe0a6c16ea43",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099901941341939894708766349274777521736078721122138133",
+        "-0.101927712176160371206387431767350474901941341939894708766349274777521736078721122138132"
+      ]
+    },
+    {
+      "filename": "controle_256_tol50_N6.json",
+      "sha256": "024286bffc415de725af1858f86e8bb79ab8196679e4af1c8f0c5bb4328f040c",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099901941341939894708766349274777521736078721122138133",
+        "-0.101927712176160371206387431767350474901941341939894708766349274777521736078721122138132"
+      ]
+    },
+    {
+      "filename": "controle_256_tol50_N8.json",
+      "sha256": "a7c3c2bfc9e90d05fd2b559ec13af2792c2f243f472c659b8e4d123afbf9a249",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099901941341939894708766349274777521736078721122138133",
+        "-0.101927712176160371206387431767350474901941341939894708766349274777521736078721122138132"
+      ]
+    },
+    {
+      "filename": "historico_192_tol50_N10.json",
+      "sha256": "3915b23ba258883a65ee437e1fb76e21799f1f59c8703d8aadd46909e2a8e766",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.1032301658799894585233773304501326705272334731503742449418683710230",
+        "-0.1019277121761603712063874317684920455272334731503742449418683710229"
+      ]
+    },
+    {
+      "filename": "historico_192_tol50_N6.json",
+      "sha256": "ed64641bf99b5d852c033da9d8ea0674b065293227088372ed5ed6e2ecf97ef0",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.1032301658799894585233773304501326705272334731503742449418683710230",
+        "-0.1019277121761603712063874317684920455272334731503742449418683710229"
+      ]
+    },
+    {
+      "filename": "historico_192_tol50_N8.json",
+      "sha256": "ed1e83ccbe04c5aa1b5544b607a3d46922a8bed718fcabbdf75ccdcc0ec6e333",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.1032301658799894585233773304501326705272334731503742449418683710230",
+        "-0.1019277121761603712063874317684920455272334731503742449418683710229"
+      ]
+    },
+    {
+      "filename": "historico_256_tol70_N10.json",
+      "sha256": "8b34959935d38b0047d49c124af7ce75f7327d7e8f1c1f208de362c797cd3911",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099879328180016624048390988148542894271151532513852531",
+        "-0.101927712176160371206387431767350474879328180016624048390988148542894271151532513852530"
+      ]
+    },
+    {
+      "filename": "historico_256_tol70_N6.json",
+      "sha256": "14d45e1e0942f836661475d72ff5db44084d78570a903ff2af37cf7ed3bcaba0",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099879328180016624048390988148542894271151532513852531",
+        "-0.101927712176160371206387431767350474879328180016624048390988148542894271151532513852530"
+      ]
+    },
+    {
+      "filename": "historico_256_tol70_N8.json",
+      "sha256": "b4c180a6bceb252bd565a729ddd6d7a00154828f8d74c29c512e50b10e5e5ca4",
+      "parity_g12_zero_in_interval": true,
+      "g22_inside_reference": true,
+      "reference_g22": [
+        "-0.103230165879989458523377330448991099879328180016624048390988148542894271151532513852531",
+        "-0.101927712176160371206387431767350474879328180016624048390988148542894271151532513852530"
+      ]
+    }
+  ],
+  "all_references_passed": true,
+  "elapsed_seconds": 35.032,
+  "limitations": [
+    "Extensao depende da auditoria dos limites auxiliares da B3 G11.",
+    "Sem auditoria externa do codigo/derivadas. Apenas entradas G12 e G22.",
+    "Nao valida formula explicita global nem todos os termos de Weil."
+  ]
+}

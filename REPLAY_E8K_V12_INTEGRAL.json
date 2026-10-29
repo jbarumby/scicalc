@@ -1,0 +1,154 @@
+{
+  "all_point_exports_reproduced": true,
+  "entries": {
+    "G11": {
+      "b5_enclosed_in_b3": false,
+      "b5_input_b3_sha256_matches_packaged_corrected_b3": false,
+      "b5_intersects_b3": true,
+      "b5_width_at_most_twice_b3": true,
+      "bands": [
+        {
+          "count": 5752,
+          "from": "0",
+          "sum_match": true,
+          "to": "6"
+        },
+        {
+          "count": 1649,
+          "from": "6",
+          "sum_match": true,
+          "to": "12"
+        },
+        {
+          "count": 844,
+          "from": "12",
+          "sum_match": true,
+          "to": "24"
+        },
+        {
+          "count": 590,
+          "from": "24",
+          "sum_match": true,
+          "to": "48"
+        },
+        {
+          "count": 453,
+          "from": "48",
+          "sum_match": true,
+          "to": "96"
+        },
+        {
+          "count": 236,
+          "from": "96",
+          "sum_match": true,
+          "to": "160"
+        }
+      ],
+      "bands_reproduced": 6,
+      "e7_composite_formula_exact_match": true,
+      "e7_composite_interval_approx": [
+        "-1.42824317516",
+        "-1.42817374775"
+      ],
+      "finite_sum_exact_match": true,
+      "finite_sum_lower": "-1428209174728607619890696937873530275814241/1000000000000000000000000000000000000000000",
+      "finite_sum_upper": "-1428207748184437702218190588990588558292899/1000000000000000000000000000000000000000000",
+      "finite_sum_width_approx": "1.42654416992e-06",
+      "integrands_reproduced": 9524,
+      "jsonl_sha256": "c911ae4d9484d5b71467aac228dc55e3493e293eec140a00da963566fe8c379c",
+      "max_point_interval_width_approx": "2.4662724332e-07",
+      "midpoint_grid_exact": true,
+      "original_b3_input_sha256_recovered_and_verified": true,
+      "points_regenerated_and_compared": 9524,
+      "quadrature_bound_declared_approx": "9.99359513426e-06",
+      "tail_bound_declared_approx": "2.40068359093e-05",
+      "weighted_products_reproduced": 9524
+    },
+    "G22": {
+      "b5_enclosed_in_b3": false,
+      "b5_input_b3_sha256_matches_packaged_corrected_b3": false,
+      "b5_intersects_b3": true,
+      "b5_width_at_most_twice_b3": true,
+      "bands": [
+        {
+          "count": 4635,
+          "from": "0",
+          "sum_match": true,
+          "to": "12"
+        },
+        {
+          "count": 749,
+          "from": "12",
+          "sum_match": true,
+          "to": "24"
+        },
+        {
+          "count": 400,
+          "from": "24",
+          "sum_match": true,
+          "to": "48"
+        },
+        {
+          "count": 294,
+          "from": "48",
+          "sum_match": true,
+          "to": "96"
+        },
+        {
+          "count": 152,
+          "from": "96",
+          "sum_match": true,
+          "to": "160"
+        }
+      ],
+      "bands_reproduced": 5,
+      "e7_composite_formula_exact_match": true,
+      "e7_composite_interval_approx": [
+        "-0.102778084436",
+        "-0.10238000612"
+      ],
+      "finite_sum_exact_match": true,
+      "finite_sum_lower": "-20516379380379565673831151504325666058733/200000000000000000000000000000000000000000",
+      "finite_sum_upper": "-6411012103390061342681832452366460707439/62500000000000000000000000000000000000000",
+      "finite_sum_width_approx": "5.70324765685e-06",
+      "integrands_reproduced": 6230,
+      "jsonl_sha256": "6d72439f49f82ae29c55c0b9b8fc5c50eecb98296762ba3fe3cb526aa424edcb",
+      "max_point_interval_width_approx": "8.80045938845e-07",
+      "midpoint_grid_exact": true,
+      "original_b3_input_sha256_recovered_and_verified": true,
+      "points_regenerated_and_compared": 6230,
+      "quadrature_bound_declared_approx": "9.98852370472e-05",
+      "tail_bound_declared_approx": "9.6302297037e-05",
+      "weighted_products_reproduced": 6230
+    }
+  },
+  "exact_integrand_enclosures_replayed": 15754,
+  "exact_weighted_enclosures_replayed": 15754,
+  "negative_checker_controls": {
+    "changed_endpoint_detected": true,
+    "reversed_interval_rejected": true,
+    "shifted_midpoint_detected": true,
+    "tampered_bytes_detected": true
+  },
+  "not_certified": [
+    "B5 pontos são regenerados pela MESMA implementação B5: isto é reprodução, não um oráculo matemático independente de todos os integrandos.",
+    "Os B3 corrigidos do E7 diferem dos B3 originais; use --provenance-dir para conferir os originais e preservar explicitamente ambas as versões.",
+    "A validade analítica de cada cota de resto transcendental não é reprovada nem novamente demonstrada aqui.",
+    "Cotas globais de derivada para quadratura contínua não são demonstradas por esta suíte.",
+    "Cota de cauda para r>160, fórmula explícita de Weil e a Hipótese de Riemann não são provadas."
+  ],
+  "point_counts": {
+    "G11": 9524,
+    "G22": 6230,
+    "total": 15754
+  },
+  "provenance_gaps": [],
+  "provenance_note": "B3 corrigidos do E7 possuem SHA diferente dos B3 originais usados no B5; as entradas originais foram conferidas separadamente quando --provenance-dir foi fornecido.",
+  "quadrature_and_tail_formulas_arithmetically_recomposed": 2,
+  "schema": "NUMERIA.E8K.V12.FULL_POINT_REPLAY.1",
+  "source_integrity": {
+    "b5_source_sha256": "a1753d3010e34f29371a9706cd6bb05b3b0c8491ca3cafb44bf98b7cd53d3df9",
+    "e7_zip_sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7"
+  },
+  "status": "ALL_POINTS_REPRODUCED_B5_INPUT_HASHES_MATCHED"
+}

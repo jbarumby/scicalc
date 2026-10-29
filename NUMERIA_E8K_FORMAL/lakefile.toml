@@ -1,0 +1,11 @@
+name = "numeria_e8k_formal"
+version = "0.1.0"
+defaultTargets = ["NumeriaE8K"]
+
+[[lean_lib]]
+name = "NumeriaE8K"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0"
