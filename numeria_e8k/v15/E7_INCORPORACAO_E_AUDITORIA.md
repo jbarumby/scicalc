@@ -1,6 +1,6 @@
 # NUMERIA E7 — registro de incorporação e auditoria
 
-Data de registro: 28/10/2026  
+Data de registro: 28/10/2026
 Branch: `integration/e8k-v14-package-2026-10-28`
 
 ## Artefato E7 publicado

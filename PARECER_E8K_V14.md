@@ -1,6 +1,6 @@
 # Parecer técnico — NUMERIA E8-K V14
 
-**Data da execução:** 28/10/2026 (sessão atual).  
+**Data da execução:** 28/10/2026 (sessão atual).
 **Objeto:** incorporação da especificação V13 de replay integral com testemunhas, melhoria do conferidor V12 e início da auditoria V14.
 
 ## Resultado reproduzido

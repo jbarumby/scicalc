@@ -1,6 +1,6 @@
 # Finalização da integração E8-K V12
 
-Data: 2026-10-28  
+Data: 2026-10-28
 Branch: `integration/e8k-v12-replay-2026-10-28`
 
 ## Estado confirmado

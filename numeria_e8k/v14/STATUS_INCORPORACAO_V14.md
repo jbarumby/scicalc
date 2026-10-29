@@ -1,6 +1,6 @@
 # Status de incorporação — E8-K V14
 
-Data: 2026-10-28  
+Data: 2026-10-28
 Branch: `integration/e8k-v14-package-2026-10-28`
 
 ## Pacote completo recebido e testado localmente
