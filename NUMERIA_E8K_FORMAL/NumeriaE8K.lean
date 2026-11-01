@@ -174,12 +174,12 @@ theorem contains_sq {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_recip_pos {I : RatI} {a : ℚ}
     (h : I.contains a) (hpos : 0 < I.lo) :
     (RatI.mk (I.hi)⁻¹ (I.lo)⁻¹
-        ((inv_le_inv₀ hpos (lt_of_lt_of_le hpos I.hlo)).2 I.hlo)).contains (a⁻¹) := by
+        ((inv_le_inv₀ (lt_of_lt_of_le hpos I.hlo) hpos).2 I.hlo)).contains (a⁻¹) := by
   have ha0 : 0 < a := lt_of_lt_of_le hpos h.1
   have hhi0 : 0 < I.hi := lt_of_lt_of_le hpos I.hlo
   refine ⟨?_, ?_⟩
   · exact (inv_le_inv₀ hhi0 ha0).2 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
-  · exact (inv_le_inv₀ hpos ha0).2 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
+  · exact (inv_le_inv₀ ha0 hpos).2 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
 
 /-- Versao de inv_le_inv₀ para argumentos estritamente negativos: u ≤ v < 0
     implica v⁻¹ ≤ u⁻¹ (o inverso e decrescente tambem em R-). -/
@@ -188,7 +188,7 @@ private lemma inv_le_inv_of_neg {u v : ℚ} (hu : u < 0) (hv : v < 0)
   have hu' : 0 < -u := by linarith
   have hv' : 0 < -v := by linarith
   have h' : -v ≤ -u := by linarith
-  have key := (inv_le_inv₀ hu' hv').2 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
+  have key := (inv_le_inv₀ hu' hv').1 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
   simp only [inv_neg] at key           -- -u⁻¹ ≤ -v⁻¹
   linarith
 
@@ -245,7 +245,7 @@ theorem width_mul_abs_bound (I J : RatI) :
     have hIpos : 0 ≤ max (abs I.lo) (abs I.hi) :=
       le_trans (abs_nonneg I.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA (abs_nonneg v) hIpos
+    exact mul_le_mul huA hvA (abs_nonneg v) (abs_nonneg u)
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
