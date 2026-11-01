@@ -1,0 +1,264 @@
+{
+  "gates": {
+    "exact_gibbs_gram": {
+      "result": {
+        "assumptions": [
+          "positive Gibbs weights beta>1",
+          "finite rational Gram feature family"
+        ],
+        "not_equal_to_weil": true,
+        "positive_definite_independent_cases": [
+          {
+            "beta": 2,
+            "dim": 3,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0818896941077885991036569260",
+              "0.0015732305540875799525543392"
+            ],
+            "states": 5
+          },
+          {
+            "beta": 2,
+            "dim": 4,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0959842459826677416045396045",
+              "0.0025240391141564567893144172",
+              "0.0000266876072223239627051179"
+            ],
+            "states": 8
+          },
+          {
+            "beta": 2,
+            "dim": 6,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0987995110246272427596842801",
+              "0.0027414395695993046561985773",
+              "0.0000315942449728667530515307",
+              "0.0000001759900629175652337429",
+              "0.0000000005049096139331405611"
+            ],
+            "states": 9
+          },
+          {
+            "beta": 3,
+            "dim": 3,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0440820043373608539267885981",
+              "0.0006597190778037991968004616"
+            ],
+            "states": 5
+          },
+          {
+            "beta": 3,
+            "dim": 4,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0482924017621087321114486070",
+              "0.0009618518746906801011066887",
+              "0.0000084845345075912326274711"
+            ],
+            "states": 8
+          },
+          {
+            "beta": 3,
+            "dim": 6,
+            "exact_reconstruction": true,
+            "ldl_pivots_lower": [
+              "1.0000000000000000000000000000",
+              "0.0489590087124296064699931388",
+              "0.0010199738159926631647573518",
+              "0.0000097892990616557040407289",
+              "0.0000000471079414210494964189",
+              "0.0000000001194570282861933435"
+            ],
+            "states": 9
+          }
+        ],
+        "short_support_obstruction": {
+          "2L": "9/10",
+          "L": "9/20",
+          "allowed_state_indices": [
+            1,
+            2
+          ],
+          "consequence": "Cannot prove positive definiteness on a projected dimension >=2 using this direct Gibbs Gram kernel.",
+          "log2_upper": "0.6931471805599453094172407736",
+          "log3_lower": "1.0986122886681096913937492676",
+          "nonzero_possible_states": [
+            2
+          ],
+          "projected_rank_upper": 1,
+          "rank_upper": 1
+        },
+        "status": "GIBBS_GRAM_EXACT_LDL_PASS_WITH_SHORT_SUPPORT_RANK_OBSTRUCTION"
+      },
+      "status": "PASS"
+    },
+    "finite_yang_lee_mode": {
+      "result": {
+        "cases": [
+          {
+            "K": 2,
+            "bound_on_closest_root_distance": "44/21",
+            "positive_real_zero": false,
+            "z1_value": 3
+          },
+          {
+            "K": 3,
+            "bound_on_closest_root_distance": "11/7",
+            "positive_real_zero": false,
+            "z1_value": 4
+          },
+          {
+            "K": 7,
+            "bound_on_closest_root_distance": "11/14",
+            "positive_real_zero": false,
+            "z1_value": 8
+          },
+          {
+            "K": 15,
+            "bound_on_closest_root_distance": "11/28",
+            "positive_real_zero": false,
+            "z1_value": 16
+          },
+          {
+            "K": 31,
+            "bound_on_closest_root_distance": "11/56",
+            "positive_real_zero": false,
+            "z1_value": 32
+          },
+          {
+            "K": 63,
+            "bound_on_closest_root_distance": "11/112",
+            "positive_real_zero": false,
+            "z1_value": 64
+          },
+          {
+            "K": 127,
+            "bound_on_closest_root_distance": "11/224",
+            "positive_real_zero": false,
+            "z1_value": 128
+          },
+          {
+            "K": 255,
+            "bound_on_closest_root_distance": "11/448",
+            "positive_real_zero": false,
+            "z1_value": 256
+          }
+        ],
+        "conditional_physics": "Toy single zero-energy Bose mode with finite K occupation cutoff; not the interacting gas of Wang (2004)",
+        "exact_polynomial_identity": "(z-1)*sum(z^n,n=0..K)=z^(K+1)-1",
+        "limit_caution": "zero pinch near fugacity z=1 is not an identity between Yang-Lee and Riemann zeros",
+        "status": "FINITE_BOSE_MODE_YANG_LEE_ALGEBRA_PASS",
+        "zeros": "all (K+1)-th roots of unity except z=1"
+      },
+      "status": "PASS"
+    },
+    "gibbs_zeta_euler": {
+      "result": {
+        "beta_cases": [
+          {
+            "beta": 2,
+            "dirichlet_interval": [
+              "1.6449264868923381276155917690",
+              "1.6449416863086805400669536368"
+            ],
+            "euler_interval": [
+              "1.6347716055900056153464174793",
+              "1.6878342406322211166388998547"
+            ],
+            "intersection": true
+          },
+          {
+            "beta": 3,
+            "dirichlet_interval": [
+              "1.2020568736465003492628983208",
+              "1.2020569329037093082365391027"
+            ],
+            "euler_interval": [
+              "1.2019396174050270948751722757",
+              "1.2025650372452475471687396739"
+            ],
+            "intersection": true,
+            "mangoldt_dirichlet_interval": [
+              "0.1648148729741949035141582618",
+              "0.1687211229741949035144734177"
+            ],
+            "mangoldt_euler_interval": [
+              "0.1644326257422625669693848177",
+              "0.2012989851892671752646300818"
+            ],
+            "mangoldt_intersection": true
+          },
+          {
+            "beta": 4,
+            "dirichlet_interval": [
+              "1.0823232335962269231374468173",
+              "1.0823232338272503507552651138"
+            ],
+            "euler_interval": [
+              "1.0823211372892131881802269673",
+              "1.0823332474705188090092329901"
+            ],
+            "intersection": true,
+            "mangoldt_dirichlet_interval": [
+              "0.0636697443634877468539265185",
+              "0.0636773737580189968540523474"
+            ],
+            "mangoldt_euler_interval": [
+              "0.0636622891385597908773174819",
+              "0.0642172665926007204646788144"
+            ],
+            "mangoldt_intersection": true
+          }
+        ],
+        "domain": "real beta>1 for zeta; beta>2 for simple log-derivative tail",
+        "finite_prime_power_geometric_identities": 99,
+        "note": "Continuation to Re(s)=1/2 does not preserve a probability distribution",
+        "status": "GIBBS_EULER_EXACT_RATIONAL_ENCLOSURES_PASS",
+        "theorems_assumed": [
+          "Euler product in Re(s)>1",
+          "integral comparison",
+          "log x <= x"
+        ]
+      },
+      "status": "PASS"
+    },
+    "short_support_rank_obstruction": {
+      "condition": "L=9/20, log 2 < 2L < log 3 and g_k(0)=0",
+      "rank_upper": 1,
+      "status": "PASS"
+    }
+  },
+  "input_sha256": {
+    "AUDITAR_E8K_V20.py": "c5b5d8abafe63c05dadec82a8478f6f4623bc623ab6938e1f1eb0012423a0c44",
+    "TESTAR_E8K_V20.py": "d17934153dcbf591986aaf89d9f4333bce4bafbf0aa16ca6b16dfd761d760c64",
+    "gibbs_euler.py": "20ef1a88b8c750b3447af1f51f6458ecdf3a4255b1f4646d69c8da80c5d480d4",
+    "gibbs_gram.py": "f526eed2745cd5585532c6c95430b1fad016510525e612301646d9c75e8259b5",
+    "yang_lee.py": "a0489f40d7e1ae4097a91d73357d43258e3665760651c7ca0033c48960e13cb0"
+  },
+  "interpretation": {
+    "Gibbs_gram": "positive finite Gibbs weights imply Gram PSD; rational Vandermonde test yields strict positivity for separate feature family",
+    "Weil_obstruction": "For NUMERIA sine modes evaluated at log n with 2L=0.9, Gibbs Gram has rank <=1, so no positive-definite Weil identification for dimensions >=2",
+    "analytic_continuation": "Physical Gibbs probability requires beta>1 and cannot be analytically continued as a positive probability to Re(s)=1/2.",
+    "grand_canonical_bose_mode": "finite cutoff single mode; Yang-Lee circle roots not zeta zeros"
+  },
+  "not_certified": [
+    "No proven identity between positive Gibbs Gram and Weil projected matrices",
+    "No independent Phase-4 quadrature derivative majorants or complex error bounds",
+    "No verification of all 1600 quadrature subintervals or projected LDL matrices here",
+    "No theorem that Yang-Lee fugacity zeros equal Riemann zeta zeros",
+    "No proof of the Riemann Hypothesis"
+  ],
+  "schema": "NUMERIA.E8K.V20.GIBBS_YANG_LEE_AND_EULER.1",
+  "status": "FINITE_GIBBS_EULER_YANG_LEE_GRAM_AUDITED_WEIL_BRIDGE_OPEN"
+}
