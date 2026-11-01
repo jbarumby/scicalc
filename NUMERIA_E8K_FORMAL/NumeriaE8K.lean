@@ -432,7 +432,9 @@ def fpUp (x : ℚ) : ℚ := (Int.ceil (x * N_TICK) : ℚ) / N_TICK
 
 /-- floor(x*N)/N ≤ x: floor majora por baixo; divisao por N > 0 preserva. -/
 theorem fpDown_le (x : ℚ) : fpDown x ≤ x := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have h1 : (Int.floor (x * N_TICK) : ℚ) ≤ x * N_TICK := Int.floor_le _
   show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤ x
   rw [div_le_iff₀ hN]
@@ -440,7 +442,9 @@ theorem fpDown_le (x : ℚ) : fpDown x ≤ x := by
 
 /-- x ≤ ceil(x*N)/N: analogo via le_ceil. -/
 theorem fpUp_ge (x : ℚ) : x ≤ fpUp x := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have h1 : x * N_TICK ≤ (Int.ceil (x * N_TICK) : ℚ) := Int.le_ceil _
   show x ≤ (Int.ceil (x * N_TICK) : ℚ) / N_TICK
   rw [le_div_iff₀ hN]
@@ -449,7 +453,9 @@ theorem fpUp_ge (x : ℚ) : x ≤ fpUp x := by
 /-- Monotonicidade: x ≤ y implica fpDown x ≤ fpDown y e fpUp x ≤ fpUp y. -/
 theorem fp_mono (x y : ℚ) (h : x ≤ y) :
     fpDown x ≤ fpDown y ∧ fpUp x ≤ fpUp y := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have hmul : x * N_TICK ≤ y * N_TICK := by nlinarith
   have hf : (Int.floor (x * N_TICK) : ℚ) ≤ (Int.floor (y * N_TICK) : ℚ) := by
     exact_mod_cast Int.floor_mono hmul
@@ -458,12 +464,10 @@ theorem fp_mono (x y : ℚ) (h : x ≤ y) :
   constructor
   · show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.floor (y * N_TICK) : ℚ) / N_TICK
-    rw [div_le_div_iff₀ hN hN]
-    exact hf
+    exact div_le_div_of_nonneg_right hf (le_of_lt hN)
   · show (Int.ceil (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.ceil (y * N_TICK) : ℚ) / N_TICK
-    rw [div_le_div_iff₀ hN hN]
-    exact hc
+    exact div_le_div_of_nonneg_right hc (le_of_lt hN)
 
 /-- A instancia `Directed` do fixed-point (tick 10^-42), agora completa:
     fpDown_le, fpUp_ge e fp_mono estao demonstrados acima. -/
