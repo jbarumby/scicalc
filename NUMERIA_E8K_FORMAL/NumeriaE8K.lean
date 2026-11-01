@@ -5,7 +5,7 @@
    - contains_mul: DEMONSTRADO (argumento dos 4 cantos; casos de sinal via
      nlinarith; combinatoria de min/max via le_trans/le_min/max_le).
    - contains_sq: corolario imediato de contains_mul.
-   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_le_inv;
+   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_le_inv₀;
      caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv + inv_neg).
    - Larguras de add/sub/neg: DEMONSTRADAS (ring). Largura grosseira do
      produto (<= 2*max|I|*max|J|): DEMONSTRADA.
@@ -71,8 +71,8 @@ theorem contains_neg {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_sub {I J : RatI} {a b : ℚ}
     (hI : I.contains a) (hJ : J.contains b) :
     (I.sub J).contains (a - b) := by
-  show (I.add J.neg).contains (a + -b)
-  exact contains_add hI (contains_neg hJ)
+  simpa [RatI.sub, RatI.contains, RatI.add, RatI.neg, sub_eq_add_neg] using
+    (contains_add hI (contains_neg hJ))
 
 private lemma min_le_max4 (u v w z : ℚ) :
     min (min u v) (min w z) ≤ max (max u v) (max w z) :=
@@ -91,15 +91,16 @@ def RatI.mul (I J : RatI) : RatI where
     entre min(A*r, A*s) e max(A*r, A*s), com o lado controlado pelo sinal de A. -/
 private lemma mul_bounds {A r c s : ℚ} (h1 : r ≤ c) (h2 : c ≤ s) :
     min (A * r) (A * s) ≤ A * c ∧ A * c ≤ max (A * r) (A * s) := by
-  rcases le_or_lt 0 A with hA | hA
+  by_cases hA : 0 ≤ A
   · refine ⟨le_trans (min_le_left (A * r) (A * s)) ?_,
             le_trans ?_ (le_max_right (A * r) (A * s))⟩
-    · exact nlinarith [h1, hA]          -- A * r ≤ A * c  (0 ≤ A)
-    · exact nlinarith [h2, hA]          -- A * c ≤ A * s  (0 ≤ A)
-  · refine ⟨le_trans (min_le_right (A * r) (A * s)) ?_,
+    · exact mul_le_mul_of_nonneg_left h1 hA
+    · exact mul_le_mul_of_nonneg_left h2 hA
+  · have hAneg : A < 0 := lt_of_not_ge hA
+    refine ⟨le_trans (min_le_right (A * r) (A * s)) ?_,
             le_trans ?_ (le_max_left (A * r) (A * s))⟩
-    · exact nlinarith [h2, hA]          -- A * s ≤ A * c  (A < 0)
-    · exact nlinarith [h1, hA]          -- A * c ≤ A * r  (A < 0)
+    · exact (mul_le_mul_of_nonpos_left h2 (le_of_lt hAneg))
+    · exact (mul_le_mul_of_nonpos_left h1 (le_of_lt hAneg))
 
 /-- a*b vive entre o minimo e o maximo dos 4 produtos dos cantos da caixa
     [p,q] x [r,s]. Aplica mul_bounds: (A) com multiplicador a sobre [r,s];
@@ -138,12 +139,12 @@ private lemma box_mul_bounds {p q r s a b : ℚ}
   -- canto superior: a*r e a*s ≤ os 4 cantos (lado max)
   have uPr := le_trans (le_max_left (p * r) (p * s))
     (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uQr := le_trans (le_max_right (p * r) (p * s))
+  have uQr := le_trans (le_max_left (q * r) (q * s))
+    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
+  have uPs := le_trans (le_max_right (p * r) (p * s))
     (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uPs := le_trans (le_max_left (p * r) (p * s))
-    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uQs := le_trans (le_max_right (p * r) (p * s))
-    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
+  have uQs := le_trans (le_max_right (q * r) (q * s))
+    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s))
   have hmax_r := max_le uPr uQr             -- max (p*r) (q*r) ≤ cantos_max
   have hmax_s := max_le uPs uQs             -- max (p*s) (q*s) ≤ cantos_max
   have hmax_ar := le_trans B2 hmax_r        -- a*r ≤ cantos_max
