@@ -5,8 +5,8 @@
    - contains_mul: DEMONSTRADO (argumento dos 4 cantos; casos de sinal via
      nlinarith; combinatoria de min/max via le_trans/le_min/max_le).
    - contains_sq: corolario imediato de contains_mul.
-   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_le_inv;
-     caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv + inv_neg).
+   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_lt_inv₀₀;
+     caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv₀ + inv_neg).
    - Larguras de add/sub/neg: DEMONSTRADAS (ring). Largura grosseira do
      produto (<= 2*max|I|*max|J|): DEMONSTRADA.
    - Fixed-point tick 10^-42 COMPLETO: fpDown_le, fpUp_ge e fp_mono
@@ -71,8 +71,8 @@ theorem contains_neg {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_sub {I J : RatI} {a b : ℚ}
     (hI : I.contains a) (hJ : J.contains b) :
     (I.sub J).contains (a - b) := by
-  show (I.add J.neg).contains (a + -b)
-  exact contains_add hI (contains_neg hJ)
+  simpa [RatI.sub, RatI.contains, RatI.add, RatI.neg, sub_eq_add_neg] using
+    (contains_add hI (contains_neg hJ))
 
 private lemma min_le_max4 (u v w z : ℚ) :
     min (min u v) (min w z) ≤ max (max u v) (max w z) :=
@@ -91,15 +91,16 @@ def RatI.mul (I J : RatI) : RatI where
     entre min(A*r, A*s) e max(A*r, A*s), com o lado controlado pelo sinal de A. -/
 private lemma mul_bounds {A r c s : ℚ} (h1 : r ≤ c) (h2 : c ≤ s) :
     min (A * r) (A * s) ≤ A * c ∧ A * c ≤ max (A * r) (A * s) := by
-  rcases le_or_lt 0 A with hA | hA
+  by_cases hA : 0 ≤ A
   · refine ⟨le_trans (min_le_left (A * r) (A * s)) ?_,
             le_trans ?_ (le_max_right (A * r) (A * s))⟩
-    · exact nlinarith [h1, hA]          -- A * r ≤ A * c  (0 ≤ A)
-    · exact nlinarith [h2, hA]          -- A * c ≤ A * s  (0 ≤ A)
-  · refine ⟨le_trans (min_le_right (A * r) (A * s)) ?_,
+    · exact mul_le_mul_of_nonneg_left h1 hA
+    · exact mul_le_mul_of_nonneg_left h2 hA
+  · have hAneg : A < 0 := lt_of_not_ge hA
+    refine ⟨le_trans (min_le_right (A * r) (A * s)) ?_,
             le_trans ?_ (le_max_left (A * r) (A * s))⟩
-    · exact nlinarith [h2, hA]          -- A * s ≤ A * c  (A < 0)
-    · exact nlinarith [h1, hA]          -- A * c ≤ A * r  (A < 0)
+    · exact (mul_le_mul_of_nonpos_left h2 (le_of_lt hAneg))
+    · exact (mul_le_mul_of_nonpos_left h1 (le_of_lt hAneg))
 
 /-- a*b vive entre o minimo e o maximo dos 4 produtos dos cantos da caixa
     [p,q] x [r,s]. Aplica mul_bounds: (A) com multiplicador a sobre [r,s];
@@ -138,11 +139,11 @@ private lemma box_mul_bounds {p q r s a b : ℚ}
   -- canto superior: a*r e a*s ≤ os 4 cantos (lado max)
   have uPr := le_trans (le_max_left (p * r) (p * s))
     (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uQr := le_trans (le_max_right (p * r) (p * s))
-    (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uPs := le_trans (le_max_left (p * r) (p * s))
+  have uQr := le_trans (le_max_left (q * r) (q * s))
     (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
-  have uQs := le_trans (le_max_right (p * r) (p * s))
+  have uPs := le_trans (le_max_right (p * r) (p * s))
+    (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
+  have uQs := le_trans (le_max_right (q * r) (q * s))
     (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
   have hmax_r := max_le uPr uQr             -- max (p*r) (q*r) ≤ cantos_max
   have hmax_s := max_le uPs uQs             -- max (p*s) (q*s) ≤ cantos_max
@@ -173,21 +174,21 @@ theorem contains_sq {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_recip_pos {I : RatI} {a : ℚ}
     (h : I.contains a) (hpos : 0 < I.lo) :
     (RatI.mk (I.hi)⁻¹ (I.lo)⁻¹
-        (inv_le_inv hpos (lt_of_lt_of_le hpos I.hlo) I.hlo)).contains (a⁻¹) := by
+        ((inv_le_inv₀ (lt_of_lt_of_le hpos I.hlo) hpos).2 I.hlo)).contains (a⁻¹) := by
   have ha0 : 0 < a := lt_of_lt_of_le hpos h.1
   have hhi0 : 0 < I.hi := lt_of_lt_of_le hpos I.hlo
   refine ⟨?_, ?_⟩
-  · exact inv_le_inv ha0 hhi0 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
-  · exact inv_le_inv hpos ha0 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
+  · exact (inv_le_inv₀ hhi0 ha0).2 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
+  · exact (inv_le_inv₀ ha0 hpos).2 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
 
-/-- Versao de inv_le_inv para argumentos estritamente negativos: u ≤ v < 0
+/-- Versao de inv_le_inv₀ para argumentos estritamente negativos: u ≤ v < 0
     implica v⁻¹ ≤ u⁻¹ (o inverso e decrescente tambem em R-). -/
 private lemma inv_le_inv_of_neg {u v : ℚ} (hu : u < 0) (hv : v < 0)
     (h : u ≤ v) : v⁻¹ ≤ u⁻¹ := by
   have hu' : 0 < -u := by linarith
   have hv' : 0 < -v := by linarith
   have h' : -v ≤ -u := by linarith
-  have key := inv_le_inv hv' hu' h'   -- (-u)⁻¹ ≤ (-v)⁻¹
+  have key := (inv_le_inv₀ hu' hv').2 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
   simp only [inv_neg] at key           -- -u⁻¹ ≤ -v⁻¹
   linarith
 
@@ -243,36 +244,38 @@ theorem width_mul_abs_bound (I J : RatI) :
              by linarith [le_abs_self J.hi, hJ2, hv2]⟩
     have hIpos : 0 ≤ max (abs I.lo) (abs I.hi) :=
       le_trans (abs_nonneg I.lo) (le_max_left _ _)
+    have hJpos : 0 ≤ max (abs J.lo) (abs J.hi) :=
+      le_trans (abs_nonneg J.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA hIpos (abs_nonneg u)
+    exact mul_le_mul huA hvA (abs_nonneg v) hIpos
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)
     have c1 := le_trans (le_abs_self _)
-      (key I.lo J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.lo J.lo (le_refl _) I.hlo (le_refl _) J.hlo)
     have c2 := le_trans (le_abs_self _)
-      (key I.lo J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.lo J.hi (le_refl _) I.hlo J.hlo (le_refl _))
     have c3 := le_trans (le_abs_self _)
-      (key I.hi J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.hi J.lo I.hlo (le_refl _) (le_refl _) J.hlo)
     have c4 := le_trans (le_abs_self _)
-      (key I.hi J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.hi J.hi I.hlo (le_refl _) J.hlo (le_refl _))
     exact max_le (max_le c1 c2) (max_le c3 c4)
-  have hlo : -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
+  have hlo : -(max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)) ≤
       (I.mul J).lo := by
-    show -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
+    show -(max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)) ≤
       min (min (I.lo * J.lo) (I.lo * J.hi)) (min (I.hi * J.lo) (I.hi * J.hi))
     have c1 := le_trans
-      (neg_le_neg (key I.lo J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.lo J.lo (le_refl _) I.hlo (le_refl _) J.hlo))
       (neg_abs_le _)
     have c2 := le_trans
-      (neg_le_neg (key I.lo J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.lo J.hi (le_refl _) I.hlo J.hlo (le_refl _)))
       (neg_abs_le _)
     have c3 := le_trans
-      (neg_le_neg (key I.hi J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.hi J.lo I.hlo (le_refl _) (le_refl _) J.hlo))
       (neg_abs_le _)
     have c4 := le_trans
-      (neg_le_neg (key I.hi J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.hi J.hi I.hlo (le_refl _) J.hlo (le_refl _)))
       (neg_abs_le _)
     exact le_min (le_min c1 c2) (le_min c3 c4)
   linarith [hhi, hlo]
@@ -300,20 +303,20 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     · rw [h]; exact le_max_right (abs r) (abs s)
   have hv_s : v ≤ s := by
     rcases hv with h | h
-    · rw [h]; exact hrs
-    · rw [h]; exact le_refl s
+    · simpa [h] using hrs
+    · simpa [h] using (le_refl s)
   have hv_r : r ≤ v := by
     rcases hv with h | h
-    · rw [h]; exact le_refl r
-    · rw [h]; exact hrs
+    · simpa [h] using (le_refl r)
+    · simpa [h] using hrs
   have hv'_s : v' ≤ s := by
     rcases hv' with h | h
-    · rw [h]; exact hrs
-    · rw [h]; exact le_refl s
+    · simpa [h] using hrs
+    · simpa [h] using (le_refl s)
   have hv'_r : r ≤ v' := by
     rcases hv' with h | h
-    · rw [h]; exact le_refl r
-    · rw [h]; exact hrs
+    · simpa [h] using (le_refl r)
+    · simpa [h] using hrs
   have hdv : abs (v - v') ≤ s - r := by
     rw [abs_le]
     constructor
@@ -321,20 +324,20 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     · linarith
   have hu_q : u ≤ q := by
     rcases hu with h | h
-    · rw [h]; exact hpq
-    · rw [h]; exact le_refl q
+    · simpa [h] using hpq
+    · simpa [h] using (le_refl q)
   have hu_p : p ≤ u := by
     rcases hu with h | h
-    · rw [h]; exact le_refl p
-    · rw [h]; exact hpq
+    · simpa [h] using (le_refl p)
+    · simpa [h] using hpq
   have hu'_q : u' ≤ q := by
     rcases hu' with h | h
-    · rw [h]; exact hpq
-    · rw [h]; exact le_refl q
+    · simpa [h] using hpq
+    · simpa [h] using (le_refl q)
   have hu'_p : p ≤ u' := by
     rcases hu' with h | h
-    · rw [h]; exact le_refl p
-    · rw [h]; exact hpq
+    · simpa [h] using (le_refl p)
+    · simpa [h] using hpq
   have hdu : abs (u - u') ≤ q - p := by
     rw [abs_le]
     constructor
@@ -354,7 +357,7 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     have e1 : (u - u') * v' ≤ abs ((u - u') * v') := le_abs_self _
     rw [abs_mul] at e1
     have e2 : abs (u - u') * abs v' ≤ (q - p) * max (abs r) (abs s) :=
-      mul_le_mul hdu hub' (abs_nonneg _) hnn2
+      mul_le_mul hdu hub' (abs_nonneg _) (by linarith [hpq])
     linarith
   have hid : u * v - u' * v' = u * (v - v') + (u - u') * v' := by ring
   linarith
@@ -432,22 +435,30 @@ def fpUp (x : ℚ) : ℚ := (Int.ceil (x * N_TICK) : ℚ) / N_TICK
 
 /-- floor(x*N)/N ≤ x: floor majora por baixo; divisao por N > 0 preserva. -/
 theorem fpDown_le (x : ℚ) : fpDown x ≤ x := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have h1 : (Int.floor (x * N_TICK) : ℚ) ≤ x * N_TICK := Int.floor_le _
   show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤ x
-  rwa [div_le_iff hN]        -- a / c ≤ b ↔ a ≤ b * c
+  rw [div_le_iff₀ hN]
+  exact h1
 
 /-- x ≤ ceil(x*N)/N: analogo via le_ceil. -/
 theorem fpUp_ge (x : ℚ) : x ≤ fpUp x := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have h1 : x * N_TICK ≤ (Int.ceil (x * N_TICK) : ℚ) := Int.le_ceil _
   show x ≤ (Int.ceil (x * N_TICK) : ℚ) / N_TICK
-  rwa [le_div_iff hN]        -- b ≤ a / c ↔ b * c ≤ a
+  rw [le_div_iff₀ hN]
+  exact h1
 
 /-- Monotonicidade: x ≤ y implica fpDown x ≤ fpDown y e fpUp x ≤ fpUp y. -/
 theorem fp_mono (x y : ℚ) (h : x ≤ y) :
     fpDown x ≤ fpDown y ∧ fpUp x ≤ fpUp y := by
-  have hN : 0 < N_TICK := by positivity
+  have hN : 0 < N_TICK := by
+    unfold N_TICK
+    positivity
   have hmul : x * N_TICK ≤ y * N_TICK := by nlinarith
   have hf : (Int.floor (x * N_TICK) : ℚ) ≤ (Int.floor (y * N_TICK) : ℚ) := by
     exact_mod_cast Int.floor_mono hmul
@@ -456,10 +467,10 @@ theorem fp_mono (x y : ℚ) (h : x ≤ y) :
   constructor
   · show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.floor (y * N_TICK) : ℚ) / N_TICK
-    exact div_le_div_of_le hN hf
+    exact div_le_div_of_nonneg_right hf (le_of_lt hN)
   · show (Int.ceil (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.ceil (y * N_TICK) : ℚ) / N_TICK
-    exact div_le_div_of_le hN hc
+    exact div_le_div_of_nonneg_right hc (le_of_lt hN)
 
 /-- A instancia `Directed` do fixed-point (tick 10^-42), agora completa:
     fpDown_le, fpUp_ge e fp_mono estao demonstrados acima. -/

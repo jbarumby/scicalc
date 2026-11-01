@@ -1,0 +1,35 @@
+name: auditoria-e8k-referencias-cientificas
+on:
+  push:
+    paths:
+      - 'referencias/**'
+      - '.github/workflows/auditoria-e8k-referencias.yml'
+  pull_request:
+    paths:
+      - 'referencias/**'
+      - '.github/workflows/auditoria-e8k-referencias.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar-notas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Conferir original TAIL_PROOF enviado
+        shell: bash
+        run: |
+          echo 'f96300fc5dc0e5e88c15ae5928bdfec1eb34f0730768beedb6b3f7f9b2208cc6  referencias/TAIL_PROOF_ENVIADO_2026-11-01.md' | sha256sum -c -
+      - name: Precondicoes de cauda e sinal do resto
+        run: python referencias/VERIFICAR_PRECONDICOES_NOTAS.py
+      - name: Preservar status dos PDFs ainda nao integrados como binarios
+        shell: bash
+        run: |
+          grep -F '03c40c328cb036129dfc5ac73f288ec71b77814da8ba292f64f43e2adaaab267' referencias/README_ADICOES_2026-11-01.md
+          grep -F '19f827bee5834d61aa6dd756cdaea582492703ddbfd6bdc2058de10b93f7e814' referencias/README_ADICOES_2026-11-01.md

@@ -1,0 +1,85 @@
+name: auditoria-e8k-v13
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'VERIFICAR_E8K_V13.py'
+      - 'VERIFICAR_INVARIANTES_LEAN_V13.py'
+      - 'NUMERIA_E8K_FORMAL/**'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - '.github/workflows/auditoria-e8k-v13.yml'
+  pull_request:
+    paths:
+      - 'VERIFICAR_E8K_V13.py'
+      - 'VERIFICAR_INVARIANTES_LEAN_V13.py'
+      - 'NUMERIA_E8K_FORMAL/**'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - '.github/workflows/auditoria-e8k-v13.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cotas-racionais:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Auditar cotas V13 a partir das premissas analiticas declaradas
+        run: |
+          python VERIFICAR_E8K_V13.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out RESULTADO_E8K_V13.json
+      - name: Testes racionais de sanidade dos enunciados Lean (nao substituem compilacao)
+        run: |
+          python VERIFICAR_INVARIANTES_LEAN_V13.py --trials 5000 --out RESULTADO_LEMAS_V13.json
+      - name: Publicar relatorios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e8k-v13-auditoria-racional
+          if-no-files-found: warn
+          path: |
+            RESULTADO_E8K_V13.json
+            RESULTADO_LEMAS_V13.json
+
+  formalizacao-lean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rejeitar marcadores de prova incompleta
+        shell: bash
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit)([[:space:]]|$)|\bby[[:space:]]+(sorry|admit)\b' NUMERIA_E8K_FORMAL/NumeriaE8K.lean; then
+            echo 'Falha: lacunas de prova Lean detectadas.' >&2
+            exit 1
+          fi
+      - name: Preparar toolchain Lean declarada
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Diagnosticar ambiente e compilar explicitamente
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          echo "Toolchain: $(cat lean-toolchain)"
+          echo "Lake manifest: $(test -f lake-manifest.json && echo presente || echo ausente)"
+          lake --version
+          lean --version
+          lake build
+      - name: Publicar logs de configuracao Lean
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e8k-v13-lean-diagnostics
+          if-no-files-found: ignore
+          path: |
+            NUMERIA_E8K_FORMAL/lake-manifest.json
+            NUMERIA_E8K_FORMAL/lean-toolchain

@@ -1,0 +1,56 @@
+name: auditoria-e8k-v19-cauda
+on:
+  pull_request:
+    paths:
+      - 'v19/**'
+      - 'referencias/TAIL_PROOF_ENVIADO_2026-11-01.md'
+      - '.github/workflows/auditoria-e8k-v19-cauda.yml'
+  push:
+    paths:
+      - 'v19/**'
+      - 'referencias/TAIL_PROOF_ENVIADO_2026-11-01.md'
+      - '.github/workflows/auditoria-e8k-v19-cauda.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-cauda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Sintaxe dos verificadores
+        run: python -m py_compile v19/AUDITAR_E8K_V19_CAUDA.py v19/TESTAR_E8K_V19.py
+      - name: Replay racional das Proposicoes 5 e 6
+        shell: bash
+        run: |
+          python v19/AUDITAR_E8K_V19_CAUDA.py \
+            --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --submitted-proof referencias/TAIL_PROOF_ENVIADO_2026-11-01.md \
+            --out v19/RESULTADO_E8K_V19.json
+      - name: Testes adversariais e reprodutibilidade byte a byte
+        shell: bash
+        run: |
+          python v19/TESTAR_E8K_V19.py
+          cp v19/RESULTADO_E8K_V19.json /tmp/primeiro-v19.json
+          python v19/AUDITAR_E8K_V19_CAUDA.py \
+            --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --submitted-proof referencias/TAIL_PROOF_ENVIADO_2026-11-01.md \
+            --out v19/RESULTADO_E8K_V19.json
+          cmp /tmp/primeiro-v19.json v19/RESULTADO_E8K_V19.json
+          sha256sum v19/RESULTADO_E8K_V19.json
+      - name: Publicar testemunhas mesmo em falhas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v19-cauda
+          if-no-files-found: warn
+          path: |
+            v19/RESULTADO_E8K_V19.json
+            v19/README_V19.md
+          retention-days: 30

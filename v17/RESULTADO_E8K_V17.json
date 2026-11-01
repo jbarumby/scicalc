@@ -1,0 +1,370 @@
+{
+  "ast_b5_eval_point": "amp2(r, k) * omega(r) / PI",
+  "external_theorems_assumed": [
+    "Guinand-Weil explicit formula (nontrivial zeros, pole, prime, digamma terms), with the stated Fourier convention"
+  ],
+  "fourier_convention": {
+    "archimedean": "(1/pi)*int_0^infty H_ij(r)*Omega(r) dr (Omega even)",
+    "forward": "F_k(r)=int_-L^L f_k(t) exp(+i*r*t) dt",
+    "inverse": "C_ij(u)=1/(2*pi)*int_R H_ij(r) exp(-i*r*u) dr",
+    "pole_term": "H_ij(i/2)+H_ij(-i/2)",
+    "prime_term": "-2*(log 2)/sqrt 2*C_ij(log 2)",
+    "regularity": "F_i entire and O(r^-2) on each horizontal strip; H_ij O(r^-4) on each strip",
+    "spectral_test": "H_ij(r)=1/2*(F_i(r)*F_j(-r)+F_j(r)*F_i(-r))"
+  },
+  "gates": {
+    "analytical_lemmas_documented_no_claim_of_global_proof": true,
+    "b5_diag_eval_point_1_over_pi_ast": true,
+    "negative_mutations_isolated_6": true,
+    "original_sources_sha256": true,
+    "phase4_records_hashes_30": true,
+    "pole_projected_two_moments_exact_8_columns": true,
+    "prime_support_exact_log2_lt_2L_lt_log3": true,
+    "sine_transform_numeric_crosscheck": true,
+    "v16_replay_report_authenticated_and_conditional": true
+  },
+  "independent_numeric_sanity_only": {
+    "all_sanity_cases_agree": true,
+    "fourier_direct_vs_closed": [
+      {
+        "abs_error": "8.881784e-16",
+        "agrees": true,
+        "k": 1,
+        "r": "0"
+      },
+      {
+        "abs_error": "3.025416e-17",
+        "agrees": true,
+        "k": 2,
+        "r": "0"
+      },
+      {
+        "abs_error": "2.775576e-15",
+        "agrees": true,
+        "k": 3,
+        "r": "1.1"
+      },
+      {
+        "abs_error": "1.265800e-14",
+        "agrees": true,
+        "k": 4,
+        "r": "15"
+      },
+      {
+        "abs_error": "3.553010e-15",
+        "agrees": true,
+        "k": 7,
+        "r": "-3.7"
+      },
+      {
+        "abs_error": "2.857716e-13",
+        "agrees": true,
+        "k": 10,
+        "r": "33"
+      },
+      {
+        "abs_error": "0.000000e+00",
+        "agrees": true,
+        "k": 5,
+        "r": "17.4532925199433"
+      }
+    ],
+    "max_error_float": 2.857716e-13,
+    "orthogonality_direct": [
+      {
+        "abs_error": "0.000000e+00",
+        "agrees": true,
+        "i": 1,
+        "j": 1
+      },
+      {
+        "abs_error": "0.000000e+00",
+        "agrees": true,
+        "i": 2,
+        "j": 2
+      },
+      {
+        "abs_error": "4.733918e-18",
+        "agrees": true,
+        "i": 1,
+        "j": 2
+      },
+      {
+        "abs_error": "3.361743e-17",
+        "agrees": true,
+        "i": 3,
+        "j": 5
+      },
+      {
+        "abs_error": "0.000000e+00",
+        "agrees": true,
+        "i": 8,
+        "j": 8
+      },
+      {
+        "abs_error": "2.007427e-17",
+        "agrees": true,
+        "i": 9,
+        "j": 10
+      }
+    ],
+    "pole_moments_direct_vs_closed": [
+      {
+        "abs_error": "1.110223e-16",
+        "agrees": true,
+        "k": 1,
+        "sign": -1
+      },
+      {
+        "abs_error": "1.110223e-16",
+        "agrees": true,
+        "k": 1,
+        "sign": 1
+      },
+      {
+        "abs_error": "1.665335e-16",
+        "agrees": true,
+        "k": 2,
+        "sign": -1
+      },
+      {
+        "abs_error": "1.804112e-16",
+        "agrees": true,
+        "k": 2,
+        "sign": 1
+      },
+      {
+        "abs_error": "2.831069e-15",
+        "agrees": true,
+        "k": 3,
+        "sign": -1
+      },
+      {
+        "abs_error": "2.831069e-15",
+        "agrees": true,
+        "k": 3,
+        "sign": 1
+      },
+      {
+        "abs_error": "1.471046e-15",
+        "agrees": true,
+        "k": 4,
+        "sign": -1
+      },
+      {
+        "abs_error": "1.498801e-15",
+        "agrees": true,
+        "k": 4,
+        "sign": 1
+      },
+      {
+        "abs_error": "7.659151e-14",
+        "agrees": true,
+        "k": 9,
+        "sign": -1
+      },
+      {
+        "abs_error": "7.660539e-14",
+        "agrees": true,
+        "k": 9,
+        "sign": 1
+      },
+      {
+        "abs_error": "2.321754e-14",
+        "agrees": true,
+        "k": 10,
+        "sign": -1
+      },
+      {
+        "abs_error": "2.331468e-14",
+        "agrees": true,
+        "k": 10,
+        "sign": 1
+      }
+    ]
+  },
+  "literature": [
+    "E. Bombieri, Remarks on Weil quadratic functional in the theory of prime numbers I, https://www.bdim.eu/item?fmt=pdf&id=RLIN_2000_9_11_3_183_0",
+    "E. Bombieri/J. C. Lagarias, Li criterion for the Riemann hypothesis, https://websites.umich.edu/~lagarias/doc/bombieri.pdf"
+  ],
+  "negative_controls": {
+    "including_prime_3_outside_support_detected": true,
+    "missing_prime_factor_2_detected": true,
+    "nonzero_cross_parity_detected": true,
+    "wrong_half_axis_factor_detected": true,
+    "wrong_pole_sign_detected": true,
+    "wrong_regularization_denominator_detected": true
+  },
+  "not_certified": [
+    "independent proof from scratch of Guinand-Weil explicit formula",
+    "rigorous Phase4 nodal and quadrature error inclusions and E7 infinite archimedean tail",
+    "Lean compilation and full formalization of the analytic steps",
+    "all N and all compactly supported admissible functions; Riemann Hypothesis"
+  ],
+  "parameters": {
+    "L": "9/20",
+    "N": [
+      6,
+      8,
+      10
+    ],
+    "double_L": "9/10",
+    "projection_dimension": "N-2",
+    "support_centered": [
+      "-9/20",
+      "9/20"
+    ]
+  },
+  "pole_moments": {
+    "cancel_coefficient": "B_{p,k}=-k/p*(p²*pi²+L²)/(k²*pi²+L²), same parity",
+    "identity": "M_{k,s}=[2*pi*sqrt(L)*k/(k²*pi²+L²)]*(exp(-s*L/2)-(-1)^k exp(s*L/2)), s=+/-1",
+    "two_pole_cancellations": [
+      {
+        "mode": 3,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "odd",
+        "pivot": 1,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 4,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "even",
+        "pivot": 2,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 5,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "odd",
+        "pivot": 1,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 6,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "even",
+        "pivot": 2,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 7,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "odd",
+        "pivot": 1,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 8,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "even",
+        "pivot": 2,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 9,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "odd",
+        "pivot": 1,
+        "plus_and_minus_moments_cancel_exactly": true
+      },
+      {
+        "mode": 10,
+        "numerator_coeff_X": "0",
+        "numerator_constant": "0",
+        "parity": "even",
+        "pivot": 2,
+        "plus_and_minus_moments_cancel_exactly": true
+      }
+    ]
+  },
+  "proven_by_elementary_analysis_not_mechanized": [
+    "orthonormality and two integration-by-parts sine transform",
+    "autocorrelation via Fourier convolution and symmetrization",
+    "moment formula from elementary integration of sin(w*y)exp(s*y/2)",
+    "zero moments for both signs in projected columns",
+    "support prime power 2 only with rational log bounds"
+  ],
+  "schema": "NUMERIA.E8K.V17.EXPLICIT_FORMULA_SPECIALIZATION.1",
+  "sine_transform": {
+    "F_formula": "w_k/sqrt(L)*(exp(-i*r*L)-(-1)^k*exp(+i*r*L))/(w_k^2-r^2), removable at r=+/-w_k",
+    "amplitude_at_resonance": "L",
+    "amplitude_far": "k^2*pi^2/L^3 * (cos(L*r)^2 if k odd else sin(L*r)^2)/(r^2-w_k^2)^2",
+    "amplitude_near": "4*L*w_k^2*sinc(L*(r-w_k))^2/(r+w_k)^2",
+    "basis": "f_k(t)=sin(k*pi*(t+L)/(2L))/sqrt(L), t in [-L,L]",
+    "orthonormality": "int_-L^L f_i(t) f_j(t) dt = delta_ij",
+    "w_k": "k*pi/(2L)"
+  },
+  "source_hashes": {
+    "b5_source_sha256": "a1753d3010e34f29371a9706cd6bb05b3b0c8491ca3cafb44bf98b7cd53d3df9",
+    "e7_zip_sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+    "phase3_source_sha256": "0785f8efba7a09b28a2c96d9c28e63e99f298622fc732304068959191834fac4",
+    "phase4_zip_sha256": "b0d7d335534239a6863e655295a658282551d334b0808ee801710a4b5699d8fe",
+    "v16_report_sha256": "a2e12cb8c88c960d778112412d37c18370fdc2bedc383f2fa27488370e87b3bd",
+    "v16_source_sha256": "8e869e02b84474c9f49f84d1de3e02f9c6a1f138a0130a953b0850292b3343c4"
+  },
+  "status": "FOURIER_AND_POLE_SPECIALIZATION_AUDITED_FULL_EXPLICIT_FORMULA_EXTERNAL",
+  "support_witness": {
+    "ln2_interval": [
+      "4651520947808027268290690189198163319980742394976751767419513998537694172950924936134662113489952565154457917239971494370488/6710726203993771723317218309814869996472227123771670224476645382798430427616596376412960555909137204157027962584781455822125",
+      "55818251373696327219488282270377959839768908739721021209034167982452398437804015557874384919587864917082610007568336694267481/80528714447925260679806619717778439957666725485260042693719744593581165131399156516955526670909646449884335551017377469865500"
+    ],
+    "ln3_interval": [
+      "1163005345113490277599589008738855232921071946653900571083820784570089120155587884859469466770571330532010235559345509330104187554819919764990125373/1058613085898981511731145167908424083576066833451219330575422845310253750533250873673419624134893149606321572165315402670083727587992610763964416000",
+      "581502672556745138799794504369427616460535973326950285541910394470041378284457659258778102443907966730002725996124572586169306653355868754005933249/529306542949490755865572583954212041788033416725609665287711422655126875266625436836709812067446574803160786082657701335041863793996305381982208000"
+    ],
+    "strict_inequality": true,
+    "support_double_L": "9/10"
+  },
+  "v16_inherited_finite_conditionals": [
+    {
+      "N": 6,
+      "delta_approx": "0.0127509339660834",
+      "delta_difference_exact": "1041233177432177100609185801943473558928540979/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "delta_exact": "637546698304169345039722497543853703351617201529/50000000000000000000000000000000000000000000000000",
+      "method": "exact rational LDU on outward-rounded independent P and B and original Phase4 G",
+      "min_shifted_pivot_approx": "0.21884109746778",
+      "min_shifted_pivot_exact": "547102743669450183583857252427703194394876449119/2500000000000000000000000000000000000000000000000",
+      "pivot_difference_exact": "16659460115582449547696052946549013196621493/16000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "positive_definite_if_analytic_enclosures_hold": true,
+      "prior_phase4_delta_approx": 0.012750933966083388,
+      "prior_phase4_min_shifted_pivot_approx": 0.21884109746778008,
+      "projected_dimension": 4
+    },
+    {
+      "N": 8,
+      "delta_approx": "0.028029764408066",
+      "delta_difference_exact": "2290630372548385622806710558274470294122261781/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "delta_exact": "2802976440806595339140905585346229320037271312339/100000000000000000000000000000000000000000000000000",
+      "method": "exact rational LDU on outward-rounded independent P and B and original Phase4 G",
+      "min_shifted_pivot_approx": "0.203562267025797",
+      "min_shifted_pivot_exact": "20356226702579750694292829506849605862461021055479/100000000000000000000000000000000000000000000000000",
+      "pivot_difference_exact": "4581226904680223237857056130980620119965128229/2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "positive_definite_if_analytic_enclosures_hold": true,
+      "prior_phase4_delta_approx": 0.028029764408065955,
+      "prior_phase4_min_shifted_pivot_approx": 0.2035622670257975,
+      "projected_dimension": 6
+    },
+    {
+      "N": 10,
+      "delta_approx": "0.0519097489303801",
+      "delta_difference_exact": "1698308550024461727497363579335118734249284793/400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "delta_exact": "10381949786076015237604674621033767019282604968877/200000000000000000000000000000000000000000000000000",
+      "method": "exact rational LDU on outward-rounded independent P and B and original Phase4 G",
+      "min_shifted_pivot_approx": "0.179682282503483",
+      "min_shifted_pivot_exact": "35936456500696676829262795563357903345713979766759/200000000000000000000000000000000000000000000000000",
+      "pivot_difference_exact": "1061438613713220078716306613888409150370878579/250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "positive_definite_if_analytic_enclosures_hold": true,
+      "prior_phase4_delta_approx": 0.05190974893038008,
+      "prior_phase4_min_shifted_pivot_approx": 0.1796822825034834,
+      "projected_dimension": 8
+    }
+  ]
+}
