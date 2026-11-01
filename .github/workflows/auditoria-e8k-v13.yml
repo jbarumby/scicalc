@@ -57,16 +57,10 @@ jobs:
             echo 'Falha: lacunas de prova Lean detectadas.' >&2
             exit 1
           fi
-      - name: Verificar configuracao Lean
-        shell: bash
-        run: |
-          test -f NUMERIA_E8K_FORMAL/lakefile.toml
-          test -f NUMERIA_E8K_FORMAL/lean-toolchain
-          echo "lakefile.toml e lean-toolchain presentes."
-      - name: Compilar Lean 4 com Mathlib 4
-        shell: bash
-        run: |
-          cd NUMERIA_E8K_FORMAL
-          elan toolchain install "$(cat lean-toolchain)"
-          lake update
-          lake build
+      - name: Compilar Lean 4 com Mathlib 4 (gate formal)
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: true
+          test: false
+          use-mathlib-cache: true
