@@ -435,7 +435,8 @@ theorem fpDown_le (x : ℚ) : fpDown x ≤ x := by
   have hN : 0 < N_TICK := by positivity
   have h1 : (Int.floor (x * N_TICK) : ℚ) ≤ x * N_TICK := Int.floor_le _
   show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤ x
-  rwa [div_le_iff hN]        -- a / c ≤ b ↔ a ≤ b * c
+  rw [div_le_iff₀ hN]
+  exact h1
 
 /-- x ≤ ceil(x*N)/N: analogo via le_ceil. -/
 theorem fpUp_ge (x : ℚ) : x ≤ fpUp x := by
