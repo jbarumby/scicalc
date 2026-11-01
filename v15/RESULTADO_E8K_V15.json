@@ -1,5 +1,5 @@
 {
-  "all_gates_passed": false,
+  "all_gates_passed": true,
   "exact_witnesses": {
     "G11": {
       "all_band_exact_sums_match": true,
@@ -74,8 +74,8 @@
       "status": "PASS"
     },
     "manifest_all_files_intact": {
-      "detail": "25 arquivos comparados; 2 problemas",
-      "status": "FAIL"
+      "detail": "27 arquivos comparados; 0 problemas",
+      "status": "PASS"
     },
     "negative_controls_isolated": {
       "detail": "7/7 mutacoes isoladas detectadas",
@@ -111,11 +111,8 @@
     "e7_zip_sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7"
   },
   "manifest": {
-    "problems": [
-      "arquivo ausente: .github/workflows/auditoria-e8k-v13.yml",
-      "arquivo ausente: .github/workflows/auditoria-e8k-v14.yml"
-    ],
-    "verified_file_count": 25
+    "problems": [],
+    "verified_file_count": 27
   },
   "negative_controls": [
     {
