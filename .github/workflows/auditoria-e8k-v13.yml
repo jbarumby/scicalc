@@ -1,0 +1,66 @@
+name: auditoria-e8k-v13
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'VERIFICAR_E8K_V13.py'
+      - 'VERIFICAR_INVARIANTES_LEAN_V13.py'
+      - 'NUMERIA_E8K_FORMAL/**'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - '.github/workflows/auditoria-e8k-v13.yml'
+  pull_request:
+    paths:
+      - 'VERIFICAR_E8K_V13.py'
+      - 'VERIFICAR_INVARIANTES_LEAN_V13.py'
+      - 'NUMERIA_E8K_FORMAL/**'
+      - 'NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip'
+      - '.github/workflows/auditoria-e8k-v13.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cotas-racionais:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Auditoria racional V13 - 11 bandas + 2 caudas
+        run: |
+          python VERIFICAR_E8K_V13.py \
+            --zip NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out RESULTADO_E8K_V13.json
+      - name: Conferir enunciados Lean em Fraction (sanidade, nao prova formal)
+        run: |
+          python VERIFICAR_INVARIANTES_LEAN_V13.py --trials 5000 --out RESULTADO_LEMAS_V13.json
+      - name: Publicar relatorio, inclusive em falha
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e8k-v13-auditoria-racional
+          path: |
+            RESULTADO_E8K_V13.json
+            RESULTADO_LEMAS_V13.json
+          if-no-files-found: warn
+
+  formalizacao-lean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rejeitar admitted/sorry em posicao de prova
+        shell: bash
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit)([[:space:]]|$)|\\bby[[:space:]]+(sorry|admit)\\b' NUMERIA_E8K_FORMAL/NumeriaE8K.lean; then
+            echo 'Falha: lacunas de prova Lean detectadas.' >&2
+            exit 1
+          fi
+      - name: Compilar Lean 4 com Mathlib 4 (gate formal)
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: true
+          test: false
+          use-mathlib-cache: true
