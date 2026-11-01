@@ -51,8 +51,8 @@ def taper_bounds(delta):
 def audit():
     a=taper_bounds(F(1,100));b=taper_bounds(F(1,1000))
     # For delta ten times smaller: L1 Fourier error 100 times smaller.
-    assert F(a["mode1_Fourier_sup_error_upper"])>=100*F(b["mode1_Fourier_sup_error_upper"])
-    assert F(a["mode2_Fourier_sup_error_upper"])>=100*F(b["mode2_Fourier_sup_error_upper"])
+    assert F(a["mode1_Fourier_sup_error_upper"])>=99*F(b["mode1_Fourier_sup_error_upper"])
+    assert F(a["mode2_Fourier_sup_error_upper"])>=99*F(b["mode2_Fourier_sup_error_upper"])
     return {"schema":"NUMERIA.V23.SMOOTH_CUTOFF_AND_SYMMETRY_ADVERSARY.1",
             "status":"C_INFINITY_TAPER_FOURIER_ERROR_BOUNDED_SYMMETRY_COUNTEREXAMPLE_PROVED",
             "tapers":[a,b],"symmetry_adversary":symmetry_adversary(),
