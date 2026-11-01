@@ -300,20 +300,20 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     · rw [h]; exact le_max_right (abs r) (abs s)
   have hv_s : v ≤ s := by
     rcases hv with h | h
-    · rw [h]; exact hrs
-    · rw [h]; exact le_refl s
+    · simpa [h] using hrs
+    · simpa [h] using (le_refl s)
   have hv_r : r ≤ v := by
     rcases hv with h | h
-    · rw [h]; exact le_refl r
-    · rw [h]; exact hrs
+    · simpa [h] using (le_refl r)
+    · simpa [h] using hrs
   have hv'_s : v' ≤ s := by
     rcases hv' with h | h
-    · rw [h]; exact hrs
-    · rw [h]; exact le_refl s
+    · simpa [h] using hrs
+    · simpa [h] using (le_refl s)
   have hv'_r : r ≤ v' := by
     rcases hv' with h | h
-    · rw [h]; exact le_refl r
-    · rw [h]; exact hrs
+    · simpa [h] using (le_refl r)
+    · simpa [h] using hrs
   have hdv : abs (v - v') ≤ s - r := by
     rw [abs_le]
     constructor
@@ -321,20 +321,20 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     · linarith
   have hu_q : u ≤ q := by
     rcases hu with h | h
-    · rw [h]; exact hpq
-    · rw [h]; exact le_refl q
+    · simpa [h] using hpq
+    · simpa [h] using (le_refl q)
   have hu_p : p ≤ u := by
     rcases hu with h | h
-    · rw [h]; exact le_refl p
-    · rw [h]; exact hpq
+    · simpa [h] using (le_refl p)
+    · simpa [h] using hpq
   have hu'_q : u' ≤ q := by
     rcases hu' with h | h
-    · rw [h]; exact hpq
-    · rw [h]; exact le_refl q
+    · simpa [h] using hpq
+    · simpa [h] using (le_refl q)
   have hu'_p : p ≤ u' := by
     rcases hu' with h | h
-    · rw [h]; exact le_refl p
-    · rw [h]; exact hpq
+    · simpa [h] using (le_refl p)
+    · simpa [h] using hpq
   have hdu : abs (u - u') ≤ q - p := by
     rw [abs_le]
     constructor
@@ -354,7 +354,7 @@ private lemma corner_diff_le {p q r s u u' v v' : ℚ}
     have e1 : (u - u') * v' ≤ abs ((u - u') * v') := le_abs_self _
     rw [abs_mul] at e1
     have e2 : abs (u - u') * abs v' ≤ (q - p) * max (abs r) (abs s) :=
-      mul_le_mul hdu hub' (abs_nonneg _) hnn2
+      mul_le_mul hdu hub' (abs_nonneg _) (by linarith [hpq])
     linarith
   have hid : u * v - u' * v' = u * (v - v') + (u - u') * v' := by ring
   linarith
