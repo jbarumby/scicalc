@@ -1,0 +1,224 @@
+{
+  "amplitude": {
+    "max_desvio_relativo": "1.079e-13"
+  },
+  "cancelamento_numerico": {
+    "pior_residuo_fechado": "1.906e-16",
+    "pior_residuo_quadratura": "1.919e-11"
+  },
+  "decorative_cases_v17_historical_not_evidence": [
+    {
+      "k": 5,
+      "motivo": "F_closed usa Simpson quando |r-w_k|<1e-10: compara consigo mesmo",
+      "r": "17.4532925199433"
+    }
+  ],
+  "deterministic_json": true,
+  "gates": {
+    "amplitude_formas_concordam": {
+      "detail": "far/near/direta ate 1.079e-13; ressonancia -> L",
+      "status": "PASS"
+    },
+    "b5_ast_opcional": {
+      "detail": "eval_point: amp2(r, k) * omega(r) / PI",
+      "status": "PASS"
+    },
+    "cancelamento_zero_observado": {
+      "detail": "M_k+beta*M_p~0 (fechada 2e-16, quadratura 2e-11)",
+      "status": "PASS"
+    },
+    "condicionais_v16_consistentes": {
+      "detail": "N=6,8,10: racionais vs floats; condicional preservada",
+      "status": "PASS"
+    },
+    "estrutura_relatorio_v17": {
+      "detail": "9 gates, 6 negativos, 25 sanity, atribuicao do erro maximo",
+      "status": "PASS"
+    },
+    "formulas_canonicas_declaradas": {
+      "detail": "15 strings verbatim",
+      "status": "PASS"
+    },
+    "hashes_codigo_vs_relatorio": {
+      "detail": "6 constantes *_SHA conferem; ancoras E7/B5 da cadeia",
+      "status": "PASS"
+    },
+    "manifesto_v17": {
+      "detail": "3 artefatos V17 ancorados por hash (primeira publicacao)",
+      "status": "PASS"
+    },
+    "parecer_consistente": {
+      "detail": "classificacao, erro maximo e clausulas citadas conferem",
+      "status": "PASS"
+    },
+    "polos_identidade_e_colunas": {
+      "detail": "C_k+beta*C_p=0 em 8 amostras de X por k; 8 colunas",
+      "status": "PASS"
+    },
+    "ressonancia_independente_v18": {
+      "detail": "formula analitica exata + 10 quadraturas float independentes",
+      "status": "PASS"
+    },
+    "ressonancia_v17_historica_identificada": {
+      "detail": "k=5: Simpson versus Simpson excluido como evidencia; substituido por identidade analitica + quadratura separada",
+      "status": "PASS"
+    },
+    "selftest_mutacoes_reais": {
+      "detail": "13/13 mutacoes detectadas pelos detectores",
+      "status": "PASS"
+    },
+    "testemunhas_suporte_reproduzidas": {
+      "detail": "ln2/ln3 bit a bit; log2 < 9/10 < log3 exato",
+      "status": "PASS"
+    }
+  },
+  "mutations": [
+    {
+      "detectada": true,
+      "mutacao": "testemunha ln2 adulterada (primeiro digito)"
+    },
+    {
+      "detectada": true,
+      "mutacao": "desigualdade de suporte quebrada (ln2 recebe fração de ln3)"
+    },
+    {
+      "detectada": true,
+      "mutacao": "strict_inequality removida"
+    },
+    {
+      "detectada": true,
+      "mutacao": "beta com sinal invertido no parecer publicado"
+    },
+    {
+      "detectada": true,
+      "mutacao": "fator primo -2 vira -1 (o controle falso do V17, agora real)"
+    },
+    {
+      "detectada": true,
+      "mutacao": "denominador da regularização trocado ((r+w_k) -> (r-w_k))"
+    },
+    {
+      "detectada": true,
+      "mutacao": "paridade do pivô violada (k=3 com pivô 2)"
+    },
+    {
+      "detectada": true,
+      "mutacao": "numerador de cancelamento adulterado ('0' -> '1')"
+    },
+    {
+      "detectada": true,
+      "mutacao": "delta exato da V16 adulterado (primeiro digito)"
+    },
+    {
+      "detectada": true,
+      "mutacao": "max_error_float subestimado"
+    },
+    {
+      "detectada": true,
+      "mutacao": "status inflado para RIEMANN_HYPOTHESIS_CERTIFIED"
+    },
+    {
+      "detectada": true,
+      "mutacao": "not_certified esvaziado"
+    },
+    {
+      "detectada": true,
+      "mutacao": "hash de fonte E7 adulterado no relatorio"
+    }
+  ],
+  "not_certified": [
+    "os ZIPs E7/Fase4/V16 nao foram reexecutados; o V18 audita o relatorio publicado, nao a fonte",
+    "verificacoes float sao sanity; as exatas sao as racionais (suporte, polos, hashes)",
+    "LDU da V16 nao foi recalculado (sem as matrizes G/P/B)",
+    "Guinand-Weil permanece teorema externo assumido",
+    "mutacoes provam que os DETECTORES respondem a adulteracao do relatorio; nao substituem a execucao do V17 contra os ZIPs",
+    "Hipotese de Riemann nao certificada"
+  ],
+  "resonance_independent_v18": {
+    "amostras": [
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "1.116323716e-15",
+        "k": 1,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000015"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "8.917733103e-16",
+        "k": 2,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000012"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "1.115384238e-15",
+        "k": 3,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000015"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "7.915372274e-16",
+        "k": 4,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000011"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "1.352572658e-15",
+        "k": 5,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000018"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "1.473358795e-15",
+        "k": 6,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.450000000000002"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "8.182071266e-16",
+        "k": 7,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000011"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "1.155394803e-15",
+        "k": 8,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4499999999999985"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "4.409101167e-16",
+        "k": 9,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000003"
+      },
+      {
+        "concorda_float": true,
+        "erro_complexo_float": "6.728696764e-16",
+        "k": 10,
+        "modulo_quadrado_analitico_exato": "9/20",
+        "modulo_quadratura_ao_quadrado": "0.4500000000000007"
+      }
+    ],
+    "controle_negativo_amplitude_2L_detectado": true,
+    "derivacao_analitica": "F_k(w_k)=i*sqrt(L)*exp(-i*k*pi/2); |F_k(w_k)|^2=L",
+    "identidade_exata_amplitude": "9/20",
+    "observacao": "Simpson e apenas verificacao auxiliar em ponto distinto da formula fechada."
+  },
+  "rounding": "outward (racionais exatos; floats sao sanity)",
+  "schema": "NUMERIA.E8K.V18.WITNESS_INDEPENDENT_REPLAY.1",
+  "status": "V17_WITNESSES_REPLAYED_MUTATIONS_DETECTED",
+  "v17_artifact_sha256": {
+    "v17_parecer_sha256": "f1517c4db25fb0d9d918e852be02f0c037842d95e665a525793ecaa8732fc67e",
+    "v17_report_sha256": "3e57f1c79a0f07850db70e0513438b920ff5204781cc7d81ba16048eaa2023e3",
+    "v17_source_sha256": "8d2fa7cdfc2281da9bde56dce665ce115124e6359165996d05fe91e50bcb13e4"
+  },
+  "warning": "hashes sem assinacao sao testes de integridade relativa, nao autenticacao por terceiros"
+}
