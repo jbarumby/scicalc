@@ -53,7 +53,7 @@ jobs:
       - name: Rejeitar admitted/sorry em posicao de prova
         shell: bash
         run: |
-          if grep -nE '^[[:space:]]*(sorry|admit)([[:space:]]|$)|\\bby[[:space:]]+(sorry|admit)\\b' NUMERIA_E8K_FORMAL/NumeriaE8K.lean; then
+          if grep -nE '^[[:space:]]*(sorry|admit)([[:space:]]|$)|\bby[[:space:]]+(sorry|admit)\b' NUMERIA_E8K_FORMAL/NumeriaE8K.lean; then
             echo 'Falha: lacunas de prova Lean detectadas.' >&2
             exit 1
           fi
