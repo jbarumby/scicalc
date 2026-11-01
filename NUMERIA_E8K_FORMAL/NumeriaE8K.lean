@@ -188,7 +188,7 @@ private lemma inv_le_inv_of_neg {u v : ℚ} (hu : u < 0) (hv : v < 0)
   have hu' : 0 < -u := by linarith
   have hv' : 0 < -v := by linarith
   have h' : -v ≤ -u := by linarith
-  have key := (inv_le_inv₀ hu' hv').1 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
+  have key := (inv_le_inv₀ hu' hv').2 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
   simp only [inv_neg] at key           -- -u⁻¹ ≤ -v⁻¹
   linarith
 
@@ -244,8 +244,10 @@ theorem width_mul_abs_bound (I J : RatI) :
              by linarith [le_abs_self J.hi, hJ2, hv2]⟩
     have hIpos : 0 ≤ max (abs I.lo) (abs I.hi) :=
       le_trans (abs_nonneg I.lo) (le_max_left _ _)
+    have hJpos : 0 ≤ max (abs J.lo) (abs J.hi) :=
+      le_trans (abs_nonneg J.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA (abs_nonneg v) (abs_nonneg u)
+    exact mul_le_mul huA hvA hIpos hJpos
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
@@ -259,7 +261,7 @@ theorem width_mul_abs_bound (I J : RatI) :
     have c4 := le_trans (le_abs_self _)
       (key I.hi J.hi I.hlo (le_refl _) J.hlo (le_refl _))
     exact max_le (max_le c1 c2) (max_le c3 c4)
-  have hlo : -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
+  have hlo : -(max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)) ≤
       (I.mul J).lo := by
     show -(max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)) ≤
       min (min (I.lo * J.lo) (I.lo * J.hi)) (min (I.hi * J.lo) (I.hi * J.hi))
