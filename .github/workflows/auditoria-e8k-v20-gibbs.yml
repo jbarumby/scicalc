@@ -1,0 +1,53 @@
+name: auditoria-e8k-v20-gibbs-yanglee
+on:
+  push:
+    paths:
+      - 'v20/**'
+      - '.github/workflows/auditoria-e8k-v20-gibbs.yml'
+  pull_request:
+    paths:
+      - 'v20/**'
+      - '.github/workflows/auditoria-e8k-v20-gibbs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validar-v20:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Conferir sintaxe Python
+        run: python -m py_compile v20/gibbs_euler.py v20/yang_lee.py v20/gibbs_gram.py v20/AUDITAR_E8K_V20.py v20/TESTAR_E8K_V20.py
+      - name: Certificar consequencias racionais em quatro portoes
+        run: python v20/AUDITAR_E8K_V20.py --out v20/RESULTADO_E8K_V20.json
+      - name: Adversarios e reproducao byte a byte
+        shell: bash
+        run: |
+          python v20/TESTAR_E8K_V20.py
+          cp v20/RESULTADO_E8K_V20.json /tmp/v20-original.json
+          python v20/AUDITAR_E8K_V20.py --out v20/RESULTADO_E8K_V20.json
+          cmp /tmp/v20-original.json v20/RESULTADO_E8K_V20.json
+          sha256sum v20/*.py v20/*.md v20/RESULTADO_E8K_V20.json
+      - name: Verificar manifesto SHA256 quando publicado
+        shell: bash
+        run: |
+          if [ -f v20/SHA256SUMS_V20.txt ]; then
+            (cd v20 && sha256sum -c SHA256SUMS_V20.txt)
+          fi
+      - name: Publicar testemunhas V20
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v20-gibbs-yanglee
+          if-no-files-found: warn
+          path: |
+            v20/RESULTADO_E8K_V20.json
+            v20/README_V20.md
+            v20/REFERENCIAS_V20.md
+          retention-days: 30
