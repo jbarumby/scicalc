@@ -458,7 +458,8 @@ theorem fp_mono (x y : ℚ) (h : x ≤ y) :
   constructor
   · show (Int.floor (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.floor (y * N_TICK) : ℚ) / N_TICK
-    exact div_le_div_of_le hN hf
+    rw [div_le_div_iff₀ hN hN]
+    exact hf
   · show (Int.ceil (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.ceil (y * N_TICK) : ℚ) / N_TICK
     exact div_le_div_of_le hN hc
