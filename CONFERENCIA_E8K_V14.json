@@ -1,0 +1,107 @@
+{
+  "all_gates_passed": true,
+  "failed": 0,
+  "gates": {
+    "b3_b5_aggregate_metrics": {
+      "status": "PASS",
+      "witness": {
+        "individual_node_metrics": "not_available",
+        "scope": "aggregate_finite_sum_only"
+      }
+    },
+    "e7_b5_b3_source_integrity": {
+      "status": "PASS",
+      "witness": {
+        "b3_original_sha": {
+          "G11": "65a467c925b3824a23e814ab49d5ce456e528ce165e72a8f2b5dc8ab62368dc2",
+          "G22": "8f53deef567ab58134436fff3bab38d8049fedda32f88f8fc7f587723b4dd54f"
+        },
+        "manifest_entries": 32
+      }
+    },
+    "full_15754_point_band_reconciliation": {
+      "status": "PASS",
+      "witness": {
+        "bands": 11,
+        "composite": 2,
+        "points": 15754
+      }
+    },
+    "independent_oracle_128": {
+      "status": "PASS",
+      "witness": {
+        "bands_covered": 11,
+        "mismatches": 0,
+        "sample_size": 128
+      }
+    },
+    "integrity_sha256sums": {
+      "status": "PASS",
+      "witness": {
+        "checked": 27
+      }
+    },
+    "negative_mutations": {
+      "status": "PASS",
+      "witness": [
+        {
+          "detected": true,
+          "name": "b3_original_hash",
+          "target_gate": "e7_b5_b3_source_integrity"
+        },
+        {
+          "detected": true,
+          "name": "band_sum",
+          "target_gate": "full_15754_point_band_reconciliation"
+        },
+        {
+          "detected": true,
+          "name": "metric_missing",
+          "target_gate": "b3_b5_aggregate_metrics"
+        },
+        {
+          "detected": true,
+          "name": "fraction_outside_domain",
+          "target_gate": "b3_b5_aggregate_metrics"
+        },
+        {
+          "detected": true,
+          "name": "oracle_mismatch",
+          "target_gate": "independent_oracle_128"
+        }
+      ]
+    },
+    "outward_decimal_rounding": {
+      "status": "PASS",
+      "witness": {
+        "components": 2,
+        "rounding": "outward"
+      }
+    },
+    "v12_full_runtime_replay": {
+      "status": "PASS",
+      "witness": {
+        "method": "B5 runtime exact replay",
+        "verified": true
+      }
+    },
+    "v13_analytic_premises": {
+      "status": "PASS",
+      "witness": {
+        "not_formal_theorem_proof": true,
+        "passed_under_analytic_premises": true
+      }
+    }
+  },
+  "not_certified": [
+    "Global analytic validity of B3 midpoint second derivative bounds",
+    "Independent formal proof of Weil integral tail R>160",
+    "Formal Lean compilation and complete B5 fixed-point correspondence",
+    "Third-party authenticity of unsigned hashes",
+    "Weil explicit formula globally",
+    "Riemann Hypothesis"
+  ],
+  "passed": 9,
+  "schema": "NUMERIA.E8K.V14.EVIDENCE_CONFERENCE.1",
+  "status": "PASSED"
+}

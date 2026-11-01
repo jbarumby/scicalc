@@ -1,0 +1,521 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+CONFERIR_E8K_V12.py - Conferidor independente do RESULTADO_E8K_V12.json
+(schema NUMERIA.E8K.V12.FULL_POINT_REPLAY.1)
+
+O verificador V12 (VERIFICAR_E8K_V12.py) reproduz os pontos B5 a partir do
+ZIP E7. Este script NAO re-executa a reproducao: ele confere o RELATORIO
+dela por vias independentes, com aritmetica exata (fractions.Fraction) e
+cotejo de hashes, sem usar o codigo da fonte como oraculo.
+
+Gates (todos falham fechado; SKIP nunca e aprovacao):
+  1. sha256sums_integrity  - cada entrada de SHA256SUMS.txt e reconferida;
+                             o proprio relatorio V12 tem seu hash validado.
+  2. aritmetica_exata      - larguras exatas das somas finais vs decimais
+                             declarados; contencao no intervalo composto;
+                             reconstrucao composto = finito + quad + cauda;
+                             somas das bandas = total de pontos; bandas
+                             contiguas particionando [0,160].
+  3. cadeia_de_hashes      - jsonl_sha256 e b5_source_sha256 contra o
+                             manifesto B5 (se fornecido); e7_zip_sha256
+                             contra ORIGEM/SHA256SUMS.
+  4. testemunhas_publicadas - afirmacoes "verificado" SEM testemunha
+                             (hash/valor) publicada no relatorio viram
+                             pendencia; em --strict, viram falha.
+  5. nao_aninhamento_b3_b5 - b5_enclosed_in_b3=false exige metricas
+                             quantitativas no relatorio (fracao de pontos
+                             aninhados, distancia maxima entre intervalos);
+                             sem elas, pendencia (falha em --strict).
+
+Uso:
+    python CONFERIR_E8K_V12.py \
+        --resultado RESULTADO_E8K_V12.json \
+        --sha256sums SHA256SUMS.txt \
+        [--manifesto-b5 MANIFESTO_SHA256.json] \
+        [--out CONFERENCIA_V12.json] [--strict] [--selftest]
+
+Codigos de saida: 0 = todos os gates PASS; 2 = gate reprovado;
+3 = erro de integracao. --selftest injeta mutacoes no relatorio em memoria
+e exige que cada gate as detecte (controle negativo do proprio conferidor).
+
+Dependencias: apenas stdlib (hashlib, json, fractions, argparse, pathlib,
+re, sys, datetime).
+"""
+
+import argparse
+import hashlib
+import json
+import re
+import sys
+from datetime import datetime, timezone
+from fractions import Fraction
+from pathlib import Path
+
+SCHEMA_ESPERADO = "NUMERIA.E8K.V12.FULL_POINT_REPLAY.1"
+ZIP_ESPERADO = ("4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f"
+                "387110b02a7")
+
+
+class Gates:
+    def __init__(self):
+        self.items = {}
+
+    def ok(self, name, detail=""):
+        self.items[name] = {"status": "PASS", "detail": detail}
+
+    def fail(self, name, detail=""):
+        self.items[name] = {"status": "FAIL", "detail": detail}
+
+    def skip(self, name, detail=""):
+        self.items[name] = {"status": "SKIP", "detail": detail}
+
+    def pendencia(self, name, detail, strict):
+        if strict:
+            self.fail(name, detail + " [strict]")
+        else:
+            self.items[name] = {"status": "PENDENCIA", "detail": detail}
+
+    def counts(self):
+        c = {"PASS": 0, "FAIL": 0, "SKIP": 0, "PENDENCIA": 0}
+        for v in self.items.values():
+            c[v["status"]] = c.get(v["status"], 0) + 1
+        return c
+
+
+# ----------------------------------------------------------------------------
+# Ferramentas
+# ----------------------------------------------------------------------------
+
+def sha256_arquivo(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for bloco in iter(lambda: f.read(65536), b""):
+            h.update(bloco)
+    return h.hexdigest()
+
+
+def parse_frac(s):
+    if "/" in s:
+        num, den = s.split("/")
+        return Fraction(int(num), int(den))
+    return Fraction(s)
+
+
+def parse_num(s):
+    """Decimal simples ou cientifico ('-1.42824317516', '1.4e-06') ->
+    Fraction exata."""
+    m = re.fullmatch(r"(-?)(\d+)(?:\.(\d+))?(?:e(-?)(\d+))?", s.strip())
+    if not m:
+        raise ValueError("numero nao reconhecido: %r" % s)
+    sinal = -1 if m.group(1) == "-" else 1
+    digitos = int(m.group(2) + (m.group(3) or ""))
+    casas = len(m.group(3) or "")
+    expoente = int(m.group(5)) * (-1 if m.group(4) == "-" else 1) \
+        if m.group(5) is not None else 0
+    escala = casas - expoente
+    if escala >= 0:
+        return Fraction(sinal * digitos, 10 ** escala)
+    return Fraction(sinal * digitos * 10 ** (-escala))
+
+
+def casas_decimais(s):
+    """Casas decimais efetivas da representacao declarada (para tolerancia
+    de meio digito). '-1.42824317516' -> 11; '1.42654416992e-06' -> 17."""
+    m = re.fullmatch(r"-?\d+\.(\d+)(?:e([+-]?\d+))?", s.strip())
+    if m:
+        frac = len(m.group(1))
+        if m.group(2):
+            exp = int(m.group(2))
+            frac = frac + max(0, -exp) if exp < 0 else max(0, frac - exp)
+        return frac
+    # notacao cientifica sem parte decimal explicita
+    m2 = re.fullmatch(r"-?\d+(?:e([+-]?\d+))?", s.strip())
+    if m2 and m2.group(1):
+        return max(0, -int(m2.group(1)))
+    return 12  # padrao conservador
+
+
+# ----------------------------------------------------------------------------
+# Gate 1: SHA256SUMS
+# ----------------------------------------------------------------------------
+
+def gate_sha256sums(sums_path, resultado_path, gates):
+    if sums_path is None:
+        gates.skip("sha256sums_integrity", "SHA256SUMS.txt nao fornecido")
+        return None
+    problemas = []
+    conferidos = 0
+    hash_do_relatorio = None
+    with open(sums_path, encoding="utf-8") as f:
+        for linha in f:
+            linha = linha.strip()
+            if not linha or linha.startswith("#"):
+                continue
+            m = re.fullmatch(r"([0-9a-fA-F]{64})\s\s(.+)", linha)
+            if not m:
+                problemas.append("linha malformada: %r" % linha[:60])
+                continue
+            esperado, rel = m.group(1).lower(), m.group(2).strip()
+            alvo = resultado_path.parent / rel
+            if not alvo.is_file():
+                problemas.append("arquivo ausente: %s" % rel)
+                continue
+            obtido = sha256_arquivo(alvo)
+            conferidos += 1
+            if rel == resultado_path.name:
+                hash_do_relatorio = obtido
+            if obtido != esperado:
+                problemas.append("hash divergente: %s" % rel)
+    if problemas:
+        gates.fail("sha256sums_integrity",
+                   "; ".join(problemas[:8]))
+    else:
+        gates.ok("sha256sums_integrity",
+                 "%d arquivos conferidos" % conferidos)
+    return hash_do_relatorio
+
+
+# ----------------------------------------------------------------------------
+# Gate 2: aritmetica exata
+# ----------------------------------------------------------------------------
+
+def conferir_entrada(nome, ent, problemas):
+    """Confere uma entrada (G11/G22) e devolve metricas extraidas."""
+    banda = ent.get("bands", [])
+    contagens = [b["count"] for b in banda]
+    soma_bandas = sum(contagens)
+    total = ent.get("points_regenerated_and_compared")
+    if soma_bandas != total or total != ent.get("integrands_reproduced") \
+            or total != ent.get("weighted_products_reproduced"):
+        problemas.append(
+            "%s: contagens divergem (bandas=%d, pontos=%r)" %
+            (nome, soma_bandas, total))
+
+    bordas = [int(b["from"]) for b in banda] + [int(banda[-1]["to"])]
+    contigua = (bordas[0] == 0 and bordas[-1] == 160 and
+                all(bordas[i + 1] > bordas[i] for i in range(len(bordas) - 1)))
+    if not contigua:
+        problemas.append("%s: bandas nao particionam [0,160]: %s" %
+                         (nome, bordas))
+    if len(banda) != ent.get("bands_reproduced"):
+        problemas.append("%s: bands_reproduced divergente" % nome)
+
+    lo = parse_frac(ent["finite_sum_lower"])
+    hi = parse_frac(ent["finite_sum_upper"])
+    if lo > hi:
+        problemas.append("%s: intervalo da soma finita invertido" % nome)
+        return None
+    largura = hi - lo
+    largura_decl = parse_num(ent["finite_sum_width_approx"])
+    tol = Fraction(1, 10 ** casas_decimais(ent["finite_sum_width_approx"])) / 2
+    if abs(largura - largura_decl) > tol:
+        problemas.append("%s: largura exata %s diverge do declarado %s" %
+                         (nome, float(largura), float(largura_decl)))
+
+    comp_lo = parse_num(ent["e7_composite_interval_approx"][0])
+    comp_hi = parse_num(ent["e7_composite_interval_approx"][1])
+    if not (lo >= comp_lo and hi <= comp_hi):
+        problemas.append("%s: soma finita fora do intervalo composto" % nome)
+
+    # reconstrucao: composto = finito +- (quadratura + cauda)
+    q = parse_num(ent["quadrature_bound_declared_approx"])
+    t = parse_num(ent["tail_bound_declared_approx"])
+    rec_lo, rec_hi = lo - (q + t), hi + (q + t)
+    tol_lo = Fraction(1, 10 ** casas_decimais(
+        ent["e7_composite_interval_approx"][0])) / 2
+    tol_hi = Fraction(1, 10 ** casas_decimais(
+        ent["e7_composite_interval_approx"][1])) / 2
+    if abs(rec_lo - comp_lo) > tol_lo or abs(rec_hi - comp_hi) > tol_hi:
+        problemas.append(
+            "%s: composto nao reconstruido (lo: delta=%.3g, hi: delta=%.3g)"
+            % (nome, float(abs(rec_lo - comp_lo)), float(abs(rec_hi - comp_hi))))
+
+    if parse_num(ent["max_point_interval_width_approx"]) > largura:
+        problemas.append("%s: largura maxima de ponto excede a largura "
+                          "total da soma" % nome)
+
+    return {"largura_exata": largura, "soma_bandas": soma_bandas,
+            "reconstrucao": (rec_lo, rec_hi)}
+
+
+def gate_aritmetica(doc, gates):
+    problemas = []
+    metricas = {}
+    total = doc.get("point_counts", {})
+    for nome in ("G11", "G22"):
+        ent = doc.get("entries", {}).get(nome)
+        if ent is None:
+            problemas.append("entrada %s ausente" % nome)
+            continue
+        metricas[nome] = conferir_entrada(nome, ent, problemas)
+    if total.get("G11", 0) + total.get("G22", 0) != total.get("total"):
+        problemas.append("point_counts nao fecha")
+    replay = doc.get("exact_integrand_enclosures_replayed")
+    if replay != total.get("total") or \
+            doc.get("exact_weighted_enclosures_replayed") != replay:
+        problemas.append("contadores de replay divergentes")
+    if doc.get("schema") != SCHEMA_ESPERADO:
+        problemas.append("schema inesperado: %r" % doc.get("schema"))
+    ctrl = doc.get("negative_checker_controls", {})
+    falsos = [k for k, v in ctrl.items() if v is not True]
+    if falsos:
+        problemas.append("controles negativos reprovados: %s" %
+                         ", ".join(falsos))
+    if problemas:
+        gates.fail("aritmetica_exata", "; ".join(problemas[:10]))
+    else:
+        gates.ok("aritmetica_exata",
+                 "larguras, contencao, reconstrucao, bandas e contadores "
+                 "conferem exatamente")
+    return metricas
+
+
+# ----------------------------------------------------------------------------
+# Gate 3: cadeia de hashes
+# ----------------------------------------------------------------------------
+
+def gate_cadeia(doc, manifestos, gates):
+    problemas = []
+    conferidos = []
+    zip_decl = doc.get("source_integrity", {}).get("e7_zip_sha256", "")
+    if zip_decl.lower() != ZIP_ESPERADO:
+        problemas.append("e7_zip_sha256 diverge do ORIGEM (%s...)" %
+                         zip_decl[:16])
+    else:
+        conferidos.append("zip E7 = ORIGEM")
+    for manifest_path in manifestos:
+        try:
+            man = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+        except Exception as exc:
+            problemas.append("manifesto ilegivel %s: %r" % (manifest_path, exc))
+            continue
+        mapa = {}
+        if isinstance(man.get("sha256"), dict):
+            mapa = {k: v.lower() for k, v in man["sha256"].items()}
+        elif isinstance(man.get("files"), list):
+            mapa = {e["path"]: e["sha256"].lower() for e in man["files"]}
+        for nome, chave in (("G11", "PONTOS_G11_B5.jsonl"),
+                            ("G22", "PONTOS_G22_B5.jsonl")):
+            decl = doc["entries"][nome].get("jsonl_sha256", "").lower()
+            if chave in mapa:
+                if mapa[chave] == decl:
+                    conferidos.append("%s.jsonl bate com manifesto" % nome)
+                else:
+                    problemas.append("%s: jsonl diverge do manifesto" % nome)
+        b5src = doc.get("source_integrity", {}).get(
+            "b5_source_sha256", "").lower()
+        if "AUDITOR_PONTOS_B5.py" in mapa:
+            if mapa["AUDITOR_PONTOS_B5.py"] == b5src:
+                conferidos.append("fonte B5 bate com manifesto")
+            else:
+                problemas.append("b5_source_sha256 diverge do manifesto")
+    if problemas:
+        gates.fail("cadeia_de_hashes", "; ".join(problemas[:8]))
+    elif conferidos:
+        gates.ok("cadeia_de_hashes", "; ".join(conferidos[:6]))
+    else:
+        gates.skip("cadeia_de_hashes",
+                   "nenhum manifesto fornecido; apenas o hash do zip foi "
+                   "conferido")
+
+
+# ----------------------------------------------------------------------------
+# Gate 4: testemunhas publicadas
+# ----------------------------------------------------------------------------
+
+def gate_testemunhas(doc, gates, strict):
+    """Afirmacao de verificacao exige testemunha publicada e valida.
+    Campos aceitos (V13): 'original_b3_input_sha256' (64 hex) na entrada
+    ou dentro de 'provenance'; e 'sum' (valor exato) em TODAS as bandas.
+    Ausencia apos uma afirmacao de verificacao = pendencia."""
+    pendencias, verificados = [], []
+    for nome in ("G11", "G22"):
+        ent = doc["entries"][nome]
+        wit = ent.get("original_b3_input_sha256")
+        if wit is None and isinstance(ent.get("provenance"), dict):
+            wit = ent["provenance"].get("original_b3_input_sha256")
+        if ent.get("original_b3_input_sha256_recovered_and_verified") is True:
+            if isinstance(wit, str) and re.fullmatch(r"[0-9a-fA-F]{64}", wit):
+                verificados.append("%s: hash B3 original publicado (%s...)"
+                                   % (nome, wit[:12]))
+            else:
+                pendencias.append(
+                    "%s: afirma recuperacao/verificacao dos hashes B3 "
+                    "originais sem publica-los (testemunha ausente)" % nome)
+        bandas = ent.get("bands", [])
+        somas = [b for b in bandas if "sum" in b]
+        if bandas and len(somas) == len(bandas):
+            verificados.append("%s: somas das %d bandas publicadas"
+                               % (nome, len(bandas)))
+        else:
+            pendencias.append(
+                "%s: bandas declaram sum_match sem publicar as somas "
+                "(testemunha ausente)" % nome)
+    if pendencias:
+        gates.pendencia("testemunhas_publicadas",
+                        "; ".join(pendencias[:6]), strict)
+    else:
+        gates.ok("testemunhas_publicadas", "; ".join(verificados[:6]))
+
+
+# ----------------------------------------------------------------------------
+# Gate 5: nao aninhamento B3/B5
+# ----------------------------------------------------------------------------
+
+def gate_aninhamento(doc, gates, strict):
+    """b5_enclosed_in_b3=false exige metricas quantitativas (V13:
+    'b5_b3_metrics' com nested_fraction/b3_in_b5_fraction/disjoint_count/
+    max_gap/width_ratio_max, ou chaves b5_b3_* equivalentes na entrada).
+    Presentes: valida rangos (fracoes em [0,1]); ausentes: pendencia."""
+    pendencias, verificados = [], []
+    for nome in ("G11", "G22"):
+        ent = doc["entries"][nome]
+        if ent.get("b5_enclosed_in_b3") is False:
+            met = ent.get("b5_b3_metrics")
+            if not isinstance(met, dict):
+                met = {k: v for k, v in ent.items()
+                       if k.startswith("b5_b3_") and k != "b5_enclosed_in_b3"}
+            tem = ("nested_fraction" in met or "max_gap" in met or
+                   "disjoint_count" in met)
+            if not tem:
+                pendencias.append(
+                    "%s: b5_enclosed_in_b3=false sem metricas quantitativas "
+                    "de desvio (b5_b3_metrics: nested_fraction, "
+                    "disjoint_count, max_gap, width_ratio_max)" % nome)
+                continue
+            invalidas = [k for k, v in met.items()
+                         if k.endswith("_fraction") and not
+                         (isinstance(v, (int, float)) and 0 <= v <= 1)]
+            if invalidas:
+                pendencias.append(
+                    "%s: fracao(oes) fora de [0,1]: %s" %
+                    (nome, ", ".join(invalidas)))
+            else:
+                verificados.append("%s: desvio B3/B5 quantificado (%s)"
+                                   % (nome, ", ".join(sorted(met))[:60]))
+    if pendencias:
+        gates.pendencia("nao_aninhamento_b3_b5",
+                        "; ".join(pendencias[:6]), strict)
+    else:
+        gates.ok("nao_aninhamento_b3_b5",
+                 "; ".join(verificados[:6]) or
+                 "desvios B3/B5 quantificados ou aninhamento confirmado")
+
+
+# ----------------------------------------------------------------------------
+# Selftest (controle negativo do proprio conferidor)
+# ----------------------------------------------------------------------------
+
+def selftest(doc):
+    """Muta o relatorio em memoria e exige que os gates detectem."""
+    resultados = []
+
+    def _confere(mdoc, nome_gate):
+        g = Gates()
+        problemas = []
+        gate_aritmetica(mdoc, g)
+        gate_testemunhas(mdoc, g, strict=False)
+        gate_aninhamento(mdoc, g, strict=False)
+        detectou = any(v["status"] in ("FAIL", "PENDENCIA")
+                       for v in g.items.values())
+        resultados.append((nome_gate, detectou))
+
+    d1 = json.loads(json.dumps(doc))
+    d1["entries"]["G11"]["bands"][0]["count"] += 1
+    _confere(d1, "mutacao: contagem de banda")
+
+    d2 = json.loads(json.dumps(doc))
+    d2["entries"]["G22"]["finite_sum_upper"] = \
+        str(parse_frac(d2["entries"]["G22"]["finite_sum_upper"]) +
+            Fraction(1, 10 ** 30))
+    _confere(d2, "mutacao: digito distante da soma finita")
+
+    d3 = json.loads(json.dumps(doc))
+    d3["entries"]["G11"]["e7_composite_interval_approx"] = [
+        "-1.42824317517", "-1.42817374775"]
+    _confere(d3, "mutacao: borda do composto")
+
+    d4 = json.loads(json.dumps(doc))
+    d4["entries"]["G11"]["quadrature_bound_declared_approx"] = "9.99e-07"
+    _confere(d4, "mutacao: cota de quadratura")
+
+    d5 = json.loads(json.dumps(doc))
+    d5["negative_checker_controls"]["tampered_bytes_detected"] = False
+    _confere(d5, "mutacao: controle negativo apagado")
+    # nota: mutacoes em jsonl_sha256 so sao detectaveis pelo gate
+    # cadeia_de_hashes quando --manifesto-b5 e fornecido; fora do selftest.
+    return resultados
+
+
+# ----------------------------------------------------------------------------
+# Principal
+# ----------------------------------------------------------------------------
+
+def main():
+    ap = argparse.ArgumentParser(
+        description="Conferidor independente do RESULTADO_E8K_V12")
+    ap.add_argument("--resultado", required=True)
+    ap.add_argument("--sha256sums", default=None)
+    ap.add_argument("--manifesto-b5", action="append", default=[])
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--selftest", action="store_true")
+    args = ap.parse_args()
+
+    gates = Gates()
+    started = datetime.now(timezone.utc).isoformat()
+    try:
+        resultado_path = Path(args.resultado)
+        doc = json.loads(resultado_path.read_text(encoding="utf-8"))
+
+        hash_rel = gate_sha256sums(
+            Path(args.sha256sums) if args.sha256sums else None,
+            resultado_path, gates)
+        metricas = gate_aritmetica(doc, gates)
+        gate_cadeia(doc, args.manifesto_b5, gates)
+        gate_testemunhas(doc, gates, args.strict)
+        gate_aninhamento(doc, gates, args.strict)
+        st = selftest(doc) if args.selftest else None
+        if st is not None:
+            falhas_selftest = [n for n, det in st if not det]
+            if falhas_selftest:
+                gates.fail("selftest",
+                           "mutacoes nao detectadas: %s" %
+                           ", ".join(falhas_selftest))
+            else:
+                gates.ok("selftest", "%d mutacoes detectadas" % len(st))
+    except Exception as exc:
+        print("ERRO DE INTEGRACAO: %r" % (exc,), file=sys.stderr)
+        return 3
+
+    c = gates.counts()
+    all_pass = all(v["status"] == "PASS" for v in gates.items.values())
+    if args.out:
+        rel = {
+            "schema": "NUMERIA.E8K.CONFERENCIA.V12.1",
+            "utc": started,
+            "resultado_analisado": str(resultado_path),
+            "sha256_do_relatorio": hash_rel,
+            "approval_gates": gates.items,
+            "metricas_exatas": {
+                k: {"largura_exata": str(v["largura_exata"]),
+                    "soma_das_bandas": v["soma_bandas"]}
+                for k, v in (metricas or {}).items() if v},
+            "selftest": [{"mutacao": n, "detectada": d} for n, d in (st or [])],
+            "resumo": c,
+            "nota": "hashes sem assinatura sao integridade relativa, "
+                    "nao autenticacao por terceiros",
+        }
+        Path(args.out).write_text(
+            json.dumps(rel, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+
+    print("Gates: %s" % json.dumps(c))
+    for nome, v in gates.items.items():
+        print("  [%s] %s: %s" % (v["status"], nome, v["detail"][:100]))
+    return 0 if all_pass else 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,169 @@
+{
+  "schema": "NUMERIA.B3.G11.RATIONAL.1",
+  "method": "midpoint_rational_fixed_point+explicit_second_derivative_bound+independent_tail",
+  "scope": "ONLY archimedean G11, L=9/20,N=6,R=160",
+  "reference_sha256": "ed64641bf99b5d852c033da9d8ea0674b065293227088372ed5ed6e2ecf97ef0",
+  "reference_filename": "historico_192_tol50_N6.json",
+  "auditor_source_sha256": "47676b1fdaccc65e19e005b76b2f37a7964e9d5a9db1a914a103c558e84636f0",
+  "pure_python_standard_library": true,
+  "M_digamma_series": 128,
+  "fixed_point_scale": "1000000000000000000000000000000000000000000000",
+  "omega0_enclosure": [
+    {
+      "numerator": "-335761463701604098889559843590957976464113199",
+      "denominator": "62500000000000000000000000000000000000000000",
+      "decimal_approx": "-5.37218341922567"
+    },
+    {
+      "numerator": "-2686091709612832791116478748724866449071548337",
+      "denominator": "500000000000000000000000000000000000000000000",
+      "decimal_approx": "-5.37218341922567"
+    }
+  ],
+  "finite_midpoint_sum_enclosure": [
+    {
+      "numerator": "-1428209174728607619890696937873530275807821689",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42820917472861"
+    },
+    {
+      "numerator": "-1428207748184437702218190588990588558298429423",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42820774818444"
+    }
+  ],
+  "quadrature_absolute_error_upper": {
+    "numerator": "9993595134257895750710670223183811208433",
+    "denominator": "1000000000000000000000000000000000000000000000",
+    "decimal_approx": "9.9935951342579e-06"
+  },
+  "tail_absolute_error_upper": {
+    "numerator": "32038595081666021193397090738842452679307",
+    "denominator": "1000000000000000000000000000000000000000000000",
+    "decimal_approx": "3.2038595081666e-05"
+  },
+  "g11_independent_enclosure": [
+    {
+      "numerator": "-1428251206918823543807641045634492302071709429",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42825120691882"
+    },
+    {
+      "numerator": "-1428165715994221778301246481229626532034541683",
+      "denominator": "1000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42816571599422"
+    }
+  ],
+  "g11_historical_enclosure": [
+    {
+      "numerator": "-14283712747296182313157082587471400055239704514983759627489655757297",
+      "denominator": "10000000000000000000000000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42837127472962"
+    },
+    {
+      "numerator": "-892528538314788099679037990047956155796231532186484976718103484831",
+      "denominator": "625000000000000000000000000000000000000000000000000000000000000000",
+      "decimal_approx": "-1.42804566130366"
+    }
+  ],
+  "independent_inside_historical": true,
+  "intersects_historical": true,
+  "mesh": [
+    {
+      "from": "0",
+      "to": "6",
+      "cells": 5752,
+      "f2_absolute_bound": {
+        "numerator": "11099886678396432735532739238917658237079836911",
+        "denominator": "500000000000000000000000000000000000000000000",
+        "decimal_approx": "22.1997733567929"
+      },
+      "midpoint_error_bound": {
+        "numerator": "754854604191369539208127622525101356577",
+        "denominator": "125000000000000000000000000000000000000000000",
+        "decimal_approx": "6.03883683353096e-06"
+      }
+    },
+    {
+      "from": "6",
+      "to": "12",
+      "cells": 1649,
+      "f2_absolute_bound": {
+        "numerator": "261569187247555148012878806686890519135616667",
+        "denominator": "500000000000000000000000000000000000000000000",
+        "decimal_approx": "0.52313837449511"
+      },
+      "midpoint_error_bound": {
+        "numerator": "54108787039556756104916234129575532303",
+        "denominator": "31250000000000000000000000000000000000000000",
+        "decimal_approx": "1.73148118526582e-06"
+      }
+    },
+    {
+      "from": "12",
+      "to": "24",
+      "cells": 844,
+      "f2_absolute_bound": {
+        "numerator": "2189735524759861550278828027013298327763951",
+        "denominator": "250000000000000000000000000000000000000000000",
+        "decimal_approx": "0.00875894209903945"
+      },
+      "midpoint_error_bound": {
+        "numerator": "885317927397801215269623424591526917629",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "8.85317927397801e-07"
+      }
+    },
+    {
+      "from": "24",
+      "to": "48",
+      "cells": 590,
+      "f2_absolute_bound": {
+        "numerator": "93151387904656554434398935722162331077221",
+        "denominator": "250000000000000000000000000000000000000000000",
+        "decimal_approx": "0.000372605551618626"
+      },
+      "midpoint_error_bound": {
+        "numerator": "154137315234364192341895394932391561909",
+        "denominator": "250000000000000000000000000000000000000000000",
+        "decimal_approx": "6.16549260937457e-07"
+      }
+    },
+    {
+      "from": "48",
+      "to": "96",
+      "cells": 453,
+      "f2_absolute_bound": {
+        "numerator": "21165969974190387716180364928994369059099",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "2.11659699741904e-05"
+      },
+      "midpoint_error_bound": {
+        "numerator": "475285146563110324577182879858125387407",
+        "denominator": "1000000000000000000000000000000000000000000000",
+        "decimal_approx": "4.7528514656311e-07"
+      }
+    },
+    {
+      "from": "96",
+      "to": "160",
+      "cells": 236,
+      "f2_absolute_bound": {
+        "numerator": "627510030131066835894866922241909249849",
+        "denominator": "500000000000000000000000000000000000000000000",
+        "decimal_approx": "1.25502006026213e-06"
+      },
+      "midpoint_error_bound": {
+        "numerator": "61531195140688733118485466664341192363",
+        "denominator": "250000000000000000000000000000000000000000000",
+        "decimal_approx": "2.46124780562755e-07"
+      }
+    }
+  ],
+  "elapsed_seconds": 52.656,
+  "limitations": [
+    "Only G11, not whole G/A matrix.",
+    "Uses Euler-Maclaurin bound and Fourier formula as mathematical premises.",
+    "No claim about full Weil explicit formula or global positivity."
+  ]
+}

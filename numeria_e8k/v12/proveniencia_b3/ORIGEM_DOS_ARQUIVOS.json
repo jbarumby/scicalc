@@ -1,0 +1,14 @@
+{
+  "source_archive": "NUMERIA_B6_E2_E3_CORRECAO_PROP6_2026-10-26.zip",
+  "archive_sha256": "5afffe82ccead94ac5eca69025ea47791ec6d9598655386d4d8022bcb10e3048",
+  "files": [
+    {
+      "name": "RESULTADO_B3_G11_WINDOWS.json",
+      "sha256": "65a467c925b3824a23e814ab49d5ce456e528ce165e72a8f2b5dc8ab62368dc2"
+    },
+    {
+      "name": "RESULTADO_G12_G22_WINDOWS.json",
+      "sha256": "8f53deef567ab58134436fff3bab38d8049fedda32f88f8fc7f587723b4dd54f"
+    }
+  ]
+}
