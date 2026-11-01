@@ -1,0 +1,48 @@
+name: auditoria-e8k-v21-espectral
+on:
+  push:
+    paths:
+      - 'v21/**'
+      - '.github/workflows/auditoria-e8k-v21-espectral.yml'
+  pull_request:
+    paths:
+      - 'v21/**'
+      - '.github/workflows/auditoria-e8k-v21-espectral.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditoria-espectral:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verificar sintaxe e constantes exatas
+        run: python -m py_compile v21/AUDITAR_E8K_V21_ESPECTRAL.py v21/TESTAR_E8K_V21_ESPECTRAL.py
+      - name: Reproduzir o certificado racional
+        run: python v21/AUDITAR_E8K_V21_ESPECTRAL.py --out v21/RESULTADO_E8K_V21.json
+      - name: Executar testes negativos, comparar bytes e hashes
+        shell: bash
+        run: |
+          python v21/TESTAR_E8K_V21_ESPECTRAL.py
+          cp v21/RESULTADO_E8K_V21.json /tmp/numeria-v21-first.json
+          python v21/AUDITAR_E8K_V21_ESPECTRAL.py --out v21/RESULTADO_E8K_V21.json
+          cmp /tmp/numeria-v21-first.json v21/RESULTADO_E8K_V21.json
+          sha256sum v21/*.py v21/*.md v21/RESULTADO_E8K_V21.json
+          (cd v21 && sha256sum -c SHA256SUMS_V21.txt)
+      - name: Publicar evidências mesmo se o teste falhar
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v21-spectral
+          if-no-files-found: warn
+          path: |
+            v21/RESULTADO_E8K_V21.json
+            v21/README_V21.md
+            v21/PLANO_V21_FONTES_E_CRITERIOS.md
+          retention-days: 30

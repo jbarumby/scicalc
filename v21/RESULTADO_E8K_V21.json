@@ -1,0 +1,119 @@
+{
+  "analytic_assumptions_not_mechanized": [
+    "Dirichlet Laplacian spectral theorem with eigenvalues n²",
+    "Euler gamma integral and Tonelli interchange in region Re(s)>1/2",
+    "alternating Taylor remainder for e^-y on [0,1/2]",
+    "integral comparison for positive decreasing sequences",
+    "Euler zeta(2),zeta(4) evaluations for pi crosschecks",
+    "meromorphic continuation of zeta and zeta(-1)=-B2/2",
+    "physical vacuum subtractions and boundary conventions are model-dependent"
+  ],
+  "casimir_abel_laurent": {
+    "abel_finite_part": "-1/12",
+    "bernoulli_B0_B1_B2": [
+      "1",
+      "-1/2",
+      "1/6"
+    ],
+    "laurent_coefficients_x_minus2_minus1_zero": [
+      "1",
+      "0",
+      "-1/12"
+    ],
+    "normalized_casimir_energy_E_over_pi_hbar_c_div_a": "-1/24",
+    "regularization_note": "Abel finite-part and meromorphic zeta value agree in this toy interval problem; classical analytic continuation remains an external theorem.",
+    "zeta_minus_one_from_bernoulli": "-1/12"
+  },
+  "checks": {
+    "heat_trace_t_cases": 3,
+    "independent_bernoulli_value": true,
+    "laurent_coefficient_identities": 3,
+    "mellin_single_eigenmode_identities": 24,
+    "no_float_in_certification": true,
+    "zeta_integral_cases": 3
+  },
+  "eigenvalues": "lambda_n=n², n=1,2,...; positive and self-adjoint",
+  "heat_trace": "Theta(t)=sum_n exp(-t*n²), t>0",
+  "heat_trace_records": [
+    {
+      "N10_enclosure": [
+        "1.27245385090551582026823404455931270",
+        "1.27245385090551605299234560104142002"
+      ],
+      "N6_enclosure": [
+        "1.27245373675115222471758570805812206",
+        "1.27245385199664106152270144377506559"
+      ],
+      "t": "1/4",
+      "width_shrinks": true
+    },
+    {
+      "N10_enclosure": [
+        "0.75331414402145277241423572146289610",
+        "0.75331414402145277245501991119041923"
+      ],
+      "N6_enclosure": [
+        "0.75331414402144010567173663783630416",
+        "0.75331414402145277688629808937006197"
+      ],
+      "t": "1/2",
+      "width_shrinks": true
+    },
+    {
+      "N10_enclosure": [
+        "0.38631860241332607651478081152921020",
+        "0.38631860241332607654598256927641833"
+      ],
+      "N6_enclosure": [
+        "0.38631860241332607651478081136882910",
+        "0.38631860241332607654598256927641838"
+      ],
+      "t": "1",
+      "width_shrinks": true
+    }
+  ],
+  "mellin_identity": "zeta_H(s)=Gamma(s)^(-1)*integral_0^infinity t^(s-1)Theta(t)dt, Re(s)>1/2",
+  "not_certified": [
+    "No operator with eigenvalues equal to imaginary parts of all Riemann zeros",
+    "No verified trace formula matching all prime, pole and archimedean Weil terms",
+    "No independent Phase-4 quadratic integration or derivative bounds",
+    "A model's zeta regularization is not a direct proof of Weil positivity",
+    "No Hilbert-Polya theorem, nor proof of the Riemann Hypothesis"
+  ],
+  "operator": "H=-d²/dx² on L²(0,pi), Dirichlet boundary; domain H² intersect H_0¹",
+  "schema": "NUMERIA.E8K.V21.SPECTRAL_ZETA_MELLIN_CASIMIR.1",
+  "spectral_zeta": "zeta_H(s)=sum_n n^(-2s)=zeta(2s) for Re(s)>1/2",
+  "status": "TOY_LAPLACIAN_EXACT_RATIONAL_AUDITS_PASSED_OPERATOR_BRIDGE_OPEN",
+  "zeta_interval_records": [
+    {
+      "cutoff": 32,
+      "exact_mellin_term_checks": 8,
+      "s": 1,
+      "spectral_eigenvalues": "lambda_n = n^2",
+      "spectral_zeta": [
+        "1.64447029313095464937613651651031406",
+        "1.64541726282792434634583348620728377"
+      ]
+    },
+    {
+      "cutoff": 32,
+      "exact_mellin_term_checks": 8,
+      "s": 2,
+      "spectral_eigenvalues": "lambda_n = n^2",
+      "spectral_zeta": [
+        "1.08232280358436075699707526195746470",
+        "1.08232370061903326838274091759557213"
+      ]
+    },
+    {
+      "cutoff": 32,
+      "exact_mellin_term_checks": 8,
+      "s": 3,
+      "spectral_eigenvalues": "lambda_n = n^2",
+      "spectral_zeta": [
+        "1.01734306158557083432558275423284160",
+        "1.01734306243557174759176316001188924"
+      ]
+    }
+  ]
+}
