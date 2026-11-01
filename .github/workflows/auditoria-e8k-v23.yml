@@ -40,6 +40,18 @@ jobs:
           if test -e v23/SHA256SUMS_V23.txt; then
             (cd v23 && sha256sum -c SHA256SUMS_V23.txt)
           fi
+      - name: Exportar JSONs para arquivamento na branch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          for p in sorted(Path("v23").glob("RESULTADO_V23_*.json")):
+            key=p.stem.replace("RESULTADO_V23_","")
+            b64=base64.b64encode(p.read_bytes()).decode()
+            for i in range(0,len(b64),700):
+              print("V23_B64_"+key+"_"+str(i//700).zfill(3)+"="+b64[i:i+700])
+          PY
       - name: Publicar testemunhas V23
         if: always()
         uses: actions/upload-artifact@v4
