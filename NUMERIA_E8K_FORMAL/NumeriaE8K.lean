@@ -247,7 +247,7 @@ theorem width_mul_abs_bound (I J : RatI) :
     have hJpos : 0 ≤ max (abs J.lo) (abs J.hi) :=
       le_trans (abs_nonneg J.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA hIpos hJpos
+    exact mul_le_mul huA hvA (abs_nonneg v) hIpos
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
