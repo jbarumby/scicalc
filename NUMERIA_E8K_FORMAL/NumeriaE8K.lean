@@ -462,7 +462,8 @@ theorem fp_mono (x y : ℚ) (h : x ≤ y) :
     exact hf
   · show (Int.ceil (x * N_TICK) : ℚ) / N_TICK ≤
         (Int.ceil (y * N_TICK) : ℚ) / N_TICK
-    exact div_le_div_of_le hN hc
+    rw [div_le_div_iff₀ hN hN]
+    exact hc
 
 /-- A instancia `Directed` do fixed-point (tick 10^-42), agora completa:
     fpDown_le, fpUp_ge e fp_mono estao demonstrados acima. -/
