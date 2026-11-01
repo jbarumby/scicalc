@@ -20,6 +20,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+      - name: Diagnosticar SHA-256 real dos artefatos publicados
+        shell: bash
+        run: sha256sum v17/RESULTADO_E8K_V17.json v17/PARECER_TECNICO_V17.md v17/AUDITAR_E8K_V17_NORMALIZACAO.py v18/RESULTADO_E8K_V18.json v18/AUDITAR_E8K_V18_TESTEMUNHAS.py
       - name: Verificar SHA-256 dos testemunhos de origem
         shell: bash
         run: |
