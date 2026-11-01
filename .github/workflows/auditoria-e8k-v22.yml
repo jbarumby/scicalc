@@ -1,0 +1,47 @@
+name: auditoria-e8k-v22-burnol-quadratura
+on:
+  push:
+    paths:
+      - 'v22/**'
+      - '.github/workflows/auditoria-e8k-v22.yml'
+  pull_request:
+    paths:
+      - 'v22/**'
+      - '.github/workflows/auditoria-e8k-v22.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v22:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Sintaxe dos quatro verificadores e testes
+        run: python -m py_compile v22/AUDITAR_V22_*.py v22/TESTAR_V22.py
+      - name: Testes adversariais, Fracoes exatas e replays
+        run: python v22/TESTAR_V22.py
+      - name: Publicar evidencias e conferir snapshots SHA
+        shell: bash
+        run: |
+          python v22/AUDITAR_V22_QUADRATURA.py --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out v22/RESULTADO_V22_QUADRATURA.json
+          python v22/AUDITAR_V22_FROBENIUS.py --out v22/RESULTADO_V22_FROBENIUS.json
+          python v22/AUDITAR_V22_SUPORTE.py --out v22/RESULTADO_V22_SUPORTE.json
+          python v22/AUDITAR_V22_SCREW.py --out v22/RESULTADO_V22_SCREW.json
+          (cd v22 && sha256sum -c SHA256SUMS_V22.txt)
+          sha256sum v22/RESULTADO*.json
+      - name: Arquivos de diagnostico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v22-auditoria
+          if-no-files-found: warn
+          path: |
+            v22/RESULTADO*.json
+            v22/README_V22.md
+          retention-days: 30

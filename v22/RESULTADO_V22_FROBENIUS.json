@@ -1,0 +1,16 @@
+{
+  "curve": "y²=x³-x",
+  "frobenius_eigenvalues": [
+    "-1+2i",
+    "-1-2i"
+  ],
+  "frobenius_polynomial": "X²+2X+5",
+  "modulus_squared": 5,
+  "note": "Finite-field model, not the classical zeta-function RH.",
+  "points": {
+    "F25": 32,
+    "F5": 8
+  },
+  "schema": "NUMERIA.V22.FROBENIUS_F5_F25.1",
+  "status": "EXACT_FINITE_FIELD_FROBENIUS_MODEL_CHECKED"
+}
