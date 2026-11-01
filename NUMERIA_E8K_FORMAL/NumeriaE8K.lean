@@ -174,12 +174,12 @@ theorem contains_sq {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_recip_pos {I : RatI} {a : ℚ}
     (h : I.contains a) (hpos : 0 < I.lo) :
     (RatI.mk (I.hi)⁻¹ (I.lo)⁻¹
-        (inv_le_inv₀ hpos (lt_of_lt_of_le hpos I.hlo) I.hlo)).contains (a⁻¹) := by
+        ((inv_le_inv₀ hpos (lt_of_lt_of_le hpos I.hlo)).2 I.hlo)).contains (a⁻¹) := by
   have ha0 : 0 < a := lt_of_lt_of_le hpos h.1
   have hhi0 : 0 < I.hi := lt_of_lt_of_le hpos I.hlo
   refine ⟨?_, ?_⟩
-  · exact inv_le_inv₀ ha0 hhi0 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
-  · exact inv_le_inv₀ hpos ha0 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
+  · exact (inv_le_inv₀ hhi0 ha0).2 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
+  · exact (inv_le_inv₀ hpos ha0).2 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
 
 /-- Versao de inv_le_inv₀ para argumentos estritamente negativos: u ≤ v < 0
     implica v⁻¹ ≤ u⁻¹ (o inverso e decrescente tambem em R-). -/
@@ -188,7 +188,7 @@ private lemma inv_le_inv_of_neg {u v : ℚ} (hu : u < 0) (hv : v < 0)
   have hu' : 0 < -u := by linarith
   have hv' : 0 < -v := by linarith
   have h' : -v ≤ -u := by linarith
-  have key := inv_le_inv₀ hv' hu' h'   -- (-u)⁻¹ ≤ (-v)⁻¹
+  have key := (inv_le_inv₀ hu' hv').2 h'   -- (-u)⁻¹ ≤ (-v)⁻¹
   simp only [inv_neg] at key           -- -u⁻¹ ≤ -v⁻¹
   linarith
 
@@ -245,7 +245,7 @@ theorem width_mul_abs_bound (I J : RatI) :
     have hIpos : 0 ≤ max (abs I.lo) (abs I.hi) :=
       le_trans (abs_nonneg I.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA (abs_nonneg u) hIpos
+    exact mul_le_mul huA hvA (abs_nonneg v) hIpos
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
@@ -261,7 +261,7 @@ theorem width_mul_abs_bound (I J : RatI) :
     exact max_le (max_le c1 c2) (max_le c3 c4)
   have hlo : -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
       (I.mul J).lo := by
-    show -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
+    show -(max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)) ≤
       min (min (I.lo * J.lo) (I.lo * J.hi)) (min (I.hi * J.lo) (I.hi * J.hi))
     have c1 := le_trans
       (neg_le_neg (key I.lo J.lo (le_refl _) I.hlo (le_refl _) J.hlo))
