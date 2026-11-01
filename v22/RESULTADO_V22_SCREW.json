@@ -1,0 +1,22 @@
+{
+  "frequencies": [
+    1,
+    2,
+    3
+  ],
+  "grid": "times multiples of π/2",
+  "negative_weight_detected": true,
+  "not_certified": [
+    "The specific zeta screw function of Matsumoto-Suzuki (2026)",
+    "Positivity for arbitrary real times and arbitrary dimension",
+    "Riemann Hypothesis"
+  ],
+  "principal_minors": 31,
+  "schema": "NUMERIA.V22.SCREW_FINITE_TOY.1",
+  "status": "FINITE_TOY_SCREW_GRAM_PSD_EXACT_NOT_ZETA",
+  "weights": [
+    2,
+    3,
+    5
+  ]
+}
