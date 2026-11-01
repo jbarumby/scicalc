@@ -37,6 +37,16 @@ jobs:
           if test -f v21/SHA256SUMS_V21.txt; then
             (cd v21 && sha256sum -c SHA256SUMS_V21.txt)
           fi
+      - name: Publicar snapshot base64 do JSON para fixacao no repositorio
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          s=base64.b64encode(Path('v21/RESULTADO_E8K_V21.json').read_bytes()).decode()
+          for i in range(0,len(s),800):
+              print('V21_JSON_B64_PART_'+str(i//800).zfill(3)+'='+s[i:i+800])
+          PY
       - name: Publicar evidências mesmo se o teste falhar
         if: always()
         uses: actions/upload-artifact@v4
