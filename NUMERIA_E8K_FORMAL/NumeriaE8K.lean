@@ -6,7 +6,7 @@
      nlinarith; combinatoria de min/max via le_trans/le_min/max_le).
    - contains_sq: corolario imediato de contains_mul.
    - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_lt_inv₀₀;
-     caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv + inv_neg).
+     caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv₀ + inv_neg).
    - Larguras de add/sub/neg: DEMONSTRADAS (ring). Largura grosseira do
      produto (<= 2*max|I|*max|J|): DEMONSTRADA.
    - Fixed-point tick 10^-42 COMPLETO: fpDown_le, fpUp_ge e fp_mono
@@ -174,21 +174,21 @@ theorem contains_sq {I : RatI} {a : ℚ} (h : I.contains a) :
 theorem contains_recip_pos {I : RatI} {a : ℚ}
     (h : I.contains a) (hpos : 0 < I.lo) :
     (RatI.mk (I.hi)⁻¹ (I.lo)⁻¹
-        (inv_le_inv hpos (lt_of_lt_of_le hpos I.hlo) I.hlo)).contains (a⁻¹) := by
+        (inv_le_inv₀ hpos (lt_of_lt_of_le hpos I.hlo) I.hlo)).contains (a⁻¹) := by
   have ha0 : 0 < a := lt_of_lt_of_le hpos h.1
   have hhi0 : 0 < I.hi := lt_of_lt_of_le hpos I.hlo
   refine ⟨?_, ?_⟩
-  · exact inv_le_inv ha0 hhi0 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
-  · exact inv_le_inv hpos ha0 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
+  · exact inv_le_inv₀ ha0 hhi0 h.2      -- (I.hi)⁻¹ ≤ a⁻¹   pois a ≤ I.hi
+  · exact inv_le_inv₀ hpos ha0 h.1      -- a⁻¹ ≤ (I.lo)⁻¹   pois I.lo ≤ a
 
-/-- Versao de inv_le_inv para argumentos estritamente negativos: u ≤ v < 0
+/-- Versao de inv_le_inv₀ para argumentos estritamente negativos: u ≤ v < 0
     implica v⁻¹ ≤ u⁻¹ (o inverso e decrescente tambem em R-). -/
 private lemma inv_le_inv_of_neg {u v : ℚ} (hu : u < 0) (hv : v < 0)
     (h : u ≤ v) : v⁻¹ ≤ u⁻¹ := by
   have hu' : 0 < -u := by linarith
   have hv' : 0 < -v := by linarith
   have h' : -v ≤ -u := by linarith
-  have key := inv_le_inv hv' hu' h'   -- (-u)⁻¹ ≤ (-v)⁻¹
+  have key := inv_le_inv₀ hv' hu' h'   -- (-u)⁻¹ ≤ (-v)⁻¹
   simp only [inv_neg] at key           -- -u⁻¹ ≤ -v⁻¹
   linarith
 
@@ -264,16 +264,16 @@ theorem width_mul_abs_bound (I J : RatI) :
     show -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
       min (min (I.lo * J.lo) (I.lo * J.hi)) (min (I.hi * J.lo) (I.hi * J.hi))
     have c1 := le_trans
-      (neg_le_neg (key I.lo J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.lo J.lo (le_refl _) I.hlo (le_refl _) J.hlo))
       (neg_abs_le _)
     have c2 := le_trans
-      (neg_le_neg (key I.lo J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.lo J.hi (le_refl _) I.hlo J.hlo (le_refl _)))
       (neg_abs_le _)
     have c3 := le_trans
-      (neg_le_neg (key I.hi J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.hi J.lo I.hlo (le_refl _) (le_refl _) J.hlo))
       (neg_abs_le _)
     have c4 := le_trans
-      (neg_le_neg (key I.hi J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _)))
+      (neg_le_neg (key I.hi J.hi I.hlo (le_refl _) J.hlo (le_refl _)))
       (neg_abs_le _)
     exact le_min (le_min c1 c2) (le_min c3 c4)
   linarith [hhi, hlo]
