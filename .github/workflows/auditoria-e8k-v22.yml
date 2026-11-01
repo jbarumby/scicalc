@@ -37,6 +37,18 @@ jobs:
             (cd v22 && sha256sum -c SHA256SUMS_V22.txt)
           fi
           sha256sum v22/RESULTADO*.json
+      - name: Exportar snapshots V22 para fixacao de hashes
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          for p in sorted(Path('v22').glob('RESULTADO_V22_*.json')):
+            code=p.stem.replace('RESULTADO_V22_','')
+            v=base64.b64encode(p.read_bytes()).decode()
+            for i in range(0,len(v),700):
+              print('V22_B64_'+code+'_'+str(i//700).zfill(3)+'='+v[i:i+700])
+          PY
       - name: Arquivos de diagnostico
         if: always()
         uses: actions/upload-artifact@v4
