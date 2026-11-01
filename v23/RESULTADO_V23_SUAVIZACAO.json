@@ -1,0 +1,72 @@
+{
+  "analytic_inputs_not_formalized": [
+    "Existence of C-infinity flat cutoff with standard exp(-1/t) construction",
+    "Mean-value theorem and Fourier L1 to L-infinity bound"
+  ],
+  "not_certified": [
+    "Error in the global Weil quadratic form after taper",
+    "Applicability of Burnol short-support positivity for L=9/20",
+    "Positivity for arbitrary test functions or RH"
+  ],
+  "schema": "NUMERIA.V23.SMOOTH_CUTOFF_AND_SYMMETRY_ADVERSARY.1",
+  "status": "C_INFINITY_TAPER_FOURIER_ERROR_BOUNDED_SYMMETRY_COUNTEREXAMPLE_PROVED",
+  "symmetry_adversary": {
+    "functional_symmetry": "P(s)=P(1-s), real coefficients",
+    "off_line_symmetry_does_not_imply_RH": true,
+    "off_line_zeros": [
+      [
+        "1/4",
+        "-1"
+      ],
+      [
+        "1/4",
+        "1"
+      ],
+      [
+        "3/4",
+        "-1"
+      ],
+      [
+        "3/4",
+        "1"
+      ]
+    ],
+    "polynomial_in_t": "t^4+(15/8)t^2+289/256, t=s-1/2"
+  },
+  "tapers": [
+    {
+      "delta": "1/100",
+      "limitation": "Pointwise Fourier error does not imply global weighted Weil integral error without tail analysis.",
+      "mode1_Fourier_sup_error_upper": "0.001040713293487515021208351798993317748069113",
+      "mode2_Fourier_sup_error_upper": "0.002081426586975030042416703597986635496138225",
+      "normalization": "Fourier: integral_{-L}^L phi_k(x)exp(irx) dx, no additional 2*pi factor",
+      "product_pointwise_fourier_error_upper": [
+        [
+          "0.005586136690541096276731265547339130082318734",
+          "0.008379746577891265230384625865096479823128872"
+        ],
+        [
+          "0.008379746577891265230384625865096479823128872",
+          "0.011174439549400675814613441271029398963240554"
+        ]
+      ]
+    },
+    {
+      "delta": "1/1000",
+      "limitation": "Pointwise Fourier error does not imply global weighted Weil integral error without tail analysis.",
+      "mode1_Fourier_sup_error_upper": "0.000010407132934875150212083517989933177480692",
+      "mode2_Fourier_sup_error_upper": "0.000020814265869750300424167035979866354961383",
+      "normalization": "Fourier: integral_{-L}^L phi_k(x)exp(irx) dx, no additional 2*pi factor",
+      "product_pointwise_fourier_error_upper": [
+        [
+          "0.000055850644372234470624615650100453163770103",
+          "0.000083776020712559668018452247905088524125119"
+        ],
+        [
+          "0.000083776020712559668018452247905088524125119",
+          "0.000111701505361300789575346391218541441420065"
+        ]
+      ]
+    }
+  ]
+}

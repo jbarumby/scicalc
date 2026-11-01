@@ -1,0 +1,149 @@
+{
+  "analytic_inputs_not_formalized": [
+    "Real Gamma/digamma reflection and duplication identities",
+    "Euler-Maclaurin alternating remainder for harmonic numbers",
+    "Classical Fourier representation of compactly supported cosine/sine modes",
+    "Alternating series and integral-comparison inequalities"
+  ],
+  "bands_count": 11,
+  "bounds_sources": [
+    "Omega=psi(1/4+i r/2).real-log(pi) positive-term series",
+    "Integral comparison for Omega series tail",
+    "Derivative identities and rational envelopes for Omega' and Omega''",
+    "Compact cosine/sine Fourier integral bounds at removable poles",
+    "Rational denominator differentiation away from poles",
+    "Product rule for (A_k)^2*Omega/pi",
+    "Euler-Maclaurin alternating gamma remainder, Machin pi and atanh log"
+  ],
+  "not_certified": [
+    "Lean proof of all calculus identities and assumptions",
+    "Recomputed full nodal B5 transcendental intervals or LDL matrices",
+    "Universal Weil positivity or Riemann Hypothesis"
+  ],
+  "provenance_e7_sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+  "rows": [
+    {
+      "band": [
+        "0",
+        "6"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "22.199773356792865471065478477835316474159673822",
+      "independent_M_upper": "22.199773356792865471065478477834560436148605535",
+      "verified_margin_lower": "0.000000000000000000000000000000756038011068287"
+    },
+    {
+      "band": [
+        "6",
+        "12"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.523138374495110296025757613373781038271233334",
+      "independent_M_upper": "0.523138374495110296025757613373774930798507467",
+      "verified_margin_lower": "0.000000000000000000000000000000006107472725867"
+    },
+    {
+      "band": [
+        "12",
+        "24"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.008758942099039446201115312108053193311055804",
+      "independent_M_upper": "0.008758942099039446201115312108053138401286214",
+      "verified_margin_lower": "0.000000000000000000000000000000000054909769590"
+    },
+    {
+      "band": [
+        "24",
+        "48"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.000372605551618626217737595742888649324308884",
+      "independent_M_upper": "0.000372605551618626217737595742888647690687342",
+      "verified_margin_lower": "0.000000000000000000000000000000000001633621542"
+    },
+    {
+      "band": [
+        "48",
+        "96"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.000021165969974190387716180364928994369059099",
+      "independent_M_upper": "0.000021165969974190387716180364928994297837676",
+      "verified_margin_lower": "0.000000000000000000000000000000000000071221423"
+    },
+    {
+      "band": [
+        "96",
+        "160"
+      ],
+      "component": "G11",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.000001255020060262133671789733844483818499698",
+      "independent_M_upper": "0.000001255020060262133671789733844483814896182",
+      "verified_margin_lower": "0.000000000000000000000000000000000000003603516"
+    },
+    {
+      "band": [
+        "0",
+        "12"
+      ],
+      "component": "G22",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "22.204503888041736424549840782134574598946945056",
+      "independent_M_upper": "22.204503888041736424549840782133818560935876565",
+      "verified_margin_lower": "0.000000000000000000000000000000756038011068491"
+    },
+    {
+      "band": [
+        "12",
+        "24"
+      ],
+      "component": "G22",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.093504400134925578653324599914474670232565219",
+      "independent_M_upper": "0.093504400134925578653324599914474072388266648",
+      "verified_margin_lower": "0.000000000000000000000000000000000597844298571"
+    },
+    {
+      "band": [
+        "24",
+        "48"
+      ],
+      "component": "G22",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.001774332479706766049220319433021667572215248",
+      "independent_M_upper": "0.001774332479706766049220319433021659783775271",
+      "verified_margin_lower": "0.000000000000000000000000000000000007788439977"
+    },
+    {
+      "band": [
+        "48",
+        "96"
+      ],
+      "component": "G22",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.000087900847933886932045037579126700742415721",
+      "independent_M_upper": "0.000087900847933886932045037579126700446617880",
+      "verified_margin_lower": "0.000000000000000000000000000000000000295797841"
+    },
+    {
+      "band": [
+        "96",
+        "160"
+      ],
+      "component": "G22",
+      "encloses_independent_calculus_bound": true,
+      "historical_M_upper": "0.000005063178237045018350251792543267314826463",
+      "independent_M_upper": "0.000005063178237045018350251792543267300288607",
+      "verified_margin_lower": "0.000000000000000000000000000000000000014537856"
+    }
+  ],
+  "schema": "NUMERIA.V23.INDEPENDENT_ANALYTIC_DERIVATIVE_BOUNDS.1",
+  "status": "ELEVEN_SECOND_DERIVATIVE_MAJORANTS_INDEPENDENTLY_REDERIVED_CONDITIONALLY"
+}
