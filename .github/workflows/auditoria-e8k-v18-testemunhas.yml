@@ -1,0 +1,61 @@
+name: auditoria-e8k-v18-cotejo-evidencias
+on:
+  push:
+    paths:
+      - 'v17/**'
+      - 'v18/**'
+      - '.github/workflows/auditoria-e8k-v18-testemunhas.yml'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cotejo-v18:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Diagnosticar SHA-256 real dos artefatos publicados
+        shell: bash
+        run: sha256sum v17/RESULTADO_E8K_V17.json v17/PARECER_TECNICO_V17.md v17/AUDITAR_E8K_V17_NORMALIZACAO.py v18/RESULTADO_E8K_V18.json v18/AUDITAR_E8K_V18_TESTEMUNHAS.py
+      - name: Verificar SHA-256 dos testemunhos de origem
+        shell: bash
+        run: |
+          echo '4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7  NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip' | sha256sum -c -
+          python v18/AUDITAR_E8K_V18_TESTEMUNHAS.py --v17-report v17/RESULTADO_E8K_V17.json --v17-parecer v17/PARECER_TECNICO_V17.md --v17-source v17/AUDITAR_E8K_V17_NORMALIZACAO.py --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out v18/RESULTADO_E8K_V18.json --strict
+          sha256sum v18/RESULTADO_E8K_V18.json
+      - name: Conferir sintaxe do V17, V18 e do cotejador
+        run: python -m py_compile v17/AUDITAR_E8K_V17_NORMALIZACAO.py v18/AUDITAR_E8K_V18_TESTEMUNHAS.py v18/COTEJAR_V17_V18.py
+      - name: Auditoria independente V18 e cotejo com adversarios
+        run: python v18/COTEJAR_V17_V18.py
+      - name: Gerar evidencia V18 novamente, com manifestos
+        shell: bash
+        run: |
+          cp v18/RESULTADO_E8K_V18.json /tmp/resultado-v18-fixado.json
+          cp v18/SHA256SUMS_V18.txt /tmp/sha256sums-v18-fixado.txt
+          python v18/AUDITAR_E8K_V18_TESTEMUNHAS.py \
+            --v17-report v17/RESULTADO_E8K_V17.json \
+            --v17-parecer v17/PARECER_TECNICO_V17.md \
+            --v17-source v17/AUDITAR_E8K_V17_NORMALIZACAO.py \
+            --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip \
+            --out v18/RESULTADO_E8K_V18.json --strict --emit-sums
+          cmp /tmp/resultado-v18-fixado.json v18/RESULTADO_E8K_V18.json
+          cmp /tmp/sha256sums-v18-fixado.txt v18/SHA256SUMS_V18.txt
+          (cd v18 && sha256sum -c SHA256SUMS_V18.txt)
+      - name: Publicar relatorios mesmo em falha
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v18-cotejo
+          if-no-files-found: warn
+          path: |
+            v17/RESULTADO_E8K_V17.json
+            v18/RESULTADO_E8K_V18.json
+            v18/SHA256SUMS_V18.txt
+            v18/PARECER_TECNICO_V18.md
+          retention-days: 30
