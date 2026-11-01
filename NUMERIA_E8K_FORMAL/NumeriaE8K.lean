@@ -5,7 +5,7 @@
    - contains_mul: DEMONSTRADO (argumento dos 4 cantos; casos de sinal via
      nlinarith; combinatoria de min/max via le_trans/le_min/max_le).
    - contains_sq: corolario imediato de contains_mul.
-   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_le_inv₀;
+   - contains_recip_pos E contains_recip_neg: DEMONSTRADOS (inv_lt_inv₀₀;
      caso negativo via inv_le_inv_of_neg, que reduz a inv_le_inv + inv_neg).
    - Larguras de add/sub/neg: DEMONSTRADAS (ring). Largura grosseira do
      produto (<= 2*max|I|*max|J|): DEMONSTRADA.
@@ -144,7 +144,7 @@ private lemma box_mul_bounds {p q r s a b : ℚ}
   have uPs := le_trans (le_max_right (p * r) (p * s))
     (le_max_left (max (p * r) (p * s)) (max (q * r) (q * s)))
   have uQs := le_trans (le_max_right (q * r) (q * s))
-    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s))
+    (le_max_right (max (p * r) (p * s)) (max (q * r) (q * s)))
   have hmax_r := max_le uPr uQr             -- max (p*r) (q*r) ≤ cantos_max
   have hmax_s := max_le uPs uQs             -- max (p*s) (q*s) ≤ cantos_max
   have hmax_ar := le_trans B2 hmax_r        -- a*r ≤ cantos_max
@@ -245,19 +245,19 @@ theorem width_mul_abs_bound (I J : RatI) :
     have hIpos : 0 ≤ max (abs I.lo) (abs I.hi) :=
       le_trans (abs_nonneg I.lo) (le_max_left _ _)
     rw [abs_mul]
-    exact mul_le_mul huA hvA hIpos (abs_nonneg u)
+    exact mul_le_mul huA hvA (abs_nonneg u) hIpos
   have hhi : (I.mul J).hi ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) := by
     show max (max (I.lo * J.lo) (I.lo * J.hi)) (max (I.hi * J.lo) (I.hi * J.hi)) ≤
       max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi)
     have c1 := le_trans (le_abs_self _)
-      (key I.lo J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.lo J.lo (le_refl _) I.hlo (le_refl _) J.hlo)
     have c2 := le_trans (le_abs_self _)
-      (key I.lo J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.lo J.hi (le_refl _) I.hlo J.hlo (le_refl _))
     have c3 := le_trans (le_abs_self _)
-      (key I.hi J.lo (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.hi J.lo I.hlo (le_refl _) (le_refl _) J.hlo)
     have c4 := le_trans (le_abs_self _)
-      (key I.hi J.hi (le_refl _) (le_refl _) (le_refl _) (le_refl _))
+      (key I.hi J.hi I.hlo (le_refl _) J.hlo (le_refl _))
     exact max_le (max_le c1 c2) (max_le c3 c4)
   have hlo : -max (abs I.lo) (abs I.hi) * max (abs J.lo) (abs J.hi) ≤
       (I.mul J).lo := by
