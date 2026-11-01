@@ -210,7 +210,7 @@ def run():
         'No operator with eigenvalues equal to imaginary parts of all Riemann zeros',
         'No verified trace formula matching all prime, pole and archimedean Weil terms',
         'No independent Phase-4 quadratic integration or derivative bounds',
-        'A model's zeta regularization is not a direct proof of Weil positivity',
+        "A model\'s zeta regularization is not a direct proof of Weil positivity",
         'No Hilbert-Polya theorem, nor proof of the Riemann Hypothesis'
       ],
     }
