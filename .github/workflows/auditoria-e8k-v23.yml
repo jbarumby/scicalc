@@ -1,0 +1,52 @@
+name: auditoria-e8k-v23-derivadas-suavizacao
+on:
+  push:
+    paths:
+      - 'v23/**'
+      - '.github/workflows/auditoria-e8k-v23.yml'
+  pull_request:
+    paths:
+      - 'v23/**'
+      - '.github/workflows/auditoria-e8k-v23.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-v23:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Conferir sintaxe
+        run: python -m py_compile v23/AUDITAR_V23_*.py v23/TESTAR_V23.py
+      - name: Testes adversariais e relatorios reproduziveis
+        shell: bash
+        run: |
+          python v23/TESTAR_V23.py
+          python v23/AUDITAR_V23_DERIVADAS.py --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out v23/RESULTADO_V23_DERIVADAS.json
+          python v23/AUDITAR_V23_SUAVIZACAO.py --out v23/RESULTADO_V23_SUAVIZACAO.json
+          cp v23/RESULTADO_V23_DERIVADAS.json /tmp/v23-a.json
+          cp v23/RESULTADO_V23_SUAVIZACAO.json /tmp/v23-b.json
+          python v23/AUDITAR_V23_DERIVADAS.py --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out v23/RESULTADO_V23_DERIVADAS.json
+          python v23/AUDITAR_V23_SUAVIZACAO.py --out v23/RESULTADO_V23_SUAVIZACAO.json
+          cmp /tmp/v23-a.json v23/RESULTADO_V23_DERIVADAS.json
+          cmp /tmp/v23-b.json v23/RESULTADO_V23_SUAVIZACAO.json
+          sha256sum v23/AUDITAR_V23_*.py v23/RESULTADO*.json
+          if test -e v23/SHA256SUMS_V23.txt; then
+            (cd v23 && sha256sum -c SHA256SUMS_V23.txt)
+          fi
+      - name: Publicar testemunhas V23
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-v23-derivadas-suavizacao
+          if-no-files-found: warn
+          path: |
+            v23/RESULTADO_V23_*.json
+            v23/README_V23.md
+          retention-days: 30
