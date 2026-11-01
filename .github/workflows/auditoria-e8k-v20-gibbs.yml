@@ -34,6 +34,16 @@ jobs:
           python v20/AUDITAR_E8K_V20.py --out v20/RESULTADO_E8K_V20.json
           cmp /tmp/v20-original.json v20/RESULTADO_E8K_V20.json
           sha256sum v20/*.py v20/*.md v20/RESULTADO_E8K_V20.json
+      - name: Exibir testemunha em Base64 para fixar artefato na branch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          b64=base64.b64encode(Path('v20/RESULTADO_E8K_V20.json').read_bytes()).decode()
+          for i in range(0,len(b64),800):
+              print('V20_JSON_B64_PART_'+str(i//800).zfill(3)+'='+b64[i:i+800])
+          PY
       - name: Verificar manifesto SHA256 quando publicado
         shell: bash
         run: |
