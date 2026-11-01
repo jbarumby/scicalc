@@ -27,7 +27,8 @@ jobs:
         shell: bash
         run: |
           echo '4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7  NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip' | sha256sum -c -
-          (cd v18 && sha256sum -c SHA256SUMS_V18.txt)
+          python v18/AUDITAR_E8K_V18_TESTEMUNHAS.py --v17-report v17/RESULTADO_E8K_V17.json --v17-parecer v17/PARECER_TECNICO_V17.md --v17-source v17/AUDITAR_E8K_V17_NORMALIZACAO.py --e7 NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip --out v18/RESULTADO_E8K_V18.json --strict
+          sha256sum v18/RESULTADO_E8K_V18.json
       - name: Conferir sintaxe do V17, V18 e do cotejador
         run: python -m py_compile v17/AUDITAR_E8K_V17_NORMALIZACAO.py v18/AUDITAR_E8K_V18_TESTEMUNHAS.py v18/COTEJAR_V17_V18.py
       - name: Auditoria independente V18 e cotejo com adversarios
