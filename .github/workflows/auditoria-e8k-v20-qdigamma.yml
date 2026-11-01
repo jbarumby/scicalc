@@ -1,0 +1,50 @@
+name: auditoria-e8k-v20-qdigamma
+on:
+  push:
+    paths:
+      - 'v20/q_digamma_bose.py'
+      - 'v20/test_q_digamma_bose.py'
+      - 'v20/Q_DIGAMA_CHENG_2015.md'
+      - '.github/workflows/auditoria-e8k-v20-qdigamma.yml'
+  pull_request:
+    paths:
+      - 'v20/q_digamma_bose.py'
+      - 'v20/test_q_digamma_bose.py'
+      - 'v20/Q_DIGAMA_CHENG_2015.md'
+      - '.github/workflows/auditoria-e8k-v20-qdigamma.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditar-qdigamma:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Validar Python e testes negativos
+        run: |
+          python -m py_compile v20/q_digamma_bose.py v20/test_q_digamma_bose.py
+          python v20/test_q_digamma_bose.py
+      - name: Regenerar testemunhas e verificar determinismo
+        shell: bash
+        run: |
+          python v20/q_digamma_bose.py --out v20/RESULTADO_Q_DIGAMA_CHENG_2015.json
+          cp v20/RESULTADO_Q_DIGAMA_CHENG_2015.json /tmp/qdigama.json
+          python v20/q_digamma_bose.py --out v20/RESULTADO_Q_DIGAMA_CHENG_2015.json
+          cmp /tmp/qdigama.json v20/RESULTADO_Q_DIGAMA_CHENG_2015.json
+          sha256sum v20/q_digamma_bose.py v20/test_q_digamma_bose.py v20/Q_DIGAMA_CHENG_2015.md v20/RESULTADO_Q_DIGAMA_CHENG_2015.json
+      - name: Publicar evidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-e8k-v20-qdigamma
+          if-no-files-found: warn
+          path: |
+            v20/RESULTADO_Q_DIGAMA_CHENG_2015.json
+            v20/Q_DIGAMA_CHENG_2015.md
+          retention-days: 30
