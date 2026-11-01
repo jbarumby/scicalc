@@ -443,7 +443,8 @@ theorem fpUp_ge (x : ℚ) : x ≤ fpUp x := by
   have hN : 0 < N_TICK := by positivity
   have h1 : x * N_TICK ≤ (Int.ceil (x * N_TICK) : ℚ) := Int.le_ceil _
   show x ≤ (Int.ceil (x * N_TICK) : ℚ) / N_TICK
-  rwa [le_div_iff hN]        -- b ≤ a / c ↔ b * c ≤ a
+  rw [le_div_iff₀ hN]
+  exact h1
 
 /-- Monotonicidade: x ≤ y implica fpDown x ≤ fpDown y e fpUp x ≤ fpUp y. -/
 theorem fp_mono (x y : ℚ) (h : x ≤ y) :
