@@ -1,0 +1,46 @@
+name: auditoria-e8k-v24-continuidade
+on:
+  push:
+    paths:
+      - 'v24/**'
+      - '.github/workflows/auditoria-e8k-v24.yml'
+  pull_request:
+    paths:
+      - 'v24/**'
+      - '.github/workflows/auditoria-e8k-v24.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  continuidade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Validar sintaxe
+        run: python -m py_compile v24/AUDITAR_V24_CONTINUIDADE.py v24/TESTAR_V24.py
+      - name: Auditoria exata e testes negativos
+        shell: bash
+        run: |
+          python v24/TESTAR_V24.py
+          python v24/AUDITAR_V24_CONTINUIDADE.py --out v24/RESULTADO_V24_CONTINUIDADE.json
+          cp v24/RESULTADO_V24_CONTINUIDADE.json /tmp/v24-first.json
+          python v24/AUDITAR_V24_CONTINUIDADE.py --out v24/RESULTADO_V24_CONTINUIDADE.json
+          cmp /tmp/v24-first.json v24/RESULTADO_V24_CONTINUIDADE.json
+          (cd v24 && sha256sum -c SHA256SUMS_V24.txt)
+          sha256sum v24/AUDITAR_V24_CONTINUIDADE.py v24/TESTAR_V24.py v24/RESULTADO_V24_CONTINUIDADE.json
+      - name: Publicar testemunha V24
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-v24-continuidade
+          path: |
+            v24/RESULTADO_V24_CONTINUIDADE.json
+            v24/README_V24.md
+          if-no-files-found: warn
+          retention-days: 30
