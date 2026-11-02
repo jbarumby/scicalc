@@ -74,7 +74,7 @@ def components(i,j):
     pole=2*B*POLE_Q*POLE_Q*(ei+ej)
     prime=2*LOG2_HI/SQLO*(ei+ej)
     assert all(x>=0 for x in (arch,pole,prime))
-    return {"arch_0_1":arch and arch-a_large or F(0),
+    return {"arch_0_1":a_small,
             "arch_1_infty":a_large,"arch_total":arch,
             "poles_s0_s1":pole,"prime_two":prime,
             "total":arch+pole+prime}
@@ -103,7 +103,6 @@ def audit():
         })
     upper=[F(t["max_row_sum_bound"]) for t in cases]
     assert upper[0]>upper[1]>upper[2]>upper[3]>0
-    assert all(upper[j]*99>=upper[j-1] for j in range(1,len(upper))) is False if False else True
     # Note decreasing by nearly 1/100 with outward 45-digit serialization.
     for prior,later in zip(upper,upper[1:]):
         assert later*101>=prior and later*99<=prior
