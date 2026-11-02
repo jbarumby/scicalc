@@ -32,30 +32,8 @@ jobs:
           cp v24/RESULTADO_V24_CONTINUIDADE.json /tmp/v24-first.json
           python v24/AUDITAR_V24_CONTINUIDADE.py --out v24/RESULTADO_V24_CONTINUIDADE.json
           cmp /tmp/v24-first.json v24/RESULTADO_V24_CONTINUIDADE.json
-          if test -f v24/SHA256SUMS_V24.txt; then
-            (cd v24 && sha256sum -c SHA256SUMS_V24.txt)
-          fi
+          (cd v24 && sha256sum -c SHA256SUMS_V24.txt)
           sha256sum v24/AUDITAR_V24_CONTINUIDADE.py v24/TESTAR_V24.py v24/RESULTADO_V24_CONTINUIDADE.json
-      - name: Exportar resultado V24 para evidencia permanente
-        shell: bash
-        run: |
-          python - <<'PY'
-          import base64
-          from pathlib import Path
-          encoded=base64.b64encode(Path('v24/RESULTADO_V24_CONTINUIDADE.json').read_bytes()).decode()
-          for i in range(0,len(encoded),700):
-            print('V24_RESULT_B64_'+str(i//700).zfill(3)+'='+encoded[i:i+700])
-          PY
-      - name: Exportar snapshot V24 uma unica vez para manifesto
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import base64
-          v=base64.b64encode(Path('v24/RESULTADO_V24_CONTINUIDADE.json').read_bytes()).decode()
-          for i in range(0,len(v),700):
-            print('V24_B64_'+str(i//700).zfill(3)+'='+v[i:i+700])
-          PY
       - name: Publicar testemunha V24
         if: always()
         uses: actions/upload-artifact@v4
