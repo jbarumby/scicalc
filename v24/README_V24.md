@@ -102,3 +102,25 @@ São testados \(k=1,\dots,10\), \(\delta\in\{10^{-3},10^{-4},10^{-5},10^{-6}\}\)
 O teste fixa por SHA-256 os dois scripts matemáticos da V23, verifica simetria, monotonia \(O(\delta^2)\), entradas inválidas e reprodução byte a byte. Um manifesto de hashes acompanha a evidência versionada após sua geração no GitHub.
 
 **Próximas obrigações:** cotejar literalmente projeções e normalização das fórmulas G+P da V16, controlar as aproximações em todas as dimensões, conferir a regra de erro sob polo e excluir circularidade entre suposições de RH e positividade de Weil. A Hipótese de Riemann permanece sem demonstração.
+
+
+## 6. Duas novas referências — decisão de incorporação
+
+1. **S. W. Hawking (1977)**, *Zeta function regularization of path integrals in curved spacetime*, *Communications in Mathematical Physics* **55**, 133–148, DOI [10.1007/BF01626516](https://doi.org/10.1007/BF01626516). O método utiliza zeta espectral de operadores diferenciais, transformada de Mellin do núcleo de calor e determinante regularizado \( \det_\zeta A=\exp(-\zeta_A'(0)) \) (sob hipóteses de existência e regularidade em zero). **Utilidade:** reforça o fundamento conceitual da V21; **não** limita por si só a integral arquimediana de Weil nem fornece um operador Hilbert–Pólya.
+
+2. **J. G. Dueñas; N. F. Svaiter (2014)**, *Riemann zeta zeros and zero-point energy*, *International Journal of Modern Physics A* **29**(09), 1450051, DOI [10.1142/S0217751X14500511](https://doi.org/10.1142/S0217751X14500511); [preprint arXiv:1311.6681](https://arxiv.org/abs/1311.6681). Os autores **postulam** um operador autoadjunto com espectro associado aos zeros da zeta e calculam energia de ponto zero renormalizada sob essa hipótese. **Utilidade:** exemplo condicional de física espectral e massa contratermo; **não** constrói o operador postulado, não demonstra RH e não substitui a identificação analítica do modelo V24 com a fórmula global de Weil.
+
+Ambos ajudam a delimitar a interpretação de operadores e regularização, mas **nenhum é uma prova de positividade de Weil nem um atalho para a conjectura espectral**. As cotas da V24 permanecem matematicamente distintas das regularizações de determinantes tratadas nesses artigos.
+
+## 7. Estimativa de tamanho (não é prova de estabilidade do LDL)
+
+Para a família ilustrativa de 10 modos, os limites superiores da soma por linha obtidos pelo auditor, em função de \(\delta\), são aproximadamente:
+
+| \(\delta\) | Limite de \(\|E\|_\infty\) |
+|---|---:|
+| \(10^{-3}\) | 95,49534 |
+| \(10^{-4}\) | 0,9549534 |
+| \(10^{-5}\) | 0,009549534 |
+| \(10^{-6}\) | 0,00009549534 |
+
+O decaimento quadrático é consequência do envelope racional. Esses números dizem respeito **à matriz-modelo não projetada definida no módulo**. Sem cotejar a projeção \(B^\top(G+P)B\), as fases e a equivalência das integrais, **não podem** ser diretamente comparados aos pivôs LDL da V16 para alegar preservação da positividade.
