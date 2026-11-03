@@ -1,0 +1,16 @@
+{
+  "files": {
+    "README.md": "4409af4da1fac284b3ed191cc2f56ae9a5a23d5ea85b25347e93f6645cd7af87",
+    "RELATORIO_ES8M3.md": "cc463a1531155c4d9af9fd4b4e7624ce1f38f9051a65e9e1a0fcb24b275addeb",
+    "RESULTADOS_ES8M3.json": "1266613f915707153cdc36976246b0725231a46dbaf32d8c379db71662d35eb1",
+    "RESULTADOS_ES8M3_REFINED.json": "5b0a5a0f1269474bfb1b65d29a6484e9302c49c83040e926761a51357e2496b9",
+    "TESTES_ES8M3.txt": "76e7f470418bdb94bf9b93df9f7498e1368122e584ef8e38b0f8ccb37cc4edc6",
+    "es6_weil_gaussian_baseline.py": "394511d81d2591384011efcf972e99d388c64f33533ca012f0e9e73a1285dacb",
+    "es7_archimedean.py": "7289e5f819f5000a9ba8a90f734c5839121020c52f8ffb4ef9bafe0570c7a1f9",
+    "es8m3_certify.py": "450cc729381737a970dbfb2b10ab2b6d750611207d33435284d446404dccb24a",
+    "test_es8m3_certify.py": "f931e2484f1f15f07b03989d0667ee2cf1de6dc4d3d05fe04cf25a194b433cb9"
+  },
+  "research_date": "2026-11-03",
+  "schema": "NUMERIA.ES8M3.SHA256.1",
+  "scientific_scope": "finite Gaussian moment matrices 3x3; not RH proof; not E7/V24 projected matrix validation"
+}

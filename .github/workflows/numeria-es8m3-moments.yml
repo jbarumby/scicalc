@@ -1,0 +1,48 @@
+name: NUMERIA ES8-M3 certified 3x3 moment matrices
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research/2026-11-03/es8m3/**'
+      - '.github/workflows/numeria-es8m3-moments.yml'
+jobs:
+  es8m3-certification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pin test dependencies
+        run: python -m pip install mpmath==1.3.0 pytest==8.4.2
+      - name: Verify committed SHA256 manifest
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('research/2026-11-03/es8m3')
+          j=json.loads((root/'MANIFESTO_SHA256.json').read_text())
+          for filename,expected in j['files'].items():
+              digest=hashlib.sha256((root/filename).read_bytes()).hexdigest()
+              assert digest==expected,(filename,digest,expected)
+          print('ES8M3 manifest integrity verified:',len(j['files']),'files')
+          PY
+      - name: Automated ES8-M3 tests
+        run: python -m pytest -q research/2026-11-03/es8m3/test_es8m3_certify.py
+      - name: Recompute high-resolution rational certificates
+        run: python research/2026-11-03/es8m3/es8m3_certify.py --M 16384 --terms 96 --T 48 --N 64 --out /tmp/RESULTADOS_ES8M3_REFINED_REPLAY.json
+      - name: Compare exact endpoints and positive minors
+        run: |
+          python - <<'PY'
+          import json
+          saved=json.load(open('research/2026-11-03/es8m3/RESULTADOS_ES8M3_REFINED.json'))
+          replay=json.load(open('/tmp/RESULTADOS_ES8M3_REFINED_REPLAY.json'))
+          assert saved['schema']==replay['schema']=='NUMERIA.ES8M3.MOMENT_0_TO_5.RATIONAL.1'
+          for s,r in zip(saved['moments'],replay['moments']):
+              assert s['interval_rational']==r['interval_rational']
+          for s,r in zip(saved['matrix_certificates'],replay['matrix_certificates']):
+              assert s['status']==r['status']=='CERTIFIED_POSITIVE_DEFINITE'
+              for ss,rr in zip(s['leading_principal_minors'],r['leading_principal_minors']):
+                  assert ss['interval_rational']==rr['interval_rational']
+          assert 'no RH proof' in replay['status']
+          print('ES8-M3 reproduced: finite 3x3 certificates; NOT a RH proof')
+          PY
