@@ -19,7 +19,7 @@
     {
       "path": "REFERENCIAS_TRIADAS_ES8P.csv",
       "bytes": 5139,
-      "sha256": "7cab727e70735673caf6f70dabf25fc94a9088ec36cc715c547ec19dc98dd241"
+      "sha256": "26fe20ad6297b1fed19a32044bfa1e6da99b6df643e5e091ae38f31fe404f012"
     },
     {
       "path": "RELATORIO_ES8P.md",
@@ -60,5 +60,6 @@
     "full_Weil_matrix": "NOT_ESTABLISHED",
     "universal_Weil_positivity": "NOT_ESTABLISHED",
     "Riemann_hypothesis": "OPEN"
-  }
+  },
+  "git_csv_newline_policy": "Generated triage CSV uses LF consistently for reproducible GitHub blob SHA256; original user input CSV bytes are separately hashed and retained in ZIP."
 }

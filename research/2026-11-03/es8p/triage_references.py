@@ -33,7 +33,7 @@ def triage(input_path,output_path):
           'duplicado_do':'380' if id=='384' else '', 'nivel_verificacao':'resumo CSV; títulos e informações centrais de artigos prioritários confrontados com fontes públicas; não revisão do texto integral'})
     dest=Path(output_path);dest.parent.mkdir(parents=True,exist_ok=True)
     with dest.open('w',encoding='utf-8',newline='') as f:
-        w=csv.DictWriter(f,fieldnames=out[0].keys());w.writeheader();w.writerows(out)
+        w=csv.DictWriter(f,fieldnames=out[0].keys(),lineterminator='\n');w.writeheader();w.writerows(out)
     return {'total_registros':len(rows),'distintos_por_doi':len(counts),'duplicatas':len(rows)-len(counts),'mais_proximos_de_ES8P':[385], 'artigos_que_constituem_prova_de_RH':0}
 
 if __name__=='__main__':
