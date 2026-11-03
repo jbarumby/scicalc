@@ -1,0 +1,67 @@
+{
+  "schema": "NUMERIA.ES8M.SHA256.1",
+  "date": "2026-11-03",
+  "scientific_status": "partial certified moments; no full Weil positivity; RH unproved",
+  "entries": [
+    {
+      "path": "ES7_RESULTADOS_BASELINE.json",
+      "bytes": 3711,
+      "sha256": "e437354fb712dcf68b48d63ff7a43bdf2cd6506e19234d384bb7f3103b1afc6a"
+    },
+    {
+      "path": "EXECUCAO_ES8M.txt",
+      "bytes": 118,
+      "sha256": "7905d028e6a2da33e8b9a2c97524a3c71c010371120b3a60567273de297d2584"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2592,
+      "sha256": "027ad4e37fb72ae89e043af7f5791a291872530ee3c48437e6788ef711e3bc77"
+    },
+    {
+      "path": "RELATORIO_ES8M.md",
+      "bytes": 8814,
+      "sha256": "97bd4f48c5d52191b9411842eed7b7ce013cacb12cfff0e432942e4f104032ed"
+    },
+    {
+      "path": "RESULTADOS_ES8M.json",
+      "bytes": 7269,
+      "sha256": "8d8ea1cdadb9265d5ad67d9d0cc9b5aec300c265ed0e5a328b3a1e0bc0850257"
+    },
+    {
+      "path": "TESTES_ES8M.txt",
+      "bytes": 99,
+      "sha256": "3a15f1496e3bcd3a3884870cf6f23357c333e4cb2114f2a9f5b1af0271902b39"
+    },
+    {
+      "path": "WORKFLOW_NOTA.md",
+      "bytes": 208,
+      "sha256": "7566a71d54644cfa7aaa25fb94f4b54b3b4c07046a6cc5bb2933a85a39042b5a"
+    },
+    {
+      "path": "es6_weil_gaussian_baseline.py",
+      "bytes": 12202,
+      "sha256": "394511d81d2591384011efcf972e99d388c64f33533ca012f0e9e73a1285dacb"
+    },
+    {
+      "path": "es8m_moment_audit.py",
+      "bytes": 11865,
+      "sha256": "95aa95da0cd8c4fdbf153c993285da7080139d88830bc82f0f3da6a4db905cec"
+    },
+    {
+      "path": "sources/Qwen_latex_20261103_pag4a82de.txt",
+      "bytes": 13790,
+      "sha256": "5025e78bc900ae1c7543877a32d534b89c47d9bd3c231fd21824c251c8b2ac62"
+    },
+    {
+      "path": "sources/deepseek_latex_20261103_74b66a.tex",
+      "bytes": 15504,
+      "sha256": "2316b866fa9876444d90b6115f9ce804f4fd9d90e163736731d51e8b80949dc6"
+    },
+    {
+      "path": "test_es8m_moment_audit.py",
+      "bytes": 4560,
+      "sha256": "bb00cb630a9e86d057f454636580437a79e20c912485af74c1934c39721a5ef1"
+    }
+  ]
+}

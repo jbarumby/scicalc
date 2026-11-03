@@ -1,0 +1,376 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\geometry{margin=2.4cm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newtheorem{teorema}{Teorema}
+\newtheorem{proposicao}{Proposição}
+\newtheorem{lema}{Lema}
+\newtheorem{corolario}{Corolário}
+\newtheorem{observacao}{Observação}
+\newtheorem{objecao}{Objeção}
+\newtheorem{definicao}{Definição}
+\newtheorem{problema}{Problema}
+
+\title{
+    NUMERIA ES7: \\
+    problema de momentos de Hamburger a partir da \\
+    fórmula de Guinand--Weil gaussiana (extensão da ES6)
+}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+A ES6 certificou rigorosamente a parcela aritmética da fórmula de
+Guinand--Weil para a gaussiana $h_a(t)=e^{-at^2}$ em $a=1/50$, e propôs
+uma identidade nova nesta linha, obtida por diferenciação em $a$. Este
+documento formaliza a extensão natural desse aparato: a família de
+\emph{momentos} $\mu_k(a) = \sum_\rho z_\rho^{2k} e^{-az_\rho^2}$,
+suas realizações via as derivadas $k$-ésimas do lado direito da fórmula
+explícita, e a matriz de Hankel
+$H_n(a) = (\mu_{i+j}(a))_{i,j=0}^{n}$. Mostramos que RH implica
+$H_n(a)\succeq 0$ para todo $n,a$, mas que a recíproca \emph{não} vale:
+a positividade de Hankel é uma condição \emph{necessária}, não
+suficiente. O documento especifica o que é certificável em aritmética
+racional exata (valores de $\mu_k$, positividade de $H_n$ em pontos
+isolados), o que é equivalente a RH (o limite $n\to\infty$, ou a
+positividade para todas as funções-teste de tipo positivo), e o que
+permanece aberto. Não há prova de RH. A contribuição é a formalização
+de um \emph{teste numérico finito} com conteúdo: uma matriz de Hankel
+negativa em algum $(n,a)$ \emph{refutaria} RH, e a trajetória de
+$H_n(a)$ codifica informação sobre a distribuição dos zeros.
+\end{abstract}
+
+\tableofcontents
+
+\section{Contexto: o que a ES6 estabeleceu}
+
+A ES6, a partir da fórmula global de Guinand--Weil na forma
+(Proposition~5 de Carneiro--Chirre--Milinovich, com a convenção de
+Fourier $\widehat h(y) = \int_{\mathbb{R}} h(t)e^{-2\pi i t y}\,dt$),
+obteve, para $a>0$ e com $z_\rho = (\rho-\tfrac12)/i$ para cada zero
+não trivial $\rho$ de $\zeta$, sem pressupor que $z_\rho$ seja real:
+\begin{equation}\label{eq:GW}
+\boxed{
+\sum_{\rho}e^{-az_\rho^2}
+=2e^{a/4}+\frac{1}{2\pi}\int_{-\infty}^{\infty}e^{-at^2}\Omega(t)\,dt
+-\frac{1}{\sqrt{\pi a}}\sum_{n\ge 2}\frac{\Lambda(n)}{\sqrt n}
+e^{-(\log n)^2/(4a)}
+}
+\end{equation}
+onde $\Omega(t) = \operatorname{Re}\psi(\tfrac14+\tfrac{it}{2})-\log\pi$.
+
+A ES6 certificou em aritmética racional exata a parcela positiva
+$P(a)=\frac1{\sqrt{\pi a}}\sum_{n\ge2}\frac{\Lambda(n)}{\sqrt n}
+e^{-(\log n)^2/(4a)}$ em $a=1/50$:
+\[
+0{,}0048201252095083525923710170549320614490
+\le P(1/50) \le
+0.0048201252095083525923710170549320614627,
+\]
+com cauda $<10^{-40}$. A parcela arquimediana e a soma completa sobre
+zeros não foram certificadas com o mesmo rigor.
+
+A ES6 também derivou em $a$, obtendo uma identidade para
+$-\sum_\rho z_\rho^2 e^{-az_\rho^2}$. É o ponto de partida desta nota.
+
+\section{A família de momentos}
+
+\begin{definicao}[Momentos gaussianos]
+Para $k\ge 0$ e $a>0$, defina
+\[
+  \mu_k(a) \;=\; \sum_{\rho} z_\rho^{2k}\,e^{-az_\rho^2},
+\]
+a soma sendo sobre \emph{todos} os zeros não triviais de $\zeta$, com
+multiplicidade, e $z_\rho=(\rho-\tfrac12)/i$ possivelmente complexo.
+\end{definicao}
+
+\begin{observacao}[Realidade de $\mu_k$]
+Se todos os $z_\rho$ são reais (isto é, RH vale), então cada
+$z_\rho^{2k} e^{-az_\rho^2} > 0$, e $\mu_k(a)\in\mathbb{R}_{>0}$ para
+todo $k,a$. Sob RH, os $\mu_k$ são somas de termos positivos.
+\end{observacao}
+
+\begin{proposicao}[$\mu_k$ via diferenciação]\label{prop:deriv}
+Suponha que a série em \eqref{eq:GW} converge absolutamente e é
+uniformemente diferenciável $k$ vezes em $a$ (o que é consequência do
+decaimento gaussiano e da cota clássica $N(T+1)-N(T)\ll\log T$ para a
+contagem de zeros). Então, para todo $k\ge 0$ e $a>0$,
+\[
+  \mu_k(a) \;=\; (-1)^k\,\frac{d^k}{da^k}\,\mathrm{RHS}_0(a),
+\]
+onde $\mathrm{RHS}_0(a)$ denota o lado direito de \eqref{eq:GW}.
+\end{proposicao}
+
+\begin{proof}
+Para $k=0$ é a identidade \eqref{eq:GW}. Para $k\ge 1$, diferencia-se
+$k$ vezes em ambos os lados; a troca de soma e derivada é válida
+porque $|z_\rho|^{2k}e^{-a z_\rho^2}$ decai gaussianamente e a densidade
+de zeros é $O(\log T)$. A fórmula explícita para $\mu_k$ em termos de
+$\Lambda$, $\Omega$ e suas derivadas é obtida pela diferenciação
+termo a termo do lado direito de \eqref{eq:GW}.
+\end{proof}
+
+\begin{observacao}[Certificabilidade em $\mathbb{Q}$]
+Para $k$ fixo e $a$ fixo, o valor de $\mu_k(a)$ no lado direito de
+\eqref{eq:GW} é uma soma de termos: potências de primos (finitas até
+$N$, mais cauda majorada) e integrais de $\Omega^{(j)}$ contra $t^{2j}
+e^{-at^2}$. Tudo isso é certificável pelo aparato racional da ES6. A
+única parte que a ES6 não certifica é a quadratura da digama
+$\psi$; mas isso é uma limitação \emph{técnica}, não \emph{estrutural}.
+\end{observacao}
+
+\section{A matriz de Hankel}
+
+\begin{definicao}[Matriz de Hankel de momentos]\label{def:hankel}
+Para $n\ge 0$ e $a>0$, defina
+\[
+  H_n(a) \;=\; \bigl(\mu_{i+j}(a)\bigr)_{i,j=0}^{n}
+  \in\; \mathbb{R}^{(n+1)\times(n+1)}.
+\]
+\end{definicao}
+
+\begin{teorema}[RH implica positividade de Hankel]\label{thm:RH-PSD}
+Se a Hipótese de Riemann é verdadeira, então para todo $n\ge 0$ e todo
+$a>0$, $H_n(a)$ é semidefinida positiva, $H_n(a)\succeq 0$.
+\end{teorema}
+
+\begin{proof}
+Sob RH, todos os $z_\rho$ são reais. Seja $\nu_a$ a medida positiva em
+$\mathbb{R}$ dada por
+\[
+  \nu_a \;=\; \sum_{\rho}\delta_{z_\rho^2}\cdot e^{-az_\rho^2}
+\]
+(medida atômica com massa $e^{-az_\rho^2}$ no ponto $z_\rho^2\ge 0$).
+Então
+\[
+  \mu_k(a) \;=\; \sum_\rho (z_\rho^2)^k\,e^{-az_\rho^2}
+  \;=\; \int_{\mathbb{R}} x^k\,d\nu_a(x),
+\]
+isto é, $\mu_k(a)$ é o $k$-ésimo momento da medida positiva $\nu_a$
+em $\mathbb{R}$. A matriz de Hankel $H_n(a)$ é a matriz de Gram dos
+monômios $\{1,x,x^2,\dots,x^n\}$ em $L^2(\mathbb{R},\nu_a)$, logo
+$H_n(a) = M_n^*M_n \succeq 0$, onde $M_n$ tem colunas $x^j$ em
+$L^2(\nu_a)$.
+\end{proof}
+
+\begin{corolario}[Teste de refutação]\label{cor:refute}
+Se existirem $n\ge 0$ e $a>0$ tais que $H_n(a)\not\succeq 0$, então RH
+é falsa.
+\end{corolario}
+
+\begin{proof}
+Contrapositiva do Teorema \ref{thm:RH-PSD}.
+\end{proof}
+
+\section{O que a recíproca daria — e por que não dá}
+
+A recíproca do Teorema \ref{thm:RH-PSD} seria a afirmação:
+\begin{center}
+\fbox{
+\begin{minipage}{0.85\textwidth}
+\emph{(Recíproca falsa desejada.)} Se $H_n(a)\succeq 0$ para todo
+$n\ge 0$ e todo $a>0$, então RH é verdadeira.
+\end{minipage}
+}
+\end{center}
+
+Esta recíproca é \emph{falsa} como enunciada, por três razões
+independentes e cumulativas.
+
+\begin{objecao}[Uma única gaussiana não é suficiente]
+A positividade de $H_n(a)$ para um $a$ fixo diz que a sequência
+$(\mu_k(a))_k$ é a sequência de momentos de \emph{alguma} medida
+positiva em $\mathbb{R}$ (por Hamburger), mas não necessariamente da
+medida $\nu_a = \sum_\rho \delta_{z_\rho^2} e^{-az_\rho^2}$
+\emph{original}. A positividade da forma de Weil exige a família
+completa de funções-teste de tipo positivo, não apenas as gaussianas.
+\end{objecao}
+
+\begin{objecao}[O limite $n\to\infty$ é intratável]
+O teorema de Hamburger caracteriza as sequências de momentos de medidas
+positivas em $\mathbb{R}$ via \emph{todas} as matrizes de Hankel
+$H_n\succeq 0$ para todo $n$. Verificar isso para \emph{todo} $n$ é,
+na prática, um problema de controle uniforme de $\mu_k(a)$ em $k$ e
+$a$, o que envolve as mesmas dificuldades de estimativa da função de
+Mertens que caracterizam o obstáculo original do M1.
+\end{objecao}
+
+\begin{objecao}[A medida $\nu_a$ não é única]
+Mesmo que todas as $H_n(a)$ sejam PSD para todo $n$ e todo $a$, isso
+caracteriza uma \emph{classe} de medidas positivas com os mesmos
+momentos. Se a medida $\nu_a$ original (que depende dos zeros de
+$\zeta$) pertence ou não a essa classe não é determinado apenas pelos
+momentos; é um problema separado.
+\end{objecao}
+
+\begin{observacao}[Formulação correta do que seria prova]
+A recíproca verdadeira, sob a qual a positividade de Hankel \emph{seria}
+suficiente, exigiria identificar a medida limite
+$\nu = \lim_{a\to 0}\nu_a$ com a medida de contagem dos $z_\rho^2$ e
+verificar positividade contra \emph{todas} as funções-teste de tipo
+positivo de Weil, não apenas gaussianas. Isso é exatamente a forma de
+Weil, que é equivalente a RH; portanto a recíproca, na sua forma útil,
+\emph{não simplifica} o problema.
+\end{observacao}
+
+\section{O que é certificável — e por que tem conteúdo}
+
+Apesar da recíproca falhar, o Teorema \ref{thm:RH-PSD} e o Corolário
+\ref{cor:refute} têm conteúdo computacional genuíno.
+
+\begin{proposicao}[Teste de PSD em $\mathbb{Q}$]\label{prop:PSD-Q}
+Fixem $n\ge 0$, $a\in\mathbb{Q}_{>0}$ e um inteiro $N\ge 64$. Então,
+usando o aparato racional da ES6 para certificar $\mu_0,\dots,\mu_{2n}$
+até $N$ com cauda majorada, é possível decidir com certificado
+racional se a matriz truncada $\widetilde H_n^{(N)}(a)$ satisfaz
+$\widetilde H_n^{(N)}(a)\succeq \lambda I$ para algum
+$\lambda\in\mathbb{Q}_{>0}$ explicitamente calculável.
+\end{proposicao}
+
+\begin{proof}[Esboço]
+Cada $\mu_k(a)$ é uma soma finita de termos certificáveis em intervalos
+racionais (potências de primos até $N$, mais cauda majorada) mais uma
+integral de $\Omega^{(j)}$ contra um peso gaussiano. A certificação
+intervalar da digama é a única lacuna técnica; supondo-a resolvida
+(por exemplo, via biblioteca Arb/FLINT), os intervalos racionais dos
+$\mu_k$ propagam-se para $\widetilde H_n^{(N)}(a)$ via aritmética de
+intervalos, e um teste de Cholesky racional certifica positividade ou
+encontra um vetor $v\in\mathbb{Q}^{n+1}$ tal que
+$v^\top\widetilde H_n^{(N)}(a)v < 0$.
+\end{proof}
+
+\begin{observacao}[Três desfechos possíveis do teste]
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{PSD confirmado} (com $N$ grande o suficiente): evidência
+numérica de que $\mu_0,\dots,\mu_{2n}$ são compatíveis com RH. Resultado
+modesto mas honesto.
+\item \textbf{Não-PSD confirmado}: \emph{RH é falsa}. Como não
+esperamos isso, esse desfecho é uma falsificação improvável, mas o teste
+é o que daria o certificado.
+\item \textbf{Inconclusivo} (intervalos dos $\mu_k$ muito largos para
+decidir): sinal de que $N$ ou a precisão precisam aumentar.
+\end{enumerate}
+\end{observacao}
+
+\section{Extensão concreta do aparato ES6}
+
+\begin{problema}[ES7-A: certificar $\mu_2, \mu_3, \mu_4$]\label{prob:mu234}
+Estender a certificação racional da ES6 a $\mu_k(a)$ para
+$k=2,3,4$, $a\in\{1/50, 1/25, 1/10\}$, $N\ge 128$, com cauda
+majorada analiticamente. Aderir à estrutura de arredondamento para
+fora em escala $10^{40}$ já usada.
+\end{problema}
+
+\begin{problema}[ES7-B: montar e testar $H_3(a)$]\label{prob:H3}
+Para $n\in\{1,2,3\}$ e $a\in\{1/50, 1/25, 1/10\}$, computar
+$\widetilde H_n^{(N)}(a)$ com intervalos racionais para $\mu_0,\dots,\mu_{2n}$,
+e rodar Cholesky racional para certificar $\widetilde H_n^{(N)}(a)\succeq \lambda I$
+com $\lambda\in\mathbb{Q}_{>0}$ explícito, ou detectar não-positividade.
+\end{problema}
+
+\begin{problema}[ES7-C: trajetória de $H_n(a)$]\label{prob:traj}
+Calcular o menor autovalor $\lambda_{\min}(H_n(a))$ para
+$n\in\{1,2,3,4\}$ e $a\in\{1/5, 1/10, 1/20, 1/50, 1/100, 1/500\}$,
+plotar $\lambda_{\min}$ contra $\log a$ e contra $n$, e comparar
+com a previsão sob RH (todos positivos) e sob uma distribuição
+GUE de zeros na faixa crítica (eventuais negativos). Se as duas
+previsões divergem em escala, a estrutura de Hankel detecta algo.
+\end{problema}
+
+\begin{problema}[ES7-D: certificação intervalar da digama]\label{prob:digamma}
+Implementar quadratura intervalar rigorosa para
+$\int_{-\infty}^{\infty} t^{2j} e^{-at^2}\Omega^{(j)}(t)\,dt$
+usando Arb/FLINT ou equivalente, com limitação de cauda e
+arredondamento explícito. Isso remove a única lacuna técnica apontada
+na Proposição \ref{prop:PSD-Q}.
+\end{problema}
+
+\section{O que a linha ES6/ES7 faz e não faz}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{p{6.5cm} p{8.5cm}}
+\toprule
+\textbf{Afirmação} & \textbf{Status} \\
+\midrule
+Fórmula de Guinand--Weil para gaussiana $h_a$ & Clássica, incondicional. \\
+Identidade derivada em $a$ (ES6) & Correta, não nova na literatura,
+nova nesta linha. \\
+Certificação de $P(1/50)$ com cauda $<10^{-40}$ & Correta, verificada
+em $\mathbb{Q}$. \\
+Extensão a $\mu_k(a)$ para $k\ge 2$ & Direta, viável (Problema
+\ref{prob:mu234}). \\
+$H_n(a)\succeq 0$ sob RH & Demonstrado (Teorema \ref{thm:RH-PSD}). \\
+$H_n(a)\not\succeq 0$ $\Rightarrow$ RH falsa & Demonstrado (Corolário
+\ref{cor:refute}). \\
+Recíproca: $H_n\succeq 0\;\forall n,a\Rightarrow$ RH & \textbf{Falsa}
+(Objeções 1--3). \\
+Prova de RH & \textbf{Não obtida e não visível neste caminho}. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Onde a matemática verdadeiramente diferente está}
+
+A linha de momentos de Hankel é \emph{honesta}: produz certificados
+finitos com conteúdo (Corolário \ref{cor:refute}) e um programa
+experimental coerente (Problemas \ref{prob:mu234}--\ref{prob:traj}).
+Mas ela \emph{não é} a matemática diferente que fecharia RH. As
+tentativas sérias na literatura (não desta linha) seguem três rotas
+estruturalmente distintas:
+
+\begin{enumerate}[label=(\roman*)]
+\item \textbf{Geometria aritmética sobre $\mathbb{F}_q$.} A RH é
+\emph{teorema} para curvas sobre corpos finitos (Weil, Deligne). A
+prova usa cohomologia étale e positividade geométrica do produto de
+interseção. Transportar essa positividade para
+$\operatorname{Spec}\mathbb{Z}$ é o programa de Connes (cohomologia
+Weil--étale), Scholze (prismas), e outros. Nenhuma prova existe;
+é o único caminho onde positividade é provada em análogo estrutural.
+\item \textbf{Espectro de um operador autoadjunto explícito.}
+Hilbert--Pólya continua sendo a única reformulação em que
+``positividade'' vira ``autoadjunção''. A ES6 já mostrou (via
+experimento adversarial ES4) que acertar a contagem assintótica
+\emph{não basta}; é preciso um operador cujo \emph{espectro exato}
+seja $\{z_\rho\}$. Nenhum operador explícito conhecido tem essa
+propriedade.
+\item \textbf{Formulação adélica de Bombieri.} A fórmula explícita de
+Weil tem versão adélica onde o lado arquimediano é substituído por
+um produto sobre $p$-ádicos. A positividade é mais rica no contexto
+adélico e já produziu teoremas parciais. A ES6/ES7 está na versão
+\emph{real}, a mais fraca.
+\end{enumerate}
+
+\begin{observacao}
+Este documento não apresenta uma prova da Hipótese de Riemann. Ele
+formaliza o problema de momentos de Hamburger como extensão natural
+da ES6, demonstra o que é demonstrável (Teorema \ref{thm:RH-PSD} e
+Corolário \ref{cor:refute}), refuta a recíproca com três objeções
+independentes, e especifica um programa computacional concreto
+(Problemas \ref{prob:mu234}--\ref{prob:digamma}) com o mesmo rigor
+da ES6. Nenhuma dessas etapas aproxima uma prova; todas aproximam
+uma \emph{compreensão} de onde a prova não está.
+\end{observacao}
+
+\end{document}

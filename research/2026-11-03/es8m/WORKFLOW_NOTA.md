@@ -1,0 +1,1 @@
+O workflow de integração da etapa ES8-M reside em `.github/workflows/numeria-es8m-moments.yml` na raiz do repositório. Ele é um arquivo adicional ao pacote local, publicado somente na branch de pesquisa.

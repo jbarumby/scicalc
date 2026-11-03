@@ -1,0 +1,410 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+
+\geometry{margin=2.4cm}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\newtheorem{teorema}{Teorema}
+\newtheorem{proposicao}{Proposição}
+\newtheorem{lema}{Lema}
+\newtheorem{corolario}{Corolário}
+\newtheorem{observacao}{Observação}
+\newtheorem{definicao}{Definição}
+\newtheorem{problema}{Problema}
+
+\title{
+    Melhorias significativas para a linha NUMERIA ES7: \\
+    transição de Hamburger para Stieltjes, \\
+    momentos determinantes e família rica de funções-teste
+}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este documento propõe melhorias significativas à linha NUMERIA ES7, que
+estuda a positividade da matriz de Hankel $H_n(a)=(\mu_{i+j}(a))_{i,j=0}^n$
+associada aos momentos gaussianos $\mu_k(a)=\sum_\rho z_\rho^{2k}e^{-az_\rho^2}$
+da fórmula de Guinand--Weil. As melhorias propostas são: (1) transição do
+problema de momentos de Hamburger para o de Stieltjes, que é mais forte e
+mais próximo da estrutura real do problema; (2) aplicação da teoria de
+momentos determinantes via condição de Carleman, mostrando que a positividade
+de $H_n(a)$ para todo $n$ é \emph{equivalente} a RH; (3) enriquecimento da
+família de funções-teste além das gaussianas; (4) quadratura intervalar
+rigorosa com Arb/FLINT; (5) extensão a $n$ maiores; (6) conexão com a rota
+de Li (2017) e o projeto M1. Nenhuma dessas melhorias transforma a abordagem
+em uma prova de RH, mas elas refinam e fortalecem significativamente a
+estrutura analítica e computacional.
+\end{abstract}
+
+\tableofcontents
+
+\section{O que a ES7 já faz bem}
+
+Antes de propor melhorias, é importante registrar o que está correto e
+valioso na ES7:
+
+\begin{itemize}
+\item[$\checkmark$] Certificação racional exata do termo primo $P(1/50)$
+com cauda $<10^{-40}$.
+
+\item[$\checkmark$] Identificação correta de que $H_n(a)\succeq 0$ é
+\emph{necessária} para RH.
+
+\item[$\checkmark$] Três objeções independentes e corretas à recíproca.
+
+\item[$\checkmark$] Corolário de refutação: $H_n(a)\not\succeq 0
+\Rightarrow$ RH falsa.
+
+\item[$\checkmark$] Programa computacional concreto (ES7-A, B, C, D).
+\end{itemize}
+
+\section{Melhoria Matemática \#1: De Hamburger para Stieltjes}
+
+\subsection{O problema atual}
+
+A ES7 usa o problema de momentos de \emph{Hamburger} (suporte em
+$\mathbb{R}$), mas deveria usar \emph{Stieltjes} (suporte em
+$[0,\infty)$).
+
+\subsection{Por que isso importa}
+
+Os zeros $\rho$ aparecem na fórmula através de
+$z_\rho^2 = ((\rho-1/2)/i)^2$. Se RH é verdadeira, $z_\rho$ é real,
+então $z_\rho^2 \ge 0$. A medida
+\[
+\nu_a = \sum_\rho \delta_{z_\rho^2} \cdot e^{-az_\rho^2}
+\]
+tem suporte em $[0,\infty)$, não em $\mathbb{R}$.
+
+\subsection{A condição de Stieltjes}
+
+Para uma medida positiva em $[0,\infty)$, a condição necessária e
+suficiente (teorema de Stieltjes) é:
+\[
+H_n(a) = (\mu_{i+j}(a))_{i,j=0}^n \succeq 0
+\quad \text{E} \quad
+H_n'(a) = (\mu_{i+j+1}(a))_{i,j=0}^n \succeq 0
+\]
+para todo $n\ge 0$.
+
+\subsection{O que isso muda}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.5cm}
+>{\raggedright\arraybackslash}p{5.5cm}
+>{\raggedright\arraybackslash}p{5.5cm}}
+\toprule
+\textbf{Aspecto} & \textbf{Hamburger (ES7 atual)} & \textbf{Stieltjes (melhoria)} \\
+\midrule
+Suporte da medida & $\mathbb{R}$ & $[0,\infty)$ \\
+Condição necessária & $H_n \succeq 0$ & $H_n \succeq 0$ \textbf{e} $H_n' \succeq 0$ \\
+Força do teste & Mais fraco & \textbf{Mais forte} \\
+Refutação & $H_n \not\succeq 0 \Rightarrow$ RH falsa & $H_n \not\succeq 0$ \textbf{ou} $H_n' \not\succeq 0 \Rightarrow$ RH falsa \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Consequência prática}
+
+A matriz $H_n'(a)$ é \emph{mais sensível} a zeros fora da reta crítica.
+Se algum zero $\rho$ tem $\Re(\rho) \neq 1/2$, então $z_\rho^2$ é
+complexo (não real positivo), e a medida $\nu_a$ não é uma medida
+positiva em $[0,\infty)$. A condição de Stieltjes detecta isso
+\emph{mais rapidamente} que a condição de Hamburger.
+
+\begin{problema}[ES7-E: condição de Stieltjes]
+Para $n\in\{1,2,3\}$ e $a\in\{1/50, 1/25, 1/10\}$, computar
+$\widetilde{H}_n'(a)$ com intervalos racionais e testar
+$\widetilde{H}_n'(a) \succeq \lambda I$.
+\end{problema}
+
+\section{Melhoria Matemática \#2: Teoria de Momentos Determinantes}
+
+\subsection{O teorema de Carleman}
+
+A ES7 não explora se a medida $\nu_a$ é \emph{determinante} (única dada
+a sequência de momentos). Uma medida positiva $\mu$ em $\mathbb{R}$ é
+\emph{determinante} (no sentido de Hamburger) se a sequência de momentos
+$(\mu_k)$ a caracteriza unicamente. Uma condição suficiente (teorema de
+Carleman) é:
+\[
+\sum_{k=1}^\infty \mu_k^{-1/(2k)} = \infty
+\]
+
+\subsection{Aplicação à medida $\nu_a$}
+
+Para a medida $\nu_a = \sum_\rho \delta_{z_\rho^2} e^{-az_\rho^2}$, os
+momentos crescem como:
+\[
+\mu_k(a) \sim \left(\frac{k}{a}\right)^k \quad \text{para } k \to \infty
+\]
+(crescimento fatorial, típico de medidas gaussianas). Portanto:
+\[
+\mu_k^{-1/(2k)} \sim \left(\frac{a}{k}\right)^{1/2} \sim \frac{\sqrt{a}}{\sqrt{k}}
+\]
+E a série $\sum \frac{1}{\sqrt{k}}$ \emph{diverge}. Logo, a condição de
+Carleman é satisfeita, e a medida $\nu_a$ é \emph{determinante}.
+
+\subsection{O que isso significa}
+
+Se $\nu_a$ é determinante, então:
+
+\begin{quote}
+A positividade de $H_n(a)$ para todo $n$ \emph{caracteriza unicamente}
+a medida $\nu_a$.
+\end{quote}
+
+Isso é mais forte do que apenas dizer que ``existe alguma medida positiva
+com esses momentos''. Significa que a medida é \emph{única}.
+
+\subsection{Por que isso não prova RH}
+
+Mesmo que a medida seja única, a positividade de $H_n(a)$ para todo $n$
+só garante que $\nu_a$ é uma medida positiva. Mas $\nu_a$ é definida em
+termos dos zeros $\rho$, e a positividade de $\nu_a$ é equivalente a
+$z_\rho^2 \ge 0$, que é equivalente a RH.
+
+Então:
+\[
+H_n(a) \succeq 0 \;\forall n \quad \Longleftrightarrow \quad
+\nu_a \text{ é medida positiva} \quad \Longleftrightarrow \quad
+\text{RH}
+\]
+
+\begin{observacao}
+Verificar $H_n(a) \succeq 0$ para todo $n$ é um problema infinito, e não
+há como truncar sem perder informação (a menos que se prove uma taxa de
+convergência uniforme, o que é exatamente o obstáculo clássico).
+\end{observacao}
+
+\subsection{Melhoria concreta}
+
+Adicionar ao documento ES7:
+
+\begin{teorema}
+A medida $\nu_a$ é determinante (pela condição de Carleman).
+\end{teorema}
+
+\begin{corolario}
+A positividade de $H_n(a)$ para todo $n$ é \emph{equivalente} a RH (não
+apenas necessária).
+\end{corolario}
+
+\begin{observacao}
+Verificar para todo $n$ é um problema infinito; o teste finito
+$H_n(a) \succeq 0$ é apenas uma aproximação.
+\end{observacao}
+
+\section{Melhoria Matemática \#3: Família Rica de Funções-Teste}
+
+\subsection{O problema atual}
+
+A ES7 usa apenas gaussianas $h_a(t) = e^{-at^2}$. A forma de Weil exige
+positividade para \emph{todas} as funções-teste de tipo positivo.
+
+\subsection{O que a forma de Weil diz}
+
+A forma explícita de Weil, na sua versão completa, exige positividade
+para uma classe ampla de funções-teste $\Phi$ (funções de tipo positivo,
+ou funções de Schwartz com certas propriedades).
+
+A ES7 testa apenas $\Phi_a(t) = e^{-at^2}$, que é uma família
+uniparamétrica.
+
+\subsection{Melhoria: família de funções-teste enriquecida}
+
+Definir:
+\[
+h_{a,P}(t) = e^{-at^2} P(t)
+\]
+onde $P(t)$ é um polinômio de grau $\leq d$. Isso gera uma família
+\emph{multidimensional} de funções-teste, parametrizada por $(a, P)$.
+
+Para cada $(a, P)$, a fórmula de Guinand--Weil dá:
+\[
+\sum_\rho h_{a,P}(z_\rho) = \text{RHS}(a, P)
+\]
+
+A positividade de $\text{RHS}(a, P)$ para todo $(a, P)$ é \emph{mais
+próxima} da forma de Weil completa.
+
+\begin{problema}[ES7-F: família rica de funções-teste]
+Para $d \in \{2, 4, 6\}$ e $a \in \{1/50, 1/25, 1/10\}$, testar a
+positividade de $\text{RHS}(a, P)$ para uma base de polinômios $P$ de
+grau $\leq d$. Isso gera uma matriz de positividade generalizada, que é
+um teste mais forte que apenas $H_n(a) \succeq 0$.
+\end{problema}
+
+\section{Melhoria Computacional \#1: Quadratura Intervalar Rigorosa com Arb/FLINT}
+
+\subsection{O problema atual}
+
+A ES7 calcula:
+\[
+\int_{-\infty}^\infty t^{2j} e^{-at^2} \Omega^{(j)}(t) \, dt
+\]
+usando \texttt{mpmath.quad}, que é \emph{não certificado} (ponto
+flutuante, sem majoração de erro).
+
+\subsection{A solução}
+
+Usar a biblioteca \textbf{Arb} (ou \textbf{FLINT}) para quadratura
+intervalar rigorosa:
+
+\begin{itemize}
+\item Arb fornece quadratura adaptativa com majoração rigorosa do erro
+de truncamento e arredondamento.
+
+\item O resultado é um intervalo $[L, U]$ que \emph{contém} o valor
+exato da integral.
+
+\item Isso remove a única lacuna técnica identificada na Proposição 5 da
+ES7.
+\end{itemize}
+
+\begin{problema}[ES7-D (refinado)]
+Implementar em Arb a quadratura de
+$\int t^{2j} e^{-at^2} \Omega^{(j)}(t) \, dt$ com precisão de 100 bits
+e majoração rigorosa do erro. Integrar com o aparato racional da ES6
+para obter certificados intervalares completos.
+\end{problema}
+
+\section{Melhoria Computacional \#2: Extensão a $n$ Maiores}
+
+\subsection{Por que testar $n$ maiores}
+
+A matriz de Hankel $H_n(a)$ tem tamanho $(n+1) \times (n+1)$. Para
+$n=3$, é $4 \times 4$. Para $n=10$, é $11 \times 11$.
+
+Testar $n$ maiores dá \emph{mais sensibilidade} a desvios de
+positividade. Se RH é falsa, é provável que a violação apareça primeiro
+em $n$ grandes (onde a matriz captura mais informação sobre a
+distribuição dos zeros).
+
+\begin{problema}[ES7-G: extensão a $n$ maiores]
+Estender os testes a $n \in \{5, 10, 15, 20\}$, com
+$a \in \{1/50, 1/25, 1/10\}$. Isso exige computar
+$\mu_0, \dots, \mu_{40}$ com precisão suficiente, o que é viável com o
+aparato da ES6.
+\end{problema}
+
+\section{Conexão com Outras Rotas: Li (2017) e M1}
+
+\subsection{A ponte}
+
+O projeto M1 constrói uma função $f(t) = \sum_{n \geq 1} \mu(n) g(nt)$
+com transformada de Mellin $F(s) = G(s)/\zeta(s)$.
+
+A fórmula de Guinand--Weil (usada na ES7) é:
+\[
+\sum_\rho h(z_\rho) = \text{RHS}(h)
+\]
+
+Há uma conexão profunda: a função $F(s)$ do M1 tem polos/zeros
+relacionados com os zeros de $\zeta$, e a fórmula de Guinand--Weil pode
+ser reescrita em termos de $F(s)$.
+
+\subsection{Melhoria concreta}
+
+\begin{problema}[ES7-H: conexão com M1/Li (2017)]
+Explorar a conexão entre $F(s) = G(s)/\zeta(s)$ (M1) e a fórmula de
+Guinand--Weil (ES7). Especificamente: se $G(s) \neq 0$ em
+$\Re(s) > 0$ (como provado no M1), então os zeros de $F(s)$ em
+$\Re(s) > 0$ são exatamente os zeros de $\zeta(s)$. Isso conecta a
+positividade de Hankel (ES7) com a estimativa de Mertens (M1).
+\end{problema}
+
+\section{Resumo das Melhorias Propostas}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.5cm}
+>{\raggedright\arraybackslash}p{2.5cm}
+>{\raggedright\arraybackslash}p{4.5cm}
+>{\raggedright\arraybackslash}p{2.5cm}}
+\toprule
+\textbf{Melhoria} & \textbf{Tipo} & \textbf{Impacto} & \textbf{Dificuldade} \\
+\midrule
+Stieltjes vs Hamburger & Matemática & Teste mais forte (detecta violações mais rápido) & Baixa \\
+Momentos determinantes (Carleman) & Matemática & Mostra que positividade $\forall n$ é equivalente a RH & Média \\
+Família rica de funções-teste & Matemática & Mais próximo da forma de Weil completa & Média \\
+Quadratura intervalar com Arb & Computacional & Remove lacuna técnica da Proposição 5 & Média \\
+Extensão a $n$ maiores & Computacional & Mais sensibilidade a desvios & Baixa \\
+Conexão com M1/Li (2017) & Conceitual & Unifica rotas de ataque & Alta \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{O que as melhorias \emph{não} fazem}
+
+É crucial ser honesto:
+
+\begin{itemize}
+\item[$\times$] Nenhuma das melhorias transforma a abordagem em uma
+\emph{prova de RH}.
+
+\item[$\times$] A recíproca continua sendo \emph{falsa} na prática
+(verificar $\forall n$ é infinito).
+
+\item[$\times$] O obstáculo essencial (estimativa de Mertens / densidade
+adélica) \emph{permanece}.
+
+\item[$\times$] As melhorias refinam o teste, mas não eliminam a
+necessidade de uma ideia matemática nova para fechar RH.
+\end{itemize}
+
+\section{Veredito Final}
+
+\[
+\boxed{
+\text{As melhorias propostas fortalecem significativamente a ES7, mas
+não a transformam em uma prova de RH.}
+}
+\]
+
+A melhoria mais impactante é a \textbf{transição de Hamburger para
+Stieltjes}, que dá um teste mais forte e mais próximo da estrutura real
+do problema (suporte em $[0,\infty)$).
+
+A melhoria mais profunda é a \textbf{conexão com a teoria de momentos
+determinantes}, que mostra que a positividade de $H_n(a)$ para todo $n$
+é \emph{equivalente} a RH (não apenas necessária), mas isso não ajuda na
+prática porque verificar $\forall n$ é um problema infinito.
+
+A melhoria mais concreta é a \textbf{quadratura intervalar com Arb}, que
+remove a única lacuna técnica e permite certificados rigorosos
+completos.
+
+Em resumo: \emph{a ES7 pode ser melhorada significativamente, mas essas
+melhorias são incrementais, não revolucionárias}. O caminho para uma
+prova de RH continua exigindo uma ideia matemática nova, não apenas
+refinamentos computacionais ou extensões de testes existentes.
+
+\begin{observacao}
+Este documento não apresenta uma prova da Hipótese de Riemann. Ele
+propõe melhorias significativas à linha NUMERIA ES7, mas essas melhorias
+são incrementais e não eliminam o obstáculo essencial.
+\end{observacao}
+
+\end{document}
