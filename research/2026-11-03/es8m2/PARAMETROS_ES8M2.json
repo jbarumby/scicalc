@@ -1,0 +1,15 @@
+{
+  "schema": "NUMERIA.ES8M2.CANONICAL_PARAMETERS.1",
+  "date": "2026-11-03",
+  "a": "1/50",
+  "normalized_moment_x": "z_rho**2/400",
+  "moment_orders": [0, 1, 2, 3],
+  "midpoint_subintervals": 16384,
+  "archimedean_T": 48,
+  "digamma_terms": 192,
+  "prime_power_cutoff": 64,
+  "arch_fixedpoint_scale": "10^28",
+  "prime_fixedpoint_scale": "10^40",
+  "prime_tail_bound": "< 10^-70 (each derivative order up to 3)",
+  "scientific_status": "positive definite 2x2 Hankel and shifted Stieltjes moments of Gaussian global explicit formula; no RH proof"
+}

@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-03",
+  "files": {
+    "PARAMETROS_ES8M2.json": "e500b60e13c1ae6956583fedbb3e1622847849f4b181137ab204d99181654cc9",
+    "README.md": "13c0d67480e5e0d30751fa1b3ba159e80fdaa0e7e9868ac773a90dffc8b04204",
+    "REFERENCIAS_TRIADAS_ES8M2.csv": "d3c4e3af3f1d9b2e655f39545885f8d2617ec41d616147c1646710ae833e930f",
+    "RELATORIO_ES8M2.md": "62807479229cf48b995a0032bdb26a0aaafdc0af393c9df9d4d40f663dc845d4",
+    "RESULTADOS_ES8M2.json": "f7c85014aee951d06781ae429ba6ac77ae0fbf411c1e97fbe891c17ca500a949",
+    "TESTES_ES8M2.txt": "5a61e4ee64f45a5805babffca8a5919e844227a781cea12f4f08477742675d17",
+    "es6_weil_gaussian_baseline.py": "394511d81d2591384011efcf972e99d388c64f33533ca012f0e9e73a1285dacb",
+    "es7_archimedean.py": "7289e5f819f5000a9ba8a90f734c5839121020c52f8ffb4ef9bafe0570c7a1f9",
+    "es8m2_certify.py": "c1e84032e7f64d5abba61336265b840bd3dd2e5497cbe40fdc59b05215519299",
+    "sources/References_LeapSpace (7).csv": "0711043d4db3668063969056d97d8f203b47a2f08860c3760930c0f8a3c44044",
+    "sources/References_LeapSpace (8).csv": "9a340040ef03cad961fd61200607cd03ffe68efe0094a531eb07141ea7244ec4",
+    "test_es8m2_certify.py": "8da673e4e8bbd49fc99e06dc917fce2c86200713e1184d71b98d49ba50025cc8"
+  },
+  "schema": "NUMERIA.ES8M2.SHA256.MANIFEST.1"
+}
