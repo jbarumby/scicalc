@@ -1,0 +1,43 @@
+name: NUMERIA ES8-P4 historical provenance and source gates
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/numeria-es8p4-historical-2026-11-03
+    paths:
+      - 'research/2026-11-03/es8p4/**'
+      - '.github/workflows/numeria-es8p4-historical.yml'
+jobs:
+  provenance-and-finite-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install testing dependency
+        run: python -m pip install pytest==8.4.2
+      - name: Verify submitted SHA256 checksums
+        run: cd research/2026-11-03/es8p4 && sha256sum --check MANIFESTO_SHA256.txt
+      - name: Exact rational regression, negative controls, literature triage
+        run: python -m pytest -q research/2026-11-03/es8p4/test_es8p4_reconcile.py
+      - name: Reproduce finite and provenance JSON exactly
+        run: |
+          python research/2026-11-03/es8p4/es8p4_reconcile.py --M 64 --out /tmp/ES8P4_REPLAY.json
+          cmp research/2026-11-03/es8p4/RESULTADOS_ES8P4.json /tmp/ES8P4_REPLAY.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/ES8P4_REPLAY.json'))
+          assert d['verified_v17_model']
+          assert d['git_e7']['object_identity_by_git']
+          assert not d['full_historical_e7_v16_equivalence_established']
+          assert not d['optional_archive_check']['source_binary_sha256_validated']
+          assert len(d['finite_v17_replay'])==3
+          print('ES8-P4: DOCUMENTARY CHECK PASS; HISTORICAL E7/V16 FULL MATCH NOT ESTABLISHED')
+          PY
+      - name: Reproduce input bibliography triage
+        run: |
+          cd research/2026-11-03/es8p4
+          python triage_es8p4.py
+          sha256sum --check MANIFESTO_SHA256.txt

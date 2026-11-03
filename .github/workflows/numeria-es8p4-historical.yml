@@ -19,7 +19,10 @@ jobs:
       - name: Install testing dependency
         run: python -m pip install pytest==8.4.2
       - name: Verify submitted SHA256 checksums
-        run: cd research/2026-11-03/es8p4 && sha256sum --check MANIFESTO_SHA256.txt
+        run: |
+          cd research/2026-11-03/es8p4
+          python triage_es8p4.py
+          sha256sum --check MANIFESTO_SHA256.txt
       - name: Exact rational regression, negative controls, literature triage
         run: python -m pytest -q research/2026-11-03/es8p4/test_es8p4_reconcile.py
       - name: Reproduce finite and provenance JSON exactly
