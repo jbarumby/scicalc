@@ -1,0 +1,22 @@
+{
+  "schema": "NUMERIA.E8K.V24.GLOBAL_TAPER_PERTURBATION.1",
+  "extract_from": "https://github.com/jbarumby/scicalc/blob/audit/e8k-v24-global-arch-prime-pole-taper-2026-11-02/v24/RESULTADO_V24_CONTINUIDADE.json",
+  "test_deltas": [
+    {
+      "delta": "1/1000",
+      "max_row_sum_bound": "95.495337151444193475216932075531708268068059454"
+    },
+    {
+      "delta": "1/10000",
+      "max_row_sum_bound": "0.954953371514441934752169320755317082680680595"
+    },
+    {
+      "delta": "1/100000",
+      "max_row_sum_bound": "0.009549533715144419347521693207553170826806806"
+    },
+    {
+      "delta": "1/1000000",
+      "max_row_sum_bound": "0.000095495337151444193475216932075531708268069"
+    }
+  ]
+}

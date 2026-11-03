@@ -1,0 +1,10 @@
+test_piecewise_representation (__main__.GramCertificateTests.test_piecewise_representation) ... ok
+test_rational_log_brackets (__main__.GramCertificateTests.test_rational_log_brackets) ... ok
+test_recorded_ranges (__main__.GramCertificateTests.test_recorded_ranges) ... ok
+test_zero_coefficients_recover_unit_norm_upper (__main__.GramCertificateTests.test_zero_coefficients_recover_unit_norm_upper) ... ok
+test_zero_padding_invariance (__main__.GramCertificateTests.test_zero_padding_invariance) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.358s
+
+OK

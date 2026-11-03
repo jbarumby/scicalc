@@ -1,0 +1,76 @@
+{
+  "schema": "NUMERIA.NL1.ES1.PROVENIENCIA.1",
+  "date": "2026-11-03",
+  "inputs": [
+    {
+      "name": "References_LeapSpace (5).csv",
+      "sha256": "c8550b8f1ee51053e435d5c2716f06208971d1e4be280ae4a7719903a73a70d2"
+    },
+    {
+      "name": "References_LeapSpace (6).csv",
+      "sha256": "b67ca4eb733c982ae5c72a865cd01429c5fd301b7d7f577c8e2569b59dd56580"
+    }
+  ],
+  "repository_examined": "jbarumby/scicalc",
+  "repository_v24_branch": "audit/e8k-v24-global-arch-prime-pole-taper-2026-11-02",
+  "repository_v24_commit": "3ffe3799b238a02ad8ec5c0573a16a294affaa20",
+  "python": "3.13.5",
+  "mpmath": "1.3.0",
+  "files": [
+    {
+      "path": ".github/workflows/numeria-nl1-es1.yml",
+      "sha256": "3d216212f23703e598e782323b9ba401590573615c4b9f8dbfdf2732c66307af",
+      "bytes": 594
+    },
+    {
+      "path": "EXTRATO_V24_COTAS.json",
+      "sha256": "fc0e17cbf6a796f0392c83b4eca49334d7475cfbbae96ca8847d40690c81d02b",
+      "bytes": 704
+    },
+    {
+      "path": "README.md",
+      "sha256": "d61d3d1a13b49b96a7e6142de6cdeece903f04f650d0a2344ba1132c5b4a7b5a",
+      "bytes": 1192
+    },
+    {
+      "path": "REFERENCIAS_CLASSIFICADAS.csv",
+      "sha256": "e4143d231bd96fc3e9f31a2903e0a5a97912287aa4ea8305c6c101fe6b5fd130",
+      "bytes": 19845
+    },
+    {
+      "path": "RELATORIO_NL1_ES1.md",
+      "sha256": "fe404b1e432b7aab821ce473bbb3206f8f3e5c827830f6c63109f80d58b2e15b",
+      "bytes": 9782
+    },
+    {
+      "path": "RESULTADO_NL1_ES1.json",
+      "sha256": "9fbbd6726a1dd5f1b815ee629f61817e266b1c5396fbeebf1db5cd2d39b38d2e",
+      "bytes": 6407
+    },
+    {
+      "path": "TESTES_NL1_ES1.txt",
+      "sha256": "40bfd4344a3eb1c606998014b2da30a6e67c7e7643e444298223a1d22650e0c7",
+      "bytes": 99
+    },
+    {
+      "path": "classificar_referencias.py",
+      "sha256": "1b6e2e3d1e841c93fdc13bec676dab32d26f87347b765f891ac314bbbd03066c",
+      "bytes": 4580
+    },
+    {
+      "path": "numeria_nl1.py",
+      "sha256": "75fc7aa360a9ae56f685e8f34688b0fb79825d005fda32c4ab5df7e230f0df70",
+      "bytes": 10331
+    },
+    {
+      "path": "test_numeria_nl1.py",
+      "sha256": "ee96c4cb380e432cadec45dfed43a63d69dd6d16e587288c9c5959ae2973f485",
+      "bytes": 2405
+    }
+  ],
+  "limitations": [
+    "not RH proof",
+    "V24 extract not independently recomputed",
+    "no flint available in the execution environment"
+  ]
+}

@@ -1,0 +1,113 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{geometry,hyperref,enumitem}
+\geometry{margin=2.4cm}
+\newtheorem{proposicao}{Proposição}
+\newtheorem{observacao}{Observação}
+\title{NUMERIA--RIEMANN\\ Revisão crítica de um exercício Mellin--Nyman--Beurling e analogias de Dirac}
+\author{Nota de auditoria matemática, 3 de novembro de 2026}
+\date{}
+\begin{document}
+\maketitle
+\noindent\textbf{Status:} revisão de identidades clássicas e proposta de experimento finito. Não é demonstração da Hipótese de Riemann nem certificação dos objetos espectrais do NUMERIA.
+
+\section{Definições e identidade distribucional}
+Escreva $\{y\}=y-\lfloor y\rfloor$ e, para cada inteiro $k\ge1$, defina
+\[
+\rho_k(x)=\left\{\frac1{kx}\right\},\qquad x>0.
+\]
+Todas as derivadas nesta seção são distribucionais no aberto $(0,\infty)$.
+
+\begin{proposicao}
+Em $\mathcal D'(0,\infty)$, vale
+\[
+\rho_k'(x)=-\frac{1}{kx^2}+\sum_{n\ge1}\delta\left(x-\frac1{kn}\right).
+\]
+\end{proposicao}
+\begin{proof}
+Fora dos pontos $x_n=(kn)^{-1}$, a função parte fracionária é diferenciável e sua derivada é $-1/(kx^2)$. Ao atravessar $x_n$ da esquerda para a direita, $1/(kx)$ passa de um valor imediatamente acima de $n$ para um valor imediatamente abaixo de $n$, e a parte fracionária tem salto $+1$. A soma de deltas é localmente finita em $(0,\infty)$, pois os $x_n$ só se acumulam em $0$, fora do domínio das funções de teste.
+\end{proof}
+
+\section{Mellin: faixa de validade e deslocamento}
+Adotamos a transformada de Mellin $\mathcal M[f](u)=\int_0^\infty f(x)x^{u-1}\,dx$ quando convergente. A identidade clássica é
+\[
+\mathcal M[\rho_k](u)=-\frac{k^{-u}\zeta(u)}{u},\qquad 0<\Re u<1.
+\]
+Ela é obtida, por exemplo, por substituição de variáveis a partir da identidade clássica da parte fracionária.
+
+\begin{proposicao}
+Para $1<\Re s<2$, a transformação de Mellin da derivada distribucional, interpretada via cortes e integração por partes, satisfaz
+\[
+\boxed{\mathcal M[\rho_k'](s)=k^{1-s}\zeta(s-1).}
+\]
+\end{proposicao}
+\begin{proof}
+Como $\rho_k$ é limitada quando $x\downarrow0$ e $\rho_k(x)=1/(kx)$ quando $x>1/k$, os termos de fronteira de $x^{s-1}\rho_k(x)$ se anulam para $1<\Re s<2$. Portanto
+\[
+\mathcal M[\rho_k'](s)=-(s-1)\mathcal M[\rho_k](s-1)
+=k^{1-s}\zeta(s-1).
+\]
+A primeira igualdade exige cortes: $x^{s-1}$ não é função-teste compactamente suportada de $\mathcal D(0,\infty)$.
+\end{proof}
+
+\begin{observacao}
+A expressão à direita admite continuação \emph{meromorfa}; isso não estende automaticamente a integral/distribuição ponderada para todo $s\in\mathbb C$. O deslocamento é essencial: estudar $\zeta(\tfrac12+it)$ por essa fórmula corresponde a $\Re s=\tfrac32$, e não $\Re s=\tfrac12$.
+\end{observacao}
+
+\section{Indicadora e combinação linear}
+Defina $\chi=\mathbf 1_{(0,1)}$ no aberto $(0,\infty)$. Então $\chi'=-\delta_1$ e $\mathcal M[\chi'](s)=-1$. Para uma soma \emph{finita} com coeficientes $c_k$, defina
+\[
+\mathcal D_N(c)=\chi'-\sum_{k=1}^N c_k\rho_k'.
+\]
+No domínio $1<\Re s<2$,
+\[
+\boxed{\mathcal M[\mathcal D_N(c)](s)=-1-\zeta(s-1)\sum_{k=1}^N c_k k^{1-s}.}
+\]
+Para cada $N$ fixo, a soma é um polinômio de Dirichlet \emph{finito}, de modo que não há questão de convergência da soma em si. O problema não resolvido é construir sequências de aproximações e controlar sua convergência em normas apropriadas quando $N\to\infty$. Distribuições como $\chi'$ e $\rho_k'$ não são automaticamente elementos de $L^2(0,1)$; por isso, essa identidade não prova nem substitui o critério de Nyman--Beurling.
+
+\section{A formulação em $L^2$ que deve orientar o experimento}
+A construção equilibrada evita suporte fora de $(0,1)$:
+\[
+q_k(x)=\rho_k(x)-\frac1k\rho_1(x),\qquad k\ge2.
+\]
+De fato, $q_k(x)=0$ para $x>1$. No domínio $0<\Re u<1$,
+\[
+\mathcal M[q_k](u)=-\frac{\zeta(u)}{u}\left(k^{-u}-\frac1k\right).
+\]
+O critério de Nyman--Beurling--Báez-Duarte lida com a aproximação de $\chi$ em $L^2(0,1)$ por combinações de tais funções (com formulação e hipóteses exatas devidas a cada versão do critério). A identidade da seção anterior pode ser mantida como diagnóstico distribucional, \emph{não} como demonstração de densidade.
+
+\section{Interpretação algébrica de Dirac: correção}
+Se $s=\beta+i\gamma$ e for definido formalmente $m_s^2=s(1-s)$, então
+\[
+\Re(m_s^2)=\beta(1-\beta)+\gamma^2,\qquad
+\Im(m_s^2)=\gamma(1-2\beta).
+\]
+Para zeros não triviais com $\gamma\ne0$, $\Im(m_s^2)=0$ equivale a $\beta=1/2$. Nesse caso $m_s^2=1/4+\gamma^2>0$. Trata-se, contudo, de uma \emph{reformulação algébrica} de RH, sem operador físico, condição de autoadjunticidade ou argumento de positividade novo.
+
+A afirmação $|s-1/2|<1/2\iff0<\Re s<1$ é \textbf{falsa}: o lado esquerdo define um disco, não uma faixa vertical. A equivalência correta é
+\[
+\boxed{\left|\Re\left(s-\frac12\right)\right|<\frac12
+\quad\Longleftrightarrow\quad 0<\Re s<1.}
+\]
+A expressão ``massa real positiva'' só serve como linguagem metafórica; não se deve inferir partículas, espectro de um Hamiltoniano ou uma demonstração de RH.
+
+\section{Decisão para o projeto NUMERIA}
+\begin{enumerate}[label=\arabic*.]
+\item \textbf{Incorporar} as identidades de Mellin e de distribuições como referências de controle analítico, com as definições e faixas de validade acima.
+\item \textbf{Priorizar} um experimento de aproximação em $L^2(0,1)$ com $q_k$: calcular Gramianas finitas $G_{ij}=\langle q_i,q_j\rangle$ e vetor $b_i=\langle\chi,q_i\rangle$, resolver $Gc=b$ e auditar o resíduo $\|\chi-\sum c_iq_i\|_2$.
+\item \textbf{Usar aritmética intervalar} para certificar integrais e resíduos finitos; tratar condicionamento e singularidade de Gramianas com cautela.
+\item \textbf{Comparar} a frente Nyman--Beurling com E7/V24 somente após provar uma ponte matemática entre as respectivas formas quadráticas. Não identificar por analogia seus operadores, normalizações ou matrizes.
+\item \textbf{Não incorporar como lema de RH} a analogia relativística. O artigo de B. C. Sanctuary, \emph{Structure of a spin 1/2}, arXiv:0908.3219 (2009), não demonstra relação com zeros da zeta.
+\end{enumerate}
+
+\section*{Referências essenciais}
+\begin{itemize}
+\item M. Balazard e É. Saias, \emph{The Nyman--Beurling equivalent form for the Riemann hypothesis} (1998): \url{https://www.esi.ac.at/preprints/esi623.pdf}.
+\item L. Báez-Duarte, \emph{A strengthening of the Nyman--Beurling criterion for the Riemann hypothesis}: \url{https://bdim.dma.unina.it/item?fmt=pdf&id=RLIN_2003_9_14_1_5_0}.
+\item F. Alouges, S. Darses e E. Hillion, \emph{Polynomial approximations in a generalized Nyman--Beurling criterion}, J. Théor. Nombres Bordeaux 34 (2022), 767--785: \url{https://doi.org/10.5802/jtnb.1227}.
+\item B. C. Sanctuary, \emph{Structure of a spin 1/2}, arXiv:0908.3219 (2009): \url{https://arxiv.org/abs/0908.3219}.
+\end{itemize}
+\end{document}

@@ -1,0 +1,88 @@
+{
+  "schema": "NUMERIA.NB1.FINITE_RATIONAL_UPPER_BOUNDS.1",
+  "status": "CERTIFIED_FINITE_UPPER_BOUNDS_ONLY",
+  "space": "L2((0,infinity), dx)",
+  "target": "indicator_{0<x<1}",
+  "basis": "rho_n(x) = fractional_part(1/(n*x)), 1 <= n <= N",
+  "identity_for_x_ge_1": "integral_1^infty (sum c_n rho_n(x))^2 dx = (sum c_n/n)^2",
+  "basis_nonzero_at_large_x": "rho_n(x)=1/(n*x) for x>1",
+  "log_enclosure": "rational arctanh series with explicit upper bound; every contribution summed with integer outward rounding",
+  "proof_limitation": "A sequence of finite upper bounds, without uniform rate or all N, cannot prove RH.",
+  "n_results": [
+    {
+      "n": 6,
+      "coefficients": [
+        "-46565791/50000000",
+        "4315843/5000000",
+        "17597219/20000000",
+        "15090613/50000000",
+        "38808589/50000000",
+        "-5972771/100000000"
+      ],
+      "cutoff_epsilon": "1/10000",
+      "breakpoints": 10000,
+      "squared_error_lower_bound": "899216355714730284702087/25000000000000000000000000",
+      "squared_error_upper_bound": "3828424360120348082838817/100000000000000000000000000",
+      "squared_error_upper_decimal": 0.03828424360120348,
+      "tail_x_greater_than_1_exact": "51038636321689/250000000000000000",
+      "head_x_less_than_epsilon_upper_bound": "904527098677449/390625000000000000",
+      "interval_checked_error_upper_bound": "3576449968330245538838817/100000000000000000000000000",
+      "log_enclosures_used": 9999,
+      "certification_scope": "Fixed rational coefficients only; no optimality/global convergence/RH claim",
+      "normal_matrix_condition_estimate_float": 117.3740497446826,
+      "approx_minimum_sqr_error_float_unverified": 0.035995074192577525
+    },
+    {
+      "n": 8,
+      "coefficients": [
+        "-93814873/100000000",
+        "17874581/20000000",
+        "44870171/50000000",
+        "17110389/100000000",
+        "67103997/100000000",
+        "-20492131/50000000",
+        "11502069/20000000",
+        "8064753/100000000"
+      ],
+      "cutoff_epsilon": "1/10000",
+      "breakpoints": 10000,
+      "squared_error_lower_bound": "29578327770189388798450607/1225000000000000000000000000",
+      "squared_error_upper_bound": "33470885243404942759667677/1225000000000000000000000000",
+      "squared_error_upper_decimal": 0.02732317162726934,
+      "tail_x_greater_than_1_exact": "60240713586586569/784000000000000000000",
+      "head_x_less_than_epsilon_upper_bound": "79439948432970489/25000000000000000000",
+      "interval_checked_error_upper_bound": "601718401126741781318473/25000000000000000000000000",
+      "log_enclosures_used": 9999,
+      "certification_scope": "Fixed rational coefficients only; no optimality/global convergence/RH claim",
+      "normal_matrix_condition_estimate_float": 200.67717200828795,
+      "approx_minimum_sqr_error_float_unverified": 0.02417456892308323
+    },
+    {
+      "n": 10,
+      "coefficients": [
+        "-9393867/10000000",
+        "45032603/50000000",
+        "88042561/100000000",
+        "17034549/100000000",
+        "69502371/100000000",
+        "-20806041/50000000",
+        "57337263/100000000",
+        "584163/12500000",
+        "15158427/100000000",
+        "-12608551/100000000"
+      ],
+      "cutoff_epsilon": "1/10000",
+      "breakpoints": 10000,
+      "squared_error_lower_bound": "116405364077000115981642773/4900000000000000000000000000",
+      "squared_error_upper_bound": "33365175511910866131623929/1225000000000000000000000000",
+      "squared_error_upper_decimal": 0.02723687796890683,
+      "tail_x_greater_than_1_exact": "14625663396418881/196000000000000000000",
+      "head_x_less_than_epsilon_upper_bound": "5438564403904129/1562500000000000000",
+      "interval_checked_error_upper_bound": "592039400469845122232121/25000000000000000000000000",
+      "log_enclosures_used": 9999,
+      "certification_scope": "Fixed rational coefficients only; no optimality/global convergence/RH claim",
+      "normal_matrix_condition_estimate_float": 329.37945271435797,
+      "approx_minimum_sqr_error_float_unverified": 0.023785662570446564
+    }
+  ]
+}

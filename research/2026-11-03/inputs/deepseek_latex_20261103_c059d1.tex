@@ -1,0 +1,79 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\newtheorem{lema}{Lema}
+\newtheorem{corolario}{Corolário}
+\newtheorem{observacao}{Observação}
+\newtheorem{especulacao}{Especulação}
+
+\title{Avaliação do artigo de Sanctuary (arXiv:0908.3219) \\
+e exercício Dirac-relativístico no critério de Nyman--Beurling}
+\author{}
+\date{}
+
+\begin{document}\maketitle
+
+\section{Veredito sobre o artigo de Sanctuary}
+
+O artigo trata de estados não-hermitianos de spin $1/2$, separabilidade
+de estados de Bell, e interpretação por ensembles. Não há conexão
+matemática com $\zeta$, $\mu$, Nyman--Beurling ou a linha NUMERIA. A
+única analogia é estrutural (não-hermitiano $\to$ hermitiano via
+ensemble $\leftrightarrow$ esperança Hilbert--Pólya), sem conteúdo
+demonstrativo.
+
+\section{Lema distribucional (real)}
+
+\begin{lema}
+Para $k\ge 1$, em $\mathcal{D}'(0,\infty)$:
+\[
+\rho_k'(x) = -\frac{1}{kx^2} + \sum_{n\ge 1}\delta\!\left(x-\frac{1}{kn}\right).
+\]
+\end{lema}
+
+\begin{corolario}
+$\mathcal{M}[\rho_k'](s) = k^{1-s}\zeta(s-1)$ para $1<\Re s<2$, por
+continuação analítica em $\mathbb{C}$. Em particular, para
+$\mathcal{D}_N(c)=\chi' - \sum_{k\le N}c_k\rho_k'$,
+\[
+\mathcal{M}[\mathcal{D}_N(c)](s) = -1 - \zeta(s-1)\sum_{k\le N}c_k k^{1-s}.
+\]
+\end{corolario}
+
+\begin{observacao}
+A fórmula injeta $\zeta$ no numerador, mas não fecha o problema: a
+convergência de $\sum c_k k^{1-s}$ na linha $\Re s=1/2$ é exatamente
+o obstáculo original, disfarçado como critério de Weil.
+\end{observacao}
+
+\section{Leitura relativística}
+
+Com $E=1/2$, $p=s-1/2$ e $m^2=\rho(1-\rho)$:
+\begin{center}
+\begin{tabular}{ll}
+$\operatorname{Im}(m_\rho^2)=0$ & $\iff$ $\Re\rho=1/2$ (RH) \\
+$|p|<1/2$ (faixa crítica)      & $\iff$ $\Re s\in(0,1)$ \\
+$\operatorname{Re}(m_\rho^2)\ge 1/4$ & se RH vale \\
+$\operatorname{Im}(m_\rho^2)\ne 0$ & zero "virtual" (massa complexa)
+\end{tabular}
+\end{center}
+
+\begin{especulacao}
+RH $\iff$ todos os zeros têm massa real positiva. Interpretação física:
+zeros são "partículas on-shell"; zeros fora da linha crítica são
+"virtuais". Nenhum mecanismo novo força a realidade.
+\end{especulacao}
+
+\section{Conclusão}
+
+O artigo de Sanctuary não contribui para RH. Os dois lemas acima são
+reais e clássicos; a leitura relativística é limpa mas tautológica. A
+linha M2.4-C (cálculo com $Q$ maior, trigama, ansatz restrito) é
+ordens de magnitude mais promissora, porque é matemática verificável.
+Nenhuma prova de RH é apresentada.
+
+\end{document}

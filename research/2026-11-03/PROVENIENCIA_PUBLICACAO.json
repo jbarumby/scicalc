@@ -1,0 +1,105 @@
+{
+  "schema": "NUMERIA.PUBLICACAO.2026-11-03.1",
+  "from_branch": "main",
+  "research_branch": "research/numeria-nl1-es1-nb1-2026-11-03",
+  "base_commit": "d6a49e2a9306ae0eb5cd1082c5f0bc5b9d9589da",
+  "local_tests": {
+    "nl1_es1": "10 passed",
+    "nb1": "5 passed"
+  },
+  "files": [
+    {
+      "path": "research/2026-11-03/nl1_es1/.github/workflows/numeria-nl1-es1.yml",
+      "sha256": "3d216212f23703e598e782323b9ba401590573615c4b9f8dbfdf2732c66307af"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/EXTRATO_V24_COTAS.json",
+      "sha256": "fc0e17cbf6a796f0392c83b4eca49334d7475cfbbae96ca8847d40690c81d02b"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/MANIFESTO_SHA256.json",
+      "sha256": "633bb8ac33c0fcc1fccc07a066edc900ef778a9f79025b5b38064a8be998f471"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/README.md",
+      "sha256": "d61d3d1a13b49b96a7e6142de6cdeece903f04f650d0a2344ba1132c5b4a7b5a"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/REFERENCIAS_CLASSIFICADAS.csv",
+      "sha256": "e4143d231bd96fc3e9f31a2903e0a5a97912287aa4ea8305c6c101fe6b5fd130"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/RELATORIO_NL1_ES1.md",
+      "sha256": "fe404b1e432b7aab821ce473bbb3206f8f3e5c827830f6c63109f80d58b2e15b"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/RESULTADO_NL1_ES1.json",
+      "sha256": "9fbbd6726a1dd5f1b815ee629f61817e266b1c5396fbeebf1db5cd2d39b38d2e"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/TESTES_NL1_ES1.txt",
+      "sha256": "40bfd4344a3eb1c606998014b2da30a6e67c7e7643e444298223a1d22650e0c7"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/classificar_referencias.py",
+      "sha256": "1b6e2e3d1e841c93fdc13bec676dab32d26f87347b765f891ac314bbbd03066c"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/numeria_nl1.py",
+      "sha256": "75fc7aa360a9ae56f685e8f34688b0fb79825d005fda32c4ab5df7e230f0df70"
+    },
+    {
+      "path": "research/2026-11-03/nl1_es1/test_numeria_nl1.py",
+      "sha256": "ee96c4cb380e432cadec45dfed43a63d69dd6d16e587288c9c5959ae2973f485"
+    },
+    {
+      "path": "research/2026-11-03/nb1/README.md",
+      "sha256": "61313c87a14fc98a5469001f248e462331a9bcd170428c3c4a733bb18fa941b3"
+    },
+    {
+      "path": "research/2026-11-03/nb1/RELATORIO_PESQUISA_NB1.md",
+      "sha256": "55a4218c70343e1c290465b843fbd414949ffec9312b84ff91a3ad72683745e6"
+    },
+    {
+      "path": "research/2026-11-03/nb1/RESULTADOS_NB1.json",
+      "sha256": "564da87adcc040e31c1e591d07b0464def2f740d2c9cf7a1bb5c3ec752f46c1a"
+    },
+    {
+      "path": "research/2026-11-03/nb1/SHA256SUMS.txt",
+      "sha256": "73e768f712d074e4f145178c62ce4df4d78b7c368185413ebbc6b40fa0494754"
+    },
+    {
+      "path": "research/2026-11-03/nb1/TESTES_NB1.txt",
+      "sha256": "652c40d51779e0bd659ade0490b7f5f6c912963e24c6dfea0f8a5e22a1a61055"
+    },
+    {
+      "path": "research/2026-11-03/nb1/nb1_gram_audit.py",
+      "sha256": "63c05ddce7457e391150cbac778c3dde58b8fd9ddebc984aad14d172962552e8"
+    },
+    {
+      "path": "research/2026-11-03/nb1/test_nb1_gram_audit.py",
+      "sha256": "ac39bc58437e33a9fbe9e2aebedec8ed4302a646ebe4ffe99662cda3a0bc4afb"
+    },
+    {
+      "path": "research/2026-11-03/inputs/NUMERIA_PESQUISA_NL2_ES2_2026-11-03.md",
+      "sha256": "c6f9796ffbda0d4b548e5bf0137a44bfa0f7c962b8cf9635049f0cd635fe00cb"
+    },
+    {
+      "path": "research/2026-11-03/inputs/NUMERIA_REVISAO_NYMAN_MELLIN_2026-11-03.tex",
+      "sha256": "039a19a82ed881b44c2b6a5c6b7fb4f268cf11b57cba7690482885121781a689"
+    },
+    {
+      "path": "research/2026-11-03/inputs/deepseek_latex_20261103_c059d1.tex",
+      "sha256": "49995a2958fbdfbe339645b1f4ed17e61834aa98612cab0508b0103f7bc5a770"
+    },
+    {
+      "path": "research/2026-11-03/inputs/References_LeapSpace (5).csv",
+      "sha256": "c8550b8f1ee51053e435d5c2716f06208971d1e4be280ae4a7719903a73a70d2"
+    },
+    {
+      "path": "research/2026-11-03/inputs/References_LeapSpace (6).csv",
+      "sha256": "b67ca4eb733c982ae5c72a865cd01429c5fd301b7d7f577c8e2569b59dd56580"
+    }
+  ],
+  "scientific_status": "computational experiments, exploratory bibliography; not a proof of RH"
+}
