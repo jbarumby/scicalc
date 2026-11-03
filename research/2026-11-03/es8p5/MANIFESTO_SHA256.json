@@ -1,0 +1,18 @@
+{
+  "files": {
+    "COMPARACAO_ENTRADAS_ES8P5.json": "fc909b4557b6c66a7880ea3220ca36e3356cf150fd0f59d27a8643286397b353",
+    "FIXTURE_HISTORICO_ES8P5.json": "e193a9b4957e1fb2f67c034be1f0da97f870c8ff8812d0c3bc6c4fbfc166403f",
+    "README.md": "2dccc737dd853ddf356e9616914ffbec371591b9ea97ff6a572d74817f5649de",
+    "RELATORIO_ES8P5.md": "a045f51b9261bc42d69d66355ecb78b0521043b84474af64afc0dd0dacbed89f",
+    "RESULTADOS_ES8P5.json": "0b71f4881c6cc842b8619ee3caa648bb93b222b57f2236096aa288741e973ae9",
+    "RESULTADOS_ES8P5_CI_REPLAY.json": "548ae0fc0860adc0225f526bff59a1a370dee65273deeac616998c81b8ca0a72",
+    "RESULTADO_V16_REEXECUTADO.json": "a2e12cb8c88c960d778112412d37c18370fdc2bedc383f2fa27488370e87b3bd",
+    "es8p2_prime_cert.py": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61",
+    "es8p3_arch_projected.py": "c980a63fda3aa303c71d8a3bec326499e313e74cc0e0bf8cbcf25dc7b1413633",
+    "es8p5_reconcile.py": "ca984e73ae4e945e6710d433fd61a1aa50daa754ae372ba31280b2a03a41983d",
+    "numeria-es8p5-historical.yml": "73fbe2d4b9ef0c4eb2c40a15254beb60bcb64cb3c64760b7bfc127ab68f96919",
+    "test_es8p5_reconcile.py": "8376dda59a8e23c89d8395f76d72aef8daea8368ba2014119604dab14082a806"
+  },
+  "schema": "NUMERIA.ES8P5.SHA256.1",
+  "scope": "text files included for publication and CI; not an assertion of RH"
+}

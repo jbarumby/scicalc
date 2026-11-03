@@ -1,0 +1,43 @@
+name: NUMERIA ES8-P5 historical interval reconciliation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research/2026-11-03/es8p5/**'
+      - '.github/workflows/numeria-es8p5-historical.yml'
+
+jobs:
+  exact-interval-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test runner
+        run: python -m pip install pytest==8.4.2
+      - name: Verify text fixture hashes
+        run: |
+          python - <<'PY'
+          import json,hashlib,pathlib
+          root=pathlib.Path('research/2026-11-03/es8p5')
+          entries=json.loads((root/'MANIFESTO_SHA256.json').read_text())['files']
+          for name,digest in entries.items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest,name
+          print('ES8-P5 text source SHA-256 verified:',len(entries))
+          PY
+      - name: Run ES8-P5 archived fixture regression
+        run: |
+          python -m pytest -q research/2026-11-03/es8p5/test_es8p5_reconcile.py
+          python research/2026-11-03/es8p5/es8p5_reconcile.py --fixture research/2026-11-03/es8p5/FIXTURE_HISTORICO_ES8P5.json --M 128 --out /tmp/es8p5-replay.json
+      - name: Verify scope and all entry counts
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/es8p5-replay.json'))
+          assert d['current_mode']=='text_fixture_replay_only'
+          for key,n in [('raw_arch',30),('prime',30),('pole_projection_columns',8),('projected',67)]:
+              assert d['comparison_counts'][key]=={'pass':n,'total':n}
+          assert d['scientific_status'].endswith('NOT_GLOBAL_WEIL_OR_RH')
+          print('ES8-P5 fixture-compatible; no binary original authenticated in CI; no RH proof')
+          PY
