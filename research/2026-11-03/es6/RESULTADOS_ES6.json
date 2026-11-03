@@ -1,0 +1,165 @@
+{
+  "convention": {
+    "differential": "derivative in a: d/da sum h(z_rho) = - sum z_rho^2 h(z_rho); derivative of RHS termwise, with justified Gaussian decay",
+    "formula": "sum_rho h(z_rho)=2*exp(a/4)+(1/(2*pi))*int_R h(t)*(Re psi(1/4+it/2)-log(pi))dt - (1/sqrt(pi*a))*sum_{n>=2}Lambda(n)/sqrt(n)*exp(-(ln n)^2/(4*a))",
+    "g": "g_a(u)=(1/(2*pi))*sqrt(pi/a)*exp(-u^2/(4*a))",
+    "h": "h_a(t)=exp(-a*t^2)",
+    "zero_variable": "z_rho=(rho-1/2)/i may be complex; no RH assumed"
+  },
+  "exploration": {
+    "archimedean_cutoff_T": 128,
+    "arithmetic_cutoff_N": 128,
+    "cases": [
+      {
+        "ES4_minus_zeta_known_zero_sum_numeric": "-0.033617527053210087015",
+        "a": "0.02",
+        "archimedean_numeric": "-1.96812233304665480966646714920035897720843878",
+        "derivative_discrepancy_numeric": "4.0783152924990778292e-55",
+        "derivative_known_zero_sum_numeric": "-7.482136284246800115511590706615625956512",
+        "derivative_rhs_numeric": "-7.482136284246800115511590706615625956512",
+        "first_J_ES4_model_sum_numeric": "0.00346505640942887749323995977042",
+        "known_critical_zero_sum_numeric": "0.0370825834626389645082943159928461228092821877",
+        "numeric_status": "mpmath NON-CERTIFIED; arch quadrature and possible off-critical zeros not certified",
+        "poles": "2.01002504171880212676713248224813716146975108",
+        "prime_numeric": "-0.00482012520950835259237101705493206145203010542",
+        "rhs_minus_known_zero_sum_numeric": "-1.8479866169136446414e-56",
+        "rhs_numeric": "0.0370825834626389645082943159928461228092821877",
+        "zero_side": "only first J known on-critical zeros paired; full formula requires ALL nontrivial zeros without RH assumption"
+      },
+      {
+        "ES4_minus_zeta_known_zero_sum_numeric": "-0.00067076124089228886568",
+        "a": "0.04",
+        "archimedean_numeric": "-1.94982762864192756087276209270081088816723742",
+        "derivative_discrepancy_numeric": "1.7332839993121080774e-55",
+        "derivative_known_zero_sum_numeric": "-0.1351913280268526095105311917808121569789",
+        "derivative_rhs_numeric": "-0.1351913280268526095105311917808121569789",
+        "first_J_ES4_model_sum_numeric": "0.00000585331305566392128343745344953",
+        "known_critical_zero_sum_numeric": "0.000676614553947952786964415166323497474839402389",
+        "numeric_status": "mpmath NON-CERTIFIED; arch quadrature and possible off-critical zeros not certified",
+        "poles": "2.0201003341683361150843309138057200676147244",
+        "prime_numeric": "-0.0695960909724606014246044059385856819726475828",
+        "rhs_minus_known_zero_sum_numeric": "1.1679355073489790756e-56",
+        "rhs_numeric": "0.000676614553947952786964415166323497474839402389",
+        "zero_side": "only first J known on-critical zeros paired; full formula requires ALL nontrivial zeros without RH assumption"
+      }
+    ],
+    "digits": 55,
+    "limitations": [
+      "zero side lists known critical-line zeros only; not all zeros certified",
+      "archimedean quadrature not interval-certified",
+      "ES4 operator has no arithmetic explicit trace identity",
+      "Gaussian test is Schwartz, not compactly supported: cannot be substituted for E7/V24 finite matrices without new bounds",
+      "finite numeric discrepancy is not a certificate of RH or global Weil positivity"
+    ],
+    "zero_count_J": 24
+  },
+  "finite_prime_interval_certificate": {
+    "N": 64,
+    "a": "1/50",
+    "bound_proof": "Lambda(n)<=ln(n); decreasing integrand for n>=64; integral after y=ln x <= 4*sqrt(a/pi)*exp(-(ln N)^2/(8a)); ln 64>4, sqrt(a/pi)<1/12, exp(-100)<10^-40",
+    "certificate_type": "outward integer/rational arithmetic; analytic prime-tail enclosure ONLY (not archimedean integral or zero sum)",
+    "first_prime_powers": [
+      {
+        "P_term_interval": [
+          "0.00481941549413609549702057",
+          "0.00481941549413609549702057"
+        ],
+        "n": 2,
+        "p": 2
+      },
+      {
+        "P_term_interval": [
+          "0.00000070966432025407359576",
+          "0.00000070966432025407359576"
+        ],
+        "n": 3,
+        "p": 3
+      },
+      {
+        "P_term_interval": [
+          "0.00000000005102710074097960",
+          "0.00000000005102710074097960"
+        ],
+        "n": 4,
+        "p": 2
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000002490227261681",
+          "0.00000000000002490227261681"
+        ],
+        "n": 5,
+        "p": 5
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000815498",
+          "0.00000000000000000000815498"
+        ],
+        "n": 7,
+        "p": 7
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000000328",
+          "0.00000000000000000000000328"
+        ],
+        "n": 8,
+        "p": 2
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000000001",
+          "0.00000000000000000000000001"
+        ],
+        "n": 9,
+        "p": 3
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000000000",
+          "0.00000000000000000000000000"
+        ],
+        "n": 11,
+        "p": 11
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000000000",
+          "0.00000000000000000000000000"
+        ],
+        "n": 13,
+        "p": 13
+      },
+      {
+        "P_term_interval": [
+          "0.00000000000000000000000000",
+          "0.00000000000000000000000000"
+        ],
+        "n": 16,
+        "p": 2
+      }
+    ],
+    "pi_interval_scaled": [
+      "31415926535897932384626433832795028841971",
+      "31415926535897932384626433832795028841972"
+    ],
+    "positive_prime_term_all_n_interval": [
+      "0.00482012520950835259237101705493",
+      "0.00482012520950835259237101705493"
+    ],
+    "positive_prime_term_finite_interval": [
+      "0.00482012520950835259237101705493",
+      "0.00482012520950835259237101705493"
+    ],
+    "prime_tail_bound": "0 <= P(a)-P_N(a) < 10^-40 (rigorous for N>=64)",
+    "prime_term_all_n_exact_scaled": [
+      "48201252095083525923710170549320614490",
+      "48201252095083525923710170549320614627"
+    ],
+    "scale": "10000000000000000000000000000000000000000"
+  },
+  "schema": "NUMERIA.ES6.GAUSSIAN_EXPLICIT_FORMULA.1",
+  "scientific_status": "unconditional classical Guinand-Weil identity; finite certified prime term; exploratory full numeric crosscheck; NOT RH proof",
+  "source": "Chirre-Goncalves 2019 Guinand-Weil formula and elementary Euler product; full formula unconditional"
+}

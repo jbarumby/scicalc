@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-03",
+  "files": {
+    "README.md": "17af7db79d0816117936ee6bd4a3db6f515e3ae448f446af02e1bc86415cdef7",
+    "RELATORIO_ES6.md": "bd812a5580fae2745a1bf26a0035aa77212b4b4a7c413ec8595d926d03ca047f",
+    "RESULTADOS_ES6.json": "d5a64ed4196f0b14ce3aa92e9d1df7662abf596d0ad7b976cf5f030b0bed64f7",
+    "TESTES_ES6.txt": "330c85ce5958ca43446e7a81d9ee031c148fae0c2e119395653054a2cc400182",
+    "es6_weil_gaussian.py": "830beca6554f194eba41dcc72355cce0a9bcf2a64ea45bfbf96799c051926c64",
+    "test_es6_weil_gaussian.py": "aed3f7c958ca909b12f0d93b6a0ecaaf8ab0c181ec5f77484e7396c083f92151"
+  },
+  "mpmath": "1.3.0",
+  "python": "3.13.5",
+  "schema": "NUMERIA.ES6.MANIFEST.1",
+  "scientific_status": "unconditional classical formula; rigorous interval ONLY for prime-side at a=1/50; exploration not proof RH",
+  "stage": "ES6"
+}
