@@ -1,0 +1,344 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+
+\geometry{margin=2.4cm}
+
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\newtheorem{lema}{Lema}
+\newtheorem{teorema}{Teorema}
+\newtheorem{conjectura}{Conjectura}
+\newtheorem{definicao}{Definição}
+\newtheorem{proposicao}{Proposição}
+\newtheorem{observacao}{Observação}
+\newtheorem{objecao}{Objeção}
+
+\title{
+    Ressonância de spin adélica e a Hipótese de Riemann:\\
+    um lema especulativo, com condições de falseabilidade
+}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Especulamos uma ponte entre a estrutura de spin \(1/2\) não hermitiano de
+Sanctuary (arXiv:0908.3219) e a Hipótese de Riemann, via um operador de spin
+adélico \(\mathcal{S}\) cujo módulo \(\mathcal{S}^\dagger\mathcal{S}\) é positivo.
+Formulamos o \emph{Lema de Ressonância Espectral Adélica} e o
+\emph{Teorema de Dualidade Spin--Zeta}, ambos \textbf{conjecturais}. Registramos
+três objeções estruturais, das quais a primeira é demonstrável e mostra que a
+versão ingênua do lema é \emph{falsa}: o espectro puramente pontual de um
+operador de spin de posto finito não pode codificar os zeros de \(\zeta\).
+Indicamos a correção mínima (acoplamento a um gerador de dilatações) e um
+protocolo numérico de teste. Nada aqui constitui prova da Hipótese de Riemann.
+\end{abstract}
+
+\tableofcontents
+
+\section{O que o artigo de spin fornece}
+
+Sanctuary considera o operador de estado não hermitiano
+\[
+s(n_z,n_x,n_y)
+=\tfrac12\Bigl(I+n_z\sigma^z+n_x\sigma^x+i\,n_y\sigma^y\Bigr),
+\qquad
+(n_z,n_x,n_y)\in\{-1,+1\}^3 .
+\]
+As propriedades relevantes são:
+\begin{itemize}
+\item traço \(1\) e idempotência, com autovalores reais \(\pm 1\);
+\item autoestados \emph{não ortogonais};
+\item degenerescência de oito configurações (os octantes do referencial
+intrínseco);
+\item o estado de ressonância
+\(s^\dagger+s\) tem autovalores \(\pm\sqrt{2}\), isto é, módulo \(\sqrt2\), não
+\(1\);
+\item a média de ensemble e a decoerência de fase restituem operadores
+hermitianos.
+\end{itemize}
+
+Do ponto de vista matemático, o objeto útil é o \emph{módulo}
+\(\mathcal{S}^\dagger\mathcal{S}\), que é autoadjunto e positivo mesmo quando
+\(\mathcal{S}\) não é.
+
+\section{Construção especulativa}
+
+\begin{definicao}[Spin adélico]
+Seja \(K=\mathbb{Q}\) e \(S\) um conjunto finito de lugares contendo \(\infty\).
+Sobre um espaço de Hilbert \(\mathcal{H}_{\mathrm{ad}}\) construído a partir dos
+ideles \(J_K\), defina
+\[
+\mathcal{S}
+=\sum_{v\in S}\Bigl(n_v^z\sigma_v^z+n_v^x\sigma_v^x+i\,n_v^y\sigma_v^y\Bigr),
+\qquad
+(n_v^z,n_v^x,n_v^y)\in\{-1,+1\}^3 ,
+\]
+onde \(\sigma_v^{x,y,z}\) são matrizes de Pauli no lugar \(v\).
+\end{definicao}
+
+O termo \(i\sigma^y\) é a não hermiticidade de Sanctuary: interpreta-se como
+\emph{rotação} (fase), não como momento angular.
+
+\section{O lema especulado}
+
+\begin{conjectura}[Lema de Ressonância Espectral Adélica]
+\label{conj:lema}
+Existe uma realização de \(\mathcal{S}\) em \(\mathcal{H}_{\mathrm{ad}}\) tal que:
+\begin{enumerate}
+\item os autovalores de \(\mathcal{S}\) são \(\pm\sqrt{2^{|S|}}\), com
+degenerescência \(2^{3|S|}\);
+\item o estado de ressonância \(\Psi_{\mathrm{res}}\), superposição igual dos
+autoestados degenerados, satisfaz
+\[
+\mathcal{S}^\dagger\mathcal{S}\,\Psi_{\mathrm{res}}
+=2^{|S|}\,\Psi_{\mathrm{res}};
+\]
+\item a condição de ressonância
+\(\langle\Psi_{\mathrm{res}}|\mathcal{S}^\dagger\mathcal{S}|\Psi_{\mathrm{res}}\rangle
+=2^{|S|}\)
+é equivalente à equação funcional
+\[
+\zeta(s)=\chi(s)\,\zeta(1-s),
+\qquad
+\chi(s)=\pi^{s-1/2}\frac{\Gamma\!\bigl(\tfrac{1-s}{2}\bigr)}{\Gamma\!\bigl(\tfrac{s}{2}\bigr)};
+\]
+\item se \(\mathcal{S}^\dagger\mathcal{S}\) é positivo definido em
+\(\mathcal{H}_{\mathrm{ad}}\), então todos os zeros não triviais de \(\zeta\)
+estão em \(\Re(s)=\tfrac12\).
+\end{enumerate}
+\end{conjectura}
+
+\begin{conjectura}[Teorema de Dualidade Spin--Zeta]
+\label{conj:teorema}
+Os zeros não triviais de \(\zeta(s)\) estão em bijeção com os estados de
+decoerência de \(\mathcal{S}\), definidos como os \(s\in\mathbb{C}\) com
+\[
+\det\bigl(\mathcal{S}-s\,\mathbf{1}\bigr)=0,
+\]
+e a condição de ressonância \(\sqrt{2^{|S|}}\) força \(\Re(s)=\tfrac12\).
+\end{conjectura}
+
+\section{Por que a ideia é atraente}
+
+\begin{enumerate}
+\item \textbf{Hilbert--Pólya.} Mesmo que \(\mathcal{S}\) não seja hermitiano,
+\(\mathcal{S}^\dagger\mathcal{S}\) é autoadjunto e positivo. Um espectro real
+positivo é exatamente o tipo de objeto exigido pelo programa de Hilbert--Pólya.
+
+\item \textbf{Connes.} A fórmula do traço de Connes vive em espaços adélicos;
+\(\mathcal{H}_{\mathrm{ad}}\) é desse tipo, e o traço de
+\(\mathcal{S}^\dagger\mathcal{S}\) poderia reproduzir a fórmula explícita de Weil.
+
+\item \textbf{Berry--Keating.} O Hamiltoniano candidato \(H=xp\) mistura
+coordenada e momento; \(\mathcal{S}\) mistura orientações \(n_v\) e matrizes de
+Pauli, com estrutura formalmente análoga.
+
+\item \textbf{O fator \(\sqrt2\).} Em Sanctuary, a ressonância tem módulo
+\(\sqrt2\), não \(1\). Isso sugere um ``grau'' extra que, na equação funcional,
+poderia corresponder ao fator \(\Gamma\) e à estrutura de polos e zeros triviais.
+\end{enumerate}
+
+\section{Objeções estruturais}
+
+\begin{objecao}[Espectro finito não codifica zeros]
+\label{obj:finito}
+Para \(S\) finito, \(\mathcal{S}\) age em um espaço de dimensão
+\(\le 2^{|S|}\) e seu espectro é o conjunto finito
+\(\{\pm\sqrt{2^{|S|}}\}\). Os zeros não triviais de \(\zeta\) formam um conjunto
+infinito, com ordenadas \(\gamma_k\to\infty\) e contagem
+\[
+N(T)\sim\frac{T}{2\pi}\log\frac{T}{2\pi}-\frac{T}{2\pi}.
+\]
+Logo, nenhum operador de spin de posto finito pode satisfazer a
+Conjectura~\ref{conj:teorema}. A Conjectura~\ref{conj:lema}(1) é, portanto,
+incompatível com a Conjectura~\ref{conj:teorema} na forma enunciada.
+\end{objecao}
+
+\begin{objecao}[Positividade é automática e por isso vazia]
+Para \emph{qualquer} operador fechado \(\mathcal{S}\), o produto
+\(\mathcal{S}^\dagger\mathcal{S}\) é positivo. Assim, o item (4) da
+Conjectura~\ref{conj:lema} não pode implicar RH por si só: a positividade é
+gratuita. O conteúdo matemático teria de estar na \emph{identificação} do
+espectro com os zeros, não no sinal do operador.
+\end{objecao}
+
+\begin{objecao}[Circularidade da condição de ressonância]
+A equação funcional \(\zeta(s)=\chi(s)\zeta(1-s)\) é um teorema incondicional.
+Uma condição ``equivalente à equação funcional'' não pode implicar RH, pois RH
+é estritamente mais forte. Para que o item (3) tenha força, a ressonância teria
+de ser equivalente à \emph{positividade de Weil} ou à
+\emph{autoadjunção} de um operador com espectro \(\{\gamma_k\}\), e não à
+simetria \(s\mapsto 1-s\).
+\end{objecao}
+
+\section{Correção mínima da construção}
+
+A Objeção~\ref{obj:finito} sugere que o spin deve ser \emph{acoplado} a um
+gerador de dilatações, produzindo espectro contínuo ou infinito.
+
+\begin{definicao}[Spin acoplado ao gerador de dilatações]
+Na variável logarítmica \(u=\log t\), seja
+\(p=-i\,\dfrac{d}{du}\) e sejam
+\[
+a=\tfrac{1}{\sqrt2}(u+ip),
+\qquad
+a^\dagger=\tfrac{1}{\sqrt2}(u-ip),
+\qquad
+[a,a^\dagger]=1 .
+\]
+Defina o candidato
+\[
+\mathcal{S}_\infty
+=\lim_{S\uparrow}\Bigl(\mathcal{S}_S\otimes\mathbf{1}
++\mathbf{1}\otimes f(a^\dagger a)\Bigr),
+\]
+com \(f\) a determinar, e o Hamiltoniano efetivo
+\[
+H_{\mathrm{ef}}
+=\alpha\,(a+a^\dagger)+\beta\,a^\dagger a
++\gamma\,\bigl(a^2+(a^\dagger)^2\bigr).
+\]
+\end{definicao}
+
+\begin{conjectura}[Versão corrigida]
+Existe \(f\) tal que \(H_{\mathrm{ef}}\) é essencialmente autoadjunto e
+\[
+\operatorname{spec}(H_{\mathrm{ef}})=\{\gamma_k\}_{k\ge1},
+\qquad
+\zeta\!\left(\tfrac12+i\gamma_k\right)=0 .
+\]
+Nesse caso,
+\[
+\lambda_n=\operatorname{Tr}\bigl(1-\cos(nH_{\mathrm{ef}})\bigr)\ \ge 0
+\quad\text{para todo }n\ge1,
+\]
+e a Hipótese de Riemann segue pelo critério de Li (1997).
+\end{conjectura}
+
+\begin{observacao}
+Esta é exatamente a rota de Hilbert--Pólya. O spin de Sanctuary entra apenas
+como \emph{dispositivo de degenerescência e fase}, não como fonte de
+positividade. O conteúdo difícil permanece a construção de \(f\).
+\end{observacao}
+
+\section{Ponte com os coeficientes de Li}
+
+Se \(\rho=\tfrac12+i\gamma\), então
+\[
+1-\frac1\rho=\frac{-1+2i\gamma}{1+2i\gamma},
+\qquad
+\left|1-\frac1\rho\right|=1,
+\]
+e existe \(\theta_\rho\in\mathbb{R}\) com
+\(1-\tfrac1\rho=e^{i\theta_\rho}\), onde
+\[
+\theta_\rho=\pi-2\arctan(2\gamma)
+\]
+a menos de convenção de sinal. Logo
+\[
+\lambda_n=\sum_\rho\bigl(1-\cos(n\theta_\rho)\bigr).
+\]
+A positividade termo a termo é manifesta \emph{sob RH}; fora de RH, os módulos
+diferem de \(1\) e a positividade pode falhar. Portanto, o alvo operacional é:
+\[
+\boxed{\ \text{construir }H\text{ autoadjunto com espectro }\{\theta_\rho\}.\ }
+\]
+
+\section{Protocolo numérico de teste}
+
+\begin{enumerate}
+\item Fixar \(M\) e truncar \(H_{\mathrm{ef}}\) na base de Hermite
+\(\{|0\rangle,\dots,|M\rangle\}\), com
+\(a|n\rangle=\sqrt{n}\,|n-1\rangle\).
+\item Diagonalizar e obter \(\{\theta^{(M)}_j\}\).
+\item Ajustar \((\alpha,\beta,\gamma)\) minimizando
+\[
+R(\alpha,\beta,\gamma)=\sum_{j\le J}\bigl|\theta^{(M)}_j-\theta_{\rho_j}\bigr|^2 ,
+\]
+com \(\theta_{\rho_j}\) obtidos dos zeros conhecidos.
+\item Verificar estabilidade do ajuste em \(M\) e em \(J\).
+\item Testar previsões \emph{fora da amostra}: o operador ajustado prevê
+corretamente \(\theta_{\rho_{J+1}},\theta_{\rho_{J+2}}\)?
+\item Calcular \(\lambda_n=\operatorname{Tr}(1-\cos(nH))\) e verificar
+\(\lambda_n\ge0\).
+\end{enumerate}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5.0cm}
+>{\raggedright\arraybackslash}p{9.5cm}}
+\toprule
+\textbf{Desfecho} & \textbf{Interpretação} \\
+\midrule
+Ajuste bom apenas dentro da amostra &
+Sobreajuste. Nenhum conteúdo espectral. \\
+Ajuste estável e previsivo fora da amostra &
+Estrutura espectral genuína; merece investigação analítica. \\
+\(\lambda_n<0\) para algum \(n\) estável em \(M\) &
+O candidato não realiza Hilbert--Pólya. \\
+Convergência analítica de \(H_{\mathrm{ef}}\) com espectro exato &
+Seria uma prova de RH. Não há candidato conhecido. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{O que precisaria ser provado}
+
+\begin{enumerate}
+\item Construir explicitamente \(\mathcal{H}_{\mathrm{ad}}\) e
+\(\mathcal{S}_\infty\), com domínio e autoadjunção essenciais bem definidos.
+\item Provar que o espectro de \(H_{\mathrm{ef}}\) coincide com
+\(\{\theta_\rho\}\) --- não apenas aproximar numericamente.
+\item Substituir a condição de ressonância por positividade de Weil, evitando a
+Objeção 3.
+\item Conectar \(\operatorname{Tr}\bigl(1-\cos(nH_{\mathrm{ef}})\bigr)\) à fórmula
+explícita de Weil, com controle de convergência.
+\end{enumerate}
+
+\section{Resumo}
+
+\[
+\boxed{
+\begin{array}{c}
+\text{Os zeros de }\zeta\text{ seriam condições de ressonância de um spin adélico}\\[1mm]
+\text{não hermitiano; a positividade de }\mathcal{S}^\dagger\mathcal{S}\\[1mm]
+\text{forçaria }\Re(s)=\tfrac12 .
+\end{array}}
+\]
+
+Contudo, na forma ingênua a proposta é \emph{falsa} pela
+Objeção~\ref{obj:finito}, e \emph{vazia} pela Objeção~2. A versão corrigida
+(acoplamento a \(a,a^\dagger\)) é bem posta, mas reduz-se ao programa de
+Hilbert--Pólya, cujo passo difícil permanece aberto.
+
+\begin{observacao}
+Este documento é especulativo. Não apresenta prova da Hipótese de Riemann e
+não afirma que o operador descrito exista. As objeções da Seção 5 são parte
+integrante da proposta: qualquer continuação deve enfrentá-las explicitamente.
+\end{observacao}
+
+\begin{thebibliography}{9}
+\bibitem{sanctuary} B.~C. Sanctuary, \emph{Structure of a spin \(1/2\)},
+arXiv:0908.3219.
+\bibitem{li1997} X.-J. Li, \emph{The positivity of a sequence of numbers and the
+Riemann hypothesis}, J. Number Theory \textbf{65} (1997), 325--333.
+\bibitem{li2017} X.-J. Li, \emph{An orthogonal projection related to the Riemann
+zeta-function}, J. Math. Anal. Appl. \textbf{446} (2017), 1310--1327.
+\bibitem{connes} A.~Connes, \emph{Trace formula in noncommutative geometry and
+the zeros of the Riemann zeta function}, Selecta Math. \textbf{5} (1999), 29--106.
+\end{thebibliography}
+
+\end{document}

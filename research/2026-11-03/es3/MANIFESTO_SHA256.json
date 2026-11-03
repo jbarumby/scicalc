@@ -1,0 +1,21 @@
+{
+  "created": "2026-11-03",
+  "dependencies": {
+    "mpmath": "1.3.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "sympy": "1.14.0"
+  },
+  "files": {
+    "Qwen_latex_20261103_m86z47xnk.txt": "0c8674b8459c519ecd9f9b30d2ab41f6dd1b8de0035c89d755b120858b8a867a",
+    "README.md": "5fb4cd3cb24640b3ef3a32370d6338fb2b6d8c52f8f19a08d99dda811f251f48",
+    "RELATORIO_ES3.md": "66ae797f63adc6bc18c3924572ae3b6e6997cf42225967f679be823bc94bcdf0",
+    "RESULTADOS_ES3.json": "25bdf70899468b6248b33e3745ca5bc8097d4aaffd883ba2763596e3189fa759",
+    "TESTES_ES3.txt": "1ae086205dae6664d4e5e1efa89078436e756c9b332bb922da2a4f5689040873",
+    "es3_spin_zeta.py": "b7c8afd8b77347acdbdee84295dbc7da913f717c405a5f0539c4cf554092a133",
+    "test_es3_spin_zeta.py": "76ba3092f9f2bae8656f980934b1e76942e53fd0778b99c265b570166d7aef10"
+  },
+  "python": "3.13.5",
+  "schema": "NUMERIA.ES3.PROVENANCE.1",
+  "status": "toy-model audit; not RH proof"
+}
