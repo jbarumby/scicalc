@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-03",
+  "files": {
+    "README.md": {
+      "bytes": 1708,
+      "sha256": "6875dfa2745f75ed9fa3a578fc2ac3a0c507e9c18b51f06e56b416338044e639"
+    },
+    "RELATORIO_ES5.md": {
+      "bytes": 8277,
+      "sha256": "7942401807b4c90d8bc632efdf065045ce1e10ceac7ea27c8e03cef124f16a21"
+    },
+    "RESULTADOS_ES5.json": {
+      "bytes": 3731,
+      "sha256": "6cc52ab6f1ca586af31a13c2ad541997974db780664c806b464a7a7d2508b5fe"
+    },
+    "TESTES_ES5.txt": {
+      "bytes": 99,
+      "sha256": "6078a58b5fd41673bfea6088bc0d3cbb4cda13167ccc286f5c9e154b0af6d5a5"
+    },
+    "es5_arithmetic_trace.py": {
+      "bytes": 10425,
+      "sha256": "8a9cfcb1bafefcdf96b459b1c43baff3e0f725c66df32c5bf531e635a5a3c2bf"
+    },
+    "test_es5_arithmetic_trace.py": {
+      "bytes": 3644,
+      "sha256": "727c7989ad178744fa73457a831a69e6bd8c90f61b6c95aeacf820e00b943af2"
+    }
+  },
+  "inputs_from": "ES4 commit 5bc7fd34384d37733a0b4c7d121103171aeacbdb; V24 model",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "schema": "NUMERIA.ES5.PROVENANCE.1",
+  "scientific_status": "finite exact intervals and analytic identities; gaussian mpmath computation not interval certified; no RH proof"
+}
