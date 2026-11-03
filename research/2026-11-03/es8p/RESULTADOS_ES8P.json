@@ -1,0 +1,653 @@
+{
+  "constant_enclosures_exact_fractions": {
+    "ln2_hi": "693147180559945309417232121459/1000000000000000000000000000000",
+    "ln2_lo": "346573590279972654708616060729/500000000000000000000000000000",
+    "ln3_hi": "1098612288668109691395245236923/1000000000000000000000000000000",
+    "ln3_lo": "549306144334054845697622618461/500000000000000000000000000000",
+    "pi_hi": "39269908169872415480783042291/12500000000000000000000000000",
+    "pi_lo": "3141592653589793238462643383279/1000000000000000000000000000000",
+    "sqrtL_hi": "33541019662496845446137605031/50000000000000000000000000000",
+    "sqrtL_lo": "670820393249936908922752100619/1000000000000000000000000000000"
+  },
+  "cross_parity_archimedean_gate": {
+    "correct_sym_H12": "(0.0 + 0.0j)",
+    "frequency": 1,
+    "halfline_unsym_F1_conjugate_F2": "(0.0 + 0.158894788656789586309872244106j)",
+    "mathematical_gate": "POINTWISE_MISMATCH: on r>0 the V24 unsymmetrized product is not the V17 real symmetrized bilinear kernel for cross parity",
+    "modes": [
+      1,
+      2
+    ],
+    "omega_at_1": "-2.025146193103467200296543",
+    "status": "pointwise real-part zero exact by parity; nonzero imaginary value is a numerical witness, not a global interval certificate",
+    "unsym_arch_imaginary_integral_0_to_4_numeric": "-0.35113981180871120802"
+  },
+  "model_error_projection": [
+    {
+      "N": 6,
+      "delta": "1/10000",
+      "projected_max_row_bound": "0.2260248414370827787859",
+      "projected_max_row_exact_fraction": "113012420718541389392903901923/500000000000000000000000000000",
+      "projected_size": 4,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.2115188862575678859559"
+    },
+    {
+      "N": 6,
+      "delta": "1/100000",
+      "projected_max_row_bound": "0.0022602484143708277879",
+      "projected_max_row_exact_fraction": "565062103592706946964519511/250000000000000000000000000000",
+      "projected_size": 4,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0021151888625756788596"
+    },
+    {
+      "N": 6,
+      "delta": "1/1000000",
+      "projected_max_row_bound": "0.0000226024841437082779",
+      "projected_max_row_exact_fraction": "4520496828741655575716157/200000000000000000000000000000",
+      "projected_size": 4,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0000211518886257567886"
+    },
+    {
+      "N": 8,
+      "delta": "1/10000",
+      "projected_max_row_bound": "0.5198045144396891577794",
+      "projected_max_row_exact_fraction": "519804514439689157779362419213/1000000000000000000000000000000",
+      "projected_size": 6,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.4917530794799167178638"
+    },
+    {
+      "N": 8,
+      "delta": "1/100000",
+      "projected_max_row_bound": "0.0051980451443968915778",
+      "projected_max_row_exact_fraction": "25990225721984457888968121/5000000000000000000000000000",
+      "projected_size": 6,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0049175307947991671787"
+    },
+    {
+      "N": 8,
+      "delta": "1/1000000",
+      "projected_max_row_bound": "0.0000519804514439689158",
+      "projected_max_row_exact_fraction": "51980451443968915777936251/1000000000000000000000000000000",
+      "projected_size": 6,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0000491753079479916718"
+    },
+    {
+      "N": 10,
+      "delta": "1/10000",
+      "projected_max_row_bound": "0.9985232494214320999936",
+      "projected_max_row_exact_fraction": "998523249421432099993583740257/1000000000000000000000000000000",
+      "projected_size": 8,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.11336212278191253247",
+          "k": 9,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.20098463988112513362",
+          "k": 10,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.9549533715144419347522"
+    },
+    {
+      "N": 10,
+      "delta": "1/100000",
+      "projected_max_row_bound": "0.0099852324942143210000",
+      "projected_max_row_exact_fraction": "9985232494214320999935837413/1000000000000000000000000000000",
+      "projected_size": 8,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.11336212278191253247",
+          "k": 9,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.20098463988112513362",
+          "k": 10,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0095495337151444193476"
+    },
+    {
+      "N": 10,
+      "delta": "1/1000000",
+      "projected_max_row_bound": "0.0000998523249421432100",
+      "projected_max_row_exact_fraction": "19970464988428641999871677/200000000000000000000000000000",
+      "projected_size": 8,
+      "projection_coeffs_upper": [
+        {
+          "abs_coeff_upper": "0.33939877679887061142",
+          "k": 3,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.50192105588693486659",
+          "k": 4,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.20393613722594413081",
+          "k": 5,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.33485228538910484954",
+          "k": 6,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.14572720028974510181",
+          "k": 7,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.25120181430555763864",
+          "k": 8,
+          "pivot": 2
+        },
+        {
+          "abs_coeff_upper": "0.11336212278191253247",
+          "k": 9,
+          "pivot": 1
+        },
+        {
+          "abs_coeff_upper": "0.20098463988112513362",
+          "k": 10,
+          "pivot": 2
+        }
+      ],
+      "unprojected_max_row_bound": "0.0000954953371514441935"
+    }
+  ],
+  "normalization_reference": "v17/AUDITAR_E8K_V17_NORMALIZACAO.py; v24/README_V24.md",
+  "open_gates": [
+    "Fix/prove cross-parity half-line archimedean phase handling: V17 uses Re(Fi conj Fj), V24 writes Fi conj Fj",
+    "Identify each full original G+P matrix entry, signs and phases from E7/V16 against the independently defined model",
+    "Certify all archimedean cross-integrals F_i F_j* for compactly supported smoothed modes",
+    "Certify prime overlap entries (numerical sanity is not interval arithmetic)",
+    "Compare projected eigenvalue/LDL minimum to projected smoothing error and quadrature errors",
+    "Extend support and basis; no conclusion for all test functions"
+  ],
+  "pole_projection_algebra": {
+    "10": [
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 3,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 4,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 5,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 6,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 7,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 8,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 9,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 10,
+        "pivot": 2
+      }
+    ],
+    "6": [
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 3,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 4,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 5,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 6,
+        "pivot": 2
+      }
+    ],
+    "8": [
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 3,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 4,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 5,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 6,
+        "pivot": 2
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 7,
+        "pivot": 1
+      },
+      {
+        "identity_zero_for_both_pole_moments": true,
+        "mode": 8,
+        "pivot": 2
+      }
+    ]
+  },
+  "prime_matrix_noncertified": [
+    {
+      "N": 6,
+      "direct_integral_crosschecks": [
+        {
+          "abs_closed_vs_quad": "1.0385777e-66",
+          "i": 1,
+          "j": 1
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 1,
+          "j": 2
+        },
+        {
+          "abs_closed_vs_quad": "2.0771554e-66",
+          "i": 1,
+          "j": 3
+        },
+        {
+          "abs_closed_vs_quad": "8.9020948e-67",
+          "i": 2,
+          "j": 4
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 3,
+          "j": 5
+        },
+        {
+          "abs_closed_vs_quad": "5.9347298e-67",
+          "i": 3,
+          "j": 3
+        }
+      ],
+      "numeric_status": "mpmath high precision diagnostic; NOT interval certificate for prime matrix entries",
+      "offparity_max_raw": "1.483682e-66",
+      "prime_sign_and_coefficient": "-2 log(2)/sqrt(2) times symmetric overlap",
+      "prime_support": "ln2<2L<ln3; only prime power 2",
+      "projected_prime_max_absolute_entry": "0.16536603610087127133",
+      "projected_prime_trace": "-0.25414913117127563293",
+      "sample_prime_entries": {
+        "P11": "-0.03715027969702474632268",
+        "P12_cross_parity": "2.181588e-67",
+        "P13": "-0.09008446246016573875007"
+      },
+      "two_pole_projected_residuals_numeric": [
+        "4.2823388e-67",
+        "4.2823388e-67"
+      ]
+    },
+    {
+      "N": 8,
+      "direct_integral_crosschecks": [
+        {
+          "abs_closed_vs_quad": "1.0385777e-66",
+          "i": 1,
+          "j": 1
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 1,
+          "j": 2
+        },
+        {
+          "abs_closed_vs_quad": "2.0771554e-66",
+          "i": 1,
+          "j": 3
+        },
+        {
+          "abs_closed_vs_quad": "8.9020948e-67",
+          "i": 2,
+          "j": 4
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 3,
+          "j": 5
+        },
+        {
+          "abs_closed_vs_quad": "5.9347298e-67",
+          "i": 3,
+          "j": 3
+        }
+      ],
+      "numeric_status": "mpmath high precision diagnostic; NOT interval certificate for prime matrix entries",
+      "offparity_max_raw": "1.483682e-66",
+      "prime_sign_and_coefficient": "-2 log(2)/sqrt(2) times symmetric overlap",
+      "prime_support": "ln2<2L<ln3; only prime power 2",
+      "projected_prime_max_absolute_entry": "0.25448478814423060691",
+      "projected_prime_trace": "-0.37077387576630576859",
+      "sample_prime_entries": {
+        "P11": "-0.03715027969702474632268",
+        "P12_cross_parity": "2.181588e-67",
+        "P13": "-0.09008446246016573875007"
+      },
+      "two_pole_projected_residuals_numeric": [
+        "4.2823388e-67",
+        "4.2823388e-67"
+      ]
+    },
+    {
+      "N": 10,
+      "direct_integral_crosschecks": [
+        {
+          "abs_closed_vs_quad": "1.0385777e-66",
+          "i": 1,
+          "j": 1
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 1,
+          "j": 2
+        },
+        {
+          "abs_closed_vs_quad": "2.0771554e-66",
+          "i": 1,
+          "j": 3
+        },
+        {
+          "abs_closed_vs_quad": "8.9020948e-67",
+          "i": 2,
+          "j": 4
+        },
+        {
+          "abs_closed_vs_quad": "2.9673649e-67",
+          "i": 3,
+          "j": 5
+        },
+        {
+          "abs_closed_vs_quad": "5.9347298e-67",
+          "i": 3,
+          "j": 3
+        }
+      ],
+      "numeric_status": "mpmath high precision diagnostic; NOT interval certificate for prime matrix entries",
+      "offparity_max_raw": "2.077155e-66",
+      "prime_sign_and_coefficient": "-2 log(2)/sqrt(2) times symmetric overlap",
+      "prime_support": "ln2<2L<ln3; only prime power 2",
+      "projected_prime_max_absolute_entry": "0.25448478814423060691",
+      "projected_prime_trace": "-0.27323751098779093572",
+      "sample_prime_entries": {
+        "P11": "-0.03715027969702474632268",
+        "P12_cross_parity": "2.181588e-67",
+        "P13": "-0.09008446246016573875007"
+      },
+      "two_pole_projected_residuals_numeric": [
+        "4.2823388e-67",
+        "4.2823388e-67"
+      ]
+    }
+  ],
+  "schema": "NUMERIA.ES8P.MODE_PROJECTION_AND_V24_BOUND.1",
+  "scientific_status": "exact pole cancellation; rigorous rational model error bounds CONDITIONAL on V24 normalization and analytic lemmas; numeric prime diagnostic; NOT matrix-positivity certificate or RH proof",
+  "test_window": {
+    "2L": "9/10",
+    "L": "9/20",
+    "log2_lt_2L_lt_log3_certified": true
+  }
+}

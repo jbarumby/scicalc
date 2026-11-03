@@ -1,0 +1,64 @@
+{
+  "schema": "NUMERIA.ES8P.PROVENIENCIA.1",
+  "date": "2026-11-03",
+  "status": "conditional projection bounds and algebraic poles, not proof of RH",
+  "python": "3.13.5",
+  "source_repo": "jbarumby/scicalc",
+  "parent_commit": "df9c15cd9e8ea35f9512b49bdd9610d4536cc303",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1752,
+      "sha256": "8b008a42fb2e9a80ca1048da7861f74b0f4562abfd0026e14d7b60368b4ddc79"
+    },
+    {
+      "path": "REFERENCIAS_ORIGINAIS_9.csv",
+      "bytes": 15477,
+      "sha256": "d75004082ab94eab91fd3aeb990cc83aa7883fe5f033f95c04bc2859818a39b5"
+    },
+    {
+      "path": "REFERENCIAS_TRIADAS_ES8P.csv",
+      "bytes": 5139,
+      "sha256": "7cab727e70735673caf6f70dabf25fc94a9088ec36cc715c547ec19dc98dd241"
+    },
+    {
+      "path": "RELATORIO_ES8P.md",
+      "bytes": 10915,
+      "sha256": "163efd07743022a1fffc16027009df3c9a8056b69ba57bf9b0b3b32fd2e0b0df"
+    },
+    {
+      "path": "RESULTADOS_ES8P.json",
+      "bytes": 18089,
+      "sha256": "c0a467618a1fe5e9d281c719b75173bad2a5090beb3dcf100c39226c31cebf93"
+    },
+    {
+      "path": "TESTES_ES8P.txt",
+      "bytes": 99,
+      "sha256": "42079c95febf6f0f6a0c04562fa71cbb805a5eb2f165d799e820fac67971844d"
+    },
+    {
+      "path": "es8p_projection.py",
+      "bytes": 11926,
+      "sha256": "f1ad4337f106af16c7dee3d0d880ed644e528dcc498494dbbb995af192a5eccd"
+    },
+    {
+      "path": "test_es8p_projection.py",
+      "bytes": 4669,
+      "sha256": "75bbbe34974ec69618203a4ff5cae87601696c9e20e4953656075b6036aef6e3"
+    },
+    {
+      "path": "triage_references.py",
+      "bytes": 3577,
+      "sha256": "3c78d1ac050799c0349781d784bd6a6eb41e97ceae9b611982c61d7b2a863281"
+    }
+  ],
+  "gates": {
+    "pole_moment_cancellation": "exact symbolic for N 6 8 10",
+    "V24_projected_bound": "outward rational, conditional on model and normalization",
+    "V17_V24_arch_cross_parity": "pointwise kernel mismatch detected",
+    "prime_overlaps": "noncertified numerical quadrature and analytic expression",
+    "full_Weil_matrix": "NOT_ESTABLISHED",
+    "universal_Weil_positivity": "NOT_ESTABLISHED",
+    "Riemann_hypothesis": "OPEN"
+  }
+}
