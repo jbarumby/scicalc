@@ -1,0 +1,13 @@
+{
+  "files": {
+    "README.md": "d7022e7ce09f0a136ba9fb2608e8a366d60b0ef13a052c86e8125fde7f97f1eb",
+    "RELATORIO_ES7.md": "bfcc4be5bde6951c5b5514715a64bcd1dbfda90524eb99be5f564e69590b43bf",
+    "RESULTADOS_ES7.json": "e437354fb712dcf68b48d63ff7a43bdf2cd6506e19234d384bb7f3103b1afc6a",
+    "TESTES_ES7.txt": "52ff88468ccb632b86ac41a768bbaf3a1af2f37bd402f7748d40934aff3e40a1",
+    "es7_archimedean.py": "7289e5f819f5000a9ba8a90f734c5839121020c52f8ffb4ef9bafe0570c7a1f9",
+    "es7_v24_gate.py": "cd17211c41aceeefc280bb65615dd223e564be99d1bb434148e4fff442054fd4",
+    "test_es7_archimedean.py": "2f12afea09dd12f3d328f92daf2e3a4edac4c817c6c562708b27f5776244b476"
+  },
+  "schema": "NUMERIA.ES7.FILE_HASHES.1",
+  "status": "ARCH_GAUSSIAN_ENCLOSURES_ONLY"
+}

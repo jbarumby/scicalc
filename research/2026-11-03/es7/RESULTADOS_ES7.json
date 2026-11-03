@@ -1,0 +1,103 @@
+{
+  "cases": [
+    {
+      "M": 8192,
+      "T": 48,
+      "a": "1/50",
+      "analytic_preconditions": [
+        "DLMF digamma series and special value psi(1/4)",
+        "harmonic-number bound on Euler gamma",
+        "integral test for positive decreasing digamma summands",
+        "composite midpoint theorem using explicit bound on |f_double_prime|",
+        "Gaussian tail bounded by |Omega(t)| <= 7+18*t*t"
+      ],
+      "derivative_interval_decimal": [
+        "-6.727200145263",
+        "-6.587641747029"
+      ],
+      "derivative_interval_scaled_exact": [
+        "-67272001452620273885173664576",
+        "-65876417470291224836832296727"
+      ],
+      "derivative_midpoint_error_bound_decimal": "0.069712200655",
+      "derivative_status": "CERTIFIED dA/da for the Gaussian archimedean term ONLY",
+      "derivative_tail_bound_decimal": "0.000000000001",
+      "digamma_terms": 192,
+      "gaussian_tail_bound_decimal": "0.0000000000000001",
+      "integral_interval_decimal": [
+        "-1.968639397083",
+        "-1.967605299413"
+      ],
+      "interval_scaled_exact": [
+        "-19686393970824338106884662159",
+        "-19676052994136461735924957891"
+      ],
+      "midpoint_error_bound_decimal": "0.000516135411",
+      "midpoint_interval_decimal": [
+        "-1.968123261672",
+        "-1.968121434824"
+      ],
+      "omega0_exact_scaled": [
+        "-53721834440536600865607455604",
+        "-53721834142586118805563516943"
+      ],
+      "scale": "10000000000000000000000000000",
+      "status": "CERTIFIED rational enclosure of the archimedean Gaussian term ONLY"
+    },
+    {
+      "M": 8192,
+      "T": 48,
+      "a": "1/25",
+      "analytic_preconditions": [
+        "DLMF digamma series and special value psi(1/4)",
+        "harmonic-number bound on Euler gamma",
+        "integral test for positive decreasing digamma summands",
+        "composite midpoint theorem using explicit bound on |f_double_prime|",
+        "Gaussian tail bounded by |Omega(t)| <= 7+18*t*t"
+      ],
+      "derivative_interval_decimal": [
+        "3.798673129248",
+        "3.848183534206"
+      ],
+      "derivative_interval_scaled_exact": [
+        "37986731292487688191857174816",
+        "38481835342050282505485968524"
+      ],
+      "derivative_midpoint_error_bound_decimal": "0.024743222411",
+      "derivative_status": "CERTIFIED dA/da for the Gaussian archimedean term ONLY",
+      "derivative_tail_bound_decimal": "0.000000000001",
+      "digamma_terms": 192,
+      "gaussian_tail_bound_decimal": "0.0000000000000001",
+      "integral_interval_decimal": [
+        "-1.950194337532",
+        "-1.949460944506"
+      ],
+      "interval_scaled_exact": [
+        "-19501943375319844406026964453",
+        "-19494609445061600307448147619"
+      ],
+      "midpoint_error_bound_decimal": "0.000366362983",
+      "midpoint_interval_decimal": [
+        "-1.949827974550",
+        "-1.949827307489"
+      ],
+      "omega0_exact_scaled": [
+        "-53721834440536600865607455604",
+        "-53721834142586118805563516943"
+      ],
+      "scale": "10000000000000000000000000000",
+      "status": "CERTIFIED rational enclosure of the archimedean Gaussian term ONLY"
+    }
+  ],
+  "environment": {
+    "python": "3.13.5"
+  },
+  "limitations": [
+    "Gaussian is not compactly supported; not V24 projected matrices",
+    "Prime and pole terms are not reclamped or certified here",
+    "No complete zero sum or RH determination",
+    "Analytic lemmas used (DLMF series, Euler gamma bound, midpoint theorem) are not formalized in Lean"
+  ],
+  "schema": "NUMERIA.ES7.ARCHIMEDEAN_GAUSSIAN_RATIONAL.1",
+  "scope": "Weil Gaussian archimedean component and its a derivative; not complete zero-side certification"
+}
