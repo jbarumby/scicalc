@@ -1,0 +1,16 @@
+{
+  "raw": 51,
+  "unique": 44,
+  "duplicates": 7,
+  "priorities": {
+    "alta": 4,
+    "média": 12,
+    "contextual": 23,
+    "baixa": 5
+  },
+  "notes": [
+    "Metadata error Connes/Cormes corrected for display; original preserved.",
+    "Several SDP/pair-correlation results invoke RH as an assumption; do not use circularly.",
+    "No reviewed abstract proves RH or V17/V24 matrix identity."
+  ]
+}

@@ -1,0 +1,51 @@
+name: NUMERIA ES8-P2 certified prime projection
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research/2026-11-03/es8p2/**'
+      - '.github/workflows/numeria-es8p2-prime-interval.yml'
+jobs:
+  es8p2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Python requirements
+        run: python -m pip install mpmath==1.3.0 pytest==8.4.2
+      - name: Verify commit source SHA256
+        run: |
+          python - <<'PY'
+          import pathlib, json, hashlib
+          d=pathlib.Path('research/2026-11-03/es8p2')
+          j=json.loads((d/'MANIFESTO_SHA256.json').read_text())
+          for f in j['files']:
+              content=(d/f['name']).read_bytes()
+              assert hashlib.sha256(content).hexdigest()==f['sha256'],f['name']
+          print('All',len(j['files']),'files match SHA-256')
+          PY
+      - name: ES8-P2 exact-interval and independent diagnostic tests
+        run: python -m pytest -q research/2026-11-03/es8p2/test_es8p2_prime_cert.py
+      - name: Reproduce complete prime matrices
+        run: python research/2026-11-03/es8p2/es8p2_prime_cert.py --out /tmp/ES8P2_REPLAY.json
+      - name: Verify interval matrix exactly against committed result
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          a=json.loads(pathlib.Path('/tmp/ES8P2_REPLAY.json').read_text())
+          b=json.loads(pathlib.Path('research/2026-11-03/es8p2/RESULTADOS_ES8P2.json').read_text())
+          assert a['finite_prime_matrices']==b['finite_prime_matrices']
+          assert a['constants']==b['constants']
+          assert 'NOT full Weil' in a['scientific_status']
+          print('ES8P2 projected prime certificates match exactly; FULL_WEIL=NOT_ESTABLISHED')
+          PY
+      - name: Verify deduplicated reference record counts
+        run: |
+          python research/2026-11-03/es8p2/triage_es8p2.py --root research/2026-11-03/es8p2
+          python - <<'PY'
+          import json
+          j=json.load(open('research/2026-11-03/es8p2/RESUMO_REFERENCIAS_ES8P2.json'))
+          assert j['raw']==51 and j['unique']==44 and j['duplicates']==7
+          PY

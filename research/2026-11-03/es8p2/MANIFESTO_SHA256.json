@@ -1,0 +1,68 @@
+{
+  "base_commit": "2bc6a293a67213bc6cdf8321bab2ab2f0bf4cbdc",
+  "date": "2026-11-03",
+  "files": [
+    {
+      "bytes": 1674,
+      "name": "README.md",
+      "sha256": "62c257b1e26b0ba031fdd5157811b58e9a710b800c59f64961aabae9162cdc8f"
+    },
+    {
+      "bytes": 21613,
+      "name": "REFERENCIAS_TRIADAS_ES8P2.csv",
+      "sha256": "974a0d0b5408a26dcc9f33366b02e8b2de6257474a7e026d5ad4c9d3558ceb49"
+    },
+    {
+      "bytes": 9030,
+      "name": "RELATORIO_ES8P2.md",
+      "sha256": "034439edbf5e6dd773290658e83bb91959d83fb42bfb24c6264fa892459eacff"
+    },
+    {
+      "bytes": 30116,
+      "name": "RESULTADOS_ES8P2.json",
+      "sha256": "85b931d061e1f5807059fda0cb890bcdd65ed61f2fab89c4aa7fd789438b1f03"
+    },
+    {
+      "bytes": 401,
+      "name": "RESUMO_REFERENCIAS_ES8P2.json",
+      "sha256": "f907f0b1f76f1c3b953bd97d8864c88485355f80fe79334ddc1cbfc128006d94"
+    },
+    {
+      "bytes": 18093,
+      "name": "References_LeapSpace (10).csv",
+      "sha256": "6510112e81b06a45ed04cd03fa7123777d5cefcc580cfc5a1ecb4b34fd83e5a6"
+    },
+    {
+      "bytes": 26796,
+      "name": "References_LeapSpace (11).csv",
+      "sha256": "6476d9311ac617883cb332deea62dfe76410239dc0b8aff51863cd378e1311d9"
+    },
+    {
+      "bytes": 14432,
+      "name": "References_LeapSpace (12).csv",
+      "sha256": "6d0ec8bd46771c4d188751f66f1950deaa6fee56f46118146f686c2a5f71be72"
+    },
+    {
+      "bytes": 99,
+      "name": "TESTES_ES8P2.txt",
+      "sha256": "919cf35c74778931c71782d9db44aa3e44718d4c361b7feaea5a2a249ee49079"
+    },
+    {
+      "bytes": 8724,
+      "name": "es8p2_prime_cert.py",
+      "sha256": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61"
+    },
+    {
+      "bytes": 5916,
+      "name": "test_es8p2_prime_cert.py",
+      "sha256": "39dbb64b87191e911472b13cc3498d8abc1c8c0b9969038a5e28f4b2b593e301"
+    },
+    {
+      "bytes": 6630,
+      "name": "triage_es8p2.py",
+      "sha256": "1b9559d35040d6a8cf669b566f76d9e0df51f494b83c69d7fa09ea03bf299e54"
+    }
+  ],
+  "schema": "NUMERIA.ES8P2.SHA256.1",
+  "status": "finite projected prime matrix intervals only; no Weil full matrix positivity and no RH proof"
+}
