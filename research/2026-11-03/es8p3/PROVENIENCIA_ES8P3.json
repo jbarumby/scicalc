@@ -1,0 +1,22 @@
+{
+  "schema": "NUMERIA.ES8P3.PROVENANCE.1",
+  "date": "2026-11-03",
+  "repository": "jbarumby/scicalc",
+  "parent_branch": "research/numeria-es8p2-prime-interval-2026-11-03",
+  "parent_commit": "43722ffe48ee6b9bb78c32f0890d4c6518330d15",
+  "prime_source_file": "es8p2_prime_cert.py",
+  "prime_source_sha256": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61",
+  "v17_source": "https://github.com/jbarumby/scicalc/blob/main/v17/RESULTADO_E8K_V17.json",
+  "v17_documentary_normalization": "H_ij=Re(F_i conj F_j); arch=1/pi integral_0infty Omega H_ij; prime=-2ln2/sqrt2 C_ij(log2); pole B vanishes",
+  "v24_source": "https://github.com/jbarumby/scicalc/blob/main/v24/README_V24.md",
+  "v24_error_policy": "absolute arch+prime+pole perturbation bounds for compact taper chi_delta",
+  "historical_e7_sha256_reported_by_v17": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+  "historical_e7_v16_bytes_reverified_in_current_phase": false,
+  "result_status": "CONDITIONAL_FINITE_MODEL_POSITIVITY; HISTORICAL_EQUIVALENCE_NOT_ESTABLISHED; NO_RH_PROOF",
+  "external_analytic_assumptions": [
+    "Guinand-Weil explicit formula with V17 sign and Fourier normalization",
+    "digamma series and special value psi(1/4)",
+    "Euler-Maclaurin remainder using periodic Bernoulli bound",
+    "V24 smooth taper derivative bounds and infinite archimedean error envelope"
+  ]
+}

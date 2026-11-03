@@ -1,0 +1,17 @@
+{
+  "external_workflow_sha256": "777edbe661094c68d3a1377749f74ad75ffd4d8de7f63b685982dfd87a814ce1",
+  "files": {
+    "PROVENIENCIA_ES8P3.json": "27fbe5b8b588b9e3b6648ad10f6524bb6382a556f3c0e369f46d593dc7ee5e0c",
+    "README.md": "d5351d552aceb4242ddff3a06f7d2ee732433b9175f0a3e07398cc8ed156bcf7",
+    "RELATORIO_ES8P3.md": "87ee82da4f75f9be5b5465d8e4781094fcd9cd49da39e0bfc5ca59816e31d086",
+    "RESULTADOS_ES8P3.json": "4cf9d7a77dd30d379bddad7138834a5f5b7e51610d586f813cbdab2583ecaac2",
+    "RESULTADOS_ES8P3_M256.json": "e36babcb160f2cf4be94efde192660470851fe7df5d73ff0c41a50e441235792",
+    "RESULTADOS_ES8P3_M64.json": "4e06ad1bd8267787f31fcbb8fba898d15705471b2d4ebff0865e9c337a320d39",
+    "TESTES_ES8P3.txt": "3701a7d2b72aeefce5e72a054a46c669a3fc1fe0209dc279d250b74affc3c991",
+    "es8p2_prime_cert.py": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61",
+    "es8p3_arch_projected.py": "c980a63fda3aa303c71d8a3bec326499e313e74cc0e0bf8cbcf25dc7b1413633",
+    "test_es8p3_arch_projected.py": "5ba3f87bddc39af8ac3d22c610fbfbe39607f22ab18b3ee28a1a134dd930ace4"
+  },
+  "schema": "NUMERIA.ES8P3.SHA256.MANIFEST.1",
+  "scientific_status": "CONDITIONAL_FINITE_ONLY_NOT_RH"
+}

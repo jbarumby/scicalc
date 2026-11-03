@@ -1,0 +1,53 @@
+name: NUMERIA ES8-P3 certified projected archimedean LDL
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'research/2026-11-03/es8p3/**'
+      - '.github/workflows/numeria-es8p3-arch-projected.yml'
+jobs:
+  certified-projected-matrices:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install diagnostic dependencies
+        run: python -m pip install mpmath==1.3.0 numpy==2.2.6 pytest==8.4.2
+      - name: Run 16 analytic and adversarial checks
+        run: python -m pytest -q research/2026-11-03/es8p3/test_es8p3_arch_projected.py
+      - name: Reproduce rational 128/256 interval matrices
+        run: |
+          python research/2026-11-03/es8p3/es8p3_arch_projected.py --M 128 --out /tmp/ES8P3_REPLAY128.json
+          python research/2026-11-03/es8p3/es8p3_arch_projected.py --M 256 --out /tmp/ES8P3_REPLAY256.json
+      - name: Compare exact interval matrices with committed results
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('research/2026-11-03/es8p3')
+          for m,name in [(128,'RESULTADOS_ES8P3.json'),(256,'RESULTADOS_ES8P3_M256.json')]:
+              want=json.loads((root/name).read_text())
+              got=json.loads(Path(f'/tmp/ES8P3_REPLAY{m}.json').read_text())
+              assert want['finite_matrices']==got['finite_matrices']
+              assert want['gamma_enclosure']==got['gamma_enclosure']
+              assert want['omega0_enclosure']==got['omega0_enclosure']
+              assert want['status']==got['status']
+              assert all(x['conditional_tapered_positive'] for x in got['finite_matrices'].values())
+              assert all(x['cross_parity_exact_zero'] for x in got['finite_matrices'].values())
+              assert all(x['certified_shifted_LDL']['shift']=='1/20' for x in got['finite_matrices'].values())
+          print('ES8-P3: exact interval replay reproduced; conditional finite gate only')
+          PY
+      - name: Verify SHA256 for retained research artifacts
+        run: |
+          cd research/2026-11-03/es8p3
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          m=json.loads(Path('MANIFESTO_SHA256.json').read_text())
+          for name,sha in m['files'].items():
+              assert hashlib.sha256(Path(name).read_bytes()).hexdigest()==sha,name
+          assert 'NOT_ESTABLISHED' in json.loads(Path('PROVENIENCIA_ES8P3.json').read_text())['result_status']
+          print('SHA256 matched',len(m['files']),'files; historical E7/V16 gate intentionally NOT_ESTABLISHED')
+          PY
