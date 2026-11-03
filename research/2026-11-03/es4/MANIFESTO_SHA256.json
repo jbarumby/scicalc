@@ -1,0 +1,36 @@
+{
+  "schema": "NUMERIA.ES4.PACKAGE.MANIFEST.1",
+  "files": [
+    {
+      "path": "es4_spectral_count.py",
+      "sha256": "9ead5454f50b7a255549a82388cdb0c378a30c39571936dccb8e43fc3018151a",
+      "bytes": 6980
+    },
+    {
+      "path": "test_es4_spectral_count.py",
+      "sha256": "4cc65704b74a8dc69ef0af95f20e1b546d9dcca288c30a69a3977893795b5e3e",
+      "bytes": 3560
+    },
+    {
+      "path": "RESULTADOS_ES4.json",
+      "sha256": "792b13c1aad778ff55c3ba92dc618437faa1b7d1a4d7d1028fcb72411e6e19ce",
+      "bytes": 9641
+    },
+    {
+      "path": "RELATORIO_ES4.md",
+      "sha256": "3a212934e0d354ca4334368f8d480d1ab2a2452ba1e8bc41afb11cd68b96979b",
+      "bytes": 7176
+    },
+    {
+      "path": "README.md",
+      "sha256": "761ef23bb9b92b7ace884e6905c82cd05c6fcc1a879876371e18e38c90f401a5",
+      "bytes": 1310
+    },
+    {
+      "path": "TESTES_ES4.txt",
+      "sha256": "c50b3329368b404da700ef76b94fb0b3f98e47ee63308a702da2c69c70eaa77f",
+      "bytes": 99
+    }
+  ],
+  "status": "numerical control only; no RH proof"
+}
