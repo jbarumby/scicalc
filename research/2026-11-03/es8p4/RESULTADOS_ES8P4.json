@@ -1,0 +1,236 @@
+{
+  "M": 64,
+  "finite_v17_replay": {
+    "10": {
+      "cross_parity_exact_zero": true,
+      "dimension": 8,
+      "ldl_shift": "1/20",
+      "ldl_status": "CERTIFIED_POSITIVE_DEFINITE",
+      "pole_proof": {
+        "N": 10,
+        "all_cancel": true,
+        "rows": [
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 3,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 4,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 5,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 6,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 7,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 8,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 9,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 10,
+            "pivot": 2
+          }
+        ]
+      },
+      "source_status": "RECONSTRUCTED_V17_MODEL_NOT_ORIGINAL_E7_BYTE_MATCH",
+      "strict_taper_less_than_shift": true,
+      "taper_error_upper_rational": "8824608410504507889826970699113857369735427387922488714628064416747105371138686595989449194552354374952142691179534993387236793902478524123652769262744651953978160613170935179668544336072267570486152965701820093487381151965839690620745140075027/88376594291797351205787080960755119567769350103397350582635429493817542396714399194866303696770885042180813116178842747864440917968750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "6": {
+      "cross_parity_exact_zero": true,
+      "dimension": 4,
+      "ldl_shift": "1/20",
+      "ldl_status": "CERTIFIED_POSITIVE_DEFINITE",
+      "pole_proof": {
+        "N": 6,
+        "all_cancel": true,
+        "rows": [
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 3,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 4,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 5,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 6,
+            "pivot": 2
+          }
+        ]
+      },
+      "source_status": "RECONSTRUCTED_V17_MODEL_NOT_ORIGINAL_E7_BYTE_MATCH",
+      "strict_taper_less_than_shift": true,
+      "taper_error_upper_rational": "5326748189747437686185047894279411904491135397166008968728379357108813051085892655730303044032289413044879191742142541372364472681640537926664422930316772759410154570733591651661182709711085225812755138218873149439375306785900252836939008444833/235670918111459603215432215895346985514051600275726268220361145316846779724571731186310143191389026779148834976476913994305175781250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "8": {
+      "cross_parity_exact_zero": true,
+      "dimension": 6,
+      "ldl_shift": "1/20",
+      "ldl_status": "CERTIFIED_POSITIVE_DEFINITE",
+      "pole_proof": {
+        "N": 8,
+        "all_cancel": true,
+        "rows": [
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 3,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 4,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 5,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 6,
+            "pivot": 2
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 7,
+            "pivot": 1
+          },
+          {
+            "both_signs_cancel": true,
+            "coeff_X": "0",
+            "coeff_const": "0",
+            "mode": 8,
+            "pivot": 2
+          }
+        ]
+      },
+      "source_status": "RECONSTRUCTED_V17_MODEL_NOT_ORIGINAL_E7_BYTE_MATCH",
+      "strict_taper_less_than_shift": true,
+      "taper_error_upper_rational": "6125140357824150218877367106803602837741097924188309554802019697255081347578650122797614699208272246930509917640588142830802875233139135514290192437416429300083053536255732228757685273926264831741927436019972714677137909760128497350940106048337/117835459055729801607716107947673492757025800137863134110180572658423389862285865593155071595694513389574417488238456997152587890625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "full_historical_e7_v16_equivalence_established": false,
+  "git_e7": {
+    "object_identity_by_git": true,
+    "records": [
+      {
+        "commit": "fe6bdb7463172ea7107cd050410fe0f94196de29",
+        "git_blob_sha1": "5b6abb59aa09aa53b088d672a3c4e2c240e5ac4d",
+        "matches": true,
+        "path": "NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip",
+        "size": 1641486
+      },
+      {
+        "commit": "fe6bdb7463172ea7107cd050410fe0f94196de29",
+        "git_blob_sha1": "5b6abb59aa09aa53b088d672a3c4e2c240e5ac4d",
+        "matches": true,
+        "path": "numeria_e8k/v15/E7_original.bin",
+        "size": 1641486
+      },
+      {
+        "commit": "2053129b03cffbce302b142af73df37e993f1613",
+        "git_blob_sha1": "5b6abb59aa09aa53b088d672a3c4e2c240e5ac4d",
+        "matches": true,
+        "path": "NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3.zip",
+        "size": 1641486
+      },
+      {
+        "commit": "2053129b03cffbce302b142af73df37e993f1613",
+        "git_blob_sha1": "5b6abb59aa09aa53b088d672a3c4e2c240e5ac4d",
+        "matches": true,
+        "path": "numeria_e8k/v15/E7_original.bin",
+        "size": 1641486
+      }
+    ],
+    "what_it_proves": "the 4 Git tree entries refer to one and the same Git blob, not verified ZIP internals"
+  },
+  "optional_archive_check": {
+    "checked": false,
+    "historical_entry_reconciliation": false,
+    "reason": "Original E7 ZIP bytes unavailable in this environment",
+    "source_binary_sha256_validated": false
+  },
+  "schema": "NUMERIA.ES8P4.HISTORICAL_RECONCILIATION.1",
+  "scientific_status": "DOCUMENTARY_AND_RECONSTRUCTED_MODEL_CHECKS_PASS; ORIGINAL_E7_V16_ENTRY_IDENTITY_NOT_ESTABLISHED; NO_RH_PROOF",
+  "source_integrity": {
+    "matches": true,
+    "sources": {
+      "es8p2_prime_cert.py": {
+        "actual_sha256": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61",
+        "expected_sha256": "f275aa8c385a394b6a3445bd489f27de97e900d1bc1fb7389cb78707d6f90c61",
+        "same": true
+      }
+    }
+  },
+  "verified_v17_model": true,
+  "what_is_not_proven": [
+    "No original E7/V16 internal entry-by-entry replay",
+    "Git blob identity is not proof of the source formulas or their signs",
+    "V17/B5 phase4 source hashes require original source bytes to revalidate",
+    "No all-N Weil positivity or RH proof"
+  ]
+}
