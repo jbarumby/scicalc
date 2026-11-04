@@ -31,4 +31,4 @@ python generate_es8p14.py
 
 ## Compilação Lean
 
-No GitHub Actions, `lake env lean` compila `ES8P14.lean`, `ES8P13.lean` e `ES8P14Concrete.lean` (importando os módulos anteriores). O status deve ser considerado **pendente** até que o workflow remoto termine.
+No GitHub Actions, `lake env lean` compila `ES8P14.lean`, `ES8P13.lean` e `ES8P14Concrete.lean` (importando os módulos anteriores). A compilação de `ES8P14.lean`, `ES8P13.lean` e `ES8P14Concrete.lean` foi **aprovada** no GitHub Actions [run 41817331757](https://github.com/jbarumby/scicalc/actions/runs/41817331757).

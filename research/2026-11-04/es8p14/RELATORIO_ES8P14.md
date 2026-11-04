@@ -47,4 +47,4 @@ Em vez de simplesmente elevar a dimensão mantendo \(L=0.45\), propõe-se testar
 
 ## 5. Estado da reprodução
 
-Python exato: 6 testes aprovados localmente. O arquivo Lean foi criado, e sua compilação remota deve ser consultada separadamente antes de classificá-lo como formalmente verificado.
+Python exato: 6 testes aprovados localmente e no GitHub. **Lean 4.35.0 + Mathlib: compilação remota aprovada** no [GitHub Actions run 41817331757](https://github.com/jbarumby/scicalc/actions/runs/41817331757). Foram compilados o teorema genérico de perturbação, os certificados LDL de ES8-P13 e os certificados concretos dos extremos racionais. O alcance permanece restrito às matrizes racionais com entradas nas caixas fornecidas; não há formalização da inclusão analítica ou prova de RH.
