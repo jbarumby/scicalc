@@ -31,6 +31,7 @@ def weightNum (j : Fin 16) : ℤ :=
 def weight (j : Fin 16) : ℚ := (weightNum j : ℚ) / 2066448384
 def node (j : Fin 16) : ℚ := (j.val : ℚ) / 15
 
+set_option maxHeartbeats 8000000 in
 theorem newton_cotes_exact_moments :
     ∀ k : Fin 16,
       (∑ j : Fin 16, weight j * (node j) ^ k.val) =
