@@ -1,0 +1,64 @@
+name: numeria-es8p19-block-c00
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P19.lean'
+      - 'research/2026-11-04/es8p19/**'
+      - '.github/workflows/numeria-es8p19-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  formal-block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject incomplete Lean declarations
+        shell: bash
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P19.lean; then
+            echo 'ES8-P19 contains a proof gap'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile general finite-support block algebra
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P19.lean
+
+  exact-rational-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate ES8-P19 SHA256 manifest
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('research/2026-11-04/es8p19')
+          data=json.loads((root/'MANIFESTO_SHA256.json').read_text())
+          for name, sha in data.items():
+              f=pathlib.Path('NUMERIA_E8K_FORMAL/ES8P19.lean') if name=='ES8P19.lean' else pathlib.Path('.github/workflows/numeria-es8p19-lean.yml') if name.endswith('.yml') else root/name
+              assert hashlib.sha256(f.read_bytes()).hexdigest()==sha, name
+          print('verified',len(data),'hashes')
+          PY
+      - name: Run independent exact arithmetic tests
+        run: |
+          cd research/2026-11-04/es8p19
+          python -m unittest -v test_es8p19.py
+      - name: Regenerate results and compare byte-for-byte
+        run: |
+          cd research/2026-11-04/es8p19
+          python audit_es8p19.py --out /tmp/RESULTADOS_ES8P19_REPLAY.json
+          cmp /tmp/RESULTADOS_ES8P19_REPLAY.json RESULTADOS_ES8P19.json

@@ -1,0 +1,104 @@
+{
+  "block_correction": {
+    "cases": [
+      {
+        "exact_outer_product_equality": true,
+        "n": 1,
+        "rank_of_pole_projection_correction": 1,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 2,
+        "rank_of_pole_projection_correction": 2,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 3,
+        "rank_of_pole_projection_correction": 3,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 4,
+        "rank_of_pole_projection_correction": 4,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 8,
+        "rank_of_pole_projection_correction": 4,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 10,
+        "rank_of_pole_projection_correction": 4,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 16,
+        "rank_of_pole_projection_correction": 4,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      },
+      {
+        "exact_outer_product_equality": true,
+        "n": 32,
+        "rank_of_pole_projection_correction": 4,
+        "rank_upper_bound": 4,
+        "symmetric_projected_matrix": true
+      }
+    ],
+    "max_rank": 4,
+    "two_pole_rows": 2
+  },
+  "counterexamples": {
+    "all_finite_sections_positive_no_uniform_gap": {
+      "first_n_minima": {
+        "1": "1",
+        "100": "1/100",
+        "1000": "1/1000",
+        "16": "1/16",
+        "4": "1/4",
+        "8": "1/8"
+      },
+      "infimum_gap": "0",
+      "matrix": "diag(1/(k+1))"
+    },
+    "bounded_error_not_finite_rank": true,
+    "finite_prefix_does_not_fix_infinite_extension": {
+      "first_eight_diagonal_entries": "1",
+      "ninth_index_diagonal_entry": "-1"
+    },
+    "small_bounded_perturbation_can_have_infinite_rank": {
+      "norm": "1/1000",
+      "operator": "(1/1000) I on ell2",
+      "truncation_ranks": {
+        "1": 1,
+        "100": 100,
+        "16": 16,
+        "4": 4,
+        "8": 8
+      }
+    }
+  },
+  "schema": "NUMERIA.ES8P19.BLOCK_FINITE_SUPPORT.1",
+  "scientific_status": "EXACT_FINITE_ALGEBRA_AND_COUNTERMODELS_ONLY",
+  "source_scope": "Qwen finite-rank manuscript and ES8-P14/P18 operator structure",
+  "unproved": [
+    "the actual infinite Weil kernel equals the constructed algebraic form",
+    "analytic boundedness/semiboundedness/closedness of global Weil form",
+    "the full prime matrix is diagonal",
+    "spectral margin 1/20 in all dimensions",
+    "RH"
+  ]
+}
