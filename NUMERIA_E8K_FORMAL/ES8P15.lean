@@ -28,8 +28,7 @@ theorem log_tail_bounded (R : ℝ) (hR : 1 ≤ R) :
     <;> ring
   calc
     _ ≤ (3 * R + 9) / (3 * R ^ 3) := by
-      apply (div_le_div_iff₀ (by positivity) (by positivity)).2
-      nlinarith
+      gcongr <;> linarith [hlog]
     _ = _ := heq
 
 theorem e7_bound_implies_rational_enclosure
@@ -71,7 +70,7 @@ theorem tsum_margin_of_partial_sums (f g : ℕ → ℝ)
     hf.tendsto_sum_tsum_nat.sub
       ((tendsto_const_nhds (x := (1 : ℝ) / 20)).mul hg.tendsto_sum_tsum_nat)
   have hn : 0 ≤ (∑' k, f k) - (1 : ℝ) / 20 * (∑' k, g k) :=
-    le_of_tendsto hlim
+    ge_of_tendsto hlim
       (Eventually.of_forall (fun n => sub_nonneg.mpr (hfinite n)))
   linarith
 
@@ -84,7 +83,7 @@ theorem quadratic_margin_at_limit (q s : ℕ → ℝ) (Q S : ℝ)
       atTop (𝓝 (Q - (1 : ℝ) / 20 * S)) :=
     hq.sub ((tendsto_const_nhds (x := (1 : ℝ) / 20)).mul hs)
   have hn : 0 ≤ Q - (1 : ℝ) / 20 * S :=
-    le_of_tendsto hlim
+    ge_of_tendsto hlim
       (Eventually.of_forall (fun n => sub_nonneg.mpr (hfinite n)))
   linarith
 
