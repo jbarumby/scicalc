@@ -1,0 +1,18 @@
+{
+  "schema": "NUMERIA.ES8P6.SHA256.1",
+  "sha256": {
+    "FIXTURE_FASE4_ES8P6.json": "e339a5efa0d0308a5a3e774a732bf0936317e8f84c402afb7d379ad8733cdf84",
+    "README.md": "6a65425f2333c8cffcf2f2ce1fec9ce8669388167c1b0d4408246a9f1d1a1755",
+    "RELATORIO_ES8P6.md": "24c6b7a6bb824960089ee94e0e1dfd18774796eb8dacadcaa0e637499bab7e1b",
+    "RESULTADOS_ES8P6.json": "72d699b8111aca9aeef92349f246b3e206303d5794f9f90eb7643d15783b7cc3",
+    "RESULTADOS_NOS_ES8P6.json": "2de2525d2f21d0ab039e15fbe9c06b2db6d1902fd56d2611e3591ea709d13593",
+    "check_manifest.py": "f447a066858d9e8aeac1c849be1f49a31c30e83c64109c7edf7baa231e0487cf",
+    "es8p6_independent_audit.py": "21fc3bbce4bf288bad3184f8cf11d3b956bc07d3d42f6835f2a8fa5ceb3727cc",
+    "es8p6_node_spotcheck.py": "fc94dbcb125d72378abd3d7990fbb0fce6b2c4925fadadf08643cda210470667",
+    "numeria-es8p6-analytic.yml": "67916638dac70687584df9d5cc92152eb45ec47bbaeb7542b797096f17c68bb6",
+    "source_snapshot/fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "source_snapshot/fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49",
+    "test_es8p6_independent.py": "4594620fab40ac89050c732661848338597d0af90d1aa1a0fb9daa2608ff3b01"
+  },
+  "status": "ANALYTIC_LEMMAS_DERIVED_GLOBAL_WEIL_NOT_PROVEN"
+}

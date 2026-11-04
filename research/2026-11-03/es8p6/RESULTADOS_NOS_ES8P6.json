@@ -1,0 +1,78 @@
+{
+  "status": "9_EXACT_RATIONAL_INTERVAL_INTERSECTIONS",
+  "n_cases": 9,
+  "checks": [
+    {
+      "category": "omega",
+      "r": "0",
+      "overlap": true,
+      "source_width": 1.940255363782247e-12,
+      "independent_width": 1.940255363782247e-12
+    },
+    {
+      "category": "omega",
+      "r": "1",
+      "overlap": true,
+      "source_width": 2.2363482132732447e-12,
+      "independent_width": 1.6435373702736212e-11
+    },
+    {
+      "category": "omega",
+      "r": "4",
+      "overlap": true,
+      "source_width": 6.662712282815152e-12,
+      "independent_width": 2.3384007598737775e-10
+    },
+    {
+      "category": "omega",
+      "r": "10",
+      "overlap": true,
+      "source_width": 3.0937090621317374e-11,
+      "independent_width": 1.4505419937391112e-09
+    },
+    {
+      "category": "omega",
+      "r": "160",
+      "overlap": true,
+      "source_width": 5.591407774299257e-10,
+      "independent_width": 3.1810494010512684e-07
+    },
+    {
+      "category": "amplitude",
+      "mode": 1,
+      "r": "0",
+      "overlap": true,
+      "source_width": 4.8e-39,
+      "independent_width": 3.1733429363090323e-47
+    },
+    {
+      "category": "amplitude",
+      "mode": 1,
+      "r": "4",
+      "overlap": true,
+      "source_width": 4.7e-39,
+      "independent_width": 3.1384053975836643e-47
+    },
+    {
+      "category": "amplitude",
+      "mode": 2,
+      "r": "4",
+      "overlap": true,
+      "source_width": 3.6e-39,
+      "independent_width": 6.1843340458439e-47
+    },
+    {
+      "category": "amplitude",
+      "mode": 3,
+      "r": "10",
+      "overlap": true,
+      "source_width": 3.5e-39,
+      "independent_width": 9.239595615585859e-47
+    }
+  ],
+  "source_sha256": {
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49"
+  },
+  "limitation": "Both codes use shared classical identities; not a 30x1600x16 nodal replay"
+}

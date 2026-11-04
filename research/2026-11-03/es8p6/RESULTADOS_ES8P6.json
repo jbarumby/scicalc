@@ -1,0 +1,76 @@
+{
+  "schema": "NUMERIA.ES8P6.RESULTS.1",
+  "status": "FINITE_ANALYTIC_CAUCHY_AND_TAIL_REDERIVED",
+  "phase4_proof_replay": {
+    "baseline_tail_entries_checked": 30,
+    "exact_interpolation_errors_checked": 30,
+    "historical_e7_tail_comparisons": [
+      {
+        "difference_less_than_1e-14": true,
+        "entry": "G11",
+        "historical": 2.4006835909294986e-05,
+        "independent": 2.4006835909294986e-05
+      },
+      {
+        "difference_less_than_1e-14": true,
+        "entry": "G22",
+        "historical": 9.630229703695734e-05,
+        "independent": 9.630229703695734e-05
+      }
+    ],
+    "independent_analytic_proofs": [
+      "holomorphic digamma symmetrization in |Im z|<1/2",
+      "absolute F_k bound from compact [-L,L] support and exp(Ld)",
+      "DLMF 5.7.6 digamma series yielding |psi(w)|<=1+1/alpha+2|w|",
+      "Cauchy error for real degree-15 polynomial interpolation",
+      "exact rational closed sum of 1600 cell error majorants",
+      "conservative E7 tail via classical psi reflection/duplication and monotone series",
+      "sharp E7 Proposition 6 tail using rational gamma, ln, cosh estimates"
+    ],
+    "input_sha256": "b0d7d335534239a6863e655295a658282551d334b0808ee801710a4b5699d8fe",
+    "interpolation_error_decimal": "1.97925353571160597e-05",
+    "interpolation_error_exact": "4154891126177792/209922127267236328125",
+    "lagrange_exact_moment_checks": 16,
+    "lagrange_weight_count": 16,
+    "not_proved": [
+      "independent re-evaluation of all 25600 Phase4 nodal function values per entry",
+      "a fully formal proof in Lean of special-function identities",
+      "ES8-P3 Euler-Maclaurin implementation, apart from the E7 sharp tail rederived here",
+      "equivalence to universal Weil positivity or Riemann Hypothesis"
+    ],
+    "pairs": 30,
+    "parameters": {
+      "L": "9/20",
+      "R": 160,
+      "alpha": "3/40",
+      "cells": 1600,
+      "d": "7/20",
+      "h": "1/10",
+      "nodes_per_cell": 16,
+      "one_minus_2Ld": "137/200",
+      "rho": "3/10"
+    },
+    "pi_in_3_4": true,
+    "sharp_omega_rational_constant_verified": true,
+    "sharp_tail_entries_checked": 30,
+    "source_hashes": 4,
+    "status": "ANALYTIC_CAUCHY_INTERPOLATION_AND_TAIL_REDERIVED;_NODES_NOT_RECOMPUTED",
+    "stored_numeric_intervals_checked": 30
+  },
+  "node_sample": {
+    "n_cases": 9,
+    "status": "9_EXACT_RATIONAL_INTERVAL_INTERSECTIONS"
+  },
+  "verified_conditions": {
+    "cauchy_analytic_strip": true,
+    "closed_form_interpolation_error": true,
+    "lagrange_16_moment_identities": true,
+    "tail_prop5": true,
+    "tail_prop6": true,
+    "e7_historical_sharp_tail_G11_G22": true,
+    "stored_intervals_authenticated_30": true,
+    "full_nodal_replay": false,
+    "universal_weil": false,
+    "riemann_hypothesis": false
+  }
+}
