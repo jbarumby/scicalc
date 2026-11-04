@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'NUMERIA_E8K_FORMAL/ES8P15.lean'
+      - 'NUMERIA_E8K_FORMAL/ES8P15*.lean'
       - '.github/workflows/numeria-es8p15-lean.yml'
 
 permissions:
@@ -35,3 +35,8 @@ jobs:
         run: |
           cd NUMERIA_E8K_FORMAL
           LEAN_PATH=. lake env lean ES8P15.lean
+
+      - name: Compile rational unprojected tail budget
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P15Budget.lean
