@@ -6,7 +6,7 @@ Esta etapa responde a três obrigações: decaimento controlado da cauda E7, pas
 
 Arquivos:
 - `ES8P15.lean`: lemas e teoremas condicionais sem axiomas adicionais.
-- `audit_es8p15.py`, `test_es8p15.py`: reprodução Python, contraexemplos e testes.
+- `audit_es8p15.py`, `test_es8p15.py`: reprodução Python, contraexemplos, orçamento uniforme da cauda bruta, e testes.
 - `RESULTADOS_ES8P15.json`: valores de diagnóstico e restrições explícitas.
 - `RELATORIO_ES8P15.md`: demonstrações matemáticas e pendências.
 - `numeria-es8p15-lean.yml`: compilação Lean e regressão Python.
