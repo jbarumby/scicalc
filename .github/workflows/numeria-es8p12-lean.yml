@@ -1,0 +1,28 @@
+name: numeria-es8p12-lean
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P12.lean'
+      - '.github/workflows/numeria-es8p12-lean.yml'
+permissions:
+  contents: read
+jobs:
+  formal-lean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject incomplete proofs
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P12.lean; then exit 1; fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile ES8-P12
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P12.lean
