@@ -1,0 +1,34 @@
+name: numeria-es8p11-lean
+on:
+  push:
+    branches:
+      - 'research/numeria-es8p11-lean-*'
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P11.lean'
+      - 'research/2026-11-03/es8p11/**'
+      - '.github/workflows/numeria-es8p11-lean.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean-proofs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject proof holes
+        shell: bash
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P11.lean; then exit 1; fi
+      - name: Lean 4.35 and Mathlib cache
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Kernel-check formal results
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lean --version
+          lake env lean ES8P11.lean
