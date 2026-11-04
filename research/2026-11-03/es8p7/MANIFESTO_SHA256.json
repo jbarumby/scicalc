@@ -1,0 +1,18 @@
+{
+  "schema": "NUMERIA.ES8P7.MANIFEST.1",
+  "files": {
+    "README.md": "f6f05aac1934aae00d3e8a671323a73088cebcc7befc2f259a71f841a23c1882",
+    "REFERENCIAS_ORIGINAIS_16.csv": "4d15d27f98991518ffd4186f3c612084b437d842de4d1c27d337f8b66531e0fe",
+    "RELATORIO_ES8P7.md": "0c55ff609dde9b94a216ea789c9a01628fa1372b2c00ea51ea420b55a4173326",
+    "RESULTADOS_ES8P7.json": "9a0cc9dded57607a74b07b3158d3f9eeeb7740fe26149df92034f4790a3dec58",
+    "RESUMO_FASE4_1600CELULAS_D40.json": "f694da5799d3e91ace7eb3a2943c24477f4d0ecbbd9f7e94b6617ab7104ad4ec",
+    "TESTES_ES8P7.txt": "9e705c2e3a85f81fa90c550b3ee0b3e88aa7aae6ea390cbc540e555054d4160c",
+    "check_manifest.py": "b9938f9cf020c8cc6a4e7670cfa70195b737a6b2119f7798b096faf9004818a7",
+    "es8p7_independent.py": "18ea65e21fa14bdea77028bd2f55409bda1515ae980d1a6a92bf2aae2b31b778",
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49",
+    "numeria-es8p7-nodes.yml": "dddf780ba115b57337023e70ddeecb95ce1be41fd0d8e25fc6831c1028a7262e",
+    "test_es8p7_independent.py": "bc897d401de3c114bbe8c505c7283753fe1d1e4058de2a017bb5fd14de06af40"
+  },
+  "status": "450_NODE_INTERSECTION_SAMPLES_ADMISSIBILITY_VALIDATION_NOT_RH_PROOF"
+}

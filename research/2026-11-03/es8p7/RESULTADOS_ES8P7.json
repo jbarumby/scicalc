@@ -1,0 +1,351 @@
+{
+  "schema": "NUMERIA.ES8P7.NODE_AND_ADMISSIBILITY.1",
+  "status": "450_SAMPLE_NODAL_INTERSECTIONS_VERIFIED",
+  "historical_source_sha256": {
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49"
+  },
+  "parameters": {
+    "L": "9/20",
+    "R": "160",
+    "cells": 1600,
+    "nodes_per_cell": 16,
+    "rational_series_terms": 256,
+    "historical_fixed_digits": 40
+  },
+  "sample_design": {
+    "cells": [
+      0,
+      40,
+      100,
+      400,
+      1599
+    ],
+    "node_indices": [
+      0,
+      8,
+      15
+    ],
+    "full_original_node_count": 768000
+  },
+  "statistics": {
+    "nodes": 15,
+    "pairs": 30,
+    "compared": 450,
+    "incompatible": 0,
+    "original_contains_mpmath": 0,
+    "independent_contains_mpmath": 0,
+    "max_width_original": "4.634264721450262e-12",
+    "max_width_independent": "3.0669482271362826e-10"
+  },
+  "failure_examples": [],
+  "sample_intervals_rounded_display_only": [
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 1,
+      "j": 1,
+      "historical_interval": [
+        "-1.24748034139211",
+        "-1.24748034139166"
+      ],
+      "independent_interval": [
+        "-1.24748034139211",
+        "-1.24748034139166"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 1,
+      "j": 3,
+      "historical_interval": [
+        "-0.41582678046404",
+        "-0.41582678046389"
+      ],
+      "independent_interval": [
+        "-0.41582678046404",
+        "-0.41582678046389"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 1,
+      "j": 5,
+      "historical_interval": [
+        "-0.24949606827842",
+        "-0.24949606827833"
+      ],
+      "independent_interval": [
+        "-0.24949606827842",
+        "-0.24949606827833"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 1,
+      "j": 7,
+      "historical_interval": [
+        "-0.17821147734173",
+        "-0.17821147734167"
+      ],
+      "independent_interval": [
+        "-0.17821147734173",
+        "-0.17821147734167"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 1,
+      "j": 9,
+      "historical_interval": [
+        "-0.13860892682135",
+        "-0.1386089268213"
+      ],
+      "independent_interval": [
+        "-0.13860892682135",
+        "-0.1386089268213"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 2,
+      "j": 2,
+      "historical_interval": [
+        "-0.0",
+        "0.0"
+      ],
+      "independent_interval": [
+        "-0.0",
+        "0.0"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 2,
+      "j": 4,
+      "historical_interval": [
+        "-0.0",
+        "0.0"
+      ],
+      "independent_interval": [
+        "-0.0",
+        "0.0"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 2,
+      "j": 6,
+      "historical_interval": [
+        "-0.0",
+        "0.0"
+      ],
+      "independent_interval": [
+        "-0.0",
+        "0.0"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 2,
+      "j": 8,
+      "historical_interval": [
+        "-0.0",
+        "0.0"
+      ],
+      "independent_interval": [
+        "-0.0",
+        "0.0"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 2,
+      "j": 10,
+      "historical_interval": [
+        "-0.0",
+        "0.0"
+      ],
+      "independent_interval": [
+        "-0.0",
+        "0.0"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 3,
+      "j": 3,
+      "historical_interval": [
+        "-0.13860892682135",
+        "-0.1386089268213"
+      ],
+      "independent_interval": [
+        "-0.13860892682135",
+        "-0.1386089268213"
+      ]
+    },
+    {
+      "cell": 0,
+      "index": 0,
+      "r": "0",
+      "i": 3,
+      "j": 5,
+      "historical_interval": [
+        "-0.08316535609281",
+        "-0.08316535609278"
+      ],
+      "independent_interval": [
+        "-0.08316535609281",
+        "-0.08316535609278"
+      ]
+    }
+  ],
+  "independent_digamma_mp65_not_certified": [
+    {
+      "r": "0",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "4/75",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "1/10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "4",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "304/75",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "41/10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "754/75",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "101/10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "40",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "3004/75",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "401/10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "1599/10",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "23993/150",
+      "contained_in_rational_interval": true
+    },
+    {
+      "r": "160",
+      "contained_in_rational_interval": true
+    }
+  ],
+  "admissibility": {
+    "status": "ADMISSIBILITY_PROVED_FROM_ELEMENTARY_ESTIMATES_AND_STANDARD_WEIL_THEOREM",
+    "strip_half_height": "3/5",
+    "function_type": "H_ij(z)=[F_i(z)F_j(-z)+F_j(z)F_i(-z)]/2, F_k entire; H even and entire",
+    "uniform_decay": "H_ij(x+iy)=O((1+|x|)^-4) on |y| <= strip_half_height",
+    "decay_argument": "f_k vanishes at endpoints; two integrations by parts give F_k=O(|x|^-2) uniformly on any bounded horizontal strip",
+    "complex_omega_note": "Omega_complex(z) has poles at ±i/2; used only for Cauchy interpolation on disks of radius 0.35, not as test h itself",
+    "external_assumption": "Classical Guinand-Weil explicit formula valid for strip-holomorphic functions of >1 polynomial decay",
+    "scope": "Individual H_ij, N up to 10, no universal positivity"
+  },
+  "references": [
+    {
+      "title": "Evaluation of series with Hurwitz and Lerch zeta function coefficients by using Hankel contour integrals",
+      "doi": "10.1016/j.amc.2006.08.061",
+      "role": "alternative_contour_formula_digamma_not_direct_rational_certification",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "On the Order of Growth of Lerch Zeta Functions",
+      "doi": "10.3390/math11030723",
+      "role": "growth_of_lerch_indirect_not_node_certification",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "New properties of the Lerch's transcendent",
+      "doi": "10.1016/j.jnt.2016.08.013",
+      "role": "context_only",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "The Zeta and Related Functions",
+      "doi": "10.1016/b978-0-12-385218-2.00002-5",
+      "role": "context_only",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "Asymptotic expansions of the Hurwitz-Lerch zeta function",
+      "doi": "10.1016/j.jmaa.2004.05.040",
+      "role": "asymptotic_lerch_reference_domain_assumptions_check_needed",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "Some families of the Hurwitz-Lerch Zeta functions and associated fractional derivative and other integral representations",
+      "doi": "10.1016/s0096-3003(03)00746-x",
+      "role": "context_only",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "Integral and computational representations of the extended Hurwitz-Lerch zeta function",
+      "doi": "10.1080/10652469.2010.530128",
+      "role": "context_only",
+      "source": "user_supplied_csv_metadata"
+    },
+    {
+      "title": "Nemes (2017) Error bounds for asymptotic expansion of Hurwitz zeta",
+      "doi": "10.1098/rspa.2017.0363",
+      "role": "external_reference_for_independent_future_polygamma_remainder",
+      "source": "external_literature_not_in_user_csv"
+    }
+  ],
+  "not_established": [
+    "Validation of every historical nodal enclosure, total 768000 evaluations",
+    "Independent formal proof of all fixed-point rounding and analytic remainder code paths",
+    "Full infinite-dimensional Weil nonnegativity or the Riemann Hypothesis"
+  ]
+}
