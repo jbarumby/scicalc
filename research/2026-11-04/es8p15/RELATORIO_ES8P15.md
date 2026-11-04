@@ -1,6 +1,6 @@
 # NUMERIA–RIEMANN — ES8-P15: caudas, séries infinitas e margens uniformes
 
-**Data:** 04/11/2026. **Status:** prova parcial e condicional; consulte o resultado da compilação Lean no CI. **Base:** ES8-P14, `e687605389d7baf97bae7d59c6bd09c567a696c4`.
+**Data:** 04/11/2026. **Status:** 10 teoremas Lean compilados no GitHub Actions 41850800456; resultado científico parcial e condicional. **Base:** ES8-P14, `e687605389d7baf97bae7d59c6bd09c567a696c4`.
 
 ## 1. Cauda arquimediana — o que foi e o que não foi provado
 
@@ -34,8 +34,7 @@ majorantes (antes da projeção) satisfaz, com aritmética racional exata:
 \le\frac{406}{91125}<\frac1{100}.
 \]
 
-Esta identidade de majorantes está verificada por testes Python (`Fraction`).
-A sua formalização Lean como teorema separado está **pendente**. Mesmo
+A identidade racional e o orçamento inferior a `1/100` estão provados em Lean por `raw_tail_scaling_identity` e `unprojected_e7_tail_budget` (GitHub Actions 41850800456), além de 14 testes Python locais. Mesmo
 uma prova mecanizada desta desigualdade controlaria apenas **a cauda bruta**,
 não a cauda após os coeficientes da projeção e nem os demais erros de entrada.
 
@@ -79,7 +78,7 @@ então `M_n` satisfaz a margem `1/20` em todos os vetores racionais não nulos, 
 
 ## 4. Critérios de conclusão da fase
 
-- Lean 4.35.0 + Mathlib: compilar `ES8P14.lean` e `ES8P15.lean`, sem `sorry`, `admit` ou axiomas adicionais.
+- Lean 4.35.0 + Mathlib: `ES8P14.lean`, `ES8P15.lean` e `ES8P15Budget.lean` compilaram no GitHub Actions 41850800456, sem `sorry`, `admit` ou axiomas adicionais.
 - Testes locais: executar `python -m unittest -v test_es8p15.py`, conferindo a fórmula racional e contraexemplos.
 - `RESULTADOS_ES8P15.json` registra parâmetros e verificações numéricas de alta precisão apenas como testes — não como substituto da prova Lean.
 - Não alegar positividade universal ou prova da Hipótese de Riemann.

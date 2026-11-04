@@ -19,4 +19,4 @@ python -m unittest -v test_es8p15.py
 python audit_es8p15.py
 ```
 
-No projeto Lean, `ES8P14.lean` precisa ser compilado para importar `ES8P15.lean`.
+No projeto Lean, compile `ES8P14.lean`, depois `ES8P15.lean` e `ES8P15Budget.lean`. A compilação Lean 4.35.0 foi aprovada no GitHub Actions 41850800456, com 10 teoremas; 14 testes Python foram aprovados localmente.
