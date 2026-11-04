@@ -1,0 +1,88 @@
+{
+  "absolute_newton_integral_exact": "250582204083791/150744971763610839843750",
+  "assumptions": [
+    "Digamma partial-fraction expansion (classical, DLMF 5.7.6)",
+    "Holomorphy and Cauchy derivative formula on enlarged cell disks",
+    "V17 Fourier normalization and arithmetic prime-2 term inherited from P9",
+    "Original ES8-P9 nodal interval endpoints rigorously include exact values",
+    "E7 sharp tail bound inherited from P6 and confirmed by rational inequalities"
+  ],
+  "cauchy_disk_geometry": {
+    "digamma_real_part_lower": "3/40",
+    "disk_radius": "3/10",
+    "enlarged_disk_radius": "7/20",
+    "fourier_exp_majorant_denominator": "137/200",
+    "sample_cauchy_majorant_cell0": "2424/137"
+  },
+  "digamma_tail_proof": [
+    "f(u)=int_0^infty exp(-u*t)*(1-cos(b*t))dt, positive Laplace kernel",
+    "U(t)=(1+t^2/3)sinh(t)-t*cosh(t): coefficient 4n(n-1)/(3(2n+1)!), n>=1",
+    "V(t)=t*cosh(t)-(1+t^2/3-t^4/45)sinh(t): coefficient 16n(n-1)(n-2)(n+2)/(45(2n+1)!), n>=2",
+    "Therefore t/12-t^3/720 <= 1/(1-exp(-t))-1/t-1/2 <=t/12 for every t>0",
+    "Multiply by exp(-u*t)*(1-cos(b*t)) >=0 and integrate by Tonelli",
+    "Integral and corrections match historical Euler-Maclaurin digamma expressions; B4 is nonnegative by exact polynomial expansion"
+  ],
+  "digamma_tail_statement": "For u>0,b>=0: integral_u^infty f+f(u)/2-fprime(u)/12+ftripleprime(u)/720 <= sum_{n>=0}f(u+n) <= integral_u^infty f+f(u)/2-fprime(u)/12; f(u)=b^2/(u(u^2+b^2)).",
+  "error_reduction_factor_exact": "1544972804863488000000/250582204083791",
+  "error_reduction_factor_floor": 6165532,
+  "improved_finite_entries_included_in_p9": 30,
+  "interpolation_proof": [
+    "For real q_ij on each cell: q(x)-P15(x)=q^(16)(xi)/16! * product_j(x-x_j), xi real",
+    "Cauchy derivative bound |q^(16)| <=16!*M_c/RHO^16 on disks enclosing each real point",
+    "Exact absolute polynomial integration: sum_{j=0}^{14}|int_{j/15}^{(j+1)/15} product_{k=0}^{15}(x-k/15)dx|",
+    "Replace maximum-product bound with exact absolute integral, retaining M_c and nodal intervals unchanged"
+  ],
+  "new_interpolation_error_exact": "31709674433579248304/9877816817861795858001708984375",
+  "new_interpolation_error_outward": "0.000000000003210190573310",
+  "not_established": [
+    "Complete mechanization in Lean/Coq of all special-function identities and endpoint rounding code",
+    "An independent theorem of all zero-free regions or universal Weil positivity",
+    "Uniform positivity as N increases without bound; Riemann Hypothesis"
+  ],
+  "old_interpolation_error_exact": "4154891126177792/209922127267236328125",
+  "old_interpolation_error_outward": "0.000019792535357116058218",
+  "old_sup_product_exact": "16416784384/1601806640625",
+  "projected_matrices": [
+    {
+      "N": 6,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 4,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.0022030336213140294,
+      "min_shifted_pivot_approx": 0.1796718698443464,
+      "perturbation_row_sum_upper_approx": 0.0019201489171453187,
+      "perturbation_row_sum_upper_exact": "3840297834290637221410607912294170332511311178547113797342690454779190559695188938140837/2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    },
+    {
+      "N": 8,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 6,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.003678009790701465,
+      "min_shifted_pivot_approx": 0.17727235489358148,
+      "perturbation_row_sum_upper_approx": 0.00431966386791023,
+      "perturbation_row_sum_upper_exact": "4319663867910230269486293088535874469192177599366616657235041859392407926061142067191107/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    },
+    {
+      "N": 10,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 8,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.005703963798803884,
+      "min_shifted_pivot_approx": 0.1733612947393284,
+      "perturbation_row_sum_upper_approx": 0.008230724022163325,
+      "perturbation_row_sum_upper_exact": "8230724022163324651329164819221565341598672735113934537646869255854591901355417296850833/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    }
+  ],
+  "schema": "NUMERIA.ES8P10.ANALYTIC_LEMMA_AUDIT.1",
+  "status": "DIGAMMA_EM_TAIL_ANALYTIC_PROOF_AND_SHARPER_INTERPOLATION_REPLAY"
+}

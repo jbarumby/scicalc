@@ -1,0 +1,17 @@
+{
+  "schema": "NUMERIA.ES8P10.SHA256.1",
+  "files": {
+    "AUDITAR_FASE3_PROJECAO.py": "0785f8efba7a09b28a2c96d9c28e63e99f298622fc732304068959191834fac4",
+    "README.md": "bd8f5d80cd3050d576650001cd3a0d3bb5b3b89c8819a92d42dd745fd5cce8ac",
+    "RELATORIO_ES8P10.md": "966f6de41a84d543a541663255740ebbebc0b4bdd9ba498b6eeb1d4fd9fae5db",
+    "RESULTADOS_ES8P10.json": "a94aef83363120eb13f7515d42b84a2fb7d084cc8442f941294bf588bc28cf69",
+    "RESULTADOS_ES8P9_INTEGRAIS.json": "8d603482e18160556051613e115f752dae2b2eb501c7338eeff89ccb70bb769b",
+    "check_manifest.py": "2e98d91c4025da2a53b45800115cf1ad4e717f732e37d14aca1773871efc9d13",
+    "compare_replay.py": "eb9ebdffc3fce61e707754de10336872ee75e5d38dfc418545a34dd5cf250654",
+    "es8p10_lemmas.py": "9e35358cefa61eb844ad08687b4f33336bd43e77ac4c9f22e03db95fcc73732e",
+    "es8p6_independent_audit.py": "21fc3bbce4bf288bad3184f8cf11d3b956bc07d3d42f6835f2a8fa5ceb3727cc",
+    "es8p9_projected.py": "7746200416483175cf20ec37b5eea1d575dbacd57f1f16b6f941c69169400cd2",
+    "numeria-es8p10-lemmas.yml": "34d67756f2d3180f08a2e70fcfeaa0bb74e26205443da29923958612c9bc2b27",
+    "test_es8p10.py": "6f784632ec69dc3ab5a3f7b8ff36de5f6e9f6ca368507fb7f2e895dc76ff7f21"
+  }
+}
