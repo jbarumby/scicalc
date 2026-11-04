@@ -1,0 +1,50 @@
+name: numeria-es8p13-lean
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P13.lean'
+      - 'research/2026-11-04/es8p13/**'
+      - '.github/workflows/numeria-es8p13-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lean-concrete-ldl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Disallow admits, sorry and unsafe declarations
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)[[:space:]]' NUMERIA_E8K_FORMAL/ES8P13.lean; then
+            echo 'Forbidden proof gap'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile exact concrete LDL/SOS certificates
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P13.lean
+  rational-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run original ES8-P10 reconstruction and exact certificate checks
+        run: |
+          python -m pip install pytest
+          python -m pytest -q research/2026-11-04/es8p13/test_es8p13.py
+      - name: Regenerate and byte-compare concrete rational certificates
+        run: |
+          python research/2026-11-04/es8p13/generate_es8p13.py
+          git diff --exit-code -- NUMERIA_E8K_FORMAL/ES8P13.lean research/2026-11-04/es8p13/RESULTADOS_ES8P13.json
