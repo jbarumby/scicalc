@@ -1,0 +1,37 @@
+name: numeria-es8p15-lean
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P15.lean'
+      - '.github/workflows/numeria-es8p15-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  formal-generalization:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject gaps
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P15.lean; then
+            echo "Proof gap forbidden"; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile ES8-P14 dependency
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean -o ES8P14.olean ES8P14.lean
+      - name: Compile ES8-P15 general theorems
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          LEAN_PATH=. lake env lean ES8P15.lean
