@@ -1,0 +1,59 @@
+name: numeria-es8p18-lean
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P18.lean'
+      - 'research/2026-11-04/es8p18/**'
+      - '.github/workflows/numeria-es8p18-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lean-proofs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check proof gaps
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P18.lean; then
+            echo 'Prohibited placeholder'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile ES8P18 in Lean 4.35.0
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P18.lean
+  rational-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check manifest
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('research/2026-11-04/es8p18')
+          for relative,digest in json.loads((root/'MANIFESTO_SHA256.json').read_text()).items():
+              path=Path('NUMERIA_E8K_FORMAL')/relative if relative=='ES8P18.lean' else Path('.github/workflows')/relative if relative.endswith('.yml') else root/relative
+              assert hashlib.sha256(path.read_bytes()).hexdigest()==digest,relative
+          print('Manifest OK')
+          PY
+      - name: Test exact rational bounds
+        run: |
+          cd research/2026-11-04/es8p18
+          python -m unittest -q test_es8p18.py
+          python audit_es8p18.py --out RESULTADOS_ES8P18_REPLAY.json
+          cmp RESULTADOS_ES8P18.json RESULTADOS_ES8P18_REPLAY.json
