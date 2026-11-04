@@ -1,0 +1,32 @@
+{
+  "schema": "NUMERIA.ES8P8.PROVENANCE.1",
+  "archives": {
+    "E7_original (1).bin": {
+      "sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+      "bytes": 1641486
+    },
+    "NUMERIA_E7_REVISAO_FORMAL_2026-10-26_3(1).zip": {
+      "sha256": "4acf99a2625a262b670ee73ed104b970da0951ffd98250cdd254f387110b02a7",
+      "bytes": 1641486
+    },
+    "E8K_V16_GITHUB_COMPLETO(1).zip": {
+      "sha256": "aee5bfedf977f7a0a77d66949753faaab673bb9fa18b01b4425160e464936826",
+      "bytes": 1734593
+    },
+    "ES8P6_PHASE4_ORIGINAL.zip": {
+      "sha256": "b0d7d335534239a6863e655295a658282551d334b0808ee801710a4b5699d8fe",
+      "bytes": 89875
+    }
+  },
+  "sources": {
+    "RESUMO_FASE4_1600CELULAS_D40.json": {
+      "sha256_original_zip": "f694da5799d3e91ace7eb3a2943c24477f4d0ecbbd9f7e94b6617ab7104ad4ec"
+    },
+    "fase4_fixedpoint_sem_arb.py": {
+      "sha256_original_zip": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda"
+    },
+    "fase4_nos_sem_arb.py": {
+      "sha256_original_zip": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49"
+    }
+  }
+}

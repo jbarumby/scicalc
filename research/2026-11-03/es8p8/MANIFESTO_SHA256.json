@@ -1,0 +1,22 @@
+{
+  "schema": "NUMERIA.ES8P8.SHA256.1",
+  "files": {
+    "EXECUCAO_ES8P8.log": "fd2f6284dca07e452e37930565c9532f6c64b27a12329fa14c58b2c4c71e0c78",
+    "PROVENIENCIA_ES8P8.json": "44d792aa875d578193176f19d8ca42412fa6cd576cd41baaaac7b7342296e065",
+    "README.md": "4de5c7ed7bba0365b0b5d4b3dc7f038fccebad2167f1c9f1761c4dd03d932d86",
+    "REFERENCIAS_ORIGINAIS_17.csv": "631ecc6787e4bfd1ad9cb1baa2e1f418999db5487c2880fcb62a5be2dbe5c432",
+    "REFERENCIAS_TRIADAS_ES8P8.csv": "8d933602d3abf79b40b9108fde074fb9fae7b96e518fb20fc0d8452bc17df0f6",
+    "RELATORIO_ES8P8.md": "a96743d489e6672f00228fc5d55625415b66b3dd0f09a6e1ea9a4896ea7548a2",
+    "RESULTADOS_ES8P8.json": "4bc975f63db74a30d9f444149c2b2e45404da19280df8bbf81a844e27fed623a",
+    "RESUMO_FASE4_1600CELULAS_D40.json": "f694da5799d3e91ace7eb3a2943c24477f4d0ecbbd9f7e94b6617ab7104ad4ec",
+    "TESTES_ES8P8.txt": "9dee1de9aa4ed65f76da63c161b8f5438c906d6be50210a71390610cf59bf6f7",
+    "es8p7_independent.py": "18ea65e21fa14bdea77028bd2f55409bda1515ae980d1a6a92bf2aae2b31b778",
+    "es8p8_full.py": "51a8ae3bb222570e9a49b526d4b5aee3046970b33f4b407939aa2c00b08d165a",
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49",
+    "numeria-es8p8-exhaustive-nodes.yml": "7599b7831ace010531d503cfb488d137708195b011bb25f5a39fa0b4a0130f7b",
+    "test_es8p8_full.py": "9948faa395115e6170fba16edc2ab35d359174bff39a1581d527b2d65e4327e5",
+    "triage_references.py": "8f945fd2eb899194b9821c7cbe13a0363fc5a403a11e100a59f8d5926608a8d8",
+    "validate_replay.py": "ce6672ece491dc7d3453ec7397909c47c78bdd0a622abaa52ae76000bd95a109"
+  }
+}

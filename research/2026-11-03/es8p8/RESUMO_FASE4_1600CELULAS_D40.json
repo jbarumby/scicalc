@@ -1,0 +1,406 @@
+{
+  "status": "CONCLUIDO",
+  "scope": "finite integrals only, independent nodes; Phase3 analytic majorant reused",
+  "num_pairs": 30,
+  "cells": 1600,
+  "digits": 40,
+  "series_terms": 64,
+  "source_hashes": {
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_integracao_corrigida.py": "467d917752072997861cd428218443faba616d2efcbdfa1eeb8d177539437d62",
+    "fase4_pesos_racionais.py": "6dd923176c85b68a202b4b24adbab26598f2da27973f2b7315e4150d310d25de",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49"
+  },
+  "records": [
+    {
+      "i": 1,
+      "j": 1,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G11_1600CELULAS_D40.json",
+      "sha256": "a5e90d3a22f2d3f4de0dcebd49bcb6cf6ea246e4443a3a8609a709f116563c07",
+      "lower": "-1.428228260573830831441495",
+      "upper": "-1.428188675457916009966608",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 39.44
+    },
+    {
+      "i": 1,
+      "j": 3,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G13_1600CELULAS_D40.json",
+      "sha256": "51e75105112cfcb5d55b09e719be3299ab172c68ead9d160cf4014189f10eb31",
+      "lower": "-0.365768468624209856127645",
+      "upper": "-0.365728883503387938672931",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 22.724
+    },
+    {
+      "i": 1,
+      "j": 5,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G15_1600CELULAS_D40.json",
+      "sha256": "b980236d222a9ff1d0cee91ca32ca7b89cd41a413792e85646468e2ed04fe07b",
+      "lower": "-0.236412272568280663929972",
+      "upper": "-0.236372687449181909189153",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 22.329
+    },
+    {
+      "i": 1,
+      "j": 7,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G17_1600CELULAS_D40.json",
+      "sha256": "bda577b425eb2001c66ea25e9f480710e38eee852821a03e5514eb388f07c7b2",
+      "lower": "-0.174896350307444334675461",
+      "upper": "-0.174856765189699135379788",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.901
+    },
+    {
+      "i": 1,
+      "j": 9,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G19_1600CELULAS_D40.json",
+      "sha256": "fd8bd2bb1ff056bc9f261c85eb0fed62111c06b6fd87ba7b4e810477cd7806eb",
+      "lower": "-0.138849223172859538267761",
+      "upper": "-0.138809638057022410786997",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 58.544
+    },
+    {
+      "i": 2,
+      "j": 2,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G22_1600CELULAS_D40.json",
+      "sha256": "22311ad9dab820e1de4a5a287e484dbe65d2ba47ce42f46e3ea3dba04fef1148",
+      "lower": "-0.102598731623177420507054",
+      "upper": "-0.102559146421126920856452",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 15.739
+    },
+    {
+      "i": 2,
+      "j": 4,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G24_1600CELULAS_D40.json",
+      "sha256": "85f3665f307c530012b7ff7e379d212b6e44a7618e0de594ea149d70f6f0f855",
+      "lower": "-0.144612754627574487669686",
+      "upper": "-0.144573169438593345514904",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 90.377
+    },
+    {
+      "i": 2,
+      "j": 6,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G26_1600CELULAS_D40.json",
+      "sha256": "07f3fb8e009e63e4749cfddec6e34b6327d9ca26f759e5a9b3edc7f0e2dd190e",
+      "lower": "-0.110246110368684873449706",
+      "upper": "-0.110206525192194601067989",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 112.234
+    },
+    {
+      "i": 2,
+      "j": 8,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G28_1600CELULAS_D40.json",
+      "sha256": "fc67a09b6ef4d1c1fbb208236b52c8b8dabee989d135717fe82393b908f834ea",
+      "lower": "-0.088950349991285477641143",
+      "upper": "-0.088910764821708666098877",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 108.984
+    },
+    {
+      "i": 2,
+      "j": 10,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G210_1600CELULAS_D40.json",
+      "sha256": "85285cce27b81ab13a511d4f9d3bc3f47bb96b7c2f5b52388cef015461059e7f",
+      "lower": "-0.074525629254506316715295",
+      "upper": "-0.074486044091176726829264",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 79.848
+    },
+    {
+      "i": 3,
+      "j": 3,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G33_1600CELULAS_D40.json",
+      "sha256": "a569ad604ca89704e4d919c01c7d4e2e4a1d36e4896182b777f9e1a01a4336ff",
+      "lower": "0.303413756020135094545602",
+      "upper": "0.303453341362873882973475",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 65.451
+    },
+    {
+      "i": 3,
+      "j": 5,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G35_1600CELULAS_D40.json",
+      "sha256": "fb0233359a0da5392e92b6f342c0a320cf767c08f3e1a0a499ab893a4ce1b37e",
+      "lower": "-0.149414262520029098517556",
+      "upper": "-0.149374677239557993517068",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 42346.836
+    },
+    {
+      "i": 3,
+      "j": 7,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G37_1600CELULAS_D40.json",
+      "sha256": "fbc2ee2036bf41cc0211266049a9bcc413b5fb252fb3bc7b13357b3c87d690cd",
+      "lower": "-0.117527254028614497285720",
+      "upper": "-0.117487668782465082192370",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 101.8
+    },
+    {
+      "i": 3,
+      "j": 9,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G39_1600CELULAS_D40.json",
+      "sha256": "3845770659f0e37cba8aca1ef888ed72f7662edcda367684593e953c5685a2dc",
+      "lower": "-0.097035885266995752371342",
+      "upper": "-0.096996300038346283010606",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 162.9
+    },
+    {
+      "i": 4,
+      "j": 4,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G44_1600CELULAS_D40.json",
+      "sha256": "6f6f1f3af3e7d3166e738f1e6426994bca5881923d1442160555f808364cb28e",
+      "lower": "0.684611584800092331250858",
+      "upper": "0.684651170333925584036009",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 99.003
+    },
+    {
+      "i": 4,
+      "j": 6,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G46_1600CELULAS_D40.json",
+      "sha256": "585a24bfae09d0b25e833b1b047cdb4744a424fef0502bee76a525ce947c8bc0",
+      "lower": "-0.092476677934497783758612",
+      "upper": "-0.092437092541214434965751",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 69.89
+    },
+    {
+      "i": 4,
+      "j": 8,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G48_1600CELULAS_D40.json",
+      "sha256": "1da1dd785b418ce4444a842c5a5849a446b4311eeb721a47f8ed2375ec8748ac",
+      "lower": "-0.077753224146618533733020",
+      "upper": "-0.077713638819698992432442",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.772
+    },
+    {
+      "i": 4,
+      "j": 10,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G410_1600CELULAS_D40.json",
+      "sha256": "1c858eba48c59f642f49a646fcafd05b99640f909a476ab8a35d3b26614fa83a",
+      "lower": "-0.067038160732843042886690",
+      "upper": "-0.066998575438598318654737",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 58.465
+    },
+    {
+      "i": 5,
+      "j": 5,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G55_1600CELULAS_D40.json",
+      "sha256": "67fe4e23973bae2067c4128852d109177ad9882567efc0a313ad281e762132ac",
+      "lower": "0.906687152022046428382813",
+      "upper": "0.906726737791858124996544",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 41.769
+    },
+    {
+      "i": 5,
+      "j": 7,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G57_1600CELULAS_D40.json",
+      "sha256": "3b54bdad192100d0897b83b996899591354d9da813cbc78790abdef3dcc8a5cd",
+      "lower": "-0.094038010186825282346577",
+      "upper": "-0.093998424662371406372036",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.835
+    },
+    {
+      "i": 5,
+      "j": 9,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G59_1600CELULAS_D40.json",
+      "sha256": "23dea60c157bfdc4f9211c537501eabc9f6adb115d51fe224b7464493dcda01e",
+      "lower": "-0.079859017067227700889751",
+      "upper": "-0.079819431650287724613318",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 59.245
+    },
+    {
+      "i": 6,
+      "j": 6,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G66_1600CELULAS_D40.json",
+      "sha256": "84f70b81cd0fa81b9edf3d80c29b99a220b4ba0c3f8ddcc91b852838a5118d23",
+      "lower": "1.125487580580660668410872",
+      "upper": "1.125527166624736397856459",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 40.213
+    },
+    {
+      "i": 6,
+      "j": 8,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G68_1600CELULAS_D40.json",
+      "sha256": "d403d3dc7c1df80486eff9af02b77ebfe64c7393b97be0abd6ff937eb39fc649",
+      "lower": "-0.067824494880767156677676",
+      "upper": "-0.067784909210174740998706",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.325
+    },
+    {
+      "i": 6,
+      "j": 10,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G610_1600CELULAS_D40.json",
+      "sha256": "45cd7d638a40e3bc979ce7b2c49fc8e76bd94253478a1f6c1c4f8ef4e33e47a7",
+      "lower": "-0.059730263333750826810329",
+      "upper": "-0.059690677819624182845945",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.281
+    },
+    {
+      "i": 7,
+      "j": 7,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G77_1600CELULAS_D40.json",
+      "sha256": "abb7d0e33fd834021d73ad1cf87838c44936721c768491b6ec7824d257b6cc01",
+      "lower": "1.278833749826333739875652",
+      "upper": "1.278873336175544260744688",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 40.87
+    },
+    {
+      "i": 7,
+      "j": 9,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G79_1600CELULAS_D40.json",
+      "sha256": "71f4e6b4af93e02a2995784af3f94b973e8cfe690261a6ba8fb5a68e456bd372",
+      "lower": "-0.068701299069755442585439",
+      "upper": "-0.068661713241741820126953",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.538
+    },
+    {
+      "i": 8,
+      "j": 8,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G88_1600CELULAS_D40.json",
+      "sha256": "fea818313d309aa36d0340fdc3cf1fc8f92885c28e7cf5be897939b64a1b6d1a",
+      "lower": "1.431661662234130895708956",
+      "upper": "1.431701248911518478473371",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 40.507
+    },
+    {
+      "i": 8,
+      "j": 10,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G810_1600CELULAS_D40.json",
+      "sha256": "f3f367b2874a8cae62f1f5627ac4af94ebfb08b754d34d3ab0b64469edbadecb",
+      "lower": "-0.053660739119338589591399",
+      "upper": "-0.053621153126329343717052",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 57.959
+    },
+    {
+      "i": 9,
+      "j": 9,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G99_1600CELULAS_D40.json",
+      "sha256": "0e52b4dbb222b16e18d466f97e67b49752d52aaa576054f33346d6ee95041205",
+      "lower": "1.548837135583928026047273",
+      "upper": "1.548876722604517016372446",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 41.387
+    },
+    {
+      "i": 10,
+      "j": 10,
+      "path": "AUDITORIA_FASE4_SEM_ARB\\FASE4_G1010_1600CELULAS_D40.json",
+      "sha256": "711fcd082449545f65e07f5d2f783e727950fd682154406e7206ebfa42792fd7",
+      "lower": "1.666086147989515155774310",
+      "upper": "1.666125735360566676009020",
+      "intersects_phase3": [
+        true,
+        true
+      ],
+      "elapsed_seconds": 47.029
+    }
+  ]
+}
