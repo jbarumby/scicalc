@@ -126,33 +126,33 @@ theorem upper_inj4 (x : Fin 4 → ℚ)
     (h : ∀ i : Fin 4, (∑ j : Fin 4, upper4 i j * x j) = 0) :
     ∀ i : Fin 4, x i = 0 := by
 
-  have h3 : x ⟨3, by decide⟩ = 0 := by
+  have h3 : x (3 : Fin 4) = 0 := by
 
-    have hi := h ⟨3, by decide⟩
+    have hi := h (3 : Fin 4)
 
     simp [upper4, Fin.sum_univ_succ] at hi
 
     linarith
 
-  have h2 : x ⟨2, by decide⟩ = 0 := by
+  have h2 : x (2 : Fin 4) = 0 := by
 
-    have hi := h ⟨2, by decide⟩
+    have hi := h (2 : Fin 4)
 
     simp [upper4, Fin.sum_univ_succ, h3] at hi
 
     linarith
 
-  have h1 : x ⟨1, by decide⟩ = 0 := by
+  have h1 : x (1 : Fin 4) = 0 := by
 
-    have hi := h ⟨1, by decide⟩
+    have hi := h (1 : Fin 4)
 
     simp [upper4, Fin.sum_univ_succ, h3, h2] at hi
 
     linarith
 
-  have h0 : x ⟨0, by decide⟩ = 0 := by
+  have h0 : x (0 : Fin 4) = 0 := by
 
-    have hi := h ⟨0, by decide⟩
+    have hi := h (0 : Fin 4)
 
     simp [upper4, Fin.sum_univ_succ, h3, h2, h1] at hi
 
@@ -235,49 +235,49 @@ theorem upper_inj6 (x : Fin 6 → ℚ)
     (h : ∀ i : Fin 6, (∑ j : Fin 6, upper6 i j * x j) = 0) :
     ∀ i : Fin 6, x i = 0 := by
 
-  have h5 : x ⟨5, by decide⟩ = 0 := by
+  have h5 : x (5 : Fin 6) = 0 := by
 
-    have hi := h ⟨5, by decide⟩
+    have hi := h (5 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ] at hi
 
     linarith
 
-  have h4 : x ⟨4, by decide⟩ = 0 := by
+  have h4 : x (4 : Fin 6) = 0 := by
 
-    have hi := h ⟨4, by decide⟩
+    have hi := h (4 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ, h5] at hi
 
     linarith
 
-  have h3 : x ⟨3, by decide⟩ = 0 := by
+  have h3 : x (3 : Fin 6) = 0 := by
 
-    have hi := h ⟨3, by decide⟩
+    have hi := h (3 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ, h5, h4] at hi
 
     linarith
 
-  have h2 : x ⟨2, by decide⟩ = 0 := by
+  have h2 : x (2 : Fin 6) = 0 := by
 
-    have hi := h ⟨2, by decide⟩
+    have hi := h (2 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ, h5, h4, h3] at hi
 
     linarith
 
-  have h1 : x ⟨1, by decide⟩ = 0 := by
+  have h1 : x (1 : Fin 6) = 0 := by
 
-    have hi := h ⟨1, by decide⟩
+    have hi := h (1 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ, h5, h4, h3, h2] at hi
 
     linarith
 
-  have h0 : x ⟨0, by decide⟩ = 0 := by
+  have h0 : x (0 : Fin 6) = 0 := by
 
-    have hi := h ⟨0, by decide⟩
+    have hi := h (0 : Fin 6)
 
     simp [upper6, Fin.sum_univ_succ, h5, h4, h3, h2, h1] at hi
 
@@ -384,65 +384,65 @@ theorem upper_inj8 (x : Fin 8 → ℚ)
     (h : ∀ i : Fin 8, (∑ j : Fin 8, upper8 i j * x j) = 0) :
     ∀ i : Fin 8, x i = 0 := by
 
-  have h7 : x ⟨7, by decide⟩ = 0 := by
+  have h7 : x (7 : Fin 8) = 0 := by
 
-    have hi := h ⟨7, by decide⟩
+    have hi := h (7 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ] at hi
 
     linarith
 
-  have h6 : x ⟨6, by decide⟩ = 0 := by
+  have h6 : x (6 : Fin 8) = 0 := by
 
-    have hi := h ⟨6, by decide⟩
+    have hi := h (6 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7] at hi
 
     linarith
 
-  have h5 : x ⟨5, by decide⟩ = 0 := by
+  have h5 : x (5 : Fin 8) = 0 := by
 
-    have hi := h ⟨5, by decide⟩
+    have hi := h (5 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6] at hi
 
     linarith
 
-  have h4 : x ⟨4, by decide⟩ = 0 := by
+  have h4 : x (4 : Fin 8) = 0 := by
 
-    have hi := h ⟨4, by decide⟩
+    have hi := h (4 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6, h5] at hi
 
     linarith
 
-  have h3 : x ⟨3, by decide⟩ = 0 := by
+  have h3 : x (3 : Fin 8) = 0 := by
 
-    have hi := h ⟨3, by decide⟩
+    have hi := h (3 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6, h5, h4] at hi
 
     linarith
 
-  have h2 : x ⟨2, by decide⟩ = 0 := by
+  have h2 : x (2 : Fin 8) = 0 := by
 
-    have hi := h ⟨2, by decide⟩
+    have hi := h (2 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6, h5, h4, h3] at hi
 
     linarith
 
-  have h1 : x ⟨1, by decide⟩ = 0 := by
+  have h1 : x (1 : Fin 8) = 0 := by
 
-    have hi := h ⟨1, by decide⟩
+    have hi := h (1 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6, h5, h4, h3, h2] at hi
 
     linarith
 
-  have h0 : x ⟨0, by decide⟩ = 0 := by
+  have h0 : x (0 : Fin 8) = 0 := by
 
-    have hi := h ⟨0, by decide⟩
+    have hi := h (0 : Fin 8)
 
     simp [upper8, Fin.sum_univ_succ, h7, h6, h5, h4, h3, h2, h1] at hi
 

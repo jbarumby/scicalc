@@ -165,8 +165,8 @@ theorem pivots_pos{n} : ∀ i : Fin {n}, 0 < pivots{n} i := by
   text.append(f'\ntheorem upper_inj{n} (x : Fin {n} → ℚ)\n    (h : ∀ i : Fin {n}, (∑ j : Fin {n}, upper{n} i j * x j) = 0) :\n    ∀ i : Fin {n}, x i = 0 := by\n')
   for i in reversed(range(n)):
    simpqs=[f'h{x}' for x in reversed(range(i+1,n))]
-   text.append(f'  have h{i} : x ⟨{i}, by decide⟩ = 0 := by\n')
-   text.append(f'    have hi := h ⟨{i}, by decide⟩\n')
+   text.append(f'  have h{i} : x ({i} : Fin {n}) = 0 := by\n')
+   text.append(f'    have hi := h ({i} : Fin {n})\n')
    text.append(f'    simp [upper{n}, Fin.sum_univ_succ'+(', '+', '.join(simpqs) if simpqs else '')+'] at hi\n')
    text.append('    linarith\n')
   text.append('  intro i\n  fin_cases i\n')
