@@ -1,0 +1,21 @@
+{
+  "limitations": [
+    "conditional on analytic enclosure lemmas and error bounds in ES8-P6 and ES8-P8",
+    "independent sums use same exact Newton-Cotes quadrature rule as historical Phase4",
+    "historical numerical interval intersections do not independently prove common special-function identities",
+    "full Weil universal positivity and RH not implied by finite matrix tests"
+  ],
+  "schema": "NUMERIA.ES8P9.EXACT_WEIGHTED_INTEGRALS.1",
+  "scope": {
+    "batch_size": 2,
+    "cells": 1600,
+    "digamma_terms": 128,
+    "digits": 35,
+    "end_cell_exclusive": 2,
+    "evaluations": 960,
+    "nodes_per_cell": 16,
+    "pairs": 30,
+    "start_cell": 0
+  },
+  "status": "PARTIAL_OR_INCOMPATIBLE"
+}

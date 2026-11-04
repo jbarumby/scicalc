@@ -1,0 +1,23 @@
+{
+  "files": {
+    "AUDITAR_FASE3_PROJECAO.py": "0785f8efba7a09b28a2c96d9c28e63e99f298622fc732304068959191834fac4",
+    "HISTORICAL_PHASE4_REFERENCE.json": "d56f69779567ecc5118ad574b8d3f83c84d8af0c41da57ea299f8ad80ee262b5",
+    "PARTIAL_ES8P9_SAMPLE.json": "b57a42be1cadb96a39bc5396ad5715911e537df0d0237afcca4539ac35e7419f",
+    "README.md": "1b53bb7a621e01907e7894bffdc817ec9d9329503fb2634e4dc513047ad378fe",
+    "RELATORIO_ES8P9.md": "a4fc8fa5963652c9a0bce7a12a539dcf1aada339a4c7359958d0c47a5bb95561",
+    "RESULTADOS_ES8P9_INTEGRAIS.json": "8d603482e18160556051613e115f752dae2b2eb501c7338eeff89ccb70bb769b",
+    "RESULTADOS_ES8P9_PROJECAO.json": "94b24f55b9c89b61221ffa64a391142ce4d979ff2847066826cee0b9c5f92e8c",
+    "check_manifest.py": "73a0534f99243b4a64f7fa5f0b41334308d814e1f1b352bb3aaa3fd2e03b91ce",
+    "es8p6_independent_audit.py": "21fc3bbce4bf288bad3184f8cf11d3b956bc07d3d42f6835f2a8fa5ceb3727cc",
+    "es8p7_independent.py": "18ea65e21fa14bdea77028bd2f55409bda1515ae980d1a6a92bf2aae2b31b778",
+    "es8p8_full.py": "51a8ae3bb222570e9a49b526d4b5aee3046970b33f4b407939aa2c00b08d165a",
+    "es8p9_integrate.py": "a424fd387a46f57db9ec91fa6ea42671676a5898f1738ead40a102b3a6d2c630",
+    "es8p9_projected.py": "7746200416483175cf20ec37b5eea1d575dbacd57f1f16b6f941c69169400cd2",
+    "fase4_fixedpoint_sem_arb.py": "0935bb988f7a7bd4c83b36a4a873a71b1612eda00c77ac9bd6ba7daeef600bda",
+    "fase4_nos_sem_arb.py": "151ec9a0a6c249f443bcbac278e8f004e02d268ef7590f81e78e5280872cbe49",
+    "numeria-es8p9-integrated.yml": "f2d22d6e1f313dc3a6da120ac019b6e8fdda2c1b3c28112944f9f121588952a6",
+    "test_es8p9.py": "50a0b9b3a3ff10e8ce9c328c34a30b0abe109b69470aa8d2fdba771c89d3ebd0",
+    "validate_replay.py": "a216f4a77534f578bac429da55805ef74424ec8e72b8ee33bfa4db71f5653a2c"
+  },
+  "schema": "NUMERIA.ES8P9.SHA256.1"
+}

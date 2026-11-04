@@ -1,0 +1,47 @@
+{
+  "conditional_on": "special-function, Cauchy interpolation and tail lemmas; V16 prime normalization",
+  "input_path": "RESULTADOS_ES8P9_INTEGRAIS.json",
+  "matrices": [
+    {
+      "N": 6,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 4,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.002273567501118242,
+      "min_shifted_pivot_approx": 0.17959692198978772,
+      "perturbation_row_sum_upper_approx": 0.00199509677170401,
+      "perturbation_row_sum_upper_exact": "399019354340802010694593842486861070944832174670538101120007306854602348936825413600123/200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    },
+    {
+      "N": 8,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 6,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.0037399804455769837,
+      "min_shifted_pivot_approx": 0.17717111842852454,
+      "perturbation_row_sum_upper_approx": 0.004420900332967167,
+      "perturbation_row_sum_upper_exact": "4420900332967167167105692326199536022532645263528768587678689990047243187033466771669133/1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    },
+    {
+      "N": 10,
+      "certified_M_minus_0p05I_positive": true,
+      "dimension": 8,
+      "failed_pivot_index": null,
+      "first_projected_diagonal_approx": 0.2315920187614917,
+      "matrix_max_width_approx": 0.005761059874644572,
+      "min_shifted_pivot_approx": 0.17323557337721757,
+      "perturbation_row_sum_upper_approx": 0.008356445384274158,
+      "perturbation_row_sum_upper_exact": "4178222692137079435586623861885343589382772503477659809086784047936285733891070503803963/500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "prime_and_projection": "V16/V17 Fourier convention; internal interval arithmetic (not independently re-proved)",
+      "subspace_basis_not_orthonormal": true
+    }
+  ],
+  "schema": "NUMERIA.ES8P9.FINITE_PROJECTION.1",
+  "status": "FINITE_PROJECTED_POSITIVITY_CONDITIONAL"
+}
