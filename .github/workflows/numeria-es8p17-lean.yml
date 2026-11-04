@@ -1,0 +1,60 @@
+name: numeria-es8p17-lean
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P17.lean'
+      - 'research/2026-11-04/es8p17/**'
+      - '.github/workflows/numeria-es8p17-lean.yml'
+permissions:
+  contents: read
+jobs:
+  lean-projection-budget:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse proof holes
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P17.lean; then
+            echo 'A proof gap is forbidden'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile exact budget bridge
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean ES8P17.lean
+  rational-projection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify checked source SHA256 files
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          from pathlib import Path
+          base=Path('research/2026-11-04/es8p17')
+          checks=json.loads((base/'MANIFESTO_SHA256.json').read_text())
+          for path,hashval in checks.items():
+            got=hashlib.sha256(Path(path).read_bytes()).hexdigest()
+            assert got==hashval, path
+          print('SHA256 OK',len(checks))
+          PY
+      - name: Run rational tests
+        run: |
+          cd research/2026-11-04/es8p17
+          python -m unittest -v test_es8p17.py
+      - name: Regenerate rational certificates
+        run: |
+          cd research/2026-11-04/es8p17
+          python audit_es8p17.py --output RESULTADOS_ES8P17_REPLAY.json
+          cmp RESULTADOS_ES8P17_REPLAY.json RESULTADOS_ES8P17.json

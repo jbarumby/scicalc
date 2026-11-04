@@ -1,0 +1,273 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+
+\geometry{margin=2.5cm}
+
+\newtheorem{theorem}{Teorema}
+\newtheorem{proposition}[theorem]{Proposição}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corolário}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definição}
+\newtheorem{remark}[theorem]{Observação}
+\newtheorem{example}[theorem]{Exemplo}
+\theoremstyle{remark}
+\newtheorem{claim}[theorem]{Conjectura}
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\lII}{\ell^2}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\Lin}{\mathcal{L}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\qform}{Q}
+\newcommand{\RH}{\mathrm{RH}}
+
+\title{Como chegar à positividade geral de Weil\\[2pt]
+\large Roteiro técnico a partir das auditorias ES8-P14/ES8-P16}
+\author{Notas técnicas}
+\date{04/11/2026}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{O que precisa ser provado (e não apenas verificado)}
+
+Chegar à positividade geral de Weil --- equivalentemente, a uma prova de
+\RH{} --- exige uma mudança de escala: o que o ES8-P16 audita são
+\textbf{truncamentos racionais finitos}; o critério de Weil é uma afirmação
+sobre \textbf{todas as funções de teste admissíveis} (ou, equivalentemente,
+sobre uma forma quadrática fechada num espaço de Hilbert infinito).
+
+O critério de Weil, na forma quadrática, diz que
+\[
+\RH \quad\Longleftrightarrow\quad
+Q_W(f)\ge 0
+\ \ \text{para toda } f \text{ admissível (tipicamente } f=g*\tilde g\text{)}.
+\]
+
+Aqui \(Q_W\) é o funcional definido pela fórmula explícita: lado dos zeros
+\(\sum_\rho \hat f(\rho)\) versus lado geométrico (primos \(+\) arquimediano
+\(+\) polos). Os truncamentos \(Q^{(N)}\) do ES8-P16 são apenas restrições de
+\(Q_W\) a subespaços de dimensão \(4,6,8\). Positividade em dimensão finita
+\textbf{não implica} positividade em dimensão infinita --- e o próprio ES8-P16
+formaliza por que: dois prolongamentos infinitos distintos coincidem no
+prefixo \(8\times 8\).
+
+Portanto, o primeiro passo lógico não é ``aumentar \(N\)'', mas
+\textbf{definir a forma infinita e provar que ela é fechada e limitada
+inferiormente}.
+
+\section{Rota canônica: forma de Dirichlet e operador auto-adjunto}
+
+A literatura recente mostra que a forma de Weil, numa janela multiplicativa
+\(I_\lambda=[\lambda^{-1},\lambda]\), pode ser reescrita como uma
+\textbf{forma de Dirichlet fechada}:
+\[
+\E_\lambda \;=\; \E_{\text{arq}} + \E_{\text{primos}},
+\]
+onde a parte arquimediana é uma energia de salto puro com medida de Lévy
+explícita, e a parte aritmética consiste em saltos discretos induzidos por
+dilatações e um termo de ``killing'' indexado por potências de primos até
+\(\lambda^2\). O gerador auto-adjunto \(L_\lambda\) tem resolvente compacto e
+estado fundamental estritamente positivo.
+
+Este é o análogo contínuo do que o ES8-P14/16 faz discretamente. A tradução
+para o projeto seria:
+
+\begin{enumerate}
+  \item \textbf{Identificar a matriz \(C_N\) como representação de Galerkin}
+        da forma \(\E_\lambda\) numa base de funções de teste (por exemplo,
+        exponenciais \(e_n(x)=\exp(i\pi n x/a)\) num intervalo de comprimento
+        \(2a\)).
+  \item \textbf{Provar que a forma discreta converge para a forma contínua}
+        no sentido da \emph{convergência em forma} (norma
+        \(\|\cdot\|_q^2 = \|\cdot\|^2 + q(\cdot)\)), não apenas entrada por
+        entrada.
+  \item \textbf{Provar que o limite é fechado e semibounded below}. Isso
+        substitui as hipóteses ad hoc \texttt{SchurBounded} e
+        \texttt{UniformFinitePositivity} do esqueleto Lean por uma propriedade
+        estrutural da forma.
+\end{enumerate}
+
+\section{Onde o ES8-P16 já aponta o gargalo (e como contorná-lo)}
+
+O ES8-P16 formaliza três obstáculos que precisam ser resolvidos antes de
+qualquer extensão.
+
+\subsection*{(a) Pivôs LDL não dão gap espectral uniforme}
+
+O contraexemplo
+\[
+A_t=U_t^\top U_t,\qquad
+U_t=\begin{pmatrix}1&t\\0&1\end{pmatrix},
+\qquad
+A_t=\begin{pmatrix}1&t\\t&t^2+1\end{pmatrix},
+\]
+tem pivôs \(1,1\) mas quociente de Rayleigh \(1/(t^2+1)\) no vetor \((-t,1)\).
+A saída é \textbf{não usar LDL} como ferramenta de positividade em dimensão
+infinita. Em vez disso, trabalhar diretamente com a forma fechada e usar o
+\textbf{teorema KLMN} ou a \textbf{convergência em resolvente forte} de
+compressões \(P_N M_\infty P_N\).
+
+\subsection*{(b) O orçamento de erro por linha não escala}
+
+A soma \(\sum_j E^{(N)}_{ij}\) já está no teto \(1/100\) para \(N=10\)
+(linha 7: \(8333/10^6\)). Para \(N\to\infty\), é preciso substituir o orçamento
+por linha por uma \textbf{norma de forma}:
+\[
+\|E_\infty\|_{\Lin(\D,\D^*)}\le \varepsilon,
+\]
+o que exige que \(E_\infty\) seja, por exemplo, Hilbert--Schmidt
+(\(\sum_{i,j}E_{ij}^2<\infty\)). Os dados finitos (somas de Frobenius
+\(\approx 1{,}2\times 10^{-11}\) em \(8\times 8\)) são compatíveis com isso,
+mas \textbf{não provam} a convergência da cauda.
+
+\subsection*{(c) A projeção \(B\) amplifica o erro pelo quadrado da norma}
+
+Se \(y=Bx\) e \(|y^\top E y|\le \delta\|y\|^2\), então
+\[
+|x^\top B^\top E B x|\le \delta\,\|B\|_{\op}^2\,\|x\|^2.
+\]
+O ES8-P16 formaliza isso com o exemplo \(B=[2]\): erro bruto \(1/100\) vira
+\(4/100\). Qualquer extensão precisa controlar
+\(\sup_N\|B_N\|_{\op}^2\) ou, melhor, provar que a forma já está definida no
+espaço ``físico'' sem projeção artificial.
+
+\section{Rota de maior probabilidade: janelas compactas + extensão por convergência}
+
+A literatura sobre \textbf{positividade de Weil em janelas compactas} é a mais
+próxima do que o projeto pode atacar com rigor computacional:
+
+\begin{itemize}
+  \item Para suporte em
+        \([-\tfrac12\log 2,\tfrac12\log 2]\), a positividade é clássica
+        (Yoshida; Connes--Consani) e foi recentemente certificada com cotas
+        explícitas via aritmética intervalar.
+  \item Para suportes maiores (\([-0{,}8,0{,}8]\), autocorrelação \(1{,}6\)),
+        há certificados de que \(Q(f)\ge 8{,}9\times 10^{-18}\|f\|^2\) para
+        \textbf{todas} as \(f\) complexas de suporte \(1{,}6\).
+  \item O perfil \(\lambda^*(L)=\inf Q(f)/\|f\|^2\) decai segundo uma
+        \textbf{lei de Landau--Widom} duplamente exponencial: qualquer
+        certificado ponto-a-ponto precisa resolver frequências até
+        \(2\pi e^{A_L}\) com \(A_L\sim 4e^L\).
+\end{itemize}
+
+Isso significa que a extensão a \(L\to\infty\) \textbf{não pode ser feita por
+refinamento de malha ou por aumento de \(N\)}. A única rota viável é:
+
+\begin{enumerate}
+  \item \textbf{Provar positividade numa janela fixa} (por exemplo,
+        \(L=0{,}8\) ou maior) com certificado exato --- isso já está ao alcance
+        do ferramental ES8-P16 (frações exatas \(+\) Lean).
+  \item \textbf{Provar um princípio de propagação}: se a forma é positiva numa
+        janela \([-L,L]\) e o erro de truncamento da cauda (primos e
+        arquimediano) é controlado por uma cota que decai com \(L\), então a
+        positividade se estende. A dificuldade é que a cota disponível
+        \textbf{não decai} na taxa necessária --- ela é dominada pela cauda
+        de zeros, que é justamente o que \RH{} controlaria.
+  \item \textbf{Alternativa via operador}: construir um operador auto-adjunto
+        \(L_\lambda\) cujo espectro seja real e positivo, e provar que seus
+        autovalores coincidem com as ordenadas dos zeros. O resultado de forma
+        de Dirichlet dá um candidato incondicional, mas a identificação
+        espectral completa com os zeros de \(\zeta\) ainda não está provada.
+\end{enumerate}
+
+\section{O que o projeto pode fazer concretamente}
+
+A Tabela~\ref{tab:roteiro} organiza o roteiro em ordem de custo/benefício.
+
+\begin{table}[h!]
+\centering
+\small
+\begin{tabular}{p{0.5cm} p{4.5cm} p{7cm}}
+\toprule
+\# & O que fazer & O que isso substitui no ES8-P16 \\
+\midrule
+1 & Formalizar nestedness e a unicidade da extensão
+  & Já está no ES8-P16; consolidar como base.
+    \texttt{extensionA}/\texttt{extensionB} mostram que o prefixo não basta
+    --- é preciso uma \textbf{regra global} de definição. \\
+2 & Substituir LDL por forma fechada
+  & Provar que a forma discreta \(Q^{(N)}\) é restrição de uma forma contínua
+    \(\E\) num espaço de Sobolev \(H^{\log}(-a,a)\) (ou similar).
+    Elimina a dependência de pivôs e o contraexemplo \(A_t\). \\
+3 & Provar fechamento e semiboundedness
+  & Usar representação de Lévy--Khintchine para a parte arquimediana e soma
+    finita de saltos para primos (até \(\lambda^2\)).
+    Substitui \texttt{UniformFinitePositivity} por uma propriedade
+    estrutural. \\
+4 & Controlar a projeção \(B_N\)
+  & Calcular ou limitar \(\sup_N\|B_N\|_{\op}^2\); se não for limitado,
+    reformular a forma sem projeção.
+    Elimina o fator \(\kappa\) não controlado do ES8-P16. \\
+5 & Certificar positividade em janela fixa
+  & Usar aritmética intervalar exata (já disponível no projeto) para
+    reproduzir ou superar \(Q(f)\ge 8{,}9\times 10^{-18}\|f\|^2\) em
+    \([-0{,}8,0{,}8]\). Fornece um ponto de ancoragem concreto para a
+    extensão. \\
+6 & Atacar a extensão \(L\to\infty\)
+  & Provar que a cauda (primos com \(\log p>2L\) e arquimediano) é
+    controlada por uma cota que não destrua a positividade. Aqui está o
+    gargalo real. Nenhuma ferramenta atual do projeto cobre isso; exige
+    análise fina da fórmula explícita. \\
+\bottomrule
+\end{tabular}
+\caption{Roteiro técnico em ordem de custo/benefício.}
+\label{tab:roteiro}
+\end{table}
+
+\section{Obstáculo fundamental que nenhuma formalização Lean resolve}
+
+A lei de Landau--Widom mostra que a margem espectral \(\lambda^*(L)\)
+\textbf{colapsa duplamente exponencialmente} com \(L\). Isso significa que,
+para janelas grandes, a positividade se torna \textbf{numericamente
+indetectável} por qualquer certificado ponto-a-ponto. Uma prova de \RH{} via
+positividade de Weil exigiria um argumento \textbf{estrutural} que não passe
+por resolução de frequências --- por exemplo, uma identificação espectral
+exata entre um operador auto-adjunto e os zeros de \(\zeta\), ou uma prova de
+que a forma é uma soma de quadrados por construção.
+
+O ES8-P16 já registra corretamente que ``pivôs positivos não implicam gap
+uniforme''. O próximo passo conceitual é reconhecer que \textbf{a
+positividade de Weil não é uma propriedade perturbativa}: ela não sobrevive a
+truncamentos arbitrários, e a extensão infinita não é obtida por ``mais do
+mesmo''. É preciso:
+\begin{enumerate}[label=(\roman*)]
+  \item um operador global cuja positividade seja automática; ou
+  \item um princípio de propagação não perturbativo que conecte janelas
+        finitas ao todo.
+\end{enumerate}
+
+\section*{Resumo}
+
+O caminho técnico existe e está mapeado na literatura (formas de Dirichlet,
+janelas compactas certificadas, operadores de Hilbert--Pólya), mas ele
+\textbf{não é uma continuação direta do ES8-P14/16}. É uma mudança de
+paradigma: de ``verificar matrizes racionais finitas'' para ``provar
+fechamento e positividade de uma forma em espaço de Hilbert''. O ES8-P16 é
+útil precisamente por mostrar, com precisão cirúrgica, por que a ponte atual
+não basta --- e por isolar, de forma verificável, os três obstáculos que
+qualquer extensão precisa resolver.
+
+\end{document}
