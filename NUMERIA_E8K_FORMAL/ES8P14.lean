@@ -68,7 +68,9 @@ theorem qForm_row_error_lower {n : ℕ}
     intro i _
     apply Finset.sum_le_sum
     intro j _
-    exact error_pair_lower _ _ _ _ (hentry i j).1 (hentry i j).2
+    simpa only [neg_div] using
+      (error_pair_lower (eps i j) (M i j - C i j) (x i) (x j)
+        (hentry i j).1 (hentry i j).2)
   have hr :
       (∑ i : Fin n, (∑ j : Fin n, eps i j) * x i ^ 2) ≤
       δ * (∑ i : Fin n, x i ^ 2) := by
