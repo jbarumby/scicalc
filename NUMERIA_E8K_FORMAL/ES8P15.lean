@@ -14,7 +14,7 @@ open scoped Topology BigOperators
 
 namespace Numeria.ES8P15
 
-def rationalTail (A B R : ℝ) : ℝ := A / R ^ 2 + B / R ^ 3
+noncomputable def rationalTail (A B R : ℝ) : ℝ := A / R ^ 2 + B / R ^ 3
 
 theorem log_tail_bounded (R : ℝ) (hR : 1 ≤ R) :
     (8 + Real.log (3 * R) + (1 : ℝ) / 3) / (3 * R ^ 3) ≤
@@ -28,7 +28,10 @@ theorem log_tail_bounded (R : ℝ) (hR : 1 ≤ R) :
     <;> ring
   calc
     _ ≤ (3 * R + 9) / (3 * R ^ 3) := by
-      gcongr <;> linarith [hlog]
+      have hnum : 8 + Real.log (3 * R) + (1 : ℝ) / 3 ≤ 3 * R + 9 := by
+        linarith [hlog]
+      exact (div_le_div_iff₀ (by positivity) (by positivity)).2
+        (mul_le_mul_of_nonneg_right hnum (by positivity))
     _ = _ := heq
 
 theorem e7_bound_implies_rational_enclosure
