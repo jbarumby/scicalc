@@ -35,7 +35,8 @@ theorem newton_cotes_exact_moments :
     ∀ k : Fin 16,
       (∑ j : Fin 16, weight j * (node j) ^ k.val) =
         (1 : ℚ) / (k.val + 1) := by
-  decide
+  intro k
+  fin_cases k <;> norm_num [weight, weightNum, node, Fin.sum_univ_succ]
 
 theorem has_negative_weight : weight ⟨2, by decide⟩ < 0 := by
   norm_num [weight, weightNum]
@@ -84,12 +85,12 @@ theorem factoredQ_pos {n : ℕ} (d : Fin n → ℚ)
     0 < factoredQ d U x := by
   have hy : ∃ i : Fin n, (∑ j : Fin n, U i j * x j) ≠ 0 := by
     by_contra h
-    push_neg at h
+    push Not at h
     obtain ⟨j, hj⟩ := hx
     exact hj (hinj x h j)
   obtain ⟨i, hi⟩ := hy
   unfold factoredQ
-  apply Finset.sum_pos
+  apply Finset.sum_pos'
   · intro k _
     exact mul_nonneg (le_of_lt (hd k)) (sq_nonneg _)
   · refine ⟨i, Finset.mem_univ _, ?_⟩
