@@ -121,4 +121,58 @@ theorem disk_geometry :
     (0 : ℚ) < 3/40 ∧ (0 : ℚ) < 137/200 ∧
     7/20 = 3/10 + 1/20 := by norm_num
 
+
+/-! ## Generic directed fixed-point rounding (including scale 10^90). -/
+
+def floorAt (scale x : ℚ) : ℚ :=
+  (Int.floor (x * scale) : ℚ) / scale
+def ceilAt (scale x : ℚ) : ℚ :=
+  (Int.ceil (x * scale) : ℚ) / scale
+def rounded (scale x : ℚ) : RatInterval :=
+  ⟨floorAt scale x, ceilAt scale x⟩
+
+theorem floorAt_le {scale : ℚ} (hs : 0 < scale) (x : ℚ) :
+    floorAt scale x ≤ x := by
+  have hf : (Int.floor (x * scale) : ℚ) ≤ x * scale := Int.floor_le _
+  show (Int.floor (x * scale) : ℚ) / scale ≤ x
+  rw [div_le_iff₀ hs]
+  exact hf
+
+theorem ceilAt_ge {scale : ℚ} (hs : 0 < scale) (x : ℚ) :
+    x ≤ ceilAt scale x := by
+  have hc : x * scale ≤ (Int.ceil (x * scale) : ℚ) := Int.le_ceil _
+  show x ≤ (Int.ceil (x * scale) : ℚ) / scale
+  rw [le_div_iff₀ hs]
+  exact hc
+
+theorem rounded_contains {scale : ℚ} (hs : 0 < scale) (x : ℚ) :
+    Contains (rounded scale x) x := by
+  exact ⟨floorAt_le hs x, ceilAt_ge hs x⟩
+
+theorem floorAt_mono {scale : ℚ} (hs : 0 < scale) {x y : ℚ}
+    (hxy : x ≤ y) : floorAt scale x ≤ floorAt scale y := by
+  have hm : x * scale ≤ y * scale :=
+    mul_le_mul_of_nonneg_right hxy (le_of_lt hs)
+  have hf : (Int.floor (x * scale) : ℚ) ≤ (Int.floor (y * scale) : ℚ) := by
+    exact_mod_cast Int.floor_mono hm
+  show (Int.floor (x * scale) : ℚ) / scale ≤
+       (Int.floor (y * scale) : ℚ) / scale
+  exact div_le_div_of_nonneg_right hf (le_of_lt hs)
+
+theorem ceilAt_mono {scale : ℚ} (hs : 0 < scale) {x y : ℚ}
+    (hxy : x ≤ y) : ceilAt scale x ≤ ceilAt scale y := by
+  have hm : x * scale ≤ y * scale :=
+    mul_le_mul_of_nonneg_right hxy (le_of_lt hs)
+  have hc : (Int.ceil (x * scale) : ℚ) ≤ (Int.ceil (y * scale) : ℚ) := by
+    exact_mod_cast Int.ceil_mono hm
+  show (Int.ceil (x * scale) : ℚ) / scale ≤
+       (Int.ceil (y * scale) : ℚ) / scale
+  exact div_le_div_of_nonneg_right hc (le_of_lt hs)
+
+theorem scale90_pos : (0 : ℚ) < (10 : ℚ) ^ 90 := by positivity
+
+theorem rounded90_contains (x : ℚ) :
+    Contains (rounded ((10 : ℚ) ^ 90) x) x :=
+  rounded_contains scale90_pos x
+
 end Numeria.ES8P11
