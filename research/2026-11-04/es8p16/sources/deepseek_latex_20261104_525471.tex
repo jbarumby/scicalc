@@ -1,0 +1,368 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+
+\geometry{margin=2.5cm}
+
+\lstdefinelanguage{Lean4}{
+  morekeywords={import,namespace,end,def,theorem,lemma,noncomputable,open,scoped,
+    BigOperators,fun,forall,exists,match,with,by,sorry,intro,exact,rw,ring,
+    fin_cases,norm_num,linarith,funext,split_ifs,Prop,Type,structure,class},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[s]{/-}{-/},
+  morestring=[b]",
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  rulecolor=\color{gray!50},
+  backgroundcolor=\color{gray!5},
+  keywordstyle=\color{blue!70!black}\bfseries,
+  commentstyle=\color{green!40!black}\itshape,
+  stringstyle=\color{red!60!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  showstringspaces=false,
+}
+
+\newtheorem{theorem}{Teorema}
+\newtheorem{proposition}[theorem]{Proposição}
+\newtheorem{lemma}[theorem]{Lema}
+\newtheorem{corollary}[theorem]{Corolário}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definição}
+\newtheorem{remark}[theorem]{Observação}
+\newtheorem{example}[theorem]{Exemplo}
+\theoremstyle{remark}
+\newtheorem{claim}[theorem]{Conjectura}
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\lII}{\ell^2}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\qform}{Q}
+\newcommand{\Lin}{\mathcal{L}}
+\newcommand{\D}{\mathcal{D}}
+
+\title{Extensão para matrizes infinitas\\[2pt]
+\large Análise estruturada da ponte ES8-P14 $\to$ $N\to\infty$}
+\author{Notas técnicas}
+\date{04/11/2026}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{O que ``infinito'' significa neste contexto}
+
+Antes de qualquer coisa, uma observação estrutural que muda tudo:
+\textbf{as matrizes de ES8-P13/14 são aninhadas}.
+
+Verificação direta a partir dos JSONs:
+\[
+M^{(N=6)}_{4\times 4} \;=\; \text{canto superior esquerdo de } M^{(N=8)}_{6\times 6}
+\quad(\text{idêntico, entrada por entrada}),
+\]
+\[
+M^{(N=8)}_{6\times 6} \;=\; \text{canto superior esquerdo de } M^{(N=10)}_{8\times 8}.
+\]
+
+Idem para \(\mathrm{error}_4 \subset \mathrm{error}_6 \subset \mathrm{error}_8\). Isto é, para todo
+\(i,j < N-2\),
+\[
+M^{(N)}_{ij} = M^{(N')}_{ij}, \qquad E^{(N)}_{ij} = E^{(N')}_{ij}, \qquad N,N' \ge i+2,\ j+2.
+\]
+
+Logo existe um \textbf{único par de funções infinitas}
+\(M_\infty, E_\infty : \N\times\N \to \Q\)
+cujas restrições às seções finitas reproduzem os dados. O ``limite'' não é uma
+construção nova --- já está codificado nos JSONs por compatibilidade.
+
+Porém, o \textbf{orçamento global} (soma por linha \(\le 1/100\)) e a
+\textbf{margem} \(3/50 - 1/100 = 1/20\) são afirmados apenas para as truncagens.
+A extensão a \(N\to\infty\) exige que ambos sobrevivam uniformemente.
+
+\section{Três rotas possíveis (e o que cada uma exige)}
+
+\subsection{Rota A --- Densidade de suporte finito em \(\lII\)}
+
+Se \(M_\infty\) define um \textbf{operador limitado} em \(\lII(\N;\Q)\) e cada
+vetor de suporte finito é bem aproximado pelas seções finitas, então
+\[
+\forall f \in \lII,\ \supp(f)\ \text{finito}:\quad
+\qform_\infty(f) = \qform^{(N)}(f)\ \text{para } N \gg |\supp(f)|,
+\]
+e \(\qform^{(N)} \ge \tfrac{1}{20}\|f\|^2\) transporta-se por continuidade.
+Isto requer apenas:
+\begin{enumerate}[label=(\arabic*)]
+  \item \textbf{Limitamento de \(M_\infty\)} em \(\lII\) (Schur:
+        \(\sup_i\sum_j |M_{\infty,ij}| < \infty\) e idem colunas).
+  \item \textbf{Limitamento de \(E_\infty\)} em \(\lII\) com norma \(\le 1/100\).
+\end{enumerate}
+
+\textbf{Problema:} os dados numéricos sugerem que a soma dos \(|E_{ij}|\) por
+linha \textbf{cresce com \(N\)}: para \(N=10\) (dim.\ 8) a linha 7 já está no
+teto \(8333/10^6\). Se a cauda contribuir com \(\sim 2\times 10^{-3}\) por
+entrada e não decair, o orçamento estoura em dimensão \(\gtrsim 15\).
+Portanto a Rota~A \textbf{não é sustentável sem uma hipótese de decaimento}.
+
+\subsection{Rota B --- Operador de forma / espaço de Sobolev}
+
+Se \(M_\infty\) não é limitado em \(\lII\) mas o \textbf{operador shiftado}
+\(A := M_\infty + (3/50)I\) tem forma quadrática fechada e limitada
+inferiormente num domínio \(\D\subset\lII\) (por exemplo, um \(\lII^{2,s}\)
+ponderado), então pode-se usar o \textbf{teorema KLMN}
+(Kato--Lions--Lax--Milgram--Nelson) para passar ao limite via convergência em
+forma:
+\[
+\qform^{(N)}(f)\ge \tfrac{1}{20}\|f\|^2,\quad
+\qform^{(N)}(f)\to \qform_\infty(f)\ \ \forall f\in\D
+\;\Longrightarrow\;
+\qform_\infty \ge \tfrac{1}{20}\|\cdot\|^2.
+\]
+
+Aqui o orçamento \(1/100\) deve ser reinterpretado como \textbf{norma de forma}
+(não soma por linha), o que é compatível com \(E_\infty\) sendo um operador de
+Hilbert--Schmidt com norma pequena --- o que exigiria
+\(\sum_{i,j}E_{ij}^2 < \infty\).
+
+\subsection{Rota C --- Compressões e convergência em resolvente forte}
+
+Se \(M^{(N)} = P_N M_\infty P_N\) (compressões) e \(M^{(N)}\ge c_N P_N\) com
+\(c_N\ge c>0\) \textbf{uniforme}, então pela \textbf{convergência em
+resolvente forte} \(M^{(N)}\to M_\infty\) (que segue de limitamento +
+nestedness), vale \(\sigma(M_\infty)\subset[c,\infty)\).
+
+Esta é a rota mais ``limpa'' do ponto de vista de análise funcional, mas
+depende crucialmente de:
+\begin{itemize}
+  \item \(\inf_N \min_k \lambda_k(M^{(N)}) \ge c > 0\) --- uma afirmação sobre
+        \textbf{todos} os pivôs, não só os de \(N=6,8,10\);
+  \item A premissa analítica (intervalos $=$ envoltórios de Weil) válida para
+        todo \(N\), não só \(N\le 10\).
+\end{itemize}
+
+\section{O gargalo real: uniformidade do pivô}
+
+Os pivôs de LDL disponíveis (P13) são apresentados na Tabela~\ref{tab:pivos}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c l}
+\toprule
+\(N\) & pivôs \\
+\midrule
+6  & \(0{,}1716;\ 0{,}8324;\ 0{,}3589;\ 1{,}0733\) \\
+8  & \(0{,}1716;\ 0{,}8324;\ 0{,}3589;\ 1{,}0733;\ 0{,}8763;\ 1{,}1249\) \\
+10 & \(0{,}1716;\ 0{,}8324;\ 0{,}3589;\ 1{,}0733;\ 0{,}8763;\ 1{,}1249;\ 1{,}6158;\ 1{,}3977\) \\
+\bottomrule
+\end{tabular}
+\caption{Pivôs exatos de LDL por dimensão.}
+\label{tab:pivos}
+\end{table}
+
+Padrão observável: os pivôs \textbf{são aninhados} (novamente!), o mínimo é o
+primeiro, \(429/2500 = 0{,}1716\), e todos ficam em
+\([0{,}1716;\ 1{,}62]\). Se este padrão persistir para todo \(N\), tem-se
+\[
+\inf_N \min_k \bigl(\text{pivô}_k - 3/50\bigr)
+= 429/2500 + 3/50
+= 0{,}1716 + 0{,}06
+= 0{,}2316 > 1/20.
+\]
+O \textbf{envelope de erro} \(1/100\) é absorvido com folga
+\(0{,}2316 - 0{,}05 = 0{,}1816\) por pivô. Mas isto é uma \textbf{conjectura
+empírica} --- não há prova em ES8-P13/P14 de que os pivôs ficam confinados
+para todo \(N\). Sem esta prova, a Rota~C não fecha.
+
+\textbf{O que seria necessário provar (e não está):} que a sequência de pivôs
+é limitada inferiormente por \(\delta > 0\) e superiormente por \(K<\infty\)
+--- o que é equivalente a dizer que o operador \(M_\infty + (3/50)I\) tem
+espectro em \([\delta,K]\) e que as compressões são bem condicionadas.
+
+\section{Esqueleto Lean para a extensão}
+
+Abaixo, um esqueleto que compila conceitualmente em Lean~4 / Mathlib (não
+testei compilação --- depende de versão exata de Mathlib).
+
+\begin{lstlisting}[language=Lean4,caption={Esqueleto Lean 4 para a passagem ao limite infinito.}]
+import Mathlib.Analysis.InnerProductSpace.l2Space
+import Mathlib.Analysis.Normed.Operator.Basic
+import Mathlib.Topology.Algebra.InfiniteSum.Basic
+import ES8P14Concrete
+
+namespace Numeria.ES8P14Infinite
+
+open scoped BigOperators
+
+/-! ## 1. Matriz e envelope infinitos, definidos por compatibilidade. -/
+
+/-- Matriz infinita obtida colando as seções finitas. -/
+noncomputable def Minf (i j : Nat) : Rat :=
+  ES8P14Concrete.center8 ⟨i, by sorry⟩ ⟨j, by sorry⟩
+  -- ilustrativo; definição real usa N = max i j + 2
+
+/-- Erro por entrada, colado das seções. -/
+noncomputable def Einf (i j : Nat) : Rat :=
+  ES8P14Concrete.error8 ⟨i, by sorry⟩ ⟨j, by sorry⟩
+
+/-- Compatibilidade com as seções finitas (nestedness). -/
+theorem Minf_eq_centerN :
+    forall (N : Nat) (i j : Fin (N - 2)),
+      Minf i.val j.val = ES8P14Concrete.center (N-2) i j := by
+  sorry
+
+/-! ## 2. Forma quadrática finita vs. infinita. -/
+
+def qFormFin (N : Nat) (M : Fin N -> Fin N -> Rat) (x : Fin N -> Rat) : Rat :=
+  sum i, sum j, x i * M i j * x j
+
+def qFormInf (M : Nat -> Nat -> Rat) (f : Nat -> Rat) : Real :=
+  tsum i, tsum j, (M i j : Real) * f i * f j
+
+/-! ## 3. Hipóteses do teorema de limite. -/
+
+/-- Limitamento tipo Schur para M_inf + shift. -/
+def SchurBounded (M : Nat -> Nat -> Rat) (C : Real) : Prop :=
+  (forall i, tsum j, |(M i j : Real)| <= C) /\
+  (forall j, tsum i, |(M i j : Real)| <= C)
+
+/-- Norma de forma do erro controlada. -/
+def ErrorFormNorm (E : Nat -> Nat -> Rat) (eps : Real) : Prop :=
+  SchurBounded E eps /\ forall i j, E i j = E j i
+
+/-- Positividade uniforme das seções finitas. -/
+def UniformFinitePositivity (M : Nat -> Nat -> Rat) (c : Rat) : Prop :=
+  forall (N : Nat) (f : Fin N -> Rat),
+    (exists i, f i != 0) ->
+      c * (sum i, f i ^ 2) < qFormFin N (fun i j => M i.val j.val) f
+
+/-! ## 4. O teorema de passagem ao limite. -/
+
+/-- Se M_inf é Schur-limitado, E_inf tem norma de forma <= 1/100, e as seções
+    finitas são uniformemente positivas com margem 1/20, então a forma quadrática
+    infinita (M_inf + (3/50) I + E_inf) é >= (1/20) ||f||^2 em l2. -/
+theorem infinite_positive
+    (hSchur : SchurBounded Minf K)
+    (hShift : SchurBounded (fun i j => (3/50 : Rat) * if i = j then 1 else 0) (3/50))
+    (hErr   : ErrorFormNorm Einf (1/100))
+    (hUniform : UniformFinitePositivity Minf (1/20)) :
+    forall f : Nat -> Real, Summable (fun i => f i ^ 2) ->
+      (1/20 : Real) * (tsum i, f i ^ 2) <=
+        tsum i, tsum j,
+          ((Minf i j : Real) + (3/50) * (if i = j then 1 else 0) + Einf i j)
+            * f i * f j := by
+  sorry
+
+end Numeria.ES8P14Infinite
+\end{lstlisting}
+
+\subsection*{O que está formalizado e o que é \texttt{sorry}}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l l}
+\toprule
+Componente & Status \\
+\midrule
+Nestedness das matrizes & Direto por \texttt{fin\_cases} + \texttt{norm\_num} (fácil) \\
+Schur-boundedness de \(M_\infty\) & \textbf{Requer nova hipótese} (não derivável dos JSONs) \\
+\texttt{UniformFinitePositivity} & \textbf{Requer indução sobre \(N\)} ou padrão de pivôs \\
+\texttt{ErrorFormNorm} de \(E_\infty\) & \textbf{Falso com os dados atuais} (soma por linha cresce) \\
+Passagem ao limite & Padrão em Mathlib (via \texttt{tsum} e continuidade) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Obstáculos honestos}
+
+\paragraph{(a) O orçamento \(1/100\) não escala.}
+Como observado, \(\sum_j E^{(10)}_{7j} = 8333/10^6\) já está no teto. Se
+\(E^{(N)}_{ij}\sim 2\times 10^{-3}\) para \(|i-j|\) pequeno e não decai, para
+\(N \gtrsim 16\) a soma por linha estoura \(1/100\). \textbf{A extensão a
+infinito com o mesmo orçamento é numericamente insustentável.} Para contornar,
+seria necessário:
+\begin{itemize}
+  \item Reformular o orçamento como \textbf{norma de forma}
+        (\(\|E\|_{\Lin(\D,\D^*)}\le 1/100\)), o que exige decaimento mais
+        forte em \(E_{ij}\);
+  \item Ou admitir que o shift \(3/50\) deve \textbf{crescer} com \(N\)
+        (perdendo a margem uniforme);
+  \item Ou restringir a um subespaço onde \(E_\infty\) atua com norma pequena.
+\end{itemize}
+
+\paragraph{(b) A premissa analítica não se estende.}
+Cada intervalo é um \emph{enclausuramento} dos integrais de Weil via fórmulas
+explícitas. Para \(N\) finito, é uma verificação numérica. Para
+\(N\to\infty\), exige que as \textbf{caudas arquimedianas e de primos} sejam
+uniformemente pequenas em \(N\) --- o que é essencialmente uma afirmação sobre
+convergência da fórmula explícita, não sobre álgebra linear racional.
+\textbf{A formalização Lean não pode cobrir isto} sem formalizar as identidades
+analíticas (fórmula explícita completa, digama, interpolação) --- projeto de
+anos.
+
+\paragraph{(c) RH não está sendo provado.}
+A positividade de \(M_\infty\) (sem shift) é equivalente à positividade de
+Weil, que é uma forma de RH. O shift \(3/50\) é um ``buffer'' que mascara a
+parte não provada. Em dimensão infinita, o buffer precisa ser uniforme --- mas
+a parte que ele mascara \textbf{não diminui com \(N\)}.
+
+\section{Próximos passos concretos (em ordem de custo/benefício)}
+
+\begin{enumerate}
+  \item \textbf{Verificar nestedness formalmente em Lean} (1 dia). É o único
+        fato estrutural realmente estabelecido pelos dados.
+
+  \item \textbf{Formalizar a extensão via densidade de suporte finito,
+        condicional a \texttt{SchurBounded Minf} e
+        \texttt{UniformFinitePositivity}} (1--2 semanas). O teorema abstrato é
+        padrão; o valor está em isolar as hipóteses.
+
+  \item \textbf{Atacar \texttt{UniformFinitePositivity} por indução sobre
+        \(N\)}: exibir um padrão nos pivôs (ex.: \(\text{pivô}_k\) é sempre
+        \(\ge 429/2500\)) e provar que a estrutura de banda preserva isto.
+        Isto é concreto e verificável para \(N\) até, digamos, 50 --- mas não
+        para todo \(N\) sem uma prova estrutural.
+
+  \item \textbf{Reformular o orçamento de erro como norma de forma} e checar
+        numericamente se \(\sum_{i,j} E_{ij}^2\) permanece limitado nas seções
+        disponíveis. Se sim, Rota~B fica viável.
+
+  \item \textbf{Não tentar formalizar as identidades analíticas} --- são o
+        gargalo real e não são tratáveis no escopo do projeto.
+\end{enumerate}
+
+\section*{Resumo}
+
+A extensão a infinito é matematicamente coerente \emph{se} se adicionarem três
+hipóteses que os dados não fornecem:
+\begin{enumerate}[label=(\roman*)]
+  \item limitamento Schur de \(M_\infty\);
+  \item uniformidade dos pivôs;
+  \item controle de forma (não de linha) de \(E_\infty\).
+\end{enumerate}
+Em Lean, o teorema abstrato é acessível; as hipóteses concretas permanecem
+conjecturais. E o mais importante: \textbf{isto não aproxima uma prova de RH}
+--- o buffer \(3/50\) apenas transporta a positividade de Weil para o domínio
+finito verificável, e o limite infinito reintroduz exatamente a dificuldade
+que o buffer contornava.
+
+\end{document}

@@ -1,0 +1,73 @@
+name: numeria-es8p16-structural
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P16.lean'
+      - 'research/2026-11-04/es8p16/**'
+      - '.github/workflows/numeria-es8p16-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mathematical-structure-lean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject unproved declarations
+        shell: bash
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P16.lean; then
+            echo 'Unproved declaration'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile imported finite rational certificates
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean -o ES8P13.olean ES8P13.lean
+          lake env lean -o ES8P14.olean ES8P14.lean
+          LEAN_PATH=".:${LEAN_PATH:-}" lake env lean -o ES8P14Concrete.olean ES8P14Concrete.lean
+      - name: Compile ES8P16 structural theorems
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          LEAN_PATH=".:${LEAN_PATH:-}" lake env lean ES8P16.lean
+  exact-rational-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: SHA256 manifest
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from hashlib import sha256
+          import json
+          root=Path('research/2026-11-04/es8p16')
+          mapping=json.loads((root/'MANIFESTO_SHA256.json').read_text())
+          for filename,digest in mapping.items():
+              if filename=='ES8P16.lean':p=Path('NUMERIA_E8K_FORMAL/ES8P16.lean')
+              elif filename.endswith('.yml'):p=Path('.github/workflows')/filename
+              else:p=root/filename
+              assert sha256(p.read_bytes()).hexdigest()==digest,filename
+          print('SHA256 PASS',len(mapping))
+          PY
+      - name: Nine adversarial and exact tests
+        run: |
+          cd research/2026-11-04/es8p16
+          python -m unittest -v test_es8p16.py
+      - name: Reproduce exact JSON
+        run: |
+          cd research/2026-11-04/es8p16
+          python audit_es8p16.py --source sources/ES8P14Concrete.lean --out RESULTADOS_ES8P16.json
+          git diff --exit-code -- RESULTADOS_ES8P16.json

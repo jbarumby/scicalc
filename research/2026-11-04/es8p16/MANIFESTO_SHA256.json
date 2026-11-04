@@ -1,0 +1,12 @@
+{
+  "ES8P16.lean": "400517b0c6a11fcab9c4b0d8a3448d4153c25f4ac36754cd0ddba571fe2a5bb8",
+  "PROVENIENCIA_ORIGINAL.sha256": "9912eece3f09e2880449b09f9ed568c6e866177249cc4b02d243af4a7aa4e46e",
+  "README.md": "d072872fe0424a54cf78c27c9697a24791791a211aaeed8dbfd91bfecf4688aa",
+  "RELATORIO_ES8P16.md": "cc7a77b69d62710f4c761da34a852e7ef03bd1e2baf54a872acd8f3fd5c861cf",
+  "RESULTADOS_ES8P16.json": "9e122a8622be6cee9867bd5867a7694c64fbfaddec7f209d5766692e5923074d",
+  "audit_es8p16.py": "b1fa00a21b9b6fdc489c435964450303eccc1799d10c37ea5852116ecfaae709",
+  "numeria-es8p16-lean.yml": "dc021475b86edb4d0fe1b2419f70303f5952f126ccee91bffc8389ad09e8479f",
+  "sources/ES8P14Concrete.lean": "bd6ad1e4136beee3fd46753ec1c10c1f7d7a5cd0fa418c375f38798dc266054f",
+  "sources/deepseek_latex_20261104_525471.tex": "3e3cec45b5a8d2fce3a1f38c400edd72675d60216bfe88ee5d650142189f8792",
+  "test_es8p16.py": "8a4f7fef8a8a50c14aec4f526c172d1fbfa77825087b924cbde947bbfed6febf"
+}
