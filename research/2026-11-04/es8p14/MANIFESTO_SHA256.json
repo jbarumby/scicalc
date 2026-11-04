@@ -1,0 +1,11 @@
+{
+  "ES8P14.lean": "dcfb7082f69eeba99253ba68cec1cd4768e034b1dc47af2bd896d447b1555f2a",
+  "ES8P14Concrete.lean": "bd6ad1e4136beee3fd46753ec1c10c1f7d7a5cd0fa418c375f38798dc266054f",
+  "README.md": "44d21df8d17e11f41d0109dee81e507fe54e97a24f26c8e19fb2afb5e7e9b2bc",
+  "RELATORIO_ES8P14.md": "6a5f590d0923e2c17bd9857f39898926bcdba2c770360bc13fd3e5bfab9cd4fa",
+  "RESULTADOS_ES8P13.json": "5a5473ec83d5e93f51365a5cff28a728c2b5d700a983a12898a7eed895d4134f",
+  "RESULTADOS_ES8P14.json": "be9dc2e87806b93e7258f1bfc13383f7cd4ff6b7509ca0cb880ddb936c556398",
+  "generate_es8p14.py": "9877f4d22b5118bacea5e2ef1c15dc71e06c5ea85e68157aca65c24672fe4a2b",
+  "numeria-es8p14-lean.yml": "777cf06ba89bca657d4a87d3cc813c7c0aecc9fd76e73f4466990da8c294278f",
+  "test_es8p14.py": "7e039f44d9f2dda2080474358b1c0fdc444946051afb1fc244eb6c77ca01ca0a"
+}

@@ -1,0 +1,60 @@
+name: numeria-es8p14-lean
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/ES8P14*.lean'
+      - 'research/2026-11-04/es8p14/**'
+      - '.github/workflows/numeria-es8p14-lean.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  formal-interval-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject proof gaps
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom|unsafe)([[:space:]]|$)' NUMERIA_E8K_FORMAL/ES8P14*.lean; then
+            echo 'Incomplete proof declaration'; exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile generic rational perturbation proof
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean -o ES8P14.olean ES8P14.lean
+      - name: Compile previous exact LDL certificates
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lake env lean -o ES8P13.olean ES8P13.lean
+      - name: Compile concrete 90-digit endpoint certificates
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          LEAN_PATH=".:${LEAN_PATH:-}" lake env lean ES8P14Concrete.lean
+  exact-rational-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify all source endpoints and adversarial mutations
+        run: |
+          cd research/2026-11-04/es8p14
+          python -m unittest -v test_es8p14.py
+      - name: Generate and compare Lean source and results byte-for-byte
+        run: |
+          cd research/2026-11-04/es8p14
+          python generate_es8p14.py
+          cmp ES8P14Concrete.lean ../../../NUMERIA_E8K_FORMAL/ES8P14Concrete.lean
+          git diff --exit-code -- RESULTADOS_ES8P14.json ES8P14Concrete.lean
