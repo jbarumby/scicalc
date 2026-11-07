@@ -8,7 +8,8 @@ from pathlib import Path
 from fractions import Fraction
 from replay import DEGREES,interval,compare
 
-COUNTS={'a030':156,'a034':182,'a040':990}
+COUNTS={'a030':300,'a034':351,'a040':990}
+HISTORICAL={'a030':156,'a034':182,'a040':990}
 
 def check(folder):
     folder=Path(folder)
@@ -22,7 +23,7 @@ def check(folder):
     for win,N in [(s,sum(v)) for s,v in DEGREES.items()]:
         all_keys={f'{i},{j}' for i in range(N) for j in range(i,N)}
         if len(all_keys)!=COUNTS[win]:raise AssertionError('wrong dimensions')
-        seen=set();checked_sample=set()
+        seen=set();checked_sample=set();extra_zero_count=0
         for sh in range(8):
             p=folder/f'{win}_all_{sh}.json'
             if not p.is_file():
@@ -50,19 +51,30 @@ def check(folder):
                         elif row.get('relation')!='REPLAY_SUBSET_REFERENCE':
                             errors.append(f'BAD_RELATION:{win}:{k}')
                         checked_sample.add(k)
-                    elif row.get('relation')!='NOT_COMPARED':
-                        errors.append(f'UNEXPECTED_RELATION:{win}:{k}')
+                    else:
+                        i,j=map(int,k.split(','))
+                        if win in ('a030','a034') and (i+j)%2:
+                            lo,hi=interval(row['replay'])
+                            if not lo<=0<=hi:
+                                errors.append(f'BAD_STRUCTURAL_ZERO:{win}:{k}')
+                            extra_zero_count+=1
+                        if row.get('relation')!='NOT_COMPARED':
+                            errors.append(f'UNEXPECTED_RELATION:{win}:{k}')
                 if set(keys)!=set(expected):errors.append('SHARD_INCOMPLETE:'+p.name)
             except (ValueError,KeyError,TypeError,ArithmeticError) as ex:
                 errors.append(f'INVALID:{p.name}:{ex}')
         if seen!=all_keys:errors.append('WINDOW_INCOMPLETE:'+win)
         if checked_sample!=set(sample['entries'][win]):errors.append('SAMPLE_INCOMPLETE:'+win)
+        if extra_zero_count!=COUNTS[win]-HISTORICAL[win]:
+            errors.append('MISSING_STRUCTURAL_ZEROS:'+win)
         summaries[win]={'all_expected':len(all_keys),'seen':len(seen),
+                        'historical_entries_total':HISTORICAL[win],
+                        'extra_structural_zeros_checked':extra_zero_count,
                         'historical_samples_checked':len(checked_sample),
-                        'full_historical_comparison':'NOT_DONE'}
-    return {'status':'RECORDED_1328_INTERVALS' if not errors else 'FAIL_CLOSED',
+                        'full_historical_comparison':'NOT_DONE_ON_GITHUB_REFERENCES_NOT_COMMITTED'}
+    return {'status':'RECORDED_1641_INTERVALS' if not errors else 'FAIL_CLOSED',
             'windows':summaries,'artifacts_sha256':sha,'errors':errors,
-            'scientific_limit':'Full historical 1328-entry comparisons and mathematical proof of analytic error bounds remain to be audited; not RH.'}
+            'scientific_limit':'Full historical 1328-entry comparisons are supplied by separate offline independent auditor; analytic error bounds and Weil identification still need review; not RH.'}
 
 if __name__=='__main__':
     p=argparse.ArgumentParser()
