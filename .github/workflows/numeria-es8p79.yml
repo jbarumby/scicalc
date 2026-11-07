@@ -1,0 +1,88 @@
+name: NUMERIA ES8-P79 three windows Arb sample
+on:
+  push:
+    branches:
+      - research/numeria-es8p79-three-window-replay-2026-11-07
+    paths:
+      - 'research/ES8P79/**'
+      - '.github/workflows/numeria-es8p79.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact mantissas and fail-closed rules
+        working-directory: research/ES8P79
+        run: python -m unittest -v test_replay
+  arb:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        window: [a030, a034, a040]
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install interval engine
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Verify Arb APIs
+        run: |
+          python - <<'PY'
+          from flint import arb, acb, ctx
+          import flint
+          ctx.prec=256
+          assert ctx.prec==256
+          assert arb.legendre_p_root(3,0,weight=True)
+          assert acb(1).digamma().is_finite()
+          print(f'flint={flint.__version__}; bits={ctx.prec}')
+          PY
+      - name: Reintegrate without acb.integral
+        working-directory: research/ES8P79
+        env:
+          WIN: ${{ matrix.window }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          mkdir -p evidence
+          python replay.py --window "$WIN" --shard "$SHARD" --bits 256 --target-exp 23 --out "evidence/${WIN}_sample_${SHARD}.json"
+      - name: Upload raw evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-es8p79-${{ matrix.window }}-${{ matrix.shard }}
+          path: research/ES8P79/evidence/*.json
+          if-no-files-found: warn
+  verify-artifacts:
+    needs: arb
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: numeria-es8p79-*
+          merge-multiple: true
+          path: research/ES8P79/evidence
+      - name: Exact-rational audit of all 30 results
+        working-directory: research/ES8P79
+        run: python verify_results.py evidence --out ES8P79_AUDIT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: numeria-es8p79-verdict
+          path: research/ES8P79/ES8P79_AUDIT.json
+          if-no-files-found: warn
