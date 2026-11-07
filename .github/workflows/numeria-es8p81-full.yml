@@ -1,0 +1,88 @@
+name: NUMERIA ES8-P81 full three windows Arb matrix replay
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/ES8P79/**'
+      - '.github/workflows/numeria-es8p81-full.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact rational reference tests
+        working-directory: research/ES8P79
+        run: python -m unittest -v test_replay
+  full-replay:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        window: [a030, a034, a040]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install interval engine
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: 256-bit Arb API self-test
+        run: |
+          python - <<'PY'
+          from flint import arb,acb,ctx
+          import flint
+          ctx.prec=256
+          assert ctx.prec==256
+          assert arb.legendre_p_root(3,0,weight=True)
+          assert acb(1).digamma().is_finite()
+          print(f'flint={flint.__version__},bits={ctx.prec}')
+          PY
+      - name: Reintegrate full historical basis block (not acb.integral)
+        working-directory: research/ES8P79
+        env:
+          WIN: ${{ matrix.window }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          mkdir -p evidence-full
+          python replay.py --mode all --window "$WIN" --shard "$SHARD" --shards 8 --bits 256 --target-exp 23 --out "evidence-full/${WIN}_all_${SHARD}.json"
+      - name: Upload raw full-matrix evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-es8p81-${{ matrix.window }}-${{ matrix.shard }}
+          path: research/ES8P79/evidence-full/*.json
+          if-no-files-found: error
+  verify-full:
+    needs: full-replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: numeria-es8p81-*
+          merge-multiple: true
+          path: research/ES8P79/evidence-full
+      - name: Check 1328 unique intervals and 30 historical samples
+        working-directory: research/ES8P79
+        run: python verify_all.py evidence-full --out ES8P81_AUDIT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: numeria-es8p81-verdict
+          path: research/ES8P79/ES8P81_AUDIT.json
+          if-no-files-found: warn
