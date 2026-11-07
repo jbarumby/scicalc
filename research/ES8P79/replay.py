@@ -36,7 +36,7 @@ def sample_pairs(data,label,shard,shards=2):
         interval(d[s])
     return pairs[shard::shards]
 
-def replay(label,shard=0,shards=2,bits=256,target_exp=23,out=None):
+def replay(label,shard=0,shards=2,bits=256,target_exp=23,out=None,mode='sample'):
     if bits!=256 or not 15<=target_exp<=50:
         raise ValueError('audit policy requires 256 bits and 15<=target_exp<=50')
     import flint
@@ -45,7 +45,14 @@ def replay(label,shard=0,shards=2,bits=256,target_exp=23,out=None):
     if ctx.prec!=bits:raise AssertionError('failed to set precision')
     data_bytes=(HERE/'sample_reference.json').read_bytes()
     data=json.loads(data_bytes)
-    selected=sample_pairs(data,label,shard,shards)
+    if shards<1 or not 0<=shard<shards: raise ValueError('invalid shard configuration')
+    if mode=='sample':
+        selected=sample_pairs(data,label,shard,shards)
+    elif mode=='all':
+        N=sum(DEGREES[label])
+        selected=[f'{i},{j}' for i in range(N) for j in range(i,N)][shard::shards]
+    else:
+        raise ValueError('unknown replay mode')
     if out is not None and Path(out).exists():raise FileExistsError(str(out))
     begin=time.monotonic()
     a={'a030':arb(3)/10,'a034':arb(17)/50,'a040':arb(2)/5}[label]
@@ -140,12 +147,12 @@ def replay(label,shard=0,shards=2,bits=256,target_exp=23,out=None):
         prime=t/arb(2).sqrt() if label=='a040' and {I,J}=={0,2} and p==q else arb(0)
         value=(mR if i==j_ix else arb(0))+pole-prime-arch
         ball=encode(value)
-        rel=compare(ball,data['entries'][label][key])
+        rel=compare(ball,data['entries'][label][key]) if key in data['entries'][label] else 'NOT_COMPARED'
         records.append({'pair':key,'replay':ball,'relation':rel})
         print(label,shard,key,rel,flush=True)
         if rel=='DISJOINT':raise ArithmeticError('disjoint result '+label+' '+key)
         if int(ctx.prec)!=bits:raise AssertionError('precision mutated')
-    result={'status':'ARB_REPLAY_COMPLETE','window':label,'mode':'sample',
+    result={'status':'ARB_REPLAY_COMPLETE','window':label,'mode':mode,
             'shard':shard,'shards':shards,'bits':int(ctx.prec),
             'flint_version':flint.__version__,
             'fixture_sha256':hashlib.sha256(data_bytes).hexdigest(),
@@ -158,9 +165,11 @@ def replay(label,shard=0,shards=2,bits=256,target_exp=23,out=None):
 if __name__=='__main__':
     ap=argparse.ArgumentParser()
     ap.add_argument('--window',choices=sorted(DEGREES),required=True)
-    ap.add_argument('--shard',type=int,choices=[0,1],required=True)
+    ap.add_argument('--shard',type=int,required=True)
+    ap.add_argument('--shards',type=int,default=2)
+    ap.add_argument('--mode',choices=['sample','all'],default='sample')
     ap.add_argument('--out',required=True)
     ap.add_argument('--bits',type=int,default=256)
     ap.add_argument('--target-exp',type=int,default=23)
     args=ap.parse_args()
-    replay(args.window,args.shard,2,args.bits,args.target_exp,args.out)
+    replay(args.window,args.shard,args.shards,args.bits,args.target_exp,args.out,args.mode)
