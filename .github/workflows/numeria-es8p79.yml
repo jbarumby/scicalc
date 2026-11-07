@@ -6,6 +6,12 @@ on:
     paths:
       - 'research/ES8P79/**'
       - '.github/workflows/numeria-es8p79.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'research/ES8P79/**'
+      - '.github/workflows/numeria-es8p79.yml'
   workflow_dispatch:
 permissions:
   contents: read
