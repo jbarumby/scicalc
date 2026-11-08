@@ -1,0 +1,22 @@
+name: NUMERIA ES8-P89 rigorous Fourier moments pilot
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/ES8P89/pilot_fourier.py'
+      - '.github/workflows/numeria-es8p89-fourier-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certified-moments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Test high-frequency rigorous moments
+        run: python research/ES8P89/pilot_fourier.py
