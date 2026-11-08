@@ -1,0 +1,127 @@
+name: NUMERIA ES8-P111 full 169x169 interval certificate
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p110-tight-interval-pilot-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p111-full-169.yml"
+      - "numeria/es8_p111/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  independent-pilot-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: numeria/es8_p111
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Retrieve all five finished tight P110 Arb pilot enclosures
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42508485383
+          github-token: ${{ github.token }}
+          pattern: P110_HIGH_ACCURACY_*
+          merge-multiple: true
+          path: numeria/es8_p111/pilots
+      - name: Retrieve full original P109 169x169 interval matrix
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42491507667
+          github-token: ${{ github.token }}
+          name: P109_1000_FIXED_MATRIX_CERTIFICATE
+          path: numeria/es8_p111/old
+      - name: Check all 5 exact rational interval intersections and strict error targets
+        run: |
+          set -euo pipefail
+          python -m py_compile validate_pilots.py p111_full_arb.py p111_exact_audit.py
+          python validate_pilots.py 2>&1 | tee P111_GATE_LOG.txt
+      - name: Preserve exact pilot gate and provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P111_PILOT_GATE
+          path: |
+            numeria/es8_p111/P111_GATE_RESULT.json
+            numeria/es8_p111/P111_GATE_LOG.txt
+          if-no-files-found: warn
+  arb-row-shards:
+    needs: independent-pilot-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    defaults:
+      run:
+        working-directory: numeria/es8_p111
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pinned Arb
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Calculate intervals with certified analytic GL/Cauchy geometry
+        env:
+          I: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          python -u p111_full_arb.py --max-prime 1000 --bits 256 \
+            --shards 24 --shard-index "$I" \
+            --out "P111_1000_ROWS_${I}.json" \
+            2>&1 | tee "P111_1000_ROWS_${I}.log"
+      - name: Preserve exact interval endpoints and proof transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P111_1000_SHARD_${{ matrix.shard }}
+          path: |
+            numeria/es8_p111/P111_1000_ROWS_*.json
+            numeria/es8_p111/P111_1000_ROWS_*.log
+          compression-level: 1
+          if-no-files-found: warn
+  exact-169-certificate:
+    needs: arb-row-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    defaults:
+      run:
+        working-directory: numeria/es8_p111
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: P111_1000_SHARD_*
+          merge-multiple: true
+          path: numeria/es8_p111
+      - name: Install numerical heuristic (NOT the positivity verifier)
+        run: python -m pip install 'numpy==2.2.6'
+      - name: Exact integer Bareiss Sylvester and global Frobenius error proof
+        run: |
+          set -euo pipefail
+          python -u p111_exact_audit.py --max-prime 1000 --shards 24 \
+            2>&1 | tee P111_1000_EXACT_LOG.txt
+      - name: Archive 169-centre matrix, eigenvalue trend and certified exact lower bounds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P111_169X169_EXACT_ARBITRARY_MATRIX_CERTIFICATE
+          path: |
+            numeria/es8_p111/P111_1000_AUDIT.json
+            numeria/es8_p111/P111_1000_COMPACT_MATRIX.json
+            numeria/es8_p111/P111_1000_REPORT.md
+            numeria/es8_p111/P111_1000_TREND.csv
+            numeria/es8_p111/P111_1000_EXACT_LOG.txt
+          if-no-files-found: warn
