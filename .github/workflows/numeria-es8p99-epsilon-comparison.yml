@@ -1,0 +1,64 @@
+name: NUMERIA ES8-P99 P98 Epsilon Precision Comparison
+on:
+  push:
+    branches:
+      - research/numeria-es8p99-epsilon-2x2-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p99-epsilon-comparison.yml'
+      - 'numeria/es8_p99/**'
+  pull_request:
+    branches:
+      - research/numeria-es8p97-diagonal-arb-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p99-epsilon-comparison.yml'
+      - 'numeria/es8_p99/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p99-four-way:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        eps_den: [512, 2048]
+        bits: [128, 256]
+    defaults:
+      run:
+        working-directory: numeria/es8_p99
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned interval arithmetic
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Compile check
+        run: python -m py_compile W12_arb_direto_P98.py certifica_matriz_2x2_P98.py auditar_uma_execucao.py
+      - name: Compute direct W11 W22 W12 with Arb (P92 normalization)
+        env:
+          EPS_DEN: ${{ matrix.eps_den }}
+          BITS: ${{ matrix.bits }}
+        run: |
+          set +e
+          python certifica_matriz_2x2_P98.py --eps-den "$EPS_DEN" --prec "$BITS" \
+            --tol 1e-7 --eval-limit 15000 --depth-limit 24 \
+            --output "P99_EPS${EPS_DEN}_BITS${BITS}.json" >"P99_EPS${EPS_DEN}_BITS${BITS}.log" 2>&1
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] && [ "$code" -ne 2 ]; then
+            tail -50 "P99_EPS${EPS_DEN}_BITS${BITS}.log"
+            exit "$code"
+          fi
+          python auditar_uma_execucao.py "P99_EPS${EPS_DEN}_BITS${BITS}.json" "$EPS_DEN" "$BITS" \
+              > "P99_EPS${EPS_DEN}_BITS${BITS}_AUDIT.json"
+          cat "P99_EPS${EPS_DEN}_BITS${BITS}_AUDIT.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P99_EPS${{ matrix.eps_den }}_BITS${{ matrix.bits }}
+          path: |
+            numeria/es8_p99/P99_EPS*.json
+            numeria/es8_p99/P99_EPS*.log
+          if-no-files-found: warn
