@@ -27,8 +27,16 @@ EPS=arb(1)/10**7
 RADIUS_CORRECTION=arb(20)
 N_MAX=2048
 RULE_CACHE={}
+INNER_PROOFS=[]
 STATS={'inner_calls':0,'outer_panels':0,'inner_complex_verified':0,'outer_complex_verified':0,
        'max_inner_order':0,'max_outer_order':0,'primepowers':[]}
+
+def rat(x):
+    q=x.fmpq()
+    return f'{int(q.p)}/{int(q.q)}'
+
+def exact_ball(x):
+    return {'lo':rat(x.lower()),'hi':rat(x.upper())}
 
 def require(cond, reason):
     if not bool(cond): raise ArithmeticError('NON_CERTIFIED: '+reason)
@@ -119,20 +127,28 @@ def R_T(s):
     a,b=-ZH,ZH-s
     L=(b-a)/2
     rho,_=ratio_rho(L,arb('0.005'))
-    check_inner(s,a,b,rho,'R_T')
+    inner_geo=check_inner(s,a,b,rho,'R_T')
     v,e,n,_,_=gl_panel(lambda y: bump(y)*bump(y+s),a,b,
                         arb('0.005'),arb(1),'1e-15','R_T')
     STATS['max_inner_order']=max(STATS['max_inner_order'],n)
+    INNER_PROOFS.append({'kind':'R_T','s':exact_ball(s),'a':exact_ball(a),
+        'b':exact_ball(b),'rho':exact_ball(rho),'overshoot':exact_ball(arb('0.005')),
+        'order':n,'M':exact_ball(arb(1)),'gl_error':exact_ball(e),
+        'y_ellipse':inner_geo})
     return v.real+arb(0,e.upper())
 
 def A_moment():
     a,b=-ZH,ZH
     L=(b-a)/2;rho,_=ratio_rho(L,arb('0.005'))
-    check_inner(arb(0),a,b,rho,'A_moment')
+    moment_geo=check_inner(arb(0),a,b,rho,'A_moment')
     v,e,n,_,_=gl_panel(lambda y:bump(y)*((y/2).exp()+(-y/2).exp())/2,
                         a,b,arb('0.005'),arb(2),'1e-15','A_moment')
     tail=(2*GAP*ETA*(h/2).exp()).upper()
     STATS['max_inner_order']=max(STATS['max_inner_order'],n)
+    INNER_PROOFS.append({'kind':'A_moment','s':exact_ball(arb(0)),'a':exact_ball(a),
+        'b':exact_ball(b),'rho':exact_ball(rho),'overshoot':exact_ball(arb('0.005')),
+        'order':n,'M':exact_ball(arb(2)),'gl_error':exact_ball(e),
+        'y_ellipse':moment_geo})
     return v.real+arb(0,e.upper())+arb(0,tail)
 
 def primepowers():
@@ -184,6 +200,7 @@ def panels_for(delta):
     if bool(delta.lower()>SUP.upper()):
         start=delta-SUP
         positive(start,'initial zero region')
+        require(start.lower()>EPS.upper(),'zero-region endpoint too close to eps for omission')
         return [('begin_support',start),('branchB',delta),('stop',T)],False,t1,T
     raise ArithmeticError('delta near support contact; fail closed')
 
@@ -271,6 +288,9 @@ def entry(n,m,A,diagnostics):
         STATS['max_outer_order']=max(STATS['max_outer_order'],order)
         records.append({'from':leftname,'to':rightname,'a':str(a),'b':str(b),
               'active':acts,'ov':str(ov),'rho':str(rho),'real_overshoot':str(excess.upper()),
+              'exact':{'a':exact_ball(a),'b':exact_ball(b),'delta':exact_ball(delta),
+                  'ov':exact_ball(ov),'rho':exact_ball(rho),'M':exact_ball(M),
+                  'GL_error':exact_ball(e),'ellipse_overshoot':exact_ball(excess)},
               'order':order,'error':str(e.upper()),'geometry':geometry})
     STATS['outer_panels']+=len(records)
     tail=F0*(T/2).tanh().log()
@@ -325,6 +345,7 @@ def main():
        'entries':{k:v['entry'] for k,v in diagnostics.items()},
        'proof_records':diagnostics,
        'stats':STATS,'total_logged_panels':total_outer,
+       'inner_ellipse_proofs':INNER_PROOFS,
        'elapsed_seconds':time.time()-st,
        'source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
        'warnings':['Source-level Bernstein ellipse analytic proofs needed outside computed inequalities',
