@@ -67,3 +67,47 @@ jobs:
             numeria/es8_p95/ES8P95_W12_SEGMENT0.json
             numeria/es8_p95/ES8P95_W12_PILOT.log
           if-no-files-found: warn
+
+
+  full-w12:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    defaults:
+      run:
+        working-directory: numeria/es8_p95
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned dependencies
+        run: python -m pip install 'python-flint==0.9.0' 'numpy==1.26.4'
+      - name: Thirty Fourier segments, full Arb W12 arch finite
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          python p94_arb_fourier_gl.py \
+            --shard "$SHARD" --shards 8 \
+            --pairs '1,2' --prec 256 \
+            --out "ES8P95_W12_SHARD_${SHARD}.json" 2>&1 | tee "ES8P95_W12_SHARD_${SHARD}.log"
+          python - "${SHARD}" <<'PY'
+          import json,sys
+          i=int(sys.argv[1])
+          d=json.load(open(f"ES8P95_W12_SHARD_{i}.json"))
+          assert d["status"]=="RIGOROUS_FINITE_GL_ARCH_0_TO_600"
+          assert d["segments"]==list(range(i,240,8))
+          assert len(d["records"])==1
+          print("SHARD_OK",i,len(d["segments"]))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ES8P95_W12_SHARD_${{ matrix.shard }}
+          path: |
+            numeria/es8_p95/ES8P95_W12_SHARD_${{ matrix.shard }}.json
+            numeria/es8_p95/ES8P95_W12_SHARD_${{ matrix.shard }}.log
+          if-no-files-found: warn
