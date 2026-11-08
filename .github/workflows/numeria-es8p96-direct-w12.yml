@@ -1,0 +1,78 @@
+name: NUMERIA ES8-P96 Direct P92 Arb W12
+on:
+  push:
+    branches:
+      - research/numeria-es8p96-p92direct-2026-11-08
+    paths:
+      - 'numeria/es8_p96/**'
+      - '.github/workflows/numeria-es8p96-direct-w12.yml'
+  pull_request:
+    branches:
+      - research/numeria-es8p95-w12-arb-2026-11-08
+    paths:
+      - 'numeria/es8_p96/**'
+      - '.github/workflows/numeria-es8p96-direct-w12.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  w12-direct-safe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        precision: [128, 256]
+    defaults:
+      run:
+        working-directory: numeria/es8_p96
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned python-flint
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Structural and rational tests
+        run: python test_p96.py
+      - name: Direct  W12 nested Arb integration (nonanalytic outer)
+        env:
+          PREC: ${{ matrix.precision }}
+        run: |
+          set +e
+          python W12_arb_direto_P96.py --prec "$PREC" --tol 1e-12 \
+            --eval-limit 20000 --depth-limit 24 \
+            --output "W12_ES8P96_${PREC}.json" > "W12_ES8P96_${PREC}.log" 2>&1
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] && [ "$code" -ne 2 ]; then
+            cat "W12_ES8P96_${PREC}.log"
+            exit "$code"
+          fi
+          python - "$PREC" <<'PY'
+          import json,sys
+          from fractions import Fraction as F
+          prec=sys.argv[1]
+          j=json.load(open(f"W12_ES8P96_{prec}.json"))
+          print("STATUS",j["status"])
+          print("CALLS",j.get("integration_calls"))
+          print("OUTER_ANALYTIC_DENIALS",j.get("outer_analytic_denials"))
+          print("SUPPORT_TRIMS",j.get("inner_support_trims"))
+          if j["status"].startswith("DIRECT_P92_"):
+              lo=F(j["exact_real_bounds"]["W12"]["lo"])
+              hi=F(j["exact_real_bounds"]["W12"]["hi"])
+              assert lo <= hi
+              print("EXACT_BOUNDS",str(lo),str(hi))
+          else:
+              assert j["status"]=="INCONCLUSIVE"
+              print("INCONCLUSIVE IS NOT A CERTIFICATE")
+          PY
+          tail -n 3 "W12_ES8P96_${PREC}.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: NUMERIA_ES8P96_DIRECT_W12_${{ matrix.precision }}
+          path: |
+            numeria/es8_p96/W12_ES8P96_*.json
+            numeria/es8_p96/W12_ES8P96_*.log
+          if-no-files-found: warn
