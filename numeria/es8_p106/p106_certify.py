@@ -167,6 +167,8 @@ def panels_for(delta):
         start=EPS
         events=[]
         for nm,x in [('contactA',t1),('branchB',delta),('stop',T)]:
+            # On diagonal, contactA coincides with the endpoint T; skip duplicate.
+            if nm=='contactA' and delta.is_zero():continue
             if bool(x.upper()<=EPS.lower()):continue
             if bool(x.lower()>EPS.upper() and x.upper()<T.lower()):events.append((nm,x))
             elif nm=='stop':events.append((nm,x))
