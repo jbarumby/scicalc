@@ -1,0 +1,93 @@
+name: NUMERIA P115 progress-aware final Arb 169x169 fast exact certificate
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p111-full-169-tight-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p115-final.yml"
+      - "numeria/es8_p115/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  exact-169-if-ready:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: numeria/es8_p115
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download completed P111 Arb shards (partial is progress, not proof)
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42509353671
+          github-token: ${{ github.token }}
+          pattern: P111_1000_SHARD_*
+          merge-multiple: true
+          path: numeria/es8_p115/shards
+      - name: Retrieve old P109 169x169 exact interval reference
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42491507667
+          github-token: ${{ github.token }}
+          name: P109_1000_FIXED_MATRIX_CERTIFICATE
+          path: numeria/es8_p115/old
+      - name: Exact rational intersection and complete-shard gate
+        id: preflight
+        run: |
+          set -euo pipefail
+          python -m py_compile preflight_partial.py ../es8_p115/p115_assemble_and_prove.py
+          python -u preflight_partial.py \
+            --shards shards \
+            --old-matrix old/P109_1000_COMPACT_MATRIX.json \
+            --github-output "$GITHUB_OUTPUT" \
+            --out P115_PREFLIGHT.json 2>&1 | tee P115_PREFLIGHT.log
+          python - <<'PY'
+          import json,os
+          d=json.load(open("P115_PREFLIGHT.json"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("## NUMERIA P115 preflight\n\n")
+              f.write(f"Available P111 shards: {d['shard_count']}/24; entries: {d['distinct_entries_verified']}/14365.\n\n")
+              f.write(f"Status: **{d['status']}**.\n\n")
+              if not d["complete"]:
+                  f.write("**No 169x169 interval certificate.** Re-run this independent verification only after P111 completes.\n")
+          PY
+      - name: Install exact C-level FLINT only for full matrix
+        if: steps.preflight.outputs.ready == 'true'
+        run: python -m pip install 'python-flint==0.9.0' 'numpy==2.2.6'
+      - name: Verify all 14365 entries and exact integer characteristic-polynomial positivity
+        if: steps.preflight.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          python -u p115_assemble_and_prove.py \
+            --rows shards \
+            --old-matrix old/P109_1000_COMPACT_MATRIX.json \
+            --outprefix P115_169 \
+            2>&1 | tee P115_EXACT.log
+          python - <<'PY'
+          import json,os
+          d=json.load(open("P115_169_AUDIT.json"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write("\n## Full 169x169 exact proof\n\n")
+              f.write(f"Result: **{d['status']}**; Frobenius bound: `{d['rho_Frobenius_upper_rational']}`.\n")
+              f.write(f"Verified lambda lower: `{d['verified_min_eigenvalue_lower_rational']}`.\n")
+              f.write("Finite 169-centre conditional statement only; not RH.\n")
+          PY
+      - name: Preserve progress or complete exact proof (never mislabel partial result)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P115_PREFLIGHT_AND_EXACT_IF_COMPLETE
+          path: |
+            numeria/es8_p115/P115_PREFLIGHT.json
+            numeria/es8_p115/P115_PREFLIGHT.log
+            numeria/es8_p115/P115_169_AUDIT.json
+            numeria/es8_p115/P115_169_CHARPOLY_COEFFS.txt
+            numeria/es8_p115/P115_169_COMPACT_MATRIX.json
+            numeria/es8_p115/P115_EXACT.log
+          if-no-files-found: warn
