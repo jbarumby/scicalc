@@ -1,0 +1,121 @@
+name: NUMERIA ES8-P109 FIX primes <=500 near-contact GL
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p109-prime-limits-300-500-1000-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p109-fixed-500.yml"
+      - "numeria/es8_p109_fix/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contact-pilots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - label: upper
+            pair: "197,433"
+          - label: lower
+            pair: "167,367"
+    defaults:
+      run:
+        working-directory: numeria/es8_p109_fix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install 'python-flint==0.9.0'
+      - name: Ensure edge case can be interval enclosed
+        env:
+          PAIR: ${{ matrix.pair }}
+          LABEL: ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          python -m py_compile p109_arb_shard_v2.py ../es8_p109/p109_exact_audit.py
+          python -u p109_arb_shard_v2.py --max-prime 500 --bits 256 \
+            --shards 24 --shard-index 0 --pair "$PAIR" \
+            --out "P109_EDGE_${LABEL}.json" \
+            2>&1 | tee "P109_EDGE_${LABEL}.log"
+          python - "P109_EDGE_${LABEL}.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1]))
+          assert len(d["entries"])==1
+          assert d["outer_panels_verified"]>0
+          assert d["inner_ellipse_count"]>0
+          print('PILOT_ENCLOSED',d['entries'])
+          PY
+  arb-shards:
+    needs: contact-pilots
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    defaults:
+      run:
+        working-directory: numeria/es8_p109_fix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'python-flint==0.9.0'
+      - name: Interval-certified Bernstein panels (dyadic fix) and 256-bit Arb
+        env:
+          I: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          python -u p109_arb_shard_v2.py --max-prime 500 --bits 256 \
+            --shards 24 --shard-index "$I" \
+            --out "P109_500_ROWS_${I}.json" \
+            2>&1 | tee "P109_500_ROWS_${I}.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P109_500_FIXED_SHARD_${{ matrix.shard }}
+          path: |
+            numeria/es8_p109_fix/P109_500_ROWS_*.json
+            numeria/es8_p109_fix/P109_500_ROWS_*.log
+          compression-level: 1
+          if-no-files-found: warn
+  exact-audit:
+    needs: arb-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: numeria/es8_p109_fix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: P109_500_FIXED_SHARD_*
+          merge-multiple: true
+          path: numeria/es8_p109_fix
+      - run: python -m pip install 'numpy==2.2.6'
+      - name: Exact integer Bareiss and Frobenius matrix radius
+        run: |
+          set -euo pipefail
+          python -u ../es8_p109/p109_exact_audit.py \
+            --max-prime 500 --shards 24 2>&1 | tee P109_500_AUDIT_LOG.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P109_500_FIXED_MATRIX_CERTIFICATE
+          path: |
+            numeria/es8_p109_fix/P109_500_AUDIT.json
+            numeria/es8_p109_fix/P109_500_COMPACT_MATRIX.json
+            numeria/es8_p109_fix/P109_500_REPORT.md
+            numeria/es8_p109_fix/P109_500_TREND.csv
+            numeria/es8_p109_fix/P109_500_AUDIT_LOG.txt
+          if-no-files-found: warn
