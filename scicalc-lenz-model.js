@@ -28,5 +28,23 @@
       needle: moving ? (approach ? -response : response) : 0
     };
   }
+
+  // Normalized, testable movement model used by the animation.
+  // p=0 means the magnet is far from the coil; p=1 means near the coil.
+  function advanceLenz(position, mode, speed, dt) {
+    if(!Number.isFinite(dt) || dt<0)throw Error('Tempo de animação inválido.');
+    const direction=mode==='away'?-1:1;
+    const p=clamp(position,0.06,0.94);
+    const delta=clamp(speed,0.05,1)*Math.min(dt,0.25)*0.46;
+    const next=clamp(p+direction*delta,0.06,0.94);
+    return {position:next,finished:direction<0?next<=0.06:next>=0.94};
+  }
+  function startPosition(mode) {
+    // Always begin a new departure near the coil, or an approach far away.
+    return mode==='away'?0.88:0.12;
+  }
+  root.scicalcLenzAdvance=advanceLenz;
+  root.scicalcLenzStartPosition=startPosition;
+
   root.scicalcLenzState = computeLenzState;
 })(typeof window !== 'undefined' ? window : globalThis);

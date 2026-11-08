@@ -47,7 +47,7 @@
       '</div>',
       '<p class="lenz-footnote"><b>Lei de Faraday–Lenz:</b> ε = −N · dΦ/dt. ',
       'O sinal negativo expressa a oposição à <em>variação</em> do fluxo, não necessariamente ao campo do ímã. ',
-      'As intensidades mostradas são relativas e qualitativas, não valores medidos de tensão ou campo.</p>',
+      'As intensidades e a velocidade visual são relativas e qualitativas, não valores medidos de corrente, tensão ou campo.</p>',
     '</div>'
   ].join('');
   original.insertAdjacentElement('beforebegin', studio);
@@ -247,7 +247,7 @@
   function updateInfo() {
     const m=physicalState(),moving=m.moving;
     get('lenz-motion-pill').dataset.moving=String(moving);
-    get('lenz-motion-text').textContent=moving?(direction==='approach'?'APROXIMANDO':'AFASTANDO'):'ÍMÃ PARADO';
+    get('lenz-motion-text').textContent=moving?(direction==='approach'?'APROXIMANDO → '+Math.round(100*(p-.12)/.82)+'%':'← AFASTANDO '+Math.round(100*(.88-p)/.82)+'%'):'ÍMÃ PARADO';
     get('lenz-r-movement').textContent=moving?(direction==='approach'?'Aproximando':'Afastando'):'Parado';
     get('lenz-r-flow').textContent=m.fluxTrend==='increases'?'Fluxo aumentando':m.fluxTrend==='decreases'?'Fluxo diminuindo':'Fluxo constante';
     get('lenz-r-pole').textContent=m.inducedPole==='—'?'Nenhuma':m.inducedPole+' induzido';
@@ -292,29 +292,28 @@
   }
   function play(mode){
     const next=mode==='away'?'away':'approach';
-    if(playing&&frameId)root.cancelAnimationFrame(frameId);
-    if(next!==direction){
-      direction=next;
-      // Quando a direção muda, conserva o lugar atual, salvo nas extremidades.
-      if(next==='away'&&p<.13)p=.88;
-      if(next==='approach'&&p>.87)p=.12;
-    }
-    if(next==='approach'&&p>=.94)p=.12;
-    if(next==='away'&&p<=.06)p=.88;
-    modeSelect.value=direction;
-    playing=true;lastFrame=null;
-    frameId=root.requestAnimationFrame(tick);
+    if(frameId)root.cancelAnimationFrame(frameId);
+    // Each click starts a clearly visible full trajectory. AFASTAMENTO
+    // always begins next to the coil and travels LEFT, away from it.
+    direction=next;
+    p=typeof root.scicalcLenzStartPosition==='function'
+      ?root.scicalcLenzStartPosition(next):(next==='away'?.88:.12);
+    modeSelect.value=next;
+    playing=true;lastFrame=null;lastInfoTime=0;
     render();
+    frameId=root.requestAnimationFrame(tick);
   }
   function tick(now) {
     if(!playing)return;
     const dt=lastFrame===null?0:Math.min(.05,Math.max(0,(now-lastFrame)/1000));
     lastFrame=now;
-    p+=dt*currentSpeed()*.34*(direction==='approach'?1:-1);
-    if(p>=.94){p=.94;pause();return;}
-    if(p<=.06){p=.06;pause();return;}
+    const progress=root.scicalcLenzAdvance
+      ?root.scicalcLenzAdvance(p,direction,currentSpeed(),dt)
+      :{position:clamp(p+dt*currentSpeed()*.46*(direction==='approach'?1:-1),.06,.94),finished:false};
+    p=progress.position;
+    if(progress.finished){pause();return;}
     draw();
-    if(now-lastInfoTime>140){updateInfo();lastInfoTime=now;}
+    if(now-lastInfoTime>90){updateInfo();lastInfoTime=now;}
     frameId=root.requestAnimationFrame(tick);
   }
 
@@ -327,7 +326,7 @@
   });
   speed.addEventListener('input',function(){
     const label=get('fl-lenz-value');
-    if(label)label.textContent=currentSpeed().toLocaleString('pt-BR',{maximumFractionDigits:2})+' m/s';
+    if(label)label.textContent=currentSpeed().toLocaleString('pt-BR',{maximumFractionDigits:2})+'×';
     if(!playing)render();
   });
   document.addEventListener('visibilitychange',function(){if(document.hidden&&playing)pause();});

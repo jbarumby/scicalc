@@ -263,7 +263,8 @@
 </style>
 <!-- SciCalc Pro: recursos independentes e carregamento sob demanda -->
 <link rel="stylesheet" href="./scicalc-pro.css">
-<link rel="stylesheet" href="./scicalc-lenz-studio.css">
+<link rel="stylesheet" href="./scicalc-lenz-studio.css?rev=20261108b">
+<link rel="stylesheet" href="./scicalc-faraday-studio.css">
 <link rel="stylesheet" href="./scicalc-science-plus.css">
 </head>
 <body>
@@ -675,13 +676,13 @@
       <p>O polo <strong>N</strong> do ímã está voltado para a bobina, como no esquema enviado. A corrente induzida sempre produz um efeito que <strong>se opõe à variação do fluxo magnético</strong>.</p>
       <div class="form-row">
         <div><label>Movimento</label>
-          <select id="fl-lenz-mode" onchange="flSetMode(this.value)">
+          <select id="fl-lenz-mode">
             <option value="approach">Aproximação do ímã</option>
             <option value="away">Afastamento do ímã</option>
           </select>
         </div>
-        <div><label for="fl-lenz-speed">Velocidade</label><input id="fl-lenz-speed" type="range" min="0.05" max="1" step="0.05" value="0.35" oninput="document.getElementById('fl-lenz-value').textContent=this.value.replace('.',',')+' m/s'"></div>
-        <div><label>Valor</label><div id="fl-lenz-value" style="padding:12px 0;font-weight:700">0,35 m/s</div></div>
+        <div><label for="fl-lenz-speed">Velocidade visual (escala relativa)</label><input id="fl-lenz-speed" type="range" min="0.05" max="1" step="0.05" value="0.35" oninput="document.getElementById('fl-lenz-value').textContent=this.value.replace('.',',')+'×'"></div>
+        <div><label>Valor</label><div id="fl-lenz-value" style="padding:12px 0;font-weight:700">0,35×</div></div>
       </div>
       <div class="v26-extra-actions">
         <button class="btn" type="button" onclick="flStartLenz('approach')">⬇️ Aproximar ímã</button>
@@ -4139,8 +4140,10 @@ function limExemplo(funcao,ponto,direcao){
 })();
 </script><script defer src="./scicalc-pro.js"></script>
 <script defer src="./scicalc-limit-rational-infinity.js"></script>
-<script defer src="./scicalc-lenz-model.js"></script>
-<script defer src="./scicalc-lenz-studio.js"></script>
+<script defer src="./scicalc-lenz-model.js?rev=20261108b"></script>
+<script defer src="./scicalc-lenz-studio.js?rev=20261108b"></script>
+<script defer src="./scicalc-faraday-model.js"></script>
+<script defer src="./scicalc-faraday-studio.js"></script>
 <script defer src="./scicalc-science-kernels.js"></script>
 <script defer src="./scicalc-number-theory-plus.js"></script>
 <script defer src="./scicalc-edo-fourier-plus.js"></script>
