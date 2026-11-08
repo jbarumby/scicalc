@@ -681,8 +681,8 @@
             <option value="away">Afastamento do ímã</option>
           </select>
         </div>
-        <div><label for="fl-lenz-speed">Velocidade</label><input id="fl-lenz-speed" type="range" min="0.05" max="1" step="0.05" value="0.35" oninput="document.getElementById('fl-lenz-value').textContent=this.value.replace('.',',')+' m/s'"></div>
-        <div><label>Valor</label><div id="fl-lenz-value" style="padding:12px 0;font-weight:700">0,35 m/s</div></div>
+        <div><label for="fl-lenz-speed">Velocidade visual (escala relativa)</label><input id="fl-lenz-speed" type="range" min="0.05" max="1" step="0.05" value="0.35" oninput="document.getElementById('fl-lenz-value').textContent=this.value.replace('.',',')+'×'"></div>
+        <div><label>Valor</label><div id="fl-lenz-value" style="padding:12px 0;font-weight:700">0,35×</div></div>
       </div>
       <div class="v26-extra-actions">
         <button class="btn" type="button" onclick="flStartLenz('approach')">⬇️ Aproximar ímã</button>
