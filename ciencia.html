@@ -261,6 +261,8 @@
 .physics-subcalc{margin-top:6px;color:var(--muted)}
 .math-pmod{font-style:normal}
 </style>
+<!-- SciCalc Pro: recursos independentes e carregamento sob demanda -->
+<link rel="stylesheet" href="./scicalc-pro.css">
 </head>
 <body>
 <noscript>
@@ -4133,5 +4135,6 @@ function limExemplo(funcao,ponto,direcao){
       : undefined;
   };
 })();
-</script></body>
+</script><script defer src="./scicalc-pro.js"></script>
+</body>
 </html>
