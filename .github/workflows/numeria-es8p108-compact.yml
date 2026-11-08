@@ -1,0 +1,58 @@
+name: NUMERIA P108 compact matrix and exact independent 47x47 proof
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p106-gl-cauchy-certified-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p108-compact.yml"
+      - "numeria/es8_p108_compact/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package-complete-47x47:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: numeria/es8_p108_compact
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download all 10 original geometry-proved Arb row shards from P108
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42489201995
+          github-token: ${{ github.token }}
+          pattern: P108_SHARD_*
+          merge-multiple: true
+          path: numeria/es8_p108_compact
+      - name: Download original matrix exact audit from same P108 run
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42489201995
+          github-token: ${{ github.token }}
+          name: P108_EXACT_MATRIX_AND_LAMBDA_TREND
+          path: numeria/es8_p108_compact
+      - name: Exact reassembly + 47 integer Bareiss pivots
+        run: |
+          set -euo pipefail
+          python -m py_compile build_compact_matrix.py
+          python -u build_compact_matrix.py 2>&1 | tee P108_COMPACT_LOG.txt
+      - name: Compact scientific archive
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P108_COMPACT_47X47_EXACT_CERTIFICATE
+          path: |
+            numeria/es8_p108_compact/P108_COMPACT_47X47.json
+            numeria/es8_p108_compact/P108_COMPACT_PROVENANCE.json
+            numeria/es8_p108_compact/P108_47X47_EXACT_AUDIT.json
+            numeria/es8_p108_compact/P108_LAMBDA_TREND.csv
+            numeria/es8_p108_compact/P108_REPORT.md
+            numeria/es8_p108_compact/P108_COMPACT_LOG.txt
+            numeria/es8_p108_compact/build_compact_matrix.py
+          if-no-files-found: warn
