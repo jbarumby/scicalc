@@ -44,7 +44,7 @@ function isPrime(n){n=bi(n,'n',1000000000n);if(n<2n)return false;if(n%2n===0n)re
  return true;
 }
 function sieve(n){
- if(!Number.isInteger(n)||n<2||n>200000)throw Error('Crivo: use 2 ≤ N ≤ 200.000.');
+ if(!Number.isInteger(n)||n<2||n>1000000)throw Error('Crivo: use 2 ≤ N ≤ 1.000.000.');
  const marked=new Uint8Array(n+1), primes=[];
  for(let p=2;p<=n;p++)if(!marked[p]){primes.push(p);if(p*p<=n)for(let k=p*p;k<=n;k+=p)marked[k]=1;}
  return primes;
