@@ -47,7 +47,7 @@
       '</div>',
       '<p class="lenz-footnote"><b>Lei de Faraday–Lenz:</b> ε = −N · dΦ/dt. ',
       'O sinal negativo expressa a oposição à <em>variação</em> do fluxo, não necessariamente ao campo do ímã. ',
-      'As intensidades mostradas são relativas e qualitativas, não valores medidos de tensão ou campo.</p>',
+      'As intensidades e a velocidade visual são relativas e qualitativas, não valores medidos de corrente, tensão ou campo.</p>',
     '</div>'
   ].join('');
   original.insertAdjacentElement('beforebegin', studio);
@@ -326,7 +326,7 @@
   });
   speed.addEventListener('input',function(){
     const label=get('fl-lenz-value');
-    if(label)label.textContent=currentSpeed().toLocaleString('pt-BR',{maximumFractionDigits:2})+' m/s';
+    if(label)label.textContent=currentSpeed().toLocaleString('pt-BR',{maximumFractionDigits:2})+'×';
     if(!playing)render();
   });
   document.addEventListener('visibilitychange',function(){if(document.hidden&&playing)pause();});
