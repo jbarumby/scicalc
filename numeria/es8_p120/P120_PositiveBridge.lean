@@ -53,18 +53,18 @@ theorem matrix_bridge {ι : Type*} [Fintype ι] [DecidableEq ι]
     (shift rho : ℚ)
     (h_margin : rho < shift)
     (h_center : ∀ x : ι → ℚ, x ≠ 0 →
-      shift * (∑ i, x i ^ 2) ≤ Matrix.dotProduct x (C.mulVec x))
+      shift * (∑ i, x i ^ 2) ≤ dotProduct x (C.mulVec x))
     (h_error : ∀ x : ι → ℚ, x ≠ 0 →
-      -(rho * (∑ i, x i ^ 2)) ≤ Matrix.dotProduct x (E.mulVec x)) :
+      -(rho * (∑ i, x i ^ 2)) ≤ dotProduct x (E.mulVec x)) :
     W.PosDef := by
   classical
   apply Matrix.PosDef.of_dotProduct_mulVec_pos hW_hermitian
   intro x hx
   have hq : 0 < ∑ i, x i ^ 2 := normSq_pos_of_ne_zero x hx
-  have hsplit : Matrix.dotProduct x (W.mulVec x) =
-      Matrix.dotProduct x (C.mulVec x) + Matrix.dotProduct x (E.mulVec x) := by
-    rw [h_decomp, Matrix.add_mulVec, Matrix.dotProduct_add]
-  have hp : 0 < Matrix.dotProduct x (W.mulVec x) := by
+  have hsplit : dotProduct x (W.mulVec x) =
+      dotProduct x (C.mulVec x) + dotProduct x (E.mulVec x) := by
+    rw [h_decomp, Matrix.add_mulVec, dotProduct_add]
+  have hp : 0 < dotProduct x (W.mulVec x) := by
     rw [hsplit]
     exact scalar_bridge _ _ _ shift rho hq (h_center x hx) (h_error x hx) h_margin
   simpa using hp
