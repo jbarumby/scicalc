@@ -1,0 +1,47 @@
+name: NUMERIA P121 Lean rational 169-centre margin checks
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p120-lean-quadratic-bridge-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p121-rational.yml"
+      - "numeria/es8_p120/P121_ExactMargins.lean"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-arithmetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: numeria/es8_p120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Lean and Mathlib binaries
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Check all six exact rational propositions
+        run: |
+          set -euo pipefail
+          if grep -nE '^[[:space:]]*(sorry|axiom)([[:space:]]|$)' P121_ExactMargins.lean; then
+            echo "A proof placeholder is forbidden" >&2
+            exit 1
+          fi
+          lake env lean P121_ExactMargins.lean 2>&1 | tee P121_ARITHMETIC_COMPILE.log
+          echo 'P121_SIX_RATIONAL_PROOFS_COMPILED' | tee -a P121_ARITHMETIC_COMPILE.log
+      - name: Preserve exact compilation transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NUMERIA_P121_ARITHMETIC_LEAN_LOG
+          path: numeria/es8_p120/P121_ARITHMETIC_COMPILE.log
+          if-no-files-found: warn
