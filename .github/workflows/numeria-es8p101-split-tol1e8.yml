@@ -1,0 +1,135 @@
+name: NUMERIA ES8-P101 split Arb W11 W12 tol 1e-8
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p100-tol1e8-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p101-split-tol1e8.yml'
+      - 'numeria/es8_p101/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-audit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: numeria/es8_p101
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pure rational verifier unit tests
+        run: python -m unittest -v test_assemble.py
+      - name: Check all Python files compile
+        run: python -m py_compile *.py
+
+  single-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    strategy:
+      fail-fast: false
+      matrix:
+        bits: [128, 256]
+        entry: [W11, W12]
+    defaults:
+      run:
+        working-directory: numeria/es8_p101
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Arb
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Compute one entry (63 min soft timeout, retained diagnostic on failure)
+        env:
+          BITS: ${{ matrix.bits }}
+          ENTRY: ${{ matrix.entry }}
+        run: |
+          out="P101_BITS${BITS}_${ENTRY}.json"
+          log="P101_BITS${BITS}_${ENTRY}.log"
+          set +e
+          timeout --signal=TERM --kill-after=15s 63m python -u compute_one_entry.py \
+            --entry "$ENTRY" --prec "$BITS" --eps-den 2048 \
+            --tol 1e-8 --eval-limit 60000 --depth-limit 40 \
+            --output "$out" >"$log" 2>&1
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ]; then
+            python - "$out" "$BITS" "$ENTRY" "$code" <<'PY'
+          import sys, pathlib, json
+          out,bits,entry,code=sys.argv[1:]
+          p=pathlib.Path(out)
+          if not p.exists():
+              p.write_text(json.dumps({
+                  "status":"INCONCLUSIVE_RESOURCE_LIMIT_OR_RUNTIME",
+                  "entry_name":entry, "precision_bits":int(bits),
+                  "exit_code":int(code),
+                  "notes":"No complete interval; never infer determinant positivity"
+              },indent=2)+"\n")
+          print("INCONCLUSIVE_ENTRY",entry,"exit",code)
+          PY
+            tail -15 "$log" || true
+            exit 1
+          fi
+          python - "$out" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1]))
+          assert d.get("status")=="FINITE_INTERVAL_ENTRY_CONDITIONAL_ON_FORMULA"
+          w=d["entry"]["W"]
+          assert "lo" in w and "hi" in w
+          print("FINITE_INTERVAL_ENTRY_OK",d["entry_name"],d["precision_bits"])
+          PY
+      - name: Always upload finished result or inconclusive diagnostic
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P101_BITS${{ matrix.bits }}_${{ matrix.entry }}
+          path: |
+            numeria/es8_p101/P101_BITS*.json
+            numeria/es8_p101/P101_BITS*.log
+          if-no-files-found: warn
+
+  exact-2x2:
+    needs: [single-entry,exact-audit-tests]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bits: [128, 256]
+    defaults:
+      run:
+        working-directory: numeria/es8_p101
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: P101_BITS${{ matrix.bits }}_*
+          merge-multiple: true
+          path: numeria/es8_p101
+      - name: Assemble Sylvester certificate from rational interval endpoints
+        env:
+          BITS: ${{ matrix.bits }}
+        run: |
+          python assemble_2x2_exact.py \
+            "P101_BITS${BITS}_W11.json" "P101_BITS${BITS}_W12.json" \
+            > "P101_BITS${BITS}_MATRIX_AUDIT.json"
+          python - "$BITS" <<'PY'
+          import json,sys
+          d=json.load(open(f"P101_BITS{sys.argv[1]}_MATRIX_AUDIT.json"))
+          print("MATRIX_AUDIT_STATUS",d["status"])
+          print("LAMBDA_LOWER",d["lambda_lower"])
+          print("DET_LOWER",d["determinant_lower"])
+          print("DETERMINANT_POSITIVE",d["determinant_positive"])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P101_BITS${{ matrix.bits }}_EXACT_MATRIX_AUDIT
+          path: numeria/es8_p101/P101_BITS*_MATRIX_AUDIT.json
+          if-no-files-found: warn
