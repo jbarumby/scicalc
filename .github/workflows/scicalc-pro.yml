@@ -4,6 +4,8 @@ on:
     paths:
       - 'scicalc-pro*'
       - 'scicalc-limit-rational-infinity.js'
+      - 'scicalc-lenz-*'
+      - 'tests/test_lenz_studio.mjs'
       - 'tests/test_scicalc_pro.py'
       - 'tests/test_limits_infinity.mjs'
       - '.github/workflows/scicalc-pro.yml'
@@ -31,3 +33,6 @@ jobs:
       - run: node --check scicalc-pro-worker.mjs
       - run: node --check scicalc-limit-rational-infinity.js
       - run: node --test tests/test_limits_infinity.mjs
+      - run: node --check scicalc-lenz-model.js
+      - run: node --check scicalc-lenz-studio.js
+      - run: node --test tests/test_lenz_studio.mjs
