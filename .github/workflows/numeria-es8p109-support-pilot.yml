@@ -1,0 +1,63 @@
+name: NUMERIA ES8-P109 support-contact interval pilot
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p108-primes-through-199-eps1e11-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p109-support-pilot.yml"
+      - "numeria/es8_p109_fix/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  support-contact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bound: 500
+            pair: "197,433"
+            label: "just-above-contact"
+          - bound: 500
+            pair: "167,367"
+            label: "just-below-contact"
+          - bound: 1000
+            pair: "1,997"
+            label: "largest-delta"
+    defaults:
+      run:
+        working-directory: numeria/es8_p109_fix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install 'python-flint==0.9.0'
+      - name: Run proof-producing edge pair
+        env:
+          BOUND: ${{ matrix.bound }}
+          PAIR: ${{ matrix.pair }}
+          LABEL: ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          python -m py_compile p109_arb_shard_v2.py
+          python -u p109_arb_shard_v2.py --max-prime "$BOUND" \
+            --bits 256 --shards 24 --shard-index 0 --pair "$PAIR" \
+            --out "P109_EDGE_${LABEL}.json" 2>&1 | tee "P109_EDGE_${LABEL}.log"
+          python - "P109_EDGE_${LABEL}.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1]))
+          assert len(d["entries"])==1 and d["outer_panels_verified"]>0
+          assert d["inner_ellipse_count"]>0
+          print("EDGE_CERTIFIED_INTERVAL",list(d["entries"]))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P109_EDGE_${{ matrix.label }}
+          path: |
+            numeria/es8_p109_fix/P109_EDGE_*.json
+            numeria/es8_p109_fix/P109_EDGE_*.log
+          if-no-files-found: warn
