@@ -1,0 +1,66 @@
+name: NUMERIA ES8-P106 36 Interval Entries Arb GL Cauchy
+on:
+  push:
+    branches:
+      - research/numeria-es8p106-gl-cauchy-certified-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p106-36-entries.yml'
+      - 'numeria/es8_p106/**'
+  pull_request:
+    branches:
+      - research/numeria-es8p104-uniform-interval-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p106-36-entries.yml'
+      - 'numeria/es8_p106/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb-all-36:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        bits: [192,256]
+    defaults:
+      run:
+        working-directory: numeria/es8_p106
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Arb implementation
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Verify Python source compiles
+        run: python -m py_compile p106_certify.py
+      - name: Compute all 36 intervals, reject if any ellipse/complex bound is unproved
+        env:
+          BITS: ${{ matrix.bits }}
+        run: |
+          set -o pipefail
+          python -u p106_certify.py --bits "$BITS" --out "P106_MATRIX_BITS${BITS}.json" \
+            2>&1 | tee "P106_BITS${BITS}.log"
+          python - "$BITS" <<'PY'
+          import json,sys
+          bits=int(sys.argv[1])
+          d=json.load(open(f"P106_MATRIX_BITS{bits}.json"))
+          assert d["bits"]==bits and len(d["entries"])==36
+          assert d["stats"]["outer_complex_verified"]==d["total_logged_panels"]
+          assert d["stats"]["inner_complex_verified"]>0
+          for rec in d["proof_records"].values():
+              for p in rec.get("panels",[]):
+                  assert p["order"]>=6
+                  assert p["geometry"]["branches"]
+                  assert p["geometry"]["t_ellipse_lower"]
+          print("P106_36_INTERVAL_ENCLOSURES_COMPUTED_AND_GEOMETRY_CHECKS_PASSED")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P106_MATRIX_BITS${{ matrix.bits }}
+          path: |
+            numeria/es8_p106/P106_MATRIX_BITS*.json
+            numeria/es8_p106/P106_BITS*.log
+          if-no-files-found: warn
