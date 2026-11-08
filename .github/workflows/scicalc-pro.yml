@@ -5,6 +5,10 @@ on:
       - 'scicalc-pro*'
       - 'scicalc-limit-rational-infinity.js'
       - 'scicalc-lenz-*'
+      - 'scicalc-science-*'
+      - 'scicalc-number-theory-plus.js'
+      - 'scicalc-edo-fourier-plus.js'
+      - 'tests/test_science_kernels.mjs'
       - 'tests/test_lenz_studio.mjs'
       - 'tests/test_scicalc_pro.py'
       - 'tests/test_limits_infinity.mjs'
@@ -36,3 +40,7 @@ jobs:
       - run: node --check scicalc-lenz-model.js
       - run: node --check scicalc-lenz-studio.js
       - run: node --test tests/test_lenz_studio.mjs
+      - run: node --check scicalc-science-kernels.js
+      - run: node --check scicalc-number-theory-plus.js
+      - run: node --check scicalc-edo-fourier-plus.js
+      - run: node --test tests/test_science_kernels.mjs

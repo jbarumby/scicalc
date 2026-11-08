@@ -1,0 +1,49 @@
+/* SciCalc — aprimoramentos das abas de teoria dos números, EDO e Fourier */
+.nt-plus-host{margin-top:10px}
+.nt-plus-btn{background:transparent;border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;color:var(--primary);font-weight:700;margin:10px 0 0}
+.nt-plus-btn:hover{border-color:var(--primary);background:var(--bg)}
+.nt-plus-label{font-size:.73rem;color:var(--muted);font-weight:700}
+.nt-plus-result{margin:12px 0 16px;background:var(--panel);color:var(--ink);padding:16px;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;box-shadow:var(--shadow);line-height:1.55}
+.nt-plus-result h4{margin:0 0 9px;color:var(--primary);font-size:1rem}
+.nt-plus-line{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;font-size:.86rem;flex-wrap:wrap}
+.nt-plus-line b{color:var(--muted)}
+.nt-plus-line span{font-family:ui-monospace,monospace;color:var(--ink);overflow-wrap:anywhere}
+.nt-plus-explain{padding:10px;margin-top:11px;background:var(--bg);border-radius:9px;font-size:.86rem}
+.nt-plus-explain b{color:var(--primary)}
+.nt-plus-explain p{margin:4px 0 0;line-height:1.6}
+.nt-plus-error{color:var(--err);line-height:1.5}
+.nt-plus-mod-panel{margin:12px 0}
+.nt-plus-mod-intro{margin:12px 0 18px}
+.nt-plus-mod-intro h3{color:var(--primary)}
+.nt-plus-mod-intro p{color:var(--muted)}
+.nt-plus-mod-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.nt-plus-mod-card{background:var(--bg);padding:16px;border:1px solid var(--border);border-radius:12px;min-width:0}
+.nt-plus-mod-card h4{color:var(--primary);margin:0 0 12px}
+.nt-plus-mod-card label{margin-top:10px}
+.nt-plus-mod-card .btn{margin:12px 0 4px}
+.nt-plus-input-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sc-lab-options{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:var(--bg);padding:12px;border-radius:11px;border:1px solid var(--border);margin:10px 0}
+.sc-lab-options label{margin:0;white-space:nowrap}
+.sc-lab-options select{flex:1;min-width:160px;width:auto}
+.sc-lab-result{background:var(--panel);border:1px solid var(--border);padding:17px;border-radius:14px;margin:14px 0;box-shadow:var(--shadow)}
+.sc-lab-result h3{font-size:1.08rem;color:var(--primary);margin:0 0 12px}
+.sc-lab-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.sc-lab-metric{background:var(--bg);border:1px solid var(--border);padding:13px;border-radius:11px;overflow-wrap:anywhere}
+.sc-lab-metric small{display:block;color:var(--muted);font-size:.75rem}
+.sc-lab-metric strong{font-size:.95rem;color:var(--primary);display:block;margin-top:5px}
+.sc-lab-note{font-size:.83rem;color:var(--muted);line-height:1.6;margin:13px 0}
+.sc-lab-details{border:1px solid var(--border);border-radius:11px;margin-top:11px;padding:12px;background:var(--panel)}
+.sc-lab-details summary{color:var(--primary);font-weight:700;cursor:pointer;margin-bottom:10px}
+.sc-lab-step{border-left:3px solid var(--accent);background:var(--bg);border-radius:8px;padding:10px 13px;margin:8px 0;line-height:1.5}
+.sc-lab-step b{color:var(--primary);display:block;font-size:.89rem}
+.sc-lab-step p{color:var(--ink);font-size:.85rem;overflow-wrap:anywhere;margin:5px 0 0}
+.sc-lab-tablewrap{overflow:auto;max-width:100%}
+.sc-lab-table{width:100%;border-collapse:collapse;font-family:ui-monospace,monospace;font-size:.78rem;white-space:nowrap}
+.sc-lab-table td,.sc-lab-table th{padding:7px;border-bottom:1px solid var(--border);text-align:right}
+.sc-lab-peaks{display:grid;gap:7px;margin:12px 0}
+.sc-lab-peaks h4{margin:0 0 5px;color:var(--primary)}
+.sc-lab-peaks .sc-lab-step{margin:0}
+.sc-lab-error{padding:15px;border:1px solid var(--err);color:var(--err);background:var(--bg);border-radius:11px}
+.sc-lab-time-plot{margin-top:22px}
+@media(max-width:800px){.sc-lab-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.nt-plus-mod-grid{grid-template-columns:1fr}}
+@media(max-width:460px){.sc-lab-options{display:block}.sc-lab-options select{width:100%}.sc-lab-metrics{grid-template-columns:1fr}.nt-plus-result{padding:12px}}
