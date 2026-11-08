@@ -95,6 +95,100 @@
   }
   function format(q){return q.d===1n?String(q.n):String(q.n)+'/'+String(q.d);}
   function tex(q){return q.d===1n?String(q.n):'\\frac{'+q.n+'}{'+q.d+'}';}
+
+  function absoluteTex(q) {
+    return tex(Q(q.n<0n?-q.n:q.n,q.d));
+  }
+  function polyTex(poly) {
+    const terms=[];
+    for(let i=poly.length-1;i>=0;i--){
+      const q=poly[i];
+      if(q.n===0n)continue;
+      const abs=Q(q.n<0n?-q.n:q.n,q.d);
+      const variable=i===0?'':(i===1?'x':'x^{'+i+'}');
+      const part=i===0?absoluteTex(q)
+        :(abs.n===1n&&abs.d===1n?variable:absoluteTex(q)+variable);
+      terms.push({negative:q.n<0n,part});
+    }
+    if(!terms.length)return '0';
+    return terms.map((t,i)=>(i?(t.negative?' - ':' + '):(t.negative?'-':''))+t.part).join('');
+  }
+  function shiftedPolyTex(poly,degree) {
+    const terms=[];
+    for(let i=poly.length-1;i>=0;i--){
+      const q=poly[i];
+      if(q.n===0n)continue;
+      const abs=Q(q.n<0n?-q.n:q.n,q.d);
+      const power=i-degree;
+      let part='';
+      if(power===0) part=absoluteTex(q);
+      else if(power>0){
+        const variable=power===1?'x':'x^{'+power+'}';
+        part=abs.n===1n&&abs.d===1n?variable:absoluteTex(q)+variable;
+      } else {
+        const divisor=-power===1?'x':'x^{'+(-power)+'}';
+        part=abs.d===1n?'\\frac{'+abs.n+'}{'+divisor+'}'
+          :'\\frac{'+abs.n+'}{'+abs.d+divisor+'}';
+      }
+      terms.push({negative:q.n<0n,part});
+    }
+    if(!terms.length)return '0';
+    return terms.map((t,i)=>(i?(t.negative?' - ':' + '):(t.negative?'-':''))+t.part).join('');
+  }
+  function detailedSteps(r,answer,target){
+    const neg=String(target).trim().startsWith('-');
+    const infinity=neg?'-\\infty':'\\infty';
+    const degreeNumerator=r.n.length-1;
+    const degreeDenominator=r.d.length-1;
+    const P=polyTex(r.n), Q=polyTex(r.d);
+    const original='\\frac{'+P+'}{'+Q+'}';
+    const steps=[
+      {title:'Identificar os polinômios e seus graus',
+       formula:original,
+       note:'Numerador: grau '+degreeNumerator+'. Denominador: grau '+degreeDenominator+'. Primeiro comparamos o crescimento das maiores potências de x.'}
+    ];
+    if(polyZero(r.n)){
+      steps.push({title:'Simplificar o numerador nulo',
+        formula:original+'=0',
+        note:'O quociente é zero sempre que o denominador não é zero.'});
+    } else if(degreeNumerator>degreeDenominator){
+      const a=r.n[degreeNumerator],b=r.d[degreeDenominator];
+      const lead=div(a,b), k=degreeNumerator-degreeDenominator;
+      steps.push({
+        title:'Comparar os termos dominantes',
+        formula:original+'\\sim \\frac{'+tex(a)+'x^{'+degreeNumerator+'}}{'+tex(b)+'x^{'+degreeDenominator+'}}',
+        note:'O símbolo ≈ assintótico (∼) indica que o quociente entre as duas expressões tende a 1, não uma igualdade para todo x.'});
+      steps.push({
+        title:'Simplificar a potência dominante',
+        formula:'\\frac{'+tex(a)+'x^{'+degreeNumerator+'}}{'+tex(b)+'x^{'+degreeDenominator+'}}='+tex(lead)+'x^{'+k+'}',
+        note:'A diferença entre os graus é '+k+'. O sinal no infinito depende do coeficiente e, em −∞, da paridade da potência.'});
+    } else {
+      const degree=Math.max(degreeNumerator,degreeDenominator);
+      if(degree>0){
+        steps.push({
+          title:'Dividir numerador e denominador por x^'+degree,
+          formula:original+'=\\frac{\\left('+P+'\\right)/x^{'+degree+'}}{\\left('+Q+'\\right)/x^{'+degree+'}}',
+          note:'Dividimos pela maior potência de x presente no denominador. Para x de grande módulo, x não é zero.'});
+        steps.push({
+          title:'Simplificar cada parcela',
+          formula:'=\\frac{'+shiftedPolyTex(r.n,degree)+'}{'+shiftedPolyTex(r.d,degree)+'}',
+          note:'Para toda potência positiva k, o termo 1/x^k tende a zero quando x tende a +∞ ou −∞.'});
+      } else {
+        steps.push({
+          title:'Observar que a expressão é constante',
+          formula:original+'='+answer.tex,
+          note:'Não existe variável x remanescente após a simplificação.'});
+      }
+    }
+    const conclusion={
+      title:'Aplicar o limite e concluir',
+      formula:'\\lim_{x\\to '+infinity+'}'+original+'='+answer.tex,
+      note:answer.reason+' Esta resposta é exata; nenhuma amostra decimal foi usada como prova.'
+    };
+    steps.push(conclusion);
+    return steps;
+  }
+
   function infinityValue(expression,target){
     const isNegative=/^\s*(-inf|-infinity|-∞)\s*$/i.test(String(target));
     const isPositive=/^\s*(\+?inf|\+?infinity|\+?∞)\s*$/i.test(String(target));
@@ -116,6 +210,10 @@
       degN,degD,reason:'O numerador cresce com maior grau; o sinal depende do coeficiente líder e da direção.',isExact:true};
   }
   root.scicalcExactRationalInfinity=infinityValue;
+  root.scicalcRationalInfinitySteps=function(expression,target){
+    const answer=infinityValue(expression,target);
+    return answer?detailedSteps(parseTree(expression),answer,target):null;
+  };
   if(!root.document)return;
   const previous=root.calcLimite;
   root.calcLimite=function(){
@@ -152,14 +250,34 @@
       const details=document.createElement('details');
       details.className='didactic';details.open=true;
       const summary=document.createElement('summary');
-      summary.textContent='📚 Passo a passo — graus dos polinômios';
+      summary.textContent='📚 Resolução passo a passo do limite';
       const body=document.createElement('div');
       body.className='didactic-body';
-      const p1=document.createElement('p');
-      p1.textContent='Grau do numerador: '+answer.degN+'; grau do denominador: '+answer.degD+'.';
-      const p2=document.createElement('p');
-      p2.textContent=answer.reason;
-      body.append(p1,p2);details.append(summary,body);result.appendChild(details);
+      const steps=root.scicalcRationalInfinitySteps(tree,point.value)||[];
+      const list=document.createElement('div');
+      list.className='step-list';
+      steps.forEach(function(step,index){
+        const stage=document.createElement('div');
+        stage.className='step';
+        const heading=document.createElement('div');
+        heading.className='step-title';
+        heading.textContent=(index+1)+'. '+step.title;
+        const formula=document.createElement('div');
+        formula.className='formula-block';
+        try{
+          if(root.katex&&typeof root.katex.render==='function'){
+            root.katex.render(step.formula,formula,{displayMode:true,throwOnError:true,trust:false});
+          }else formula.textContent=step.formula;
+        }catch(e){formula.textContent=step.formula;}
+        const explanation=document.createElement('div');
+        explanation.className='step-note';
+        explanation.textContent=step.note;
+        stage.append(heading,formula,explanation);
+        list.appendChild(stage);
+      });
+      body.appendChild(list);
+      details.append(summary,body);
+      result.appendChild(details);
     }
     container.appendChild(result);
     try{if(typeof root.salvarHistorico==='function')root.salvarHistorico('Limite',field.value+'; x→'+point.value,answer.value);}catch(e){}
