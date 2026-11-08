@@ -1,0 +1,85 @@
+name: NUMERIA ES8-P109 primes <=300 Arb epsilon 1e-11
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p108-primes-through-199-eps1e11-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p109-300.yml"
+      - "numeria/es8_p109/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  interval-row-shards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+    defaults:
+      run:
+        working-directory: numeria/es8_p109
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Arb
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Compile scripts before long calculation
+        run: python -m py_compile p109_arb_shard.py p109_exact_audit.py
+      - name: Arb ellipses and intervals for row shard
+        env:
+          INDEX: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          python -u p109_arb_shard.py --max-prime 300 --bits 256 \
+            --shards 24 --shard-index "$INDEX" \
+            --out "P109_300_ROWS_${INDEX}.json" \
+            2>&1 | tee "P109_300_ROWS_${INDEX}.log"
+      - name: Preserve intervals and analytic panel proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P109_300_SHARD_${{ matrix.shard }}
+          path: |
+            numeria/es8_p109/P109_300_ROWS_*.json
+            numeria/es8_p109/P109_300_ROWS_*.log
+          compression-level: 1
+          if-no-files-found: warn
+  exact-matrix-audit:
+    needs: interval-row-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: numeria/es8_p109
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: P109_300_SHARD_*
+          merge-multiple: true
+          path: numeria/es8_p109
+      - name: Install numeric eigval heuristic
+        run: python -m pip install 'numpy==2.2.6'
+      - name: Exact integer Bareiss and Frobenius error audit
+        run: |
+          set -euo pipefail
+          python -u p109_exact_audit.py --max-prime 300 --shards 24 2>&1 | tee P109_300_AUDIT_LOG.txt
+      - name: Save full intervals, lambda trend and exact certificate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P109_300_MATRIX_CERTIFICATE
+          path: |
+            numeria/es8_p109/P109_300_AUDIT.json
+            numeria/es8_p109/P109_300_COMPACT_MATRIX.json
+            numeria/es8_p109/P109_300_REPORT.md
+            numeria/es8_p109/P109_300_TREND.csv
+            numeria/es8_p109/P109_300_AUDIT_LOG.txt
+          if-no-files-found: warn
