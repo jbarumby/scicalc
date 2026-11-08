@@ -1,0 +1,47 @@
+name: NUMERIA ES8-P120 check Lean 4 conditional positivity bridge
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p114-flint-fast-charpoly-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p120-lean.yml"
+      - "numeria/es8_p120/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-lean-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: numeria/es8_p120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install elan for pinned Lean toolchain
+        run: |
+          set -euo pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh |
+            sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch exact Mathlib dependency and prebuilt cache
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Compile P120 bridge with zero sorry or axiom
+        run: |
+          set -euo pipefail
+          if grep -nE '^[[:space:]]*(sorry|axiom)\\b' P120_PositiveBridge.lean; then
+            echo "Axioms or sorry are forbidden in this bridge." >&2
+            exit 1
+          fi
+          lake env lean P120_PositiveBridge.lean 2>&1 | tee P120_LEAN_COMPILE.log
+          printf 'P120_LEAN_COMPILED_SUCCESS\n' | tee -a P120_LEAN_COMPILE.log
+      - name: Preserve build report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P120_LEAN_COMPILATION_REPORT
+          path: numeria/es8_p120/P120_LEAN_COMPILE.log
+          if-no-files-found: warn
