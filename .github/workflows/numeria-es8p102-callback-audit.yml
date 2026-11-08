@@ -1,0 +1,29 @@
+name: NUMERIA ES8-P102 Arb Callback Contract Audit
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p101-split-entry-tol1e8-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p102-callback-audit.yml'
+      - 'numeria/es8_p102/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  callback-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: numeria/es8_p102
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Arb 0.9.0 exactly
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Compile callback contracts
+        run: python -m py_compile test_p102_flint.py ../es8_p99/W12_arb_direto_P98.py
+      - name: Check real/complex callback enclosures, support and kernel
+        run: python -m unittest -v test_p102_flint.py
