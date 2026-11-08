@@ -1,0 +1,75 @@
+name: NUMERIA ES8-P122 complete 169x169 FLINT Bareiss minors
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p121-verified-margins-2026-11-08
+    paths:
+      - '.github/workflows/numeria-es8p122-full-minors.yml'
+      - 'numeria/es8_p122/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  all-169-leading-minors:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: numeria/es8_p122
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned FLINT for exact integer arithmetic
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Download P111 complete 169x169 source from pinned original run
+        uses: actions/download-artifact@v4
+        with:
+          run-id: 42509353671
+          github-token: ${{ github.token }}
+          name: P111_169X169_EXACT_ARBITRARY_MATRIX_CERTIFICATE
+          path: numeria/es8_p122/original
+      - name: Build original source archive (all JSON hashes checked by verifier)
+        run: |
+          set -euo pipefail
+          python -m py_compile p122_full_flint_bareiss.py
+          zip -q -j P111_PINNED_ORIGINAL.zip \
+            original/P111_1000_COMPACT_MATRIX.json \
+            original/P111_1000_AUDIT.json
+      - name: Sanity check 16 integer minors
+        run: |
+          set -euo pipefail
+          python -u p122_full_flint_bareiss.py \
+            --input P111_PINNED_ORIGINAL.zip --prefix 16 \
+            --output P122_PREFIX16_EXACT_MINORS.json
+      - name: Certify all 169 integer leading minors with checked remainders
+        run: |
+          set -euo pipefail
+          python -u p122_full_flint_bareiss.py \
+            --input P111_PINNED_ORIGINAL.zip --prefix 169 \
+            --output P122_ALL169_EXACT_MINORS.json \
+            2>&1 | tee P122_169_EXECUTION_LOG.txt
+          python - <<'PY'
+          import json,os
+          x=json.load(open('P122_ALL169_EXACT_MINORS.json'))
+          assert x['n']==169 and x['positive_leading_minors']==169
+          assert x['status']=='169X169_POSITIVE_CONDITIONAL'
+          assert x['checked_bareiss_exact_divisions']>100000
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('## P122: 169 integer Bareiss minors verified\n\n')
+              f.write('**169/169 positive leading principal minors**; all Bareiss divisions exact.\n\n')
+              f.write('Exact lower bound: `'+x['lambda_lower_full_rational']+'`.\n')
+              f.write('**Finite conditional matrix certificate only**; not RH.\n')
+          PY
+      - name: Publish full determinants and provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NUMERIA_P122_169_LEADING_MINORS_FLINT
+          path: |
+            numeria/es8_p122/P122_ALL169_EXACT_MINORS.json
+            numeria/es8_p122/P122_PREFIX16_EXACT_MINORS.json
+            numeria/es8_p122/P122_169_EXECUTION_LOG.txt
+          if-no-files-found: warn
