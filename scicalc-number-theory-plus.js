@@ -146,6 +146,58 @@ if(fermPanel){
 }
 
 // Fermat tem um botão principal que abre o iframe; o relatório complementar permanece opcional.
+
+/* MDC e MMC passam a usar BigInt (sem arredondamento de Number). */
+function exactWrite(name,body,history){
+ const dest=$('num-primos-result');
+ if(dest){dest.replaceChildren();dest.appendChild(body);}
+ if(history&&typeof root.salvarHistorico==='function'){
+  root.salvarHistorico(name,history.input,history.value);
+ }
+}
+root.calcularMDC=function(){
+ try{
+  const a=k.bi($('num-a').value,'a'),b=k.bi($('num-b').value,'b');
+  if(a===0n&&b===0n)throw Error('MDC(0,0) não é definido.');
+  const e=k.egcd(a,b),box=card('Algoritmo de Euclides — MDC exato');
+  line(box,'MDC('+a+','+b+')',e.g);
+  e.steps.forEach((item,i)=>{if(i<18)line(box,'Divisão '+(i+1),item.a+' = '+item.q+' × '+item.b+' + '+item.remainder);});
+  line(box,'Identidade de Bézout',a+' × ('+e.x+') + '+b+' × ('+e.y+') = '+e.g);
+  exactWrite('MDC',box,{input:a+', '+b,value:String(e.g)});
+ }catch(e){safe(()=>{throw e;},$('num-primos-result'));}
+};
+root.calcularMMC=function(){
+ try{
+  const a=k.bi($('num-c').value,'a'),b=k.bi($('num-d').value,'b'),g=k.gcd(a,b);
+  const p=a*b,m=(a===0n||b===0n)?0n:(p<0n?-p:p)/g;
+  const box=card('Mínimo Múltiplo Comum — cálculo exato');
+  line(box,'MDC('+a+','+b+')',g);
+  line(box,'MMC('+a+','+b+')',m);
+  explain(box,'Fórmula','mmc(a,b) = |a·b|/mdc(a,b), para a e b não nulos. Se a ou b é zero, usamos mmc = 0.');
+  exactWrite('MMC',box,{input:a+', '+b,value:String(m)});
+ }catch(e){safe(()=>{throw e;},$('num-primos-result'));}
+};
+/* Validação preventiva para os algoritmos legados que operam em Number. */
+function protect(id,limit,minimum) {
+ const input=$(id);if(!input)return;
+ const button=(input.closest('.nt-card')||input.parentElement)?.querySelector('button.btn');
+ if(!button)return;
+ button.addEventListener('click',function(event){
+  try{
+   const x=k.bi(input.value,id,limit);
+   if(x<BigInt(minimum))throw Error('Use '+id+' ≥ '+minimum+'.');
+  }catch(e){
+   event.preventDefault();event.stopImmediatePropagation();
+   const destination=id==='num-fatorar'?'num-fator-result':id==='num-func-n'?'num-func-result':'num-primos-result';
+   safe(()=>{throw e;},$(destination));
+  }
+ },true);
+}
+protect('num-teste',1000000000n,2);
+protect('num-crivo',1000000n,2);
+protect('num-fatorar',1000000000n,2);
+protect('num-func-n',200000n,1);
+
 const tabs=section.querySelector('.number-tabs');
 const panel=section.querySelector('.number-theory-panel');
 if(!tabs||!panel)return;
