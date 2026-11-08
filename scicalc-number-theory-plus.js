@@ -69,7 +69,7 @@ function diagnose(type){
   line(box,'Coeficientes de Bézout','x = '+e.x+', y = '+e.y);
   explain(box,'Verificação exata',a+' · ('+e.x+') + '+b+' · ('+e.y+') = '+e.g);
   if(type==='lcm'){
-   const l=(a===0n||b===0n)?0n:k.bi((k.abs||((v)=>v<0n?-v:v))(a*b)/e.g,'mmc',1000000000000000000000000n);
+   const product=a*b;const l=(a===0n||b===0n)?0n:(product<0n?-product:product)/e.g;
    line(box,'MMC',l);
    explain(box,'Identidade','mmc(a,b) × mdc(a,b) = |a×b|. Se a ou b for zero, mmc = 0.');
   }
@@ -130,6 +130,21 @@ for(const [id,type] of buttons){
  extra.textContent='🔬 Conferência avançada';
  host.before(extra);extra.addEventListener('click',render);
 }
+
+const fermPanel=$('sub-num-ferm');
+if(fermPanel){
+ const advanced=document.createElement('button');
+ advanced.type='button';
+ advanced.className='nt-plus-btn';
+ advanced.textContent='🔬 Conferir o Teorema de Fermat';
+ const out=document.createElement('div');
+ out.className='nt-plus-host';
+ const target=$('ferm-result')||fermPanel;
+ target.insertAdjacentElement('afterend',advanced);
+ advanced.insertAdjacentElement('afterend',out);
+ advanced.addEventListener('click',()=>safe(()=>diagnose('fermat'),out));
+}
+
 // Fermat tem um botão principal que abre o iframe; o relatório complementar permanece opcional.
 const tabs=section.querySelector('.number-tabs');
 const panel=section.querySelector('.number-theory-panel');
