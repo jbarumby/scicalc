@@ -3,11 +3,14 @@ on:
   push:
     paths:
       - 'scicalc-pro*'
+      - 'scicalc-limit-rational-infinity.js'
       - 'tests/test_scicalc_pro.py'
+      - 'tests/test_limits_infinity.mjs'
       - '.github/workflows/scicalc-pro.yml'
   pull_request:
     paths:
       - 'scicalc-pro*'
+      - 'scicalc-limit-rational-infinity.js'
       - 'ciencia.html'
       - 'tests/test_scicalc_pro.py'
       - '.github/workflows/scicalc-pro.yml'
@@ -26,3 +29,5 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_scicalc_pro.py' -v
       - run: node --check scicalc-pro.js
       - run: node --check scicalc-pro-worker.mjs
+      - run: node --check scicalc-limit-rational-infinity.js
+      - run: node --test tests/test_limits_infinity.mjs
