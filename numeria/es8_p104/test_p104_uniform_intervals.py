@@ -62,7 +62,7 @@ class ProofObligations(unittest.TestCase):
         def g(y,analytic):
             if analytic:
                 return acb(arb.nan(),arb.nan())
-            return acb(y.real.abs())
+            return acb(abs(y.real))
         out=acb.integral(g, acb(-1), acb(1),
                          abs_tol=arb("1e-7"),rel_tol=arb("1e-7"),
                          eval_limit=15000,depth_limit=44)
