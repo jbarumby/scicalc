@@ -20,7 +20,7 @@ class Structure(unittest.TestCase):
         self.assertIn(".fmpq()",SRC)
     def test_small_t_error_fraction(self):
         eps=F(1,65536); h=F(2,5)
-        self.assertEqual(12*eps*eps/h,F(15,2147483648))
+        self.assertEqual(eps*eps/h,F(5,8589934592))
     def test_support_trimming_rational(self):
         h=F(2,5)
         for a in range(-16,17):
