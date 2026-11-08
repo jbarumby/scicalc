@@ -1,0 +1,79 @@
+name: NUMERIA ES8-P97 Diagonal Arb 2x2
+on:
+  push:
+    branches:
+      - research/numeria-es8p97-diagonal-arb-2026-11-08
+    paths:
+      - .github/workflows/numeria-es8p97-diagonals.yml
+      - numeria/es8_p97/**
+  pull_request:
+    branches:
+      - research/numeria-es8p95-w12-arb-2026-11-08
+    paths:
+      - .github/workflows/numeria-es8p97-diagonals.yml
+      - numeria/es8_p97/**
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagonal-components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: numeria/es8_p97
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'python-flint==0.9.0' 'numpy==1.26.4'
+      - name: Independently enclose diagonal pole and prime contributions
+        run: python p97_diagonal_pole_prime.py --bits 256 --out P97_DIAGONAL_COMPONENTS.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P97_DIAGONAL_COMPONENTS
+          path: numeria/es8_p97/P97_DIAGONAL_COMPONENTS.json
+          if-no-files-found: warn
+  diagonal-archimedean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    defaults:
+      run:
+        working-directory: numeria/es8_p95
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'python-flint==0.9.0' 'numpy==1.26.4'
+      - name: Arb external archimedean GL12 (30 segments per shard)
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          python p94_arb_fourier_gl.py --shard "$SHARD" --shards 8 \
+            --pairs '1,1;2,2' --prec 256 \
+            --out "P97_DIAG_SHARD_${SHARD}.json" 2>&1 | tee "P97_DIAG_SHARD_${SHARD}.log"
+          python - "$SHARD" <<'PY'
+          import json,sys
+          s=int(sys.argv[1])
+          d=json.load(open(f"P97_DIAG_SHARD_{s}.json"))
+          assert d["status"]=="RIGOROUS_FINITE_GL_ARCH_0_TO_600"
+          assert d["segments"]==list(range(s,240,8))
+          assert {(r["i"],r["j"]) for r in d["records"]}=={(0,0),(1,1)}
+          assert d["bits"]==256
+          print("SHARD_PASS",s,len(d["segments"]))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P97_DIAG_SHARD_${{ matrix.shard }}
+          path: |
+            numeria/es8_p95/P97_DIAG_SHARD_${{ matrix.shard }}.json
+            numeria/es8_p95/P97_DIAG_SHARD_${{ matrix.shard }}.log
+          if-no-files-found: warn
