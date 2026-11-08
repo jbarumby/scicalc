@@ -6,6 +6,12 @@ on:
     paths:
       - .github/workflows/numeria-es8p95-w12-pilot.yml
       - numeria/es8_p95/**
+  pull_request:
+    branches:
+      - numeria-riemann/explicit-formula-prototype
+    paths:
+      - .github/workflows/numeria-es8p95-w12-pilot.yml
+      - numeria/es8_p95/**
   workflow_dispatch:
 permissions:
   contents: read
