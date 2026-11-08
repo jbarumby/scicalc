@@ -1,0 +1,84 @@
+name: NUMERIA ES8-P84 fixed order 110 Arb comparison
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/ES8P84/**'
+      - '.github/workflows/numeria-es8p84.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run rational reference and fail-closed tests
+        working-directory: research/ES8P84
+        run: python -m unittest -v test_fixed
+  fixed-110:
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        window: [a030, a034, a040]
+        shard: [0, 1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Arb bindings
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Verify Arb precision
+        run: |
+          python - <<'PY'
+          from flint import arb,acb,ctx
+          ctx.prec=256
+          assert ctx.prec==256
+          assert arb.legendre_p_root(110,0,weight=True)
+          assert acb(1).digamma().is_finite()
+          PY
+      - name: Independent fixed 110-node certified quadrature
+        working-directory: research/ES8P84
+        env:
+          WINDOW: ${{ matrix.window }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          mkdir -p evidence
+          python fixed_order_replay.py --mode sample --window "$WINDOW" --shard "$SHARD" --shards 2 --bits 256 --out "evidence/${WINDOW}_fixed_${SHARD}.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: numeria-es8p84-${{ matrix.window }}-${{ matrix.shard }}
+          path: research/ES8P84/evidence/*.json
+          if-no-files-found: error
+  verdict:
+    needs: fixed-110
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: numeria-es8p84-*
+          merge-multiple: true
+          path: research/ES8P84/evidence
+      - name: Exactly compare all 30 fixed-order balls
+        working-directory: research/ES8P84
+        run: python verify_fixed.py evidence --out ES8P84_VERDICT.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: numeria-es8p84-verdict
+          path: research/ES8P84/ES8P84_VERDICT.json
+          if-no-files-found: warn
