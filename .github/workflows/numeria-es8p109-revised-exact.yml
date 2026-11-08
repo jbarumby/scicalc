@@ -1,0 +1,55 @@
+name: NUMERIA P109 revised exact 500 and 1000 matrix audit
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p109-prime-limits-300-500-1000-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p109-revised-exact.yml"
+      - "numeria/es8_p109_fix/reauditar_p109_exato.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  revised-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - bound: 500
+            source_run: 42491507777
+          - bound: 1000
+            source_run: 42491507667
+    defaults:
+      run:
+        working-directory: numeria/es8_p109_fix
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download original full Arb matrix and its exact audit
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ matrix.source_run }}
+          github-token: ${{ github.token }}
+          name: P109_${{ matrix.bound }}_FIXED_MATRIX_CERTIFICATE
+          path: numeria/es8_p109_fix
+      - name: Independent rational re-audit (positive sign only via integer Bareiss)
+        env:
+          BOUND: ${{ matrix.bound }}
+        run: |
+          set -euo pipefail
+          python -m py_compile reauditar_p109_exato.py
+          python -u reauditar_p109_exato.py --bound "$BOUND" | tee "P109_${BOUND}_REVISED_LOG.txt"
+      - name: Preserve complete independent result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P109_${{ matrix.bound }}_REVISED_EXACT_AUDIT
+          path: |
+            numeria/es8_p109_fix/P109_*_REVISED_EXACT_AUDIT.json
+            numeria/es8_p109_fix/P109_*_REVISED_LOG.txt
+          if-no-files-found: warn
