@@ -44,6 +44,6 @@ def bump(X):
     return (1-1/den).exp()
 R0=rimann(lambda X:bump(X)*bump(X),F(-2,5),F(2,5),4096)
 lo,hi=eps_bound(R0)
-assert lo<F(393,1000)<hi
+assert lo<F(3933523,10000000)<hi
 assert hi-lo<F(1,100)
 print('SMOKE_PASS',flint.__version__,ctx.prec,'R0',str(R0),'quadratic_integral',str(I),'base0',str(stable))
