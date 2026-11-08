@@ -39,9 +39,19 @@ def main():
     args=p.parse_args()
     if args.factor is None:
         args.factor="0.99999" if args.bound==500 else "0.90"
-    with zipfile.ZipFile(args.input_zip) as z:
-        matrix=json.loads(z.read(f"P109_{args.bound}_COMPACT_MATRIX.json"))
-        audit=json.loads(z.read(f"P109_{args.bound}_AUDIT.json"))
+    if args.input_zip.is_file():
+        with zipfile.ZipFile(args.input_zip) as z:
+            matrix_bytes=z.read(f"P109_{args.bound}_COMPACT_MATRIX.json")
+            audit_bytes=z.read(f"P109_{args.bound}_AUDIT.json")
+        source_mode="original_zip_archive"
+    else:
+        # GitHub actions/download-artifact extracts ZIP contents by default.
+        # The files are downloaded from the exact pinned prior run_id.
+        matrix_bytes=Path(f"P109_{args.bound}_COMPACT_MATRIX.json").read_bytes()
+        audit_bytes=Path(f"P109_{args.bound}_AUDIT.json").read_bytes()
+        source_mode="extracted_github_action_artifact"
+    matrix=json.loads(matrix_bytes)
+    audit=json.loads(audit_bytes)
     n=len(matrix["centers"])
     if n!={500:96,1000:169}[args.bound]:
         raise ValueError("incorrect dimension")
@@ -82,8 +92,10 @@ def main():
     certified=bool(midpoint_shift_pd and shift>rho)
     result={
        "phase":"NUMERIA_ES8_P114_FLINT_CHARPOLY_EXACT",
-       "source_zip":args.input_zip.name,
-       "source_sha256":hashlib.sha256(args.input_zip.read_bytes()).hexdigest(),
+       "source_name":args.input_zip.name,
+       "source_mode":source_mode,
+       "matrix_json_sha256":hashlib.sha256(matrix_bytes).hexdigest(),
+       "original_audit_json_sha256":hashlib.sha256(audit_bytes).hexdigest(),
        "dimension":n,"max_prime":args.bound,
        "integer_scale_denominator":SCALE,
        "shift_exact_numerator":shift,
