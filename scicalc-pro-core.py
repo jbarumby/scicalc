@@ -121,6 +121,9 @@ def scicalc_pro_solve(request_json):
             raise ValueError('Use limites reais.')
         integral = sp.Integral(expr, (_X, a, b))
         answer = sp.integrate(expr, (_X, a, b))
+        if answer in (sp.nan, sp.zoo, sp.oo, -sp.oo):
+            return json.dumps(_result(integral, answer, 'Divergente / indefinida',
+                'Esta integral não possui valor real finito no sentido impróprio usual; não interpretamos infinito ou nan como uma resposta finita.'), ensure_ascii=False)
         if answer.has(sp.Integral):
             output = _result(integral, answer, 'Integral formal',
                   'Sem avaliação exata conclusiva. Evitamos apresentar uma aproximação como prova de convergência.')
