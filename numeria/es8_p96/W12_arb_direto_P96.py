@@ -199,7 +199,10 @@ class W12P92:
         # Para [0,eps], usa identidade K + termo corretivo. A cota analítica
         # rigorosa do termo corretivo é 12 eps^2/h, válida também para bump P92.
         small_main = rdelta * self.small_kernel_integral()
-        correction_bound = 12*eps*eps/h
+        # Rigorous: ||b'||_inf <= 8/(e^2 h), ||b'||_1=2/e;
+        # |R''|<=16/(e^3 h)<2/h, so |F(t)-R(delta)|<=t^2/h.
+        # exp(t/2)/sinh(t)<=2/t for t<=eps<1. Integrate => eps^2/h.
+        correction_bound = eps*eps/h
         small_correction = acb(arb(0, correction_bound), arb(0))
 
         # Divisão nos pontos de contato: 2h-delta, t=delta (s=0), T=2h+delta.
