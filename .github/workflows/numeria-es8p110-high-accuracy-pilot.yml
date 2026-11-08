@@ -1,0 +1,80 @@
+name: NUMERIA ES8-P110 high-accuracy Arb interval pilots
+on:
+  pull_request:
+    branches:
+      - research/numeria-es8p109-contactfix-500-1000-2026-11-08
+    paths:
+      - ".github/workflows/numeria-es8p110-high-accuracy-pilot.yml"
+      - "numeria/es8_p110/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  precision-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - label: diagonal
+            pair: "1,1"
+          - label: prime-neighbors
+            pair: "2,3"
+          - label: near-contact
+            pair: "197,433"
+          - label: high-centres
+            pair: "499,997"
+          - label: largest-separation
+            pair: "1,997"
+    defaults:
+      run:
+        working-directory: numeria/es8_p110
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Pin python-flint/Arb
+        run: python -m pip install 'python-flint==0.9.0'
+      - name: Compute strict Arb envelope and log exact radius
+        env:
+          PAIR: ${{ matrix.pair }}
+          LABEL: ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          python -m py_compile p110_tight_arb.py
+          timeout --signal=TERM --kill-after=20s 26m \
+            python -u p110_tight_arb.py --max-prime 1000 \
+            --shards 24 --shard-index 0 --pair "$PAIR" \
+            --out "P110_${LABEL}.json" 2>&1 | tee "P110_${LABEL}.log"
+          python - "$LABEL" "$PAIR" <<'PY'
+          from fractions import Fraction as Q
+          from pathlib import Path
+          import json,sys
+          label,pair=sys.argv[1:]
+          d=json.loads(Path(f'P110_{label}.json').read_text())
+          assert d['status']=='P109_ROW_SHARD_INTERVALS_CONDITIONAL_ON_GL_CAUCHY_ARITHMETIC'
+          assert d['epsilon']=='1/10000000000000000'
+          assert len(d['entries'])==1
+          a,b,c,e=d['entries'][pair]
+          radius=Q(c)*Q(2)**e
+          assert radius>0
+          print('P110_PILOT',label,'radius_exact',str(radius),'radius_approx',float(radius))
+          print('PROOF_STATS',d['outer_panels_verified'],d['inner_ellipse_count'])
+          P=d['proof_records'][pair]
+          print('P110_BREAKDOWN',
+                'GL_error',P.get('sum_GL_errors_upper'),
+                'truncation',P.get('truncation_correction'),
+                'near_origin',P.get('near_origin_correction'))
+          PY
+      - name: Preserve interval and ellipse proof transcript
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: P110_HIGH_ACCURACY_${{ matrix.label }}
+          path: |
+            numeria/es8_p110/P110_*.json
+            numeria/es8_p110/P110_*.log
+          if-no-files-found: warn
