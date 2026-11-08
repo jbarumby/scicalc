@@ -117,7 +117,7 @@ def scicalc_pro_solve(request_json):
         a, b = _parse(low, 'limite inferior'), _parse(high, 'limite superior')
         if a.free_symbols or b.free_symbols:
             raise ValueError('Os limites devem ser números ou ±inf.')
-        if a.is_real is False or b.is_real is False:
+        if (a not in (sp.oo, -sp.oo) and a.is_real is False) or (b not in (sp.oo, -sp.oo) and b.is_real is False):
             raise ValueError('Use limites reais.')
         integral = sp.Integral(expr, (_X, a, b))
         answer = sp.integrate(expr, (_X, a, b))
@@ -142,7 +142,7 @@ def scicalc_pro_solve(request_json):
 
     if action == 'limit':
         target = _parse(req.get('target', '0'), 'ponto do limite')
-        if target.free_symbols or target.is_real is False:
+        if target.free_symbols or (target not in (sp.oo, -sp.oo) and target.is_real is False):
             raise ValueError('O ponto do limite precisa ser real ou ±inf.')
         direction = str(req.get('direction', 'both'))
         if direction not in ('both', 'left', 'right'):
