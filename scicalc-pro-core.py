@@ -308,8 +308,12 @@ def _limit_proof(expr, target, direction, output):
                         lim_tex+r'\frac{'+_tex(du)+'}{'+_tex(dv)+'}',
                         'Numerador e denominador tendem a 0 (ou ambos são infinitos); diferenciamos cada um.'))
                     u,v=du,dv
-                    if all(_tex(sp.limit(new_ratio,_X,target,dir=sign))==result_tex
-                           for sign in signs):
+                    derivatives_still_indeterminate = all(
+                        sp.limit(du,_X,target,dir=sign)==0 and
+                        sp.limit(dv,_X,target,dir=sign)==0 for sign in signs)
+                    if (not derivatives_still_indeterminate and
+                        all(_tex(sp.limit(new_ratio,_X,target,dir=sign))==result_tex
+                            for sign in signs)):
                         steps.extend(candidates)
                         steps.append(_proof_step('Avaliar o quociente das derivadas',
                             lim_tex+r'\left('+_tex(new_ratio)+r'\right)=\boxed{'+result_tex+'}',
@@ -373,7 +377,7 @@ def _derivative_proof(expr,order,output):
           r'\frac{d}{dx}\left('+_tex(previous)+r'\right)='+_tex(result),
           'Diferenciamos a expressão do passo anterior.'))
         previous=result
-    if _tex(previous)==output['result_tex']:
+    if _same_symbolic(previous, sp.diff(expr,_X,order)):
         steps.append(_proof_step('Confirmar o resultado final',
             r'\boxed{'+_tex(previous)+'}',
             'A derivada de ordem solicitada coincide com a resposta simbólica do SymPy.'))
@@ -404,7 +408,7 @@ def _integral_proof(expr,low,high,output):
                 'Integramos termo a termo: ∫xⁿ dx = xⁿ⁺¹/(n+1), para n ≠ −1.'))
     elif expr == _X*sp.exp(_X):
         steps.extend([
-            _proof_step('Escolher u e dv',
+            _proof_step('Integração por partes — escolher u e dv',
                 r'u=x,\quad dv=e^x\,dx,\quad du=dx,\quad v=e^x',
                 'Integração por partes.'),
             _proof_step('Aplicar ∫u dv = uv − ∫v du',
