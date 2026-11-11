@@ -61,3 +61,14 @@
 @media(prefers-reduced-motion:reduce){
  #simuladores-v26 .sc-experiment-choice{transition:none}
 }
+
+/* A resolução avançada também volta a oferecer passos recolhíveis. */
+#scicalc-pro .sc-pro-step-toggle{
+ display:flex;align-items:center;gap:9px;font-weight:650;
+ cursor:pointer;margin:13px 0;color:var(--ink);line-height:1.4
+}
+#scicalc-pro .sc-pro-step-toggle input{
+ width:18px;height:18px;flex:0 0 18px;accent-color:var(--primary)
+}
+#scicalc-pro .sc-pro-restored-steps{margin-top:16px}
+#scicalc-pro .sc-pro-restored-steps .sc-pro-math{overflow:auto;max-width:100%}
