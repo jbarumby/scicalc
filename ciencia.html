@@ -20,6 +20,7 @@
 <!-- KaTeX para renderização de equações em LaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <!-- Plotly para Gráficos (defer: não bloqueia a primeira pintura da página) -->
 <script defer src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
 <!-- Math.js para Derivadas Simbólicas e Expressões (defer) -->
@@ -330,6 +331,16 @@
       <div><label for="der-f">Função f(x)</label><input id="der-f" placeholder="Ex: 3*x^2 + 2*x + 1" value="sin(x) * x^2"></div>
       <div><label for="der-var">Variável</label><input id="der-var" value="x"></div>
       <div><label for="der-intervalo">Intervalo Plot</label><input id="der-intervalo" value="-5, 5" placeholder="Ex: -5,5"></div>
+      <div>
+        <label for="der-order">Ordem da Derivada</label>
+        <select id="der-order">
+          <option value="1">1ª Derivada f'(x)</option>
+          <option value="2" selected>Até 2ª Derivada f''(x)</option>
+          <option value="3">Até 3ª Derivada f'''(x)</option>
+          <option value="4">Até 4ª Derivada f⁽⁴⁾(x)</option>
+          <option value="5">Até 5ª Derivada f⁽⁵⁾(x)</option>
+        </select>
+      </div>
     </div>
     <label class="didactic-toggle"><input id="der-steps" type="checkbox" checked> Mostrar passo a passo didático</label>
     <button class="btn" onclick="calcDerivada()">Calcular e Plotar</button>
@@ -4149,5 +4160,6 @@ function limExemplo(funcao,ponto,direcao){
 <script defer src="./scicalc-number-theory-plus.js"></script>
 <script defer src="./scicalc-edo-fourier-plus.js"></script>
 <script defer src="./scicalc-plugins.js"></script>
+<script defer src="./scicalc-engine-upgrade.js"></script>
 </body>
 </html>

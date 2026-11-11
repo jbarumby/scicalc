@@ -131,6 +131,9 @@
       targetTab.classList.add('active');
       targetContent.classList.add('active');
       targetTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      if (typeof root.scicalcRenderEverywhere === 'function') {
+        root.scicalcRenderEverywhere(targetContent);
+      }
     }
   }
 
