@@ -6,6 +6,10 @@ on:
       - 'scicalc-limit-rational-infinity.js'
       - 'scicalc-lenz-*'
       - 'scicalc-faraday-*'
+      - 'scicalc-engine-upgrade.js'
+      - 'scicalc-didactic-restore.js'
+      - 'scicalc-experiment-picker.*'
+      - 'tests/test_ui_restore.mjs'
       - 'tests/test_faraday_lenz_motion.mjs'
       - 'scicalc-science-*'
       - 'scicalc-number-theory-plus.js'
@@ -49,3 +53,7 @@ jobs:
       - run: node --check scicalc-number-theory-plus.js
       - run: node --check scicalc-edo-fourier-plus.js
       - run: node --test tests/test_science_kernels.mjs
+      - run: node --check scicalc-engine-upgrade.js
+      - run: node --check scicalc-didactic-restore.js
+      - run: node --check scicalc-experiment-picker.js
+      - run: node --test tests/test_ui_restore.mjs
