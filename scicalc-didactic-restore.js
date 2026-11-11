@@ -108,10 +108,10 @@ function schedule(){
 }
 const observer=new MutationObserver(mutations=>{
  // Recalcula somente quando o motor atualiza o conteúdo principal.
- if(mutations.every(m=>
-  m.target.closest?.('.sc-pro-restored-steps')||
-  m.addedNodes.length===1&&m.addedNodes[0].classList?.contains('sc-pro-restored-steps')
- ))return;
+ if(mutations.every(m=>{
+  const nodes=[...m.addedNodes,...m.removedNodes];
+  return nodes.length>0&&nodes.every(n=>n.classList?.contains('sc-pro-restored-steps'));
+ }))return;
  schedule();
 });
 observer.observe(result,{childList:true});
