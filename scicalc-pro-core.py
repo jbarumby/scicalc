@@ -395,7 +395,7 @@ def _integral_proof(expr,low,high,output):
         a,b=_parse(low),_parse(high)
         integral_tex+=r'_{'+_tex(a)+r'}^{'+_tex(b)+'}'
     steps=[_proof_step('Escrever a integral',
-        integral_tex+_tex(expr)+r'\,dx',
+        integral_tex+' '+_tex(expr)+r'\,dx',
         'Identificamos o integrando e os limites de integração, quando existentes.')]
     if expr.is_polynomial(_X):
         terms=sp.Poly(expr,_X).terms()
