@@ -114,6 +114,38 @@
     parent.appendChild(node);
     return node;
   }
+
+  let lastMathResult = null;
+  function renderVerifiedMathSteps(host, data) {
+    host.querySelectorAll('.sc-pro-verified-math-steps').forEach(node => node.remove());
+    if($('sc-pro-show-steps')?.checked===false || !data?.ok) return;
+    if(!Array.isArray(data.steps) || !data.steps.length) return;
+    const details=document.createElement('details');
+    details.className='didactic sc-pro-verified-math-steps';
+    details.open=true;
+    const summary=document.createElement('summary');
+    summary.textContent='📚 Resolução matemática — passo a passo';
+    const body=document.createElement('div');body.className='didactic-body';
+    const intro=document.createElement('p');intro.className='didactic-intro';
+    intro.textContent='Cada etapa abaixo corresponde a uma identidade, transformação ou verificação matemática identificada pelo motor simbólico.';
+    body.appendChild(intro);
+    const steps=document.createElement('div');steps.className='step-list';
+    data.steps.forEach(function(item){
+      if(!item || typeof item.title!=='string')return;
+      const stage=document.createElement('div');stage.className='step';
+      addText(stage,'div',item.title).className='step-title';
+      if(item.tex)renderFormula(stage,item.tex);
+      if(item.note)addText(stage,'div',item.note).className='step-note';
+      steps.appendChild(stage);
+    });
+    body.appendChild(steps);
+    details.append(summary,body);host.appendChild(details);
+  }
+  window.scicalcProToggleSteps = function() {
+    const node=$('sc-pro-result');
+    if(node&&lastMathResult)renderVerifiedMathSteps(node,lastMathResult);
+  };
+
   function displayResult(data) {
     const root = $('sc-pro-result');
     root.replaceChildren();
@@ -143,6 +175,8 @@
     }
     if (data.verified) addText(root, 'p', '✓ Conferência simbólica: derivar a primitiva recupera o integrando.');
     if (data.note) addText(root, 'p', data.note).className = 'sc-pro-warning';
+    lastMathResult=data;
+    renderVerifiedMathSteps(root,data);
   }
   function dispatch() {
     if (!worker || !isReady || !activeRequest) return;
