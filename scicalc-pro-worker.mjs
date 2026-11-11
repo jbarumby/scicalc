@@ -7,7 +7,7 @@ async function initialize() {
     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/"
   });
   await pyodide.loadPackage("sympy");
-  const source = await fetch(new URL("./scicalc-pro-core.py", import.meta.url));
+  const source = await fetch(new URL("./scicalc-pro-core.py?build=20261111c", import.meta.url), { cache: "no-store" });
   if (!source.ok) throw new Error("O motor de cálculo não está disponível.");
   await pyodide.runPythonAsync(await source.text());
   return pyodide;
