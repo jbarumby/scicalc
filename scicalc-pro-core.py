@@ -260,7 +260,9 @@ def _limit_proof(expr, target, direction, output):
         factored_num=sp.factor(num)
         factored_den=sp.factor(den)
         reduced=sp.cancel(expr)
-        if _same_symbolic(reduced,expr) and reduced != expr:
+        reduced_den=sp.fraction(sp.together(reduced))[1]
+        true_cancellation = bool(sp.degree(reduced_den,_X) < sp.degree(den,_X))
+        if _same_symbolic(reduced,expr) and reduced != expr and true_cancellation:
             if factored_num!=num or factored_den!=den:
                 steps.append(_proof_step('Fatorar numerador e denominador',
                     lim_tex+r'\frac{'+_tex(factored_num)+'}{'+_tex(factored_den)+'}',
