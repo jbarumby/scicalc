@@ -9,7 +9,7 @@ const didactic=readFileSync('scicalc-didactic-restore.js','utf8');
 
 test('new pedagogical modules load after advanced calculation and engine upgrade',()=>{
  const upgrade=html.indexOf('src="./scicalc-engine-upgrade.js"');
- const pro=html.indexOf('src="./scicalc-pro.js"');
+ const pro=html.indexOf('src="./scicalc-pro.js?build=20261111c"');
  const explain=html.indexOf('src="./scicalc-didactic-restore.js"');
  const choice=html.indexOf('src="./scicalc-experiment-picker.js"');
  assert.ok(pro>0&&upgrade>pro&&explain>upgrade&&choice>explain);
@@ -54,4 +54,18 @@ test('Cálculo Pro uses verified symbolic steps returned by Python, not generic 
  assert.match(pro,/Array\.isArray\(data\.steps\)/);
  assert.match(pro,/item\.tex/);
  assert.match(pro,/sc-pro-verified-math-steps/);
+});
+
+
+test('Cálculo Pro scripts and Python core cannot remain stale in browser cache',()=>{
+ const pro=readFileSync('scicalc-pro.js','utf8');
+ const worker=readFileSync('scicalc-pro-worker.mjs','utf8');
+ const core=readFileSync('scicalc-pro-core.py','utf8');
+ assert.match(html,/src="\.\/scicalc-pro\.js\?build=20261111c"/);
+ assert.match(pro,/scicalc-pro-worker\.mjs\?build=/);
+ assert.match(pro,/Versão do motor SymPy:/);
+ assert.match(worker,/scicalc-pro-core\.py\?build=20261111c/);
+ assert.match(worker,/cache: "no-store"/);
+ assert.match(core,/SCICALC_PRO_ENGINE_REV = '20261111c'/);
+ assert.match(core,/integral_tex\+r'\\,\'/);
 });
