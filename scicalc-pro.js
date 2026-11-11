@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
+  const SCI_PRO_BUILD = '20261111c'; // Versiona também o Web Worker carregado pelo navegador.
   const nav = document.querySelector('nav.tabs');
   const main = document.querySelector('main');
   if (!nav || !main || $('scicalc-pro')) return;
@@ -175,6 +176,7 @@
     }
     if (data.verified) addText(root, 'p', '✓ Conferência simbólica: derivar a primitiva recupera o integrando.');
     if (data.note) addText(root, 'p', data.note).className = 'sc-pro-warning';
+    if (data.engine_revision) addText(root, 'small', 'Versão do motor SymPy: ' + data.engine_revision).className = 'sc-pro-engine-revision';
     lastMathResult=data;
     renderVerifiedMathSteps(root,data);
   }
@@ -187,7 +189,7 @@
   function ensureWorker() {
     if (worker) return;
     try {
-      worker = new Worker(new URL('./scicalc-pro-worker.mjs', document.baseURI), { type: 'module' });
+      worker = new Worker(new URL('./scicalc-pro-worker.mjs?build=' + SCI_PRO_BUILD, document.baseURI), { type: 'module' });
     } catch (err) {
       resetWorker('Este navegador não conseguiu iniciar o motor avançado. ' + err.message);
       return;

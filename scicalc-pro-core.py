@@ -4,6 +4,8 @@
 import json
 import re
 import sympy as sp
+
+SCICALC_PRO_ENGINE_REV = '20261111c'
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, convert_xor, implicit_multiplication_application
 from sympy.calculus.util import continuous_domain
 
@@ -53,7 +55,8 @@ def _tex(value):
     return sp.latex(value)
 
 def _numeric(value):
-    if value in (sp.oo, -sp.oo, sp.zoo, sp.nan):
+    # Uma expressão que ainda depende de x não é uma aproximação decimal.
+    if value in (sp.oo, -sp.oo, sp.zoo, sp.nan) or getattr(value, 'free_symbols', set()):
         return None
     try:
         estimate = sp.N(value, 16)
@@ -65,7 +68,8 @@ def _numeric(value):
 
 def _result(expr, answer, status, note, **extra):
     output = {
-        'ok': True, 'input_tex': _tex(expr),
+        'ok': True, 'engine_revision': SCICALC_PRO_ENGINE_REV,
+        'input_tex': _tex(expr),
         'result_tex': _tex(answer), 'result_text': str(answer),
         'approx': _numeric(answer), 'status': status, 'note': note
     }
@@ -395,7 +399,7 @@ def _integral_proof(expr,low,high,output):
         a,b=_parse(low),_parse(high)
         integral_tex+=r'_{'+_tex(a)+r'}^{'+_tex(b)+'}'
     steps=[_proof_step('Escrever a integral',
-        integral_tex+' '+_tex(expr)+r'\,dx',
+        integral_tex+r'\,'+_tex(expr)+r'\,dx',
         'Identificamos o integrando e os limites de integração, quando existentes.')]
     if expr.is_polynomial(_X):
         terms=sp.Poly(expr,_X).terms()

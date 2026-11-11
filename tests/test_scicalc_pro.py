@@ -95,14 +95,25 @@ class AdvancedCalculusTests(unittest.TestCase):
             with self.subTest(expr=expr):
                 response=solve(action="integral",expr=expr)
                 first=response["steps"][0]["tex"]
-                self.assertTrue(first.startswith(r"\int "),first)
+                self.assertTrue(first.startswith(r"\int\,"),first)
                 self.assertNotIn(r"\inte",first)
                 self.assertIn(r"\,dx",first)
+
+    def test_symbolic_primitives_do_not_claim_numeric_approximation(self):
+        r=solve(action="integral",expr="exp(-x^2)")
+        self.assertIsNone(r.get("approx"))
+        self.assertEqual(r.get("engine_revision"),"20261111c")
+        self.assertIn("erf",r["result_text"])
+
+    def test_numeric_constant_has_actual_approximation(self):
+        r=solve(action="integral",expr="exp(-x)",lower="0",upper="1")
+        self.assertIsNotNone(r.get("approx"))
+        self.assertFalse(any(c.isalpha() for c in r["approx"] if c not in 'eE'))
 
     def test_bounded_integral_first_step_latex(self):
         response=solve(action="integral",expr="exp(-x)",lower="0",upper="1")
         first=response["steps"][0]["tex"]
-        self.assertTrue(first.startswith(r"\int_{0}^{1} "),first)
+        self.assertTrue(first.startswith(r"\int_{0}^{1}\,"),first)
         self.assertIn(r"e^{- x}",first)
         self.assertNotIn(r"\inte",first)
 
