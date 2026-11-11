@@ -45,9 +45,13 @@ test('experiment picker hides the selected cards before they are clicked',()=>{
  assert.match(picker,/root\.v26InitLab=function\(\)/);
 });
 
-test('Cálculo Pro shows didactic steps by default with a user toggle',()=>{
+test('Cálculo Pro uses verified symbolic steps returned by Python, not generic outline',()=>{
+ const pro=readFileSync('scicalc-pro.js','utf8');
  assert.match(didactic,/input\.type='checkbox';input\.id='sc-pro-show-steps';input\.checked=true/);
- assert.match(didactic,/Resolução passo a passo/);
- assert.match(didactic,/if\(!input\.checked\|\|!currentResultIsValid\(\)\)return/);
- assert.match(didactic,/nodes\.every\(n=>n\.classList\?\.contains\('sc-pro-restored-steps'\)\)/);
+ assert.match(didactic,/Mostrar resolução matemática passo a passo/);
+ assert.doesNotMatch(didactic,/O SymPy usa simplificações e regras de limite/);
+ assert.match(pro,/renderVerifiedMathSteps\(root,data\)/);
+ assert.match(pro,/Array\.isArray\(data\.steps\)/);
+ assert.match(pro,/item\.tex/);
+ assert.match(pro,/sc-pro-verified-math-steps/);
 });
