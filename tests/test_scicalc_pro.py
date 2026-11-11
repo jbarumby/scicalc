@@ -89,6 +89,23 @@ class AdvancedCalculusTests(unittest.TestCase):
         joined=" ".join(x.get("tex","") for x in r["steps"])
         self.assertIn(r"\int xe^x",joined)
 
+    def test_integral_first_step_latex_command_is_separated(self):
+        """Regression: '\\int' + 'e^{...}' must not form invalid '\\inte'."""
+        for expr in ("exp(-x^2)", "exp(x)", "x^2", "sin(x)", "cos(x)"):
+            with self.subTest(expr=expr):
+                response=solve(action="integral",expr=expr)
+                first=response["steps"][0]["tex"]
+                self.assertTrue(first.startswith(r"\int "),first)
+                self.assertNotIn(r"\inte",first)
+                self.assertIn(r"\,dx",first)
+
+    def test_bounded_integral_first_step_latex(self):
+        response=solve(action="integral",expr="exp(-x)",lower="0",upper="1")
+        first=response["steps"][0]["tex"]
+        self.assertTrue(first.startswith(r"\int_{0}^{1} "),first)
+        self.assertIn(r"e^{- x}",first)
+        self.assertNotIn(r"\inte",first)
+
     def test_gaussian_integral_uses_function_erf(self):
         r=solve(action="integral",expr="exp(-x^2)")
         self.assertTrue(any("erf" in x.get("tex","") for x in r["steps"]))
