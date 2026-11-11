@@ -306,7 +306,23 @@
      3. MOTOR DE LIMITES: L'HÔPITAL, INDETERMINAÇÕES E CANCELAMENTO
      ========================================================================== */
 
+  // Preserve the previously installed exact rational limit solver.
+  // It computes a mathematically exact infinity limit and its algebraic steps
+  // instead of incorrectly sampling f(10^7).
+  const previousLimitEngine = root.calcLimite;
   root.calcLimite = function () {
+    try {
+      const input = document.getElementById('lim-f')?.value || '';
+      const target = document.getElementById('lim-a')?.value || '';
+      const infinite = /^\s*(?:[+-]?(?:inf|infinity)|[+-]?∞)\s*$/i.test(target);
+      if(infinite && typeof root.scicalcExactRationalInfinity === 'function'
+          && typeof previousLimitEngine === 'function'
+          && root.scicalcExactRationalInfinity(math.parse(input),target)){
+        return previousLimitEngine.apply(this,arguments);
+      }
+    } catch(exactError) {
+      // Non-rational expressions are passed to the other limit methods.
+    }
     try {
       const fStr = document.getElementById('lim-f').value.trim();
       const aStr = document.getElementById('lim-a').value.trim().toLowerCase();
@@ -598,7 +614,7 @@
 
         html += '<div style="margin-top:16px"><strong>Integral Definida (Quadratura Adaptativa de Alta Precisão):</strong></div>';
         html += '<div style="margin:8px 0;font-size:1.2em;color:var(--ok)">' + scicalcRenderTex(defFormulaTex, true) + '</div>';
-        html += '<p style="color:var(--muted);font-size:0.88rem;margin-top:4px">Cota de erro absoluto certificada: <code>&lt; ' + quadRes.error.toExponential(2) + '</code> (' + quadRes.evaluations + ' amostras de malha adaptativa).</p>';
+        html += '<p style="color:var(--muted);font-size:0.88rem;margin-top:4px">Estimativa numérica de erro local (não certificada): <code>&lt; ' + quadRes.error.toExponential(2) + '</code> (' + quadRes.evaluations + ' amostras de malha adaptativa).</p>';
 
         if (showSteps) {
           html += '<details class="didactic" open style="margin-top:16px">';
@@ -608,7 +624,7 @@
           html += '<div class="step">';
           html += '<div class="step-title">1. Análise da Integrabilidade e Primitiva</div>';
           if (isNonElementary) {
-            html += '<div class="step-note">Pelo Teorema de Liouville, esta função não admite primitiva em termos de funções elementares finitas. A integração requer métodos de quadratura numérica adaptativa de alta ordem.</div>';
+            html += '<div class="step-note">O motor simbólico não encontrou uma primitiva elementar nesta tentativa. Isso não demonstra inexistência de primitiva elementar; uma integral definida regular pode ser aproximada por quadratura numérica.</div>';
           } else {
             html += '<div class="step-note">Primitiva analítica identificada com sucesso: <code>' + indefTex + '</code>.</div>';
           }
@@ -626,6 +642,51 @@
 
           html += '</div></div></details>';
         }
+      }
+
+      // Indefinite integrals previously lost their didactic steps here.
+      if(!isDefinite && showSteps){
+        const compact=fStr.replace(/\s+/g,'').toLowerCase();
+        const safeF=(typeof scicalcEscape==='function')?scicalcEscape(fStr):fStr.replace(/[<>&]/g,'');
+        let methodTitle='Método simbólico e interpretação';
+        let methodExplanation='O motor tenta identificar uma primitiva usando propriedades algébricas e funções especiais. Não recebemos uma sequência completa de transformações para esta entrada.';
+        let methodFormula='';
+        const power=compact.match(/^x\^(\d+)$/);
+        if(power&&Number(power[1])<=100){
+          const exponent=Number(power[1]);
+          methodTitle='Regra da potência';
+          methodExplanation='A integral de x elevado a n (com n diferente de −1) aumenta o expoente em uma unidade e divide pelo novo expoente.';
+          methodFormula='\\int x^{'+exponent+'}\\,dx=\\frac{x^{'+(exponent+1)+'}}{'+(exponent+1)+'}+C';
+        }else if(compact==='x*exp(x)'||compact==='exp(x)*x'){
+          methodTitle='Integração por partes';
+          methodExplanation='Escolhemos u=x e dv=e^x dx; depois aplicamos integração por partes.';
+          methodFormula='\\int xe^x\\,dx=xe^x-\\int e^x\\,dx';
+        }else if(compact==='sin(x)'){
+          methodTitle='Primitiva do seno';
+          methodExplanation='A derivada de −cos(x) é sin(x).';
+          methodFormula='\\int\\sin(x)\\,dx=-\\cos(x)+C';
+        }else if(compact==='cos(x)'){
+          methodTitle='Primitiva do cosseno';
+          methodExplanation='A derivada de sin(x) é cos(x).';
+          methodFormula='\\int\\cos(x)\\,dx=\\sin(x)+C';
+        }else if(compact==='exp(-x^2)'){
+          methodTitle='Integração por função especial';
+          methodExplanation='A primitiva da gaussiana utiliza a função erro erf. Não se afirma que o motor derive automaticamente cada transformação.';
+          methodFormula='\\int e^{-x^2}\\,dx=\\frac{\\sqrt{\\pi}}{2}\\operatorname{erf}(x)+C';
+        }
+        html += '<details class="didactic" open style="margin-top:16px">';
+        html += '<summary>📚 Passo a passo da integral indefinida</summary><div class="didactic-body"><div class="step-list">';
+        html += '<div class="step"><div class="step-title">1. Identificar o integrando</div><div class="step-note">Função fornecida: <code>'+safeF+'</code>. Procuramos F(x) cuja derivada seja f(x).</div></div>';
+        html += '<div class="step"><div class="step-title">2. '+methodTitle+'</div>';
+        if(methodFormula)html += scicalcRenderTex(methodFormula,false);
+        html += '<div class="step-note">'+methodExplanation+'</div></div>';
+        html += '<div class="step"><div class="step-title">3. Registrar o resultado simbólico</div>';
+        if(!isNonElementary)html += scicalcRenderTex('\\int '+fNode.toTex()+'\\,dx='+indefTex+'+C',false);
+        html += '<div class="step-note">'+(isNonElementary?
+          'Não foi determinada uma primitiva elementar por esta tentativa do motor. Isso não é prova matemática de inexistência.':
+          'Este é o resultado retornado pelo motor simbólico. A constante de integração é necessária.')+'</div></div>';
+        html += '<div class="step"><div class="step-title">4. Conferência e domínio</div><div class="step-note">Para confirmar uma primitiva, derive a expressão obtida e compare com o integrando no domínio apropriado. O motor não forneceu uma verificação simbólica independente neste resultado.</div></div>';
+        html += '</div></div></details>';
       }
 
       html += '</div>';
