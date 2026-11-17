@@ -1,0 +1,102 @@
+name: NUMERIA P225 - Independent real Arb GL60 200-mode panel
+on:
+  pull_request:
+    paths:
+      - .github/workflows/numeria-p225-real-gl60-panel.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb-panel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Verify independent GL60 roots and a real 200-mode panel
+        shell: bash
+        run: |
+          python - <<'PY'
+          from flint import arb, acb, arb_mat, ctx
+          from fractions import Fraction
+          import math,json
+          ctx.prec=800
+          def bernoulli(m=24):
+              a=[Fraction(1)]
+              for n in range(1,2*m+1):
+                  a.append(-sum((Fraction(math.comb(n+1,k))*a[k] for k in range(n)),Fraction(0))/(n+1))
+              return [arb(a[2*k].numerator)/arb(a[2*k].denominator) for k in range(1,m)]
+          B=bernoulli()
+          ERR=(arb(4*math.factorial(47))/arb(480**48)).upper()
+          def digamma(t):
+              z=acb(arb(1)/4,t/2);w=z+80;inv=1/w;p=inv*inv
+              v=w.log()-inv/2
+              for k,b in enumerate(B,start=1):
+                  v-=b*p/(2*k);p*=inv*inv
+              for k in range(80):v-=1/(z+k)
+              return v.real+arb(0,ERR)
+          def anchor(n,x):
+              q=x**n
+              for i in range(1,n+1):q/=arb(2*i+1)
+              s=arb(0);ak=arb(1);xx=x*x
+              for k in range(700):
+                  ratio=Fraction(161**2,2*(k+1)*(2*n+2*k+3))
+                  if ratio<=Fraction(1,2) and ak.upper()<arb(10)**-205:
+                      return q*(s+arb(0,(2*ak.upper()).upper()))
+                  s+=ak if k%2==0 else -ak
+                  ak*=xx/(2*(k+1)*(2*n+2*k+3))
+              raise RuntimeError('failed to enclose anchor')
+          def spherical(x):
+              j=[None]*402;j[400]=anchor(400,x);j[401]=anchor(401,x)
+              for n in range(400,0,-1):j[n-1]=(2*n+1)*j[n]/x-j[n+1]
+              assert j[0].overlaps(x.sin()/x)
+              assert j[1].overlaps(x.sin()/(x*x)-x.cos()/x)
+              return j[:400]
+          def dyad(x):
+              m,e=x.mid().man_exp();r,k=x.rad().upper().man_exp()
+              return {'mid':[str(m),str(e)],'rad_upper':[str(r),str(k)]}
+          gl=[arb.legendre_p_root(60,k,weight=True) for k in range(60)]
+          assert all(x.lower()>-1 and x.upper()<1 and w.lower()>0 for x,w in gl)
+          assert all(gl[i][0].lower()>gl[i+1][0].upper() for i in range(59))
+          total=sum((w for x,w in gl),arb(0));assert total.contains(2)
+          assert all(gl[i][0].overlaps(-gl[59-i][0]) and gl[i][1].overlaps(gl[59-i][1]) for i in range(30))
+          pi=arb.pi();L=arb(4)/5;two=arb(2)
+          l2=two.log();l3=arb(3).log();l4=two*l2
+          a2=two*l2/two.sqrt();a3=two*l3/arb(3).sqrt();a4=l2
+          beta=(arb(200)/(two*pi)).log()-arb(1)/200-a2-a3-a4
+          modes=list(range(0,400,2))
+          norms=[(-1)**(n//2)*(two*L*(2*n+1)).sqrt() for n in modes]
+          Bmat=[];BWmat=[];step=arb(1)/4;center=arb(1)/4
+          for x,wgl in gl:
+              t=center+step*x
+              j=spherical(L*t)
+              u=[norms[i]*j[n] for i,n in enumerate(modes)]
+              symbol=digamma(t)-pi.log()-a2*(t*l2).cos()-a3*(t*l3).cos()-a4*(t*l4).cos()-beta
+              wt=step*wgl*symbol/pi
+              Bmat.extend(u);BWmat.extend([wt*z for z in u])
+          J=arb_mat(60,200,Bmat);WJ=arb_mat(60,200,BWmat)
+          C=J.transpose()*WJ
+          inds=[(0,0),(0,1),(0,2),(1,1),(10,120),(199,199)]
+          assert all(C[i,j].is_finite() for i,j in inds)
+          assert C[0,0].rad().upper()<arb(10)**-46
+          data={'schema':'NUMERIA.P225.REAL_ARB_ONE_PANEL.1','status':'REAL_ARB_GL60_PANEL_ONLY_NOT_1_OF_14_CHUNKS',
+            'flint_version':__import__('flint').__version__,'precision_bits':ctx.prec,
+            'sector':'even','panel_range':[0,1],'mode_count':200,'node_count':60,
+            'root_weight_source':'arb.legendre_p_root(60,k,weight=True), independent of P193 input',
+            'GL_nodes_and_weights':[{'k':i,'x':dyad(x),'w':dyad(w)} for i,(x,w) in enumerate(gl)],
+            'sum_weights':dyad(total),
+            'C_panel_entries':[[i,j,dyad(C[i,j])] for i,j in inds],
+            'quadrature_analytic_remainder_added':False,'P223_14_chunks_completed':0,
+            'Riemann_hypothesis_proved':False}
+          with open('P225_REAL_ARB_GL60_PANEL.json','w') as f:json.dump(data,f,indent=2)
+          print('PASS real independent Arb GL60 nodes/weights, 200 modes, 60 nodes and 1 panel')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: p225-real-arb-200-mode-panel
+          path: P225_REAL_ARB_GL60_PANEL.json
+          if-no-files-found: error
