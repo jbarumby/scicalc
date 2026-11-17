@@ -1,0 +1,49 @@
+name: NUMERIA P227 - Independent Arb 0.8 native Bessel digamma panels
+on:
+  pull_request:
+    paths:
+      - .github/workflows/numeria-p227-arb08.yml
+      - numeria/p227_replay_arb08.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-v08:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {sector: even, panel: 0}
+          - {sector: even, panel: 399}
+          - {sector: odd, panel: 0}
+          - {sector: odd, panel: 299}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install independent python-flint 0.8.0
+        run: python -m pip install --no-cache-dir python-flint==0.8.0
+      - name: Run independent native-special-function Arb 1024-bit panel
+        run: |
+          python -u numeria/p227_replay_arb08.py --sector ${{ matrix.sector }} --panel ${{ matrix.panel }} --bits 1024 --output P227_PANEL.json
+      - name: Verify panel provenance
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('P227_PANEL.json'))
+          assert d['version']=='0.8.0'
+          assert d['bits']==1024 and d['modes']==200 and d['nodes']==60
+          assert len(d['samples'])==6 and d['RH_proved'] is False
+          assert d['gauss_remainder_added'] is False
+          assert d['beta_and_poles_added'] is False
+          print('PASS independent native Arb 0.8 panel',d['sector'],d['panel'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: P227-ARB08-${{ matrix.sector }}-panel-${{ matrix.panel }}
+          path: P227_PANEL.json
+          if-no-files-found: error
