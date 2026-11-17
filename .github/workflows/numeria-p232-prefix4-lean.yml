@@ -1,0 +1,68 @@
+name: NUMERIA P232 - Compile exact P231 Lean prefix4
+on:
+  pull_request:
+    paths:
+      - NUMERIA_E8K_FORMAL/P231_P230Prefix4.lean
+      - NUMERIA_E8K_FORMAL/P232_RealsPrefix4.lean
+      - .github/workflows/numeria-p232-prefix4-lean.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-lean-p231:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify original P231 Lean source SHA256 and absence of placeholders
+        shell: bash
+        run: |
+          printf '%s  %s\n' \
+            '3a8038c0efed181254982bc6f13d3766b5080dfb3f66bc060e360f7b0797e2f6' \
+            'NUMERIA_E8K_FORMAL/P231_P230Prefix4.lean' | sha256sum -c -
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom)([[:space:]]|$)' NUMERIA_E8K_FORMAL/P231_P230Prefix4.lean; then
+            exit 1
+          fi
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile original P231 with Lean + Mathlib pinned at 4.35.0
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          lean --version
+          lake --version
+          set -o pipefail
+          lake env lean P231_P230Prefix4.lean 2>&1 | tee P232_LEAN_COMPILATION.log
+      - name: Report Lean axioms of exact finite-box theorem
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          cp P231_P230Prefix4.lean P232_AXIOMS_TEMP.lean
+          printf '\n#print axioms Numeria.ES8P231.P231_box_positive\n' >> P232_AXIOMS_TEMP.lean
+          set -o pipefail
+          lake env lean P232_AXIOMS_TEMP.lean 2>&1 | tee P232_AXIOMS.log
+      - name: Compile P232 real-coefficient version and inspect axioms
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          set -o pipefail
+          lake env lean P232_RealsPrefix4.lean 2>&1 | tee P232_REAL_COMPILATION.log
+          cp P232_RealsPrefix4.lean P232_REAL_AXIOMS_TEMP.lean
+          echo '' >> P232_REAL_AXIOMS_TEMP.lean
+          echo '#print axioms Numeria.ES8P232Real.P232_box_positive_real' >> P232_REAL_AXIOMS_TEMP.lean
+          lake env lean P232_REAL_AXIOMS_TEMP.lean 2>&1 | tee P232_REAL_AXIOMS.log
+      - name: Upload Lean logs including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p232-genuine-lean-logs
+          path: |
+            NUMERIA_E8K_FORMAL/P232_LEAN_COMPILATION.log
+            NUMERIA_E8K_FORMAL/P232_AXIOMS.log
+            NUMERIA_E8K_FORMAL/P232_REAL_COMPILATION.log
+            NUMERIA_E8K_FORMAL/P232_REAL_AXIOMS.log
+          if-no-files-found: warn
