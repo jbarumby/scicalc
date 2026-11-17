@@ -1,0 +1,60 @@
+name: NUMERIA P226 - Remaining 13 real Arb 200-mode chunks
+on:
+  pull_request:
+    paths:
+      - .github/workflows/numeria-p226-remaining-13.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chunks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        include:
+          - {sector: even, start: 50, stop: 100}
+          - {sector: even, start: 100, stop: 150}
+          - {sector: even, start: 150, stop: 200}
+          - {sector: even, start: 200, stop: 250}
+          - {sector: even, start: 250, stop: 300}
+          - {sector: even, start: 300, stop: 350}
+          - {sector: even, start: 350, stop: 400}
+          - {sector: odd, start: 0, stop: 50}
+          - {sector: odd, start: 50, stop: 100}
+          - {sector: odd, start: 100, stop: 150}
+          - {sector: odd, start: 150, stop: 200}
+          - {sector: odd, start: 200, stop: 250}
+          - {sector: odd, start: 250, stop: 300}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Arb
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Compute interval chunk
+        run: |
+          python -u numeria/p226_real_arb_chunk.py --sector ${{ matrix.sector }} --start ${{ matrix.start }} --stop ${{ matrix.stop }} --bits 800 --out chunk.json.gz
+      - name: Validate exact coverage and interval syntax
+        run: |
+          python - <<'PY'
+          import gzip,json
+          with gzip.open('chunk.json.gz','rt') as f:d=json.load(f)
+          assert d['schema']=='NUMERIA.ES8P226.ARB_200MODE_50PANELS.1'
+          assert d['entries_count']==20100 and d['node_count']==3000
+          assert d['precision_bits']==800
+          assert not d['quadrature_analytic_remainder_added']
+          assert not d['beta_and_poles_added']
+          e=d['C_quadrature_upper_triangle_dyads']
+          assert len(e)==20100 and e[0][:2]==[0,0] and e[-1][:2]==[199,199]
+          print('PASS full 20,100-entry Arb chunk',d['sector'],d['panel_range'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: P226-ARB-${{ matrix.sector }}-${{ matrix.start }}-${{ matrix.stop }}
+          path: chunk.json.gz
+          if-no-files-found: error

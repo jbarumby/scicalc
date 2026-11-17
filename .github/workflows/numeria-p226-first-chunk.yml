@@ -1,0 +1,51 @@
+name: NUMERIA P226 - Independent Arb 50-panel 200-mode chunk
+on:
+  pull_request:
+    paths:
+      - .github/workflows/numeria-p226-first-chunk.yml
+      - numeria/p226_real_arb_chunk.py
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  real-arb-50-panel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Arb
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Compile and validate source
+        run: |
+          python -m py_compile numeria/p226_real_arb_chunk.py
+          python -c "from flint import arb, arb_mat; print('real Arb', arb.pi())"
+      - name: Compute full sector-even P000-P050 with real interval matrix
+        run: |
+          python -u numeria/p226_real_arb_chunk.py --sector even --start 0 --stop 50 --bits 800 --out P226_EVEN_P000_050.json.gz
+      - name: Verify output structure
+        run: |
+          python - <<'PY'
+          import gzip,hashlib,json
+          p='P226_EVEN_P000_050.json.gz'
+          with gzip.open(p,'rt') as f:d=json.load(f)
+          assert d['entries_count']==20100 and d['node_count']==3000
+          assert d['panel_range']==[0,50] and d['sector']=='even'
+          assert d['backend']=='python-flint/Arb' and d['precision_bits']>=768
+          assert d['quadrature_analytic_remainder_added'] is False
+          assert d['beta_and_poles_added'] is False
+          es=d['C_quadrature_upper_triangle_dyads']
+          assert len(es)==20100
+          assert es[0][:2]==[0,0] and es[-1][:2]==[199,199]
+          assert all(len(x)==3 and all(len(y)==2 for y in x[2]) for x in es)
+          print('VERIFIED all 20100 interval entries')
+          print('SHA256',hashlib.sha256(open(p,'rb').read()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: NUMERIA-P226-REAL-ARB-EVEN-000-050
+          path: P226_EVEN_P000_050.json.gz
+          if-no-files-found: error
