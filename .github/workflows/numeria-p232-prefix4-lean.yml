@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - NUMERIA_E8K_FORMAL/P231_P230Prefix4.lean
+      - NUMERIA_E8K_FORMAL/P232_RealsPrefix4.lean
       - .github/workflows/numeria-p232-prefix4-lean.yml
   workflow_dispatch:
 permissions:
@@ -44,6 +45,15 @@ jobs:
           printf '\n#print axioms Numeria.ES8P231.P231_box_positive\n' >> P232_AXIOMS_TEMP.lean
           set -o pipefail
           lake env lean P232_AXIOMS_TEMP.lean 2>&1 | tee P232_AXIOMS.log
+      - name: Compile P232 real-coefficient version and inspect axioms
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          set -o pipefail
+          lake env lean P232_RealsPrefix4.lean 2>&1 | tee P232_REAL_COMPILATION.log
+          cp P232_RealsPrefix4.lean P232_REAL_AXIOMS_TEMP.lean
+          printf '\\n#print axioms Numeria.ES8P232Real.P232_box_positive_real\\n' >> P232_REAL_AXIOMS_TEMP.lean
+          lake env lean P232_REAL_AXIOMS_TEMP.lean 2>&1 | tee P232_REAL_AXIOMS.log
       - name: Upload Lean logs including failures
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,4 +62,6 @@ jobs:
           path: |
             NUMERIA_E8K_FORMAL/P232_LEAN_COMPILATION.log
             NUMERIA_E8K_FORMAL/P232_AXIOMS.log
+            NUMERIA_E8K_FORMAL/P232_REAL_COMPILATION.log
+            NUMERIA_E8K_FORMAL/P232_REAL_AXIOMS.log
           if-no-files-found: warn
