@@ -38,5 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: numeria-p233-generic-lean-log
-          path: NUMERIA_E8K_FORMAL/P233_LEAN_GATE.log
+          path: |
+            NUMERIA_E8K_FORMAL/P233_LEAN_GATE.log
+            NUMERIA_E8K_FORMAL/P233_GenericMatrixGate.lean
           if-no-files-found: warn
