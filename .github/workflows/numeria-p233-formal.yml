@@ -1,0 +1,42 @@
+name: NUMERIA P233 - Generic Lean Gram and analytic interval bridge
+on:
+  pull_request:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/P233_GenericMatrixGate.lean'
+      - '.github/workflows/numeria-p233-formal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  generic-real-lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject incomplete Lean proofs
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom)([[:space:]]|$)' NUMERIA_E8K_FORMAL/P233_GenericMatrixGate.lean; then
+            echo 'Incomplete proof found' >&2
+            exit 1
+          fi
+          sha256sum NUMERIA_E8K_FORMAL/P233_GenericMatrixGate.lean
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile generic n and n=200 conditional bridge and report axioms
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          echo "Toolchain $(cat lean-toolchain)"
+          set -o pipefail
+          lake env lean P233_GenericMatrixGate.lean 2>&1 | tee P233_LEAN_GATE.log
+      - name: Upload compilation evidence on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p233-generic-lean-log
+          path: NUMERIA_E8K_FORMAL/P233_LEAN_GATE.log
+          if-no-files-found: warn
