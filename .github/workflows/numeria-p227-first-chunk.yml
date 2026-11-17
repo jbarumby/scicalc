@@ -1,0 +1,38 @@
+name: NUMERIA P227 - Full independent Arb08 50-panel check
+on:
+  pull_request:
+    paths:
+      - .github/workflows/numeria-p227-first-chunk.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arb08-full-chunk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --no-cache-dir python-flint==0.8.0
+      - name: Compute genuine independent 50-panel chunk
+        run: |
+          python -u numeria/p227_chunk_arb08.py --sector even --start 0 --stop 50 --bits 1024 --out chunk.json.gz
+      - name: Check output coverage
+        run: |
+          python - <<'PY'
+          import gzip,json
+          with gzip.open('chunk.json.gz','rt') as f:d=json.load(f)
+          assert d['version']=='0.8.0' and d['bits']==1024
+          assert d['panel_range']==[0,50] and d['nodes']==3000
+          assert len(d['entries'])==20100
+          assert not d['quadrature_error_added'] and not d['beta_and_poles_added']
+          print('PASS 20100 independent Arb08 enclosures')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: P227-ARB08-EVEN-000-050
+          path: chunk.json.gz
+          if-no-files-found: error
