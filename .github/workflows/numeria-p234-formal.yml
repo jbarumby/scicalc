@@ -30,7 +30,8 @@ jobs:
         run: |
           cd NUMERIA_E8K_FORMAL
           set -o pipefail
-          lake env lean -o P233_GenericMatrixGate.olean P233_GenericMatrixGate.lean 2>&1 | tee P234_P233_DEP.log
+          mkdir -p .lake/build/lib/lean
+          lake env lean -o .lake/build/lib/lean/P233_GenericMatrixGate.olean P233_GenericMatrixGate.lean 2>&1 | tee P234_P233_DEP.log
           lake env lean P234_NearIdentityCongruence.lean 2>&1 | tee P234_LEAN_COMPILATION.log
       - name: Preserve source and Lean evidence
         if: always()
