@@ -52,7 +52,8 @@ jobs:
           set -o pipefail
           lake env lean P232_RealsPrefix4.lean 2>&1 | tee P232_REAL_COMPILATION.log
           cp P232_RealsPrefix4.lean P232_REAL_AXIOMS_TEMP.lean
-          printf '\\n#print axioms Numeria.ES8P232Real.P232_box_positive_real\\n' >> P232_REAL_AXIOMS_TEMP.lean
+          echo '' >> P232_REAL_AXIOMS_TEMP.lean
+          echo '#print axioms Numeria.ES8P232Real.P232_box_positive_real' >> P232_REAL_AXIOMS_TEMP.lean
           lake env lean P232_REAL_AXIOMS_TEMP.lean 2>&1 | tee P232_REAL_AXIOMS.log
       - name: Upload Lean logs including failures
         if: always()
