@@ -19,8 +19,7 @@ theorem near_identity_posDef {n : ℕ} (G : Matrix (Fin n) (Fin n) ℝ)
     (hrow : ∀ i, (∑ j : Fin n, eps i j) ≤ (1 / 4 : ℝ)) : G.PosDef := by
   apply Numeria.ES8P233.box_posDef G 1 eps (1 / 4 : ℝ) 1 hG hbox hsym hrow
   · intro x
-    change (∑ i : Fin n, x i ^ 2) ≤ ∑ i : Fin n, x i * x i
-    simp only [pow_two, le_refl]
+    simp [dotProduct, pow_two]
   · norm_num
 
 /-- Transfer positivity across an invertible real congruence. The unit
