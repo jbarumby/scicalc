@@ -1,0 +1,45 @@
+name: NUMERIA P234 - exact 200-mode congruence Lean bridge
+on:
+  pull_request:
+    paths:
+      - 'NUMERIA_E8K_FORMAL/P234_NearIdentityCongruence.lean'
+      - '.github/workflows/numeria-p234-formal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p234-lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject placeholders and record source hashes
+        run: |
+          if grep -nE '^[[:space:]]*(sorry|admit|axiom)([[:space:]]|$)' NUMERIA_E8K_FORMAL/P234_NearIdentityCongruence.lean; then
+            exit 1
+          fi
+          sha256sum NUMERIA_E8K_FORMAL/P233_GenericMatrixGate.lean NUMERIA_E8K_FORMAL/P234_NearIdentityCongruence.lean
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_E8K_FORMAL
+          build: false
+          test: false
+          use-mathlib-cache: true
+      - name: Compile dependent P233 theorem and P234 congruence theorem
+        shell: bash
+        run: |
+          cd NUMERIA_E8K_FORMAL
+          set -o pipefail
+          mkdir -p .lake/build/lib/lean
+          lake env lean -o .lake/build/lib/lean/P233_GenericMatrixGate.olean P233_GenericMatrixGate.lean 2>&1 | tee P234_P233_DEP.log
+          lake env lean P234_NearIdentityCongruence.lean 2>&1 | tee P234_LEAN_COMPILATION.log
+      - name: Preserve source and Lean evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p234-lean-evidence
+          path: |
+            NUMERIA_E8K_FORMAL/P234_P233_DEP.log
+            NUMERIA_E8K_FORMAL/P234_LEAN_COMPILATION.log
+            NUMERIA_E8K_FORMAL/P234_NearIdentityCongruence.lean
+          if-no-files-found: warn
