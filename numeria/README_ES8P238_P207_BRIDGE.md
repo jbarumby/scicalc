@@ -2,6 +2,8 @@
 
 **Status:** auditoria de lacunas e implicação suficiente condicional. Não certifica a cauda de Weil nem positividade global.
 
+**Atualização posterior:** para os parâmetros específicos P237 (`L=0.805`, `T♯=504`, 377 modos por paridade), a cauda e o acoplamento de Zhu foram certificados em P239; veja `README_ES8P239_ZHU_EXTENSION.md` e `P239_ZHU_TAIL_COUPLING.json`. Isso fecha a ponte para essa janela compacta, mas não prova positividade para todos os suportes nem RH. O restante desta nota registra o estado histórico de P238.
+
 ## Resultado finito reutilizado de P237
 
 Recomputando em Arb a partir do artefato P237 versionado, os limites inferiores transferidos para os dois blocos intervalares são aproximadamente `4,7912 × 10⁻¹⁸` (par) e `5,2098 × 10⁻¹⁵` (ímpar). Portanto, `m₀ = 10⁻¹⁸` é um limite comum conservador para ambos. A verificação reproduzível está em `p238_schur_bridge_audit.py`, e o resultado estruturado em `P238_SCHUR_MARGIN.json`.
