@@ -1,0 +1,27 @@
+name: NUMERIA P235 - preserve exact source and workflow
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/numeria-p235-export-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source
+        run: |
+          python -m py_compile numeria/p235_prefix16_native_arb.py
+          sha256sum numeria/p235_prefix16_native_arb.py .github/workflows/numeria-p235-prefix16.yml > P235_GITHUB_SOURCE_SHA256SUMS.txt
+          cat P235_GITHUB_SOURCE_SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: P235-SOURCE-REPRODUCIBILITY
+          path: |
+            numeria/p235_prefix16_native_arb.py
+            .github/workflows/numeria-p235-prefix16.yml
+            P235_GITHUB_SOURCE_SHA256SUMS.txt
+          if-no-files-found: error
