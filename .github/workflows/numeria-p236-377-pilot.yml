@@ -1,0 +1,59 @@
+name: NUMERIA P236 - Arb 377-mode high-degree single-panel stress
+on:
+  pull_request:
+    paths:
+      - 'numeria/p236_377mode_panel.py'
+      - '.github/workflows/numeria-p236-377-pilot.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {sector: even, panel: 0, bits: 900}
+          - {sector: odd, panel: 0, bits: 900}
+          - {sector: even, panel: 1007, bits: 900}
+          - {sector: odd, panel: 1007, bits: 900}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install real Arb
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Verify 377-mode Bessel and compute one full 377x377 GL60 panel
+        run: |
+          python -u numeria/p236_377mode_panel.py \
+            --sector ${{ matrix.sector }} \
+            --panel ${{ matrix.panel }} \
+            --bits ${{ matrix.bits }} --out P236_PANEL.json
+      - name: Check output metadata and no premature analytic claims
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          d=json.load(open('P236_PANEL.json'))
+          assert d['schema']=='NUMERIA.ES8P236.ARB_377_SINGLE_GL60_PANEL.1'
+          assert d['mode_count']==377 and d['root_count']==60
+          assert d['matrix_dimension']==[377,377] and d['all_C_entries_computed']
+          assert d['sample_entries_exported']==len(d['gauss_interval_matrix_sample'])
+          assert d['sample_entries_exported']==528+10-3 or d['sample_entries_exported']>500
+          assert not d['LDL_or_positive_definiteness_tested']
+          assert not d['GL60_integral_analytic_remainder_added']
+          assert not d['beta_and_poles_added'] and not d['Riemann_hypothesis_proved']
+          print('verified 377-mode one-panel diagnostic')
+          print('sha256',hashlib.sha256(open('P236_PANEL.json','rb').read()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P236-${{ matrix.sector }}-panel-${{ matrix.panel }}-bits-${{ matrix.bits }}
+          path: |
+            P236_PANEL.json
+            numeria/p236_377mode_panel.py
+          if-no-files-found: warn
