@@ -19,7 +19,7 @@ O preprint de Zhu escreve a forma geométrica como um termo de polo de posto um 
 A_L = Σ_{log n<2L} 2Λ(n)/sqrt(n),
 ```
 
-o Teorema 1.1 reduz a forma completa, para todo `f` real de suporte em `[-L,L]`, a `Q(f) >= R(f)`. Na base de Legendre, `R` tem blocos `β* I + C + 2ppᵀ` no setor par e `β* I + C − 2ppᵀ` no ímpar; a prova controla o bloco descartado por Gershgorin e o acoplamento por um teste de Schur. O artigo demonstra que a redução vale também no setor ímpar, que as partes par e ímpar se desacoplam e que, para funções complexas, `Q(f)=Q(Re f)+Q(Im f)`. Assim, certificar os dois setores reais dá a mesma margem para funções complexas. [1]
+O Teorema 1.1 dá `Q(f) >= R(f)` para todo `f` real e par de suporte em `[-L,L]`. A Seção 6, pelo lema de decomposição par/ímpar, estende a redução ao setor ímpar, com sinal oposto no termo de polo. Na base de Legendre, os blocos são `β* I + C + 2ppᵀ` no setor par e `β* I + C − 2ppᵀ` no ímpar; a prova controla a cauda por Gershgorin e o acoplamento por um teste de Schur. A mesma seção prova `Q(f)=Q(Re f)+Q(Im f)` para funções complexas. Portanto, certificar os dois setores reais fornece a mesma margem para funções complexas. [1]
 
 A implementação de montagem P237 usa os mesmos parâmetros e as mesmas peças: a quadratura de `C_nm = (1/π)∫₀^{T♯}(Ψ_L(t)−β*) T̂_n(t)T̂_m(t)dt`, o mesmo `β*`, e os coeficientes de polo obtidos de `2 sqrt(L(n+1/2)) i_n(L/2)`, com o sinal correspondente a cada paridade. A recomputação P239 confere que os `β*` e `A_L` intervalares se sobrepõem aos metadados P237 e fixa por SHA-256 a matriz, o certificado Weyl, a auditoria-sombra e os dois dados `C`. Não se regeneraram neste passo os 1008 painéis de quadratura; o certificado finito P237 continua sendo a fonte desses painéis.
 
