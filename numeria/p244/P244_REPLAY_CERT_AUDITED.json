@@ -1,0 +1,25 @@
+{
+  "schema": "NUMERIA.ES8P244.STRICT_REPLAY.1",
+  "P237_source_sha256": "2695768a3cca11237dd63cb40c0b6c34427b390329e5ff2ec089e31111c7898a",
+  "original_p242_certificate_sha256": "9f89c17339c9daca7d1e2e020dbfdbecc83fc47a79301b6ebde544dad0099447",
+  "recomputed_using_compiled_MPFR_C_in_this_run": true,
+  "MPFR_traces": {
+    "even": {
+      "trace_sha256": "0080384607c00fd63d3b4c481c17555118791b36b19372b91ea47cb40984fd2b",
+      "trace_digest_and_bytes_match": true
+    },
+    "odd": {
+      "trace_sha256": "d61f312cd24c3f2b518692798022ea90dfcc81b0f4d42d9fad321d16dd1ba5a5",
+      "trace_digest_and_bytes_match": true
+    }
+  },
+  "positive_pivots": 754,
+  "margin_lower_exact": "1/10^18",
+  "regenerated_trace_matches_original": true,
+  "original_P242_Python_verifier_accepts_forged_inverse_norm": true,
+  "all_original_P237_matrix_assembly_integrals_independently_redone": false,
+  "Weil_RH_proved": false,
+  "verified_exporter_sha256": "58be39fcfd6b424cdec9af9b20b5a3b9d78e6fa3f0a40d4127916f8c97b92fac",
+  "verified_p242_certificate_sha256": "9f89c17339c9daca7d1e2e020dbfdbecc83fc47a79301b6ebde544dad0099447",
+  "trace_check_mode": "regenerated_this_run"
+}

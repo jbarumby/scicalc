@@ -1,0 +1,46 @@
+{
+  "schema": "NUMERIA.ES8P242.INDEPENDENT_MPFR_1024_LDL_WEYL.1",
+  "source_full_matrix_sha256": "2695768a3cca11237dd63cb40c0b6c34427b390329e5ff2ec089e31111c7898a",
+  "source_center_sha256": "272caafee875c2d5301782ed56bcb4d895df98ee0551a2e878d99577f44156d3",
+  "input_pivot_algorithm": "independent C MPFR directed interval LDL on exact dyadic centers (Schur rank-one updates)",
+  "input_inverse_algorithm": "independent C MPFR directed triangular solves for C inverse",
+  "exact_verification": "Python stdlib integer Fraction; no floats for inequalities",
+  "sectors": {
+    "even": {
+      "dimension": 377,
+      "independent_mpfr_pivot_count": 377,
+      "independent_mpfr_pivot_enclosures_all_strictly_positive": true,
+      "all_original_Arb_pivot_balls_intersect_independent_mpfr_balls": true,
+      "original_interval_matrix_entries_rechecked": 71253,
+      "symmetric_row_radii_summed_as_exact_fractions": true,
+      "row_radii_max_exact_comparison": "delta < 4/10^47",
+      "row_radii_max_approx": "3.661198923268398e-47",
+      "inverse_frobenius_squared_upper_approx": "4.356188589587664e+34",
+      "full_box_weyl_criterion_upper_approx": "5.839199655884685e-59",
+      "criterion_delta_squared_nu_strictly_below_1": true,
+      "criterion_delta_plus_1e-18_squared_nu_strictly_below_1": true,
+      "proved_lower_eigenvalue_for_every_matrix_in_box": "1/10^18",
+      "independent_trace_sha256": "0080384607c00fd63d3b4c481c17555118791b36b19372b91ea47cb40984fd2b"
+    },
+    "odd": {
+      "dimension": 377,
+      "independent_mpfr_pivot_count": 377,
+      "independent_mpfr_pivot_enclosures_all_strictly_positive": true,
+      "all_original_Arb_pivot_balls_intersect_independent_mpfr_balls": true,
+      "original_interval_matrix_entries_rechecked": 71253,
+      "symmetric_row_radii_summed_as_exact_fractions": true,
+      "row_radii_max_exact_comparison": "delta < 4/10^47",
+      "row_radii_max_approx": "3.657549602819543e-47",
+      "inverse_frobenius_squared_upper_approx": "3.684275778979701e+28",
+      "full_box_weyl_criterion_upper_approx": "4.928702223359698e-65",
+      "criterion_delta_squared_nu_strictly_below_1": true,
+      "criterion_delta_plus_1e-18_squared_nu_strictly_below_1": true,
+      "proved_lower_eigenvalue_for_every_matrix_in_box": "1/10^18",
+      "independent_trace_sha256": "d61f312cd24c3f2b518692798022ea90dfcc81b0f4d42d9fad321d16dd1ba5a5"
+    }
+  },
+  "total_independent_positive_pivots": 754,
+  "RH_proved": false,
+  "full_Weil_Zhu_bridge_verified": false,
+  "source_interval_matrix_assembly_independently_reproduced": false
+}

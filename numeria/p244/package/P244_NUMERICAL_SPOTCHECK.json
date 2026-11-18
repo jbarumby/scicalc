@@ -1,0 +1,166 @@
+{
+  "diagnostic_only_float64": true,
+  "beta_float64": 0.0012165183470749241,
+  "sectors": {
+    "even": [
+      {
+        "indices": [
+          0,
+          0
+        ],
+        "degrees": [
+          false,
+          false
+        ],
+        "float64_gl60": -3.3203124381906295,
+        "p237_C_midpoint_approx": -3.3203124381906286,
+        "abs_diff": 8.881784197001252e-16
+      },
+      {
+        "indices": [
+          0,
+          1
+        ],
+        "degrees": [
+          false,
+          2
+        ],
+        "float64_gl60": 0.08978640851094519,
+        "p237_C_midpoint_approx": 0.0897864085109454,
+        "abs_diff": 2.0816681711721685e-16
+      },
+      {
+        "indices": [
+          0,
+          2
+        ],
+        "degrees": [
+          false,
+          4
+        ],
+        "float64_gl60": 0.1893454816995348,
+        "p237_C_midpoint_approx": 0.18934548169953505,
+        "abs_diff": 2.498001805406602e-16
+      },
+      {
+        "indices": [
+          1,
+          1
+        ],
+        "degrees": [
+          2,
+          2
+        ],
+        "float64_gl60": 0.3693768172499099,
+        "p237_C_midpoint_approx": 0.36937681724991056,
+        "abs_diff": 6.661338147750939e-16
+      },
+      {
+        "indices": [
+          1,
+          2
+        ],
+        "degrees": [
+          2,
+          4
+        ],
+        "float64_gl60": 0.42377599752488215,
+        "p237_C_midpoint_approx": 0.42377599752488254,
+        "abs_diff": 3.885780586188048e-16
+      },
+      {
+        "indices": [
+          3,
+          3
+        ],
+        "degrees": [
+          6,
+          6
+        ],
+        "float64_gl60": 0.7231021005549574,
+        "p237_C_midpoint_approx": 0.723102100554959,
+        "abs_diff": 1.6653345369377348e-15
+      }
+    ],
+    "odd": [
+      {
+        "indices": [
+          0,
+          0
+        ],
+        "degrees": [
+          true,
+          true
+        ],
+        "float64_gl60": 0.2655577849978887,
+        "p237_C_midpoint_approx": 0.26555778499788907,
+        "abs_diff": 3.885780586188048e-16
+      },
+      {
+        "indices": [
+          0,
+          1
+        ],
+        "degrees": [
+          true,
+          3
+        ],
+        "float64_gl60": 0.1480927778640148,
+        "p237_C_midpoint_approx": 0.14809277786401442,
+        "abs_diff": 3.885780586188048e-16
+      },
+      {
+        "indices": [
+          0,
+          2
+        ],
+        "degrees": [
+          true,
+          5
+        ],
+        "float64_gl60": 0.18465085325312658,
+        "p237_C_midpoint_approx": 0.18465085325312622,
+        "abs_diff": 3.608224830031759e-16
+      },
+      {
+        "indices": [
+          1,
+          1
+        ],
+        "degrees": [
+          3,
+          3
+        ],
+        "float64_gl60": 0.27972829282981315,
+        "p237_C_midpoint_approx": 0.27972829282981276,
+        "abs_diff": 3.885780586188048e-16
+      },
+      {
+        "indices": [
+          1,
+          2
+        ],
+        "degrees": [
+          3,
+          5
+        ],
+        "float64_gl60": 0.40254039195251357,
+        "p237_C_midpoint_approx": 0.402540391952513,
+        "abs_diff": 5.551115123125783e-16
+      },
+      {
+        "indices": [
+          3,
+          3
+        ],
+        "degrees": [
+          7,
+          7
+        ],
+        "float64_gl60": 0.7660434544269017,
+        "p237_C_midpoint_approx": 0.7660434544269009,
+        "abs_diff": 7.771561172376096e-16
+      }
+    ]
+  }
+}

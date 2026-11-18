@@ -1,0 +1,35 @@
+{
+  "schema": "NUMERIA.ES8P244.EXACT_ANALYTIC_BUDGET_CHECK.1",
+  "parameter_L": "161/200",
+  "Tsharp": 504,
+  "imported_classical_lemmas": [
+    "Binet representation for psi",
+    "Legendre plane wave and Rodrigues",
+    "Bernstein Chebyshev coefficient bound",
+    "Gauss-Legendre 60 exactness and positive weights",
+    "Weil explicit formula / Zhu one-stroke reduction"
+  ],
+  "beta_504_sign_is_imported_from_P237_rational_certificate": true,
+  "digamma_Binet_complex_log_repair": "proved |log(5/4+iy)|<6, 0<=y<=252, using exp(28/5)>253 and pi<22/7",
+  "symbol_M20_rational_bound": "1384/75",
+  "Bernstein_ellipse_rho": 3,
+  "symbol_complex_bound": "274/7 < 50",
+  "GL60_entry_error_factor_exact": "5600/199667811101603467823686647723289448859052847504205678489",
+  "GL60_row_bounds_by_parity": {
+    "even": {
+      "row_error_upper_strict": "4/10^47",
+      "max_mode_amplitude_exact": "84",
+      "sum_mode_amplitudes_sha256": "936258c339bf1cecfd61ee63c724207fd5491f3274ccc8fdc0989765ed6cb0e0",
+      "row_error_sci_illustrative": "3.661198905758e-47"
+    },
+    "odd": {
+      "row_error_upper_strict": "4/10^47",
+      "max_mode_amplitude_exact": "84",
+      "sum_mode_amplitudes_sha256": "00f0787b5863decea364092232501d02336f74caf96980236bb07bc63e5ad572",
+      "row_error_sci_illustrative": "3.657549585347e-47"
+    }
+  },
+  "high_frequency_symbol_excess_strict_lower_bound": "335/169344",
+  "L_0p805_window_weil_positivity_proved_independently": false,
+  "RH_proved": false
+}
