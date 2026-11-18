@@ -1,0 +1,54 @@
+name: NUMERIA P235 - Native Arb 16x16 prime5 interval LDL
+on:
+  pull_request:
+    paths:
+      - numeria/p235_prefix16_native_arb.py
+      - .github/workflows/numeria-p235-prefix16.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  certified-prefix16:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {sector: even, Lnum: 4, Lden: 5, label: L800}
+          - {sector: odd, Lnum: 4, Lden: 5, label: L800}
+          - {sector: even, Lnum: 161, Lden: 200, label: L805}
+          - {sector: odd, Lnum: 161, Lden: 200, label: L805}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install native Arb 0.9.0
+        run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Execute all 1008 GL60 panels for 16x16 real interval matrices
+        run: |
+          python -u numeria/p235_prefix16_native_arb.py --sector ${{ matrix.sector }} --Lnum ${{ matrix.Lnum }} --Lden ${{ matrix.Lden }} --bits 900 --out P235_PREFIX16_ARBITRARY.json
+      - name: Reject incomplete matrix or nonpositive interval LDL
+        run: |
+          python - <<'PY'
+          import json,hashlib
+          p='P235_PREFIX16_ARBITRARY.json'
+          d=json.load(open(p))
+          assert d['schema']=='NUMERIA.ES8P235.ARB_PREFIX16_V1'
+          assert d['bits']==900 and d['N']==16 and d['Tsharp']==504 and d['nodes']==60480
+          assert len(d['interval_R_upper_triangle'])==136
+          assert len(d['interval_ldl_pivot_balls'])==16
+          assert d['interval_ldl_16x16_all_pivots_positive']
+          assert d['quadrature_error_added_once'] and d['quadrature_error_analytic_theorems_imported']
+          assert not d['true_WL_reduction_formalized'] and not d['Riemann_hypothesis_proved']
+          print('VALID 136 interval entries and 16 strict positive LDL pivots')
+          print('SHA256',hashlib.sha256(open(p,'rb').read()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P235-${{ matrix.sector }}-${{ matrix.label }}-Arb-16x16
+          path: P235_PREFIX16_ARBITRARY.json
+          if-no-files-found: warn
