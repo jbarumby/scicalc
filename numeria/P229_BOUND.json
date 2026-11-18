@@ -1,0 +1,37 @@
+{
+  "stage": "NUMERIA ES8-P229 independent GL60 error bounds",
+  "sectors": [
+    {
+      "T": 200,
+      "panel_count": 400,
+      "panel_width": "1/2",
+      "gauss_order": 60,
+      "rho": 3,
+      "uniform_integrand_majorant_exact": "100000",
+      "E_GL_exact": "20000/6738788624679117039049424360661018898993033603266941649",
+      "E_GL_decimal": "2.967892467610E-51",
+      "theorem": "Trefethen 2008, Theorem 4.5, ellipse-analytic Gauss bound",
+      "analytic_bound": "|f_nm(z)| < 100000 on every mapped rho=3 ellipse; proof in README_ES8P229.md",
+      "P193_E_GL_exact": "7965465477735945450631175977651473268579783249279017506396467414867512430812410589202269978980667235930577777615514719325/251441090100188636470466824530393846427225432765591280178644856604853090626292916598416311869586385607660443494060399017118891527960882798325397253869893497916766552064",
+      "P193_E_GL_decimal": "3.167925128929E-47",
+      "new_bound_below_P193": true,
+      "factor_tighter_than_P193_decimal": "1.06739889E+4"
+    },
+    {
+      "T": 150,
+      "panel_count": 300,
+      "panel_width": "1/2",
+      "gauss_order": 60,
+      "rho": 3,
+      "uniform_integrand_majorant_exact": "100000",
+      "E_GL_exact": "5000/2246262874893039013016474786887006299664344534422313883",
+      "E_GL_decimal": "2.225919350707E-51",
+      "theorem": "Trefethen 2008, Theorem 4.5, ellipse-analytic Gauss bound",
+      "analytic_bound": "|f_nm(z)| < 100000 on every mapped rho=3 ellipse; proof in README_ES8P229.md",
+      "P193_E_GL_exact": "262864368018890977147841001033447879382079790670395785309527626165002555127307539324454753569581708141716683871107550833975/11063407964408300004700540279337329242797919041686016327860373690613535987556888330330317722261800966737059513738657556753231227230278843126317479170275313908337728290816",
+      "P193_E_GL_decimal": "2.375980067485E-47",
+      "new_bound_below_P193": true,
+      "factor_tighter_than_P193_decimal": "1.06741516E+4"
+    }
+  ]
+}
