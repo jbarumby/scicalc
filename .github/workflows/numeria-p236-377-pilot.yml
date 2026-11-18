@@ -20,6 +20,10 @@ jobs:
           - {sector: odd, panel: 0, bits: 900}
           - {sector: even, panel: 1007, bits: 900}
           - {sector: odd, panel: 1007, bits: 900}
+          - {sector: even, panel: 503, bits: 900}
+          - {sector: odd, panel: 503, bits: 900}
+          - {sector: even, panel: 1007, bits: 1152}
+          - {sector: odd, panel: 1007, bits: 1152}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
