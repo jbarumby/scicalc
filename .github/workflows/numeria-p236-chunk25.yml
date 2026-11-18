@@ -1,0 +1,54 @@
+name: NUMERIA P236 - Real Arb 377-mode 25-panel batches
+on:
+  pull_request:
+    paths:
+      - 'numeria/p236_377_chunk25.py'
+      - '.github/workflows/numeria-p236-chunk25.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  first-25-panels:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        sector: [even, odd]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --no-cache-dir python-flint==0.9.0
+      - name: Compute 1500 GL60 nodes with 377 modes and all 71253 entries
+        run: |
+          python -u numeria/p236_377_chunk25.py --sector ${{ matrix.sector }} \
+            --start 0 --stop 25 --bits 900 --out P236_25PANELS.json.gz
+      - name: Verify coverage and no false claims
+        run: |
+          python - <<'PY'
+          import gzip,json,hashlib
+          p='P236_25PANELS.json.gz'
+          with gzip.open(p,'rt') as f:d=json.load(f)
+          assert d['schema']=='NUMERIA.ES8P236.ARB_377_25PANEL_CHUNK.1'
+          assert d['flint_version']=='0.9.0' and d['n_modes']==377
+          assert d['panel_range']==[0,25] and d['GL60_node_evaluations']==1500
+          assert d['upper_triangle_count']==71253 and len(d['C_partial_upper_triangle'])==71253
+          assert d['C_partial_upper_triangle'][0][:2]==[0,0]
+          assert d['C_partial_upper_triangle'][-1][:2]==[376,376]
+          assert len(d['first_panel_534_sample'])==534
+          assert not any(d[x] for x in ('whole_integral_computed',
+             'analytic_GL60_error_added','beta_and_poles_added','LDL_tested','RH_proved'))
+          print('PASS true Arb partial chunk and all 71253 entry enclosures')
+          print('SHA256',hashlib.sha256(open(p,'rb').read()).hexdigest())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: P236-377-${{ matrix.sector }}-P000-025
+          path: |
+            P236_25PANELS.json.gz
+            numeria/p236_377_chunk25.py
+          if-no-files-found: warn
