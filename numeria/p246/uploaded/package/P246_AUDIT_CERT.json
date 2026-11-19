@@ -1,0 +1,57 @@
+{
+  "schema": "NUMERIA.P246.INDEPENDENT_UPLOADED_CERT_AUDIT.1",
+  "input_artifacts_hash_pinned": true,
+  "input_artifacts_checked": 9,
+  "archived_p245d_inclusions_verified_rationally": 78,
+  "archived_high_degree_coarse_cases": 18,
+  "p245d_gl60_contributions_reexecuted_from_integrand": false,
+  "p237_analytic_amplitudes_independently_reconstructed": 754,
+  "improved_symbol_bound": "274/7",
+  "old_to_new_error_ratio": "137/175",
+  "GL60_row_errors": {
+    "even": {
+      "modes": 377,
+      "original_row_budget_approx": "3.661198905758e-47",
+      "strengthened_row_budget_approx": "2.866195714793e-47",
+      "strengthened_below_4e-47": true,
+      "ratio_new_old_exact": "137/175"
+    },
+    "odd": {
+      "modes": 377,
+      "original_row_budget_approx": "3.657549585347e-47",
+      "strengthened_row_budget_approx": "2.863338818243e-47",
+      "strengthened_below_4e-47": true,
+      "ratio_new_old_exact": "137/175"
+    }
+  },
+  "blocks": [
+    {
+      "panel_range": [
+        25,
+        50
+      ],
+      "archived_inclusions": 26,
+      "original_chunk_sha256_pinned_but_bytes_unavailable": true
+    },
+    {
+      "panel_range": [
+        500,
+        525
+      ],
+      "archived_inclusions": 26,
+      "original_chunk_sha256_pinned_but_bytes_unavailable": true
+    },
+    {
+      "panel_range": [
+        975,
+        1000
+      ],
+      "archived_inclusions": 26,
+      "original_chunk_sha256_pinned_but_bytes_unavailable": true
+    }
+  ],
+  "p237_chunk_reference_blobs_available": false,
+  "full_142506_entries_reconstructed": false,
+  "Weil_Zhu_identity_proved": false,
+  "RH_proved": false
+}

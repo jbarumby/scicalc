@@ -1,0 +1,58 @@
+{
+  "schema": "NUMERIA.P246.REPLAY_REPRODUCTION_AUDIT.1",
+  "verified_chunk_blobs": 6,
+  "root_brackets_sha256": "bf3a05df56b98e7a947eed516e25e8342a473d3c9aa01f3d194a582580742218",
+  "blocks": [
+    {
+      "panel_range": [
+        25,
+        50
+      ],
+      "recomputed_selected_sums": 26,
+      "fresh_interval_exact_matches": 26,
+      "high_degree_376_cases": 6,
+      "chunk_sha256": {
+        "even": "3903e507a9b7c492cdab22b8a290481d43593d69d9ca0f8fde9fb80cb6d73da8",
+        "odd": "ff0f5256cd92893ee2b27c2753b9c97e8a17c43e55c92c8c76c908beb899eeda"
+      },
+      "replay_json_sha256": "40ba13381884c5e11db58aa95014053a2affaf11a4b1eb76122dba02ffbe037b"
+    },
+    {
+      "panel_range": [
+        500,
+        525
+      ],
+      "recomputed_selected_sums": 26,
+      "fresh_interval_exact_matches": 26,
+      "high_degree_376_cases": 6,
+      "chunk_sha256": {
+        "even": "b448bcaad18577b10a056970c0e277873f316b9b8ff35dffb6f09e4547505d71",
+        "odd": "0380e8986f374d00fcf97f6b4d851cffbd596db89a518ae71b7eb983bf484607"
+      },
+      "replay_json_sha256": "597ea1038dc99f0a71074f33f1be27922f2a5e15011f5e5e447f656f604e1cd2"
+    },
+    {
+      "panel_range": [
+        975,
+        1000
+      ],
+      "recomputed_selected_sums": 26,
+      "fresh_interval_exact_matches": 26,
+      "high_degree_376_cases": 6,
+      "chunk_sha256": {
+        "even": "7a7d4f3290c0ff4a14a728af37af322bc723cb73bd9c92f5f012b12d7c49ed2a",
+        "odd": "d26488fdf2af0b26fa3bd7c0e7b767824c202432265b13e697979143cdc344be"
+      },
+      "replay_json_sha256": "719af5bf1937fa0bb584c1db436f1501a27196e5ecbeb8b9229e0ddb40140e53"
+    }
+  ],
+  "total_selected_sums_recomputed": 78,
+  "exact_replay_interval_matches": 78,
+  "coarse_degree_376_cases": 18,
+  "all_six_chunk_hashes_match_uploaded_pins": true,
+  "p237_analytic_gates_regenerated_structurally_equal": true,
+  "p237_gl60_analytic_certificate_regenerated_structurally_equal": true,
+  "full_377_by_377_matrix_recomputed": false,
+  "full_Weil_Zhu_identity_proved": false,
+  "RH_proved": false
+}
