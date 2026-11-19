@@ -1,0 +1,559 @@
+{
+  "schema": "NUMERIA.ES8P245C.FIRST_25_PANEL_RATIONAL_REPLAY.1",
+  "parameters": {
+    "L": "161/200",
+    "Tsharp": 504,
+    "panels": [
+      0,
+      25
+    ],
+    "nodes_per_panel": 60,
+    "precision_bits": 256,
+    "modes_per_parity": 377
+  },
+  "source_root_brackets_sha256": "bf3a05df56b98e7a947eed516e25e8342a473d3c9aa01f3d194a582580742218",
+  "method": "fixed point outward 256 bits, classical digamma-Binet and Bessel series",
+  "source_chunks": {
+    "even": "6cfc2d3080389751b08d62dbdcdabdbd16a8be64ea5b23993dac0f27f61383f5",
+    "odd": "76a7c147bf805fca4b67f65cbfd01464cf95134b30e990d3b5f24226a4de1f3d"
+  },
+  "selected_pairs_per_sector": 13,
+  "all_panel_pair_evaluations": 650,
+  "verified_chunk_sum_enclosures": 26,
+  "chunk_sums": [
+    {
+      "sector": "even",
+      "source_hash": "6cfc2d3080389751b08d62dbdcdabdbd16a8be64ea5b23993dac0f27f61383f5",
+      "interval_pairs": [
+        {
+          "pair": [
+            0,
+            0
+          ],
+          "Legendre_degrees": [
+            0,
+            0
+          ],
+          "interval": {
+            "lower": "-393431355986424199179114422395324290080740570102560467544856622738008910430851",
+            "upper": "-393431355986424199179114422395324290080740568596698906936073801166592908870700",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            1
+          ],
+          "Legendre_degrees": [
+            0,
+            2
+          ],
+          "interval": {
+            "lower": "-9442655636850380555901596903084695166010299255253793347186856151141483199929",
+            "upper": "-9442655636850380555901596903084695166010298691924443469937672763094026775207",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            2
+          ],
+          "Legendre_degrees": [
+            0,
+            4
+          ],
+          "interval": {
+            "lower": "-1137432279758352030621057618986975908708449143007880872131599054857141881210",
+            "upper": "-1137432279758352030621057618986975908708448866194915047832168481048796184743",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            3
+          ],
+          "Legendre_degrees": [
+            0,
+            6
+          ],
+          "interval": {
+            "lower": "-1496757017114713795827032755434582589167024960437922834983837382823529916812",
+            "upper": "-1496757017114713795827032755434582589167024777297600775841766996251681755851",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            1
+          ],
+          "Legendre_degrees": [
+            2,
+            2
+          ],
+          "interval": {
+            "lower": "-1567771192492335796284877720329265238760919474236246803292485128053703650244",
+            "upper": "-1567771192492335796284877720329265238760918253566093338595648607659922223860",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            2
+          ],
+          "Legendre_degrees": [
+            2,
+            4
+          ],
+          "interval": {
+            "lower": "-3870314021319845656862382175605133365423794284433525051287388234830940284546",
+            "upper": "-3870314021319845656862382175605133365423793582139562632919948877099834100573",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            2,
+            2
+          ],
+          "Legendre_degrees": [
+            4,
+            4
+          ],
+          "interval": {
+            "lower": "-7660185972168745280969241729222925996099281630949966306203446832519203513614",
+            "upper": "-7660185972168745280969241729222925996099280600492286733680452496284337543128",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            3,
+            3
+          ],
+          "Legendre_degrees": [
+            6,
+            6
+          ],
+          "interval": {
+            "lower": "-630963432084723142680042945951294844981219683871220361398867205537564820985",
+            "upper": "-630963432084723142680042945951294844981218837314477753756045723166113936568",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            16
+          ],
+          "Legendre_degrees": [
+            0,
+            32
+          ],
+          "interval": {
+            "lower": "1112564967784316762797965442144792236373830684463683924266123",
+            "upper": "1112564967784316762797965442146153753256821879701557820244713",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            16,
+            16
+          ],
+          "Legendre_degrees": [
+            32,
+            32
+          ],
+          "interval": {
+            "lower": "-4110884294518841340376863238016851402051746513138",
+            "upper": "-4110884294518841340376863238014852213097004429332",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            376
+          ],
+          "Legendre_degrees": [
+            0,
+            752
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            376
+          ],
+          "Legendre_degrees": [
+            2,
+            752
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            376,
+            376
+          ],
+          "Legendre_degrees": [
+            752,
+            752
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        }
+      ]
+    },
+    {
+      "sector": "odd",
+      "source_hash": "76a7c147bf805fca4b67f65cbfd01464cf95134b30e990d3b5f24226a4de1f3d",
+      "interval_pairs": [
+        {
+          "pair": [
+            0,
+            0
+          ],
+          "Legendre_degrees": [
+            1,
+            1
+          ],
+          "interval": {
+            "lower": "19175883275329308446102677464721350845765103279944273279401824755029119115337",
+            "upper": "19175883275329308446102677464721350845765104624299641028485551894744772962154",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            1
+          ],
+          "Legendre_degrees": [
+            1,
+            3
+          ],
+          "interval": {
+            "lower": "-566353540638379818269525410537016193948568975785477438241615861176691882159",
+            "upper": "-566353540638379818269525410537016193948568254674743746590840592613468316096",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            2
+          ],
+          "Legendre_degrees": [
+            1,
+            5
+          ],
+          "interval": {
+            "lower": "2699004028315828818775341949408931952463568579480401399642936646233051883329",
+            "upper": "2699004028315828818775341949408931952463568969949875381538154550718644832198",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            3
+          ],
+          "Legendre_degrees": [
+            1,
+            7
+          ],
+          "interval": {
+            "lower": "4481355537449695577086975803168173166081598345180388147796227025527124271133",
+            "upper": "4481355537449695577086975803168173166081598608746777848310354944937405407824",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            1
+          ],
+          "Legendre_degrees": [
+            3,
+            3
+          ],
+          "interval": {
+            "lower": "451871232794371286001488859292166391727619943430763298498883435734091506076",
+            "upper": "451871232794371286001488859292166391727621088290942149142646441254358734177",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            2
+          ],
+          "Legendre_degrees": [
+            3,
+            5
+          ],
+          "interval": {
+            "lower": "3659769454736556010732445913665578285935542467318582974054547704979400121297",
+            "upper": "3659769454736556010732445913665578285935543142163605056273215751567793902201",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            2,
+            2
+          ],
+          "Legendre_degrees": [
+            5,
+            5
+          ],
+          "interval": {
+            "lower": "755822588782427366257979142934800578079142492202882229936074946245524513559",
+            "upper": "755822588782427366257979142934800578079143385991764496610125832484764032763",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            3,
+            3
+          ],
+          "Legendre_degrees": [
+            7,
+            7
+          ],
+          "interval": {
+            "lower": "-12048019618221351307435589110840736097063451274259684543087051289169278769237",
+            "upper": "-12048019618221351307435589110840736097063450555250693119228013975337418048837",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            16
+          ],
+          "Legendre_degrees": [
+            1,
+            33
+          ],
+          "interval": {
+            "lower": "-14399795374269306724895655583708782182083267037233303414148125",
+            "upper": "-14399795374269306724895655583629543661550320326374597355558499",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            16,
+            16
+          ],
+          "Legendre_degrees": [
+            33,
+            33
+          ],
+          "interval": {
+            "lower": "-82063791341641547145326469760571922531156054333",
+            "upper": "-82063791341641547145326469757482404384932551025",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            0,
+            376
+          ],
+          "Legendre_degrees": [
+            1,
+            753
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            1,
+            376
+          ],
+          "Legendre_degrees": [
+            3,
+            753
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        },
+        {
+          "pair": [
+            376,
+            376
+          ],
+          "Legendre_degrees": [
+            753,
+            753
+          ],
+          "interval": {
+            "lower": "-1500",
+            "upper": "1500",
+            "scale_power_of_two": 256
+          },
+          "source_interval_contained": true
+        }
+      ]
+    }
+  ],
+  "panel_records": [
+    {
+      "panel": 0,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 1,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 2,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 3,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 4,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 5,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 6,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 7,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 8,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 9,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 10,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 11,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 12,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 13,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 14,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 15,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 16,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 17,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 18,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 19,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 20,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 21,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 22,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 23,
+      "entries_recomputed": 26
+    },
+    {
+      "panel": 24,
+      "entries_recomputed": 26
+    }
+  ],
+  "actual_integrals_fully_certified": false,
+  "GL60_analytic_remainder_verified_from_first_principles": false,
+  "all_142506_entries_certified_independently": false,
+  "RH_proved": false
+}
