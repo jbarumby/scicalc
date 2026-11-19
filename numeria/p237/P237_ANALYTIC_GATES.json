@@ -1,0 +1,48 @@
+{
+  "schema": "NUMERIA.ES8P237.ANALYTIC_GATES.2",
+  "status": "exact_rational_geometry_verified_classical_analytic_identities_imported",
+  "L": "161/200",
+  "Tsharp": 504,
+  "Bernstein_rho": 3,
+  "panels": 1008,
+  "t_real_abs_upper": "3025/6",
+  "t_imag_abs_upper": "1/3",
+  "digamma_real_range": [
+    "1/12",
+    "5/12"
+  ],
+  "digamma_imag_abs_upper": "3025/12",
+  "digamma_modulus_l1_upper": "505/2",
+  "bessel_Lt_real_abs_upper": "19481/48",
+  "bessel_Lt_imag_abs_upper": "161/600",
+  "bessel_Lt_modulus_squared_upper": "237193454309/1440000",
+  "bessel_Lt_modulus_upper": 406,
+  "uniform_exp_upper_from_geometric_series": "600/439",
+  "checks": {
+    "ellipse_real_semiaxis_5_over_3": true,
+    "ellipse_imag_semiaxis_4_over_3": true,
+    "t_real_max_3025_over_6": true,
+    "t_imag_max_1_over_3": true,
+    "digamma_real_min_1_over_12": true,
+    "digamma_real_max_5_over_12": true,
+    "digamma_modulus_lt_253": true,
+    "bessel_real_bound_19481_over_48": true,
+    "bessel_imag_bound_161_over_600": true,
+    "bessel_imag_lt_one_half": true,
+    "bessel_modulus_lt_406": true,
+    "uniform_exponential_bound_lt_2": true,
+    "panel_count_1008": true,
+    "even_mode_count_377": true,
+    "odd_mode_count_377": true
+  },
+  "analytic_inputs": [
+    "digamma partial-fraction identity and conjugation",
+    "spherical-Bessel plane-wave and Rodrigues integral identities",
+    "Legendre orthogonality",
+    "Chebyshev coefficient bound on Bernstein ellipses",
+    "Gauss-Legendre exactness and positive weights"
+  ],
+  "Weil_Zhu_identity_verified": false,
+  "infinite_dimensional_Weil_positivity_proved": false,
+  "RH_proved": false
+}
