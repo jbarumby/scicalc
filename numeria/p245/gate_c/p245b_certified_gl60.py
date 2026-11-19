@@ -11,18 +11,20 @@ panels 0,503,1007. High-degree enclosures are coarse Bessel majorants.  This doe
 identification with the Weil/Zhu quadratic form.
 """
 from __future__ import annotations
-import argparse, hashlib, json, math, sys
+import argparse, hashlib, json, math, os, sys
 from fractions import Fraction as Q
 from pathlib import Path
 from functools import lru_cache
 
-PREC = 256
+PREC = int(os.environ.get('NUMERIA_P245_FIXED_PRECISION', '256'))
+if PREC not in (256, 512):
+    raise ValueError('supported fixed-point precisions are 256 or 512 bits')
 S = 1 << PREC
 ROOT_PREC = 224
 ROOT_SCALE = 1 << ROOT_PREC
 TAYLOR_N = 100
-LOG_N = 115
-BERNOULLI_K = 30
+LOG_N = 115 if PREC == 256 else 205
+BERNOULLI_K = 30 if PREC == 256 else 45
 SHIFT = 512
 PAIRS = ((0, 0), (0, 1), (1, 1), (0, 16), (16, 16),
          (0, 376), (1, 376), (376, 376))
@@ -248,7 +250,7 @@ def bessel_small_arg_series(x,n):
     """j_n on 0<x<1 via a signed power series with proven tail <1 ulp."""
     x=iv(x)
     if x.l<=0 or x.u>=S: raise ValueError('small-argument series only for 0<x<1')
-    K=32
+    K=32 if PREC==256 else 64
     x2=x*x
     term=iv(1); sm=term
     for j in range(1,K):
@@ -365,7 +367,7 @@ def compute_all(source_dir:Path,root_file:Path|None=None):
     L=iv(Q(161,200))
     norms=[(2*L*(2*n+1)).sqrt() for n in (0,1,2,3,32,33)]
     report={'schema':'NUMERIA.ES8P245B.EXACT_FIXEDPOINT_GL60_SPOTCERT.1',
-            'proof_arithmetic':'Python arbitrary-size integers directed 256-bit fixed-point; exact Fraction sign/root isolation',
+            'proof_arithmetic':f'Python arbitrary-size integers directed {PREC}-bit fixed-point; exact Fraction sign/root isolation',
             'root_input':'pinned integer root brackets (no mpmath at audit time)' if root_file is not None else 'mpmath guesses, rigorously isolated',
             'root_brackets_sha256':hashlib.sha256(root_file.read_bytes()).hexdigest() if root_file else None,
             'parameters':{'L':'161/200','T':504,'GL_nodes':60,'precision_bits':PREC,
@@ -402,7 +404,7 @@ def compute_all(source_dir:Path,root_file:Path|None=None):
         for par in (0,1):
             rec=verify_against_pilot(panel,par,vals[par],source_dir)
             # Exact-rational high-degree magnitude bounds are FAR sharper
-            # than the common 256-bit zero-centered intervals for tiny modes.
+            # than the common zero-centered intervals for tiny modes.
             src_map=json.loads((source_dir/rec['source_file']).read_text())
             sampled={(i,j):b for i,j,b in src_map['gauss_interval_matrix_sample']}
             rec['high_degree_magnitude_bounds']=[]
