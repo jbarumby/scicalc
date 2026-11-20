@@ -10,6 +10,7 @@ import numpy as np
 
 from .interval_audit import run_audit
 from .interval_fft import toeplitz_matvec_arb
+from .legendre_tail import reduced_tail_report
 from .p236_replay import panel_cell_lags, replay_p236_archive, replay_panel
 from .prime_operator import (
     P236_HALF_WIDTH,
@@ -104,6 +105,8 @@ def _replay_report(panel, degrees, archive):
 
 
 def run_trial():
+    audit = run_audit()
+    tail_cutoff = audit['p236_tail_start']['certified_range'][0]
     panels = []
     for panel, suffix in PANELS.items():
         replays = [
@@ -118,7 +121,8 @@ def run_trial():
         'prime_powers': P236_PRIME_POWERS,
         'panel_cells': CELL_COUNT,
         'panel_precision_bits': REPLAY_PRECISION,
-        'audit': run_audit(),
+        'audit': audit,
+        'reduced_cutoff_modal_tail': reduced_tail_report(tail_cutoff),
         'p236_panels': panels,
         'scope': {
             'signed_tail_extension_uses_archimedean_lower_bound': True,

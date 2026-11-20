@@ -1863,6 +1863,17 @@
       }
     ]
   },
+  "reduced_cutoff_modal_tail": {
+    "cutoff": 309,
+    "symbol_abs_strict_upper_assumed": 20,
+    "modes_per_parity": 259,
+    "first_discarded_degrees": {
+      "even": 518,
+      "odd": 519
+    },
+    "coupling_norm_strict_upper": "1e-90",
+    "tail_deviation_norm_strict_upper": "1e-190"
+  },
   "p236_panels": [
     {
       "panel": 0,

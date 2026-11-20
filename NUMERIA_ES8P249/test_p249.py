@@ -17,6 +17,7 @@ from NUMERIA_ES8P249.interval_audit import (
     prime_shift_matvec_arb,
 )
 from NUMERIA_ES8P249.interval_fft import toeplitz_matvec_arb
+from NUMERIA_ES8P249.legendre_tail import modal_tail_bounds
 from NUMERIA_ES8P249.p236_replay import panel_cell_lags, replay_panel
 from NUMERIA_ES8P249.prime_operator import (
     P236_HALF_WIDTH,
@@ -313,6 +314,25 @@ class ArbAuditTests(unittest.TestCase):
                         self.assertTrue(entry["grid_residual"].contains(0))
                     else:
                         self.assertLess(abs(entry["grid_residual"]).upper(), entry["grid_bound"].lower())
+
+
+class ModalTailTests(unittest.TestCase):
+    def test_reduced_cutoff_and_archived_cutoff_meet_rational_budgets(self):
+        coupling_budget = Fraction(1, 10**180)
+        tail_budget = Fraction(1, 10**190)
+        for cutoff, modes in ((309, 259), (504, 377)):
+            for parity in (0, 1):
+                with self.subTest(cutoff=cutoff, modes=modes, parity=parity):
+                    coupling_sq, deviation = modal_tail_bounds(cutoff, modes, parity)
+                    self.assertIsInstance(coupling_sq, Fraction)
+                    self.assertIsInstance(deviation, Fraction)
+                    self.assertTrue(0 < coupling_sq < coupling_budget)
+                    self.assertTrue(0 < deviation < tail_budget)
+
+    def test_deviation_bound_with_258_modes_does_not_meet_budget_for_both_parities(self):
+        tail_budget = Fraction(1, 10**190)
+        deviations = [modal_tail_bounds(309, 258, parity)[1] for parity in (0, 1)]
+        self.assertGreaterEqual(max(deviations), tail_budget)
 
 
 if __name__ == "__main__":
