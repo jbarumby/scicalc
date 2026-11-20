@@ -11,6 +11,8 @@ from tempfile import TemporaryDirectory
 
 from flint import ctx
 
+from NUMERIA_ES8P249.legendre_tail import HALF_WIDTH, fixed_symbol_half_width
+
 from .finite_head import load_aggregate
 from .finite_head_certify import assemble_finite_head
 from .finite_head_quadrature import CUTOFF, MODES, SECTORS
@@ -80,9 +82,10 @@ def _weyl_margin(inverse_squared, perturbation):
     return margin
 
 
-def replay(path, *, compiler="cc"):
+def replay(path, *, compiler="cc", half_width=HALF_WIDTH, modes=MODES):
     """Audit positivity of the recorded GL60 box with independent C arithmetic."""
-    quadratures, _, input_hash = load_aggregate(path)
+    half_width = fixed_symbol_half_width(half_width)
+    quadratures, _, input_hash = load_aggregate(path, half_width=half_width, modes=modes)
 
     source_bytes = P242_SOURCE.read_bytes()
     source_hash = sha256(source_bytes).hexdigest()
@@ -103,18 +106,18 @@ def replay(path, *, compiler="cc"):
         for sector, quadrature in zip(SECTORS, quadratures, strict=True):
             centers, trace = work / f"{sector}-centers.txt", work / f"{sector}-mpfr.txt"
             with ctx.workprec(PRECISION_BITS):
-                assembled, metadata = assemble_finite_head(quadrature, sector, cutoff=CUTOFF)
+                assembled, metadata = assemble_finite_head(quadrature, sector, cutoff=CUTOFF, half_width=half_width)
                 radius_row_upper = _export_centers(assembled, centers)
-            subprocess.run([str(binary), str(centers), str(trace), str(PRECISION_BITS), str(MODES)], check=True)
+            subprocess.run([str(binary), str(centers), str(trace), str(PRECISION_BITS), str(modes)], check=True)
             trace_bytes = trace.read_bytes()
-            minimum_pivot, inverse_bound = _read_trace(trace_bytes, MODES)
+            minimum_pivot, inverse_bound = _read_trace(trace_bytes, modes)
             gl60_upper = metadata["gl60_error_budget"]["row_sum_bound"]
             perturbation = radius_row_upper + gl60_upper
             margin = _weyl_margin(_dyadic(inverse_bound), perturbation)
             sectors[sector] = {
                 "center_dyadics_sha256": sha256(centers.read_bytes()).hexdigest(),
                 "mpfr_trace_sha256": sha256(trace_bytes).hexdigest(),
-                "positive_pivot_count": MODES,
+                "positive_pivot_count": modes,
                 "minimum_pivot_lower_dyadic": minimum_pivot,
                 "inverse_frobenius_squared_upper_dyadic": inverse_bound,
                 "quadrature_and_assembly_radius_row_upper_exact": str(radius_row_upper),
@@ -123,12 +126,12 @@ def replay(path, *, compiler="cc"):
                 "exact_weyl_inequality_verified": True,
             }
 
-    return {
+    report = {
         "schema": SCHEMA,
         "input_GL60_aggregate_sha256": input_hash,
         "p242_c_source_sha256": source_hash,
         "cutoff": CUTOFF,
-        "modes_per_sector": MODES,
+        "modes_per_sector": modes,
         "assembly_precision_bits": PRECISION_BITS,
         "MPFR_precision_bits": PRECISION_BITS,
         "positive_pivot_count": sum(data["positive_pivot_count"] for data in sectors.values()),
@@ -138,6 +141,9 @@ def replay(path, *, compiler="cc"):
         "assumes_classical_P237_GL60_E3_budget": True,
         "Riemann_hypothesis_proved": False,
     }
+    if half_width != HALF_WIDTH:
+        report["L"] = str(half_width)
+    return report
 
 
 def main():
@@ -145,8 +151,10 @@ def main():
     parser.add_argument("--matrix", type=Path, required=True, help="aggregate GL60 matrix file")
     parser.add_argument("--out", type=Path, required=True, help="independent replay JSON")
     parser.add_argument("--cc", default="cc", help="C compiler executable")
+    parser.add_argument("--half-width", type=Fraction, default=HALF_WIDTH)
+    parser.add_argument("--modes", type=int, default=MODES)
     args = parser.parse_args()
-    report = replay(args.matrix, compiler=args.cc)
+    report = replay(args.matrix, compiler=args.cc, half_width=args.half_width, modes=args.modes)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
