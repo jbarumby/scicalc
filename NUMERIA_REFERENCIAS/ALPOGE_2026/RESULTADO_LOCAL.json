@@ -1,0 +1,56 @@
+{
+  "source": {
+    "sha256": "9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc",
+    "bytes": 239275554,
+    "lean_source_files": 175187,
+    "lean_source_lines": 17374215,
+    "lean_source_bytes": 1030531854,
+    "files_by_top_level": {
+      "BuildAid": 5,
+      "CompanionTheory": 2027,
+      "Development": 141928,
+      "Formalism": 18254,
+      "GroundTheory": 8507,
+      "Lemmata": 167,
+      "Main.lean": 1,
+      "PositivityTheory": 449,
+      "ReciprocityTheory": 3845,
+      "Statements.lean": 1,
+      "Supplements": 3
+    },
+    "text_matching_file_counts": {
+      "placeholder_terms": 0,
+      "axiom_commands": 0,
+      "native_decide_terms": 0,
+      "addDecl_terms": 1
+    },
+    "first_text_matches": {
+      "addDecl_terms": "src/Formalism/HermitianCurvature/HermitianCurvatureProofs/CutCptCopy.lean"
+    },
+    "key_file_sha256": {
+      "lake-manifest.json": "fee57ee9ed399d0a638ca955e5ad40a37a36eeb9b6dfd9f5964114fa7bbe4774",
+      "lakefile.toml": "b831ad8cac0babb7bf713433259bdfe5163e58c90734e86d71536d4e30ddec4c",
+      "lean-toolchain": "3aac669c7a910ec2389f4e4f921b605adf6ebf2d1e0c9b9cd0be4d33f3f5db71",
+      "src/Development/AutomorphicArithmetic/CharacterBoxes/EveryCharacter.lean": "31f6e49936226cfc3d71b15685347bd2874db0aef384e5cf4fea7d09ba68dc71",
+      "src/Formalism/GammaFactorNonvanishing/CritLine.lean": "5b1552ac13442150f6900f37b9b44eff1491fad1bebe2ec07a959eecb9bcfe02",
+      "src/Formalism/GammaFactorNonvanishing/RhOfRight.lean": "7e2c0b519ee420192cad8fb281c2d2bfebae2ba553342fd579c81c2aa0bd3dc5",
+      "src/Main.lean": "017645ca448f2fd1f6fd5c4c2cb2c6e96e472725be13f6e180ca6e1574360939",
+      "src/Statements.lean": "79ef7ca776e42abe1f46caee13ea09bd19f1e2d0b1620d8d5d200258f33b47bf",
+      "src/Supplements/Kernels/MainTheorems.lean": "1e734200b9b6a6d2a968743bd0c433d614bd6606cf538ac6d4f0ff70044dde53",
+      "src/Supplements/Kernels/MainTheoremsAll.lean": "a209a6a2f6ea1cc4abe865996b909bfeef391adcb89d3a948858874cb5956fec"
+    }
+  },
+  "challenge": {
+    "sha256": "bd484ac9886a96f26b1d9a7a59ebd45b7a70d102c015d4f31f9302bbdd6ab2b9",
+    "bytes": 350862311,
+    "statement_types": {
+      "riemannHypothesis": "RiemannHypothesis",
+      "riemannZeta_eq_zero_re": "RiemannZetaZerosOnLine",
+      "LFunction_ne_zero_of_half_lt_re": "DirichletLNonvanishingRightOfHalf",
+      "LFunction_eq_zero_re": "DirichletLZerosOnLine",
+      "LFunction_eq_zero_re_of_isPrimitive": "PrimitiveDirichletLZerosOnLine"
+    },
+    "challenge_declares_sorryAx": true,
+    "scope": "constant/type inspection only; this is the challenge, not the solution"
+  }
+}
