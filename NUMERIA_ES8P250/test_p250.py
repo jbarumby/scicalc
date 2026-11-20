@@ -1,5 +1,6 @@
 """Regression and adversarial checks for P250, with no floating-point sign decisions."""
 import json
+import hashlib
 from fractions import Fraction as F
 from pathlib import Path
 import unittest
@@ -7,17 +8,19 @@ import unittest
 from .adaptive_signed_tail import (BETA_CUTOFF, CERT_CUTOFF, NEGATIVE_WITNESS,
                                    SignedSymbol, adaptive_search, load_p245b, run)
 
-DATA=Path(__file__).with_name('P250_CERT.json')
+EXPECTED_CERT_SHA256='2bde93ccce25b8d2a1c6e59b49bcce43475fb2c7bc83366edaa1a19b7d4efe38'
 
 class P250Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.arith=load_p245b()
         cls.symbol=SignedSymbol(cls.arith)
-        cls.cert=json.loads(DATA.read_text())
+        cls.cert=run()
 
     def test_full_certification_replays_deterministically(self):
         self.assertEqual(run(), self.cert)
+        wire=json.dumps(self.cert,indent=2,ensure_ascii=False)+"\n"
+        self.assertEqual(hashlib.sha256(wire.encode()).hexdigest(), EXPECTED_CERT_SHA256)
 
     def test_exact_cover_no_missing_or_overlapping_cells(self):
         leaves=self.cert['leaves']
