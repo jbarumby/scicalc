@@ -9,6 +9,7 @@ from flint import acb, arb, ctx, fmpq
 import numpy as np
 
 from NUMERIA_ES8P249.interval_audit import (
+    audit_constant_rayleigh,
     audit_fft_vector,
     certify_cancellation_shells,
     certify_p236_tail_start,
@@ -205,6 +206,19 @@ class OscillationTests(unittest.TestCase):
 
 
 class ArbAuditTests(unittest.TestCase):
+    def test_p248_constant_rayleigh_is_independent_of_grid_size(self):
+        one_cell = audit_constant_rayleigh(1)
+        lower_reference = Fraction('1.05798304576502875357447158043965')
+        upper_reference = Fraction('1.05798304576502875357447158043966')
+        for cells in (7, 128):
+            with self.subTest(cells=cells):
+                report = audit_constant_rayleigh(cells)
+                self.assertEqual(report['direct_overlap_dyadic'], one_cell['direct_overlap_dyadic'])
+                lower, upper = map(decode_dyadic, report['cell_fft_dyadic'])
+                self.assertLess(lower_reference, lower)
+                self.assertLess(upper, upper_reference)
+                self.assertLess(decode_dyadic(report['abs_difference_upper_dyadic']), Fraction(2) ** -140)
+
     def test_outward_fft_contains_exact_dense_complex_actions(self):
         dimension = 7
         radius = arb(1) / 64

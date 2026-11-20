@@ -10,6 +10,7 @@ import numpy as np
 import flint
 from flint import arb, ctx
 
+from .interval_fft import toeplitz_matvec_arb
 from .prime_operator import P236_HALF_WIDTH, P236_PRIME_POWERS, PrimeShiftOperator
 
 
@@ -107,6 +108,36 @@ def audit_fft_vector(vector, *, half_width=P236_HALF_WIDTH, powers=P236_PRIME_PO
                 }
                 for approximation, enclosure, error in zip(approximate, exact, errors, strict=True)
             ],
+        }
+
+
+def audit_constant_rayleigh(cells=128, *, half_width=P236_HALF_WIDTH,
+                            powers=P236_PRIME_POWERS, precision_bits=160):
+    """Check the P248 normalized constant's Rayleigh quotient by two routes."""
+    cells, precision_bits = index(cells), index(precision_bits)
+    half_width = Fraction(half_width)
+    if cells < 1 or half_width <= 0 or precision_bits < 53:
+        raise ValueError('use positive cells and half-width and at least 53 bits')
+    powers = tuple(powers)
+    with ctx.workprec(precision_bits):
+        length = arb(2 * half_width.numerator) / half_width.denominator
+        zero = arb(0)
+        # The full-window indicator has overlap fraction (1 - shift/length)_+.
+        direct = sum((a * (1 - shift / length).max(zero) for a, shift in _arb_prime_terms(powers)), zero)
+        lags = prime_shift_lags_arb(cells, half_width, powers)
+        # Applying to ones and dividing the sum by N accounts for both 1/sqrt(N) factors.
+        action = toeplitz_matvec_arb(lags, [1] * cells, precision_bits=precision_bits)
+        via_fft = sum((value.real for value in action), zero) / cells
+        difference = via_fft - direct
+        if not difference.contains(0):
+            raise ArithmeticError('the direct overlap and cell FFT Rayleigh bounds are disjoint')
+        return {
+            'cells': cells,
+            'half_width': str(half_width),
+            'precision_bits': precision_bits,
+            'direct_overlap_dyadic': [_dyadic(direct.lower()), _dyadic(direct.upper())],
+            'cell_fft_dyadic': [_dyadic(via_fft.lower()), _dyadic(via_fft.upper())],
+            'abs_difference_upper_dyadic': _dyadic(difference.abs_upper()),
         }
 
 
@@ -239,6 +270,7 @@ def run_audit():
         "python_flint_version": flint.__version__,
         "numpy_version": np.__version__,
         "fft_vector": audit_fft_vector(vector),
+        "constant_rayleigh_p248": audit_constant_rayleigh(),
         "cancellation": certify_cancellation_shells(),
         "p236_tail_start": certify_p236_tail_start(),
         "p236_tail_coarser": [certify_p236_tail_start(subdivisions_per_unit=n) for n in (32, 64)],
