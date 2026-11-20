@@ -1,0 +1,219 @@
+{
+  "schema": "NUMERIA.ES8P251.GATE_B.INTERNAL_PANEL_SCALAR_CROSSCHECK.1",
+  "panel_range": [
+    200,
+    201
+  ],
+  "modes_per_parity": 2,
+  "GL60_nodes": 60,
+  "matrix_precision_bits": 256,
+  "scalar_reference_precision_bits": 384,
+  "root_brackets_sha256": "bf3a05df56b98e7a947eed516e25e8342a473d3c9aa01f3d194a582580742218",
+  "reference_method": "authenticated rational P245 GL60 root brackets; direct scalar formulas for j0..j3; beta identity rewritten with sin^2",
+  "production_method": "P251 quadrature_chunk; Arb-native GL60 roots and downward spherical-Bessel recurrence",
+  "sectors": [
+    {
+      "sector": "even",
+      "entries": [
+        {
+          "pair": [
+            0,
+            0
+          ],
+          "Legendre_degrees": [
+            0,
+            0
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "3211940164133185",
+              "-65"
+            ],
+            [
+              "6423880328266563",
+              "-66"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "3211940164133207",
+              "-65"
+            ],
+            [
+              "6423880328266415",
+              "-66"
+            ]
+          ],
+          "intervals_overlap": true
+        },
+        {
+          "pair": [
+            0,
+            1
+          ],
+          "Legendre_degrees": [
+            0,
+            2
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "3503087128535847",
+              "-64"
+            ],
+            [
+              "7006174257071913",
+              "-65"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "7006174257071743",
+              "-65"
+            ],
+            [
+              "54735736383373",
+              "-58"
+            ]
+          ],
+          "intervals_overlap": true
+        },
+        {
+          "pair": [
+            1,
+            1
+          ],
+          "Legendre_degrees": [
+            2,
+            2
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "7641550484953107",
+              "-64"
+            ],
+            [
+              "7641550484953355",
+              "-64"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "1910387621238291",
+              "-62"
+            ],
+            [
+              "7641550484953165",
+              "-64"
+            ]
+          ],
+          "intervals_overlap": true
+        }
+      ]
+    },
+    {
+      "sector": "odd",
+      "entries": [
+        {
+          "pair": [
+            0,
+            0
+          ],
+          "Legendre_degrees": [
+            1,
+            1
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "8896971164602151",
+              "-66"
+            ],
+            [
+              "556060697787671",
+              "-62"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "8896971164602599",
+              "-66"
+            ],
+            [
+              "1112121395575325",
+              "-63"
+            ]
+          ],
+          "intervals_overlap": true
+        },
+        {
+          "pair": [
+            0,
+            1
+          ],
+          "Legendre_degrees": [
+            1,
+            3
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "3690246255085549",
+              "-64"
+            ],
+            [
+              "3690246255085787",
+              "-64"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "7380492510171457",
+              "-65"
+            ],
+            [
+              "3690246255085729",
+              "-64"
+            ]
+          ],
+          "intervals_overlap": true
+        },
+        {
+          "pair": [
+            1,
+            1
+          ],
+          "Legendre_degrees": [
+            3,
+            3
+          ],
+          "scalar_reference_dyadic_bounds": [
+            [
+              "6125082709555833",
+              "-64"
+            ],
+            [
+              "6125082709556221",
+              "-64"
+            ]
+          ],
+          "production_dyadic_bounds": [
+            [
+              "3062541354778061",
+              "-63"
+            ],
+            [
+              "6125082709556123",
+              "-64"
+            ]
+          ],
+          "intervals_overlap": true
+        }
+      ]
+    }
+  ],
+  "all_selected_intervals_overlap": true,
+  "beta_identity_poles_and_analytic_remainder_added": false,
+  "full_259_mode_head_recomputed": false,
+  "GL60_analytic_remainder_certified": false,
+  "finite_head_positivity_recertified": false,
+  "Weil_Zhu_identity_certified": false,
+  "Riemann_hypothesis_proved": false
+}

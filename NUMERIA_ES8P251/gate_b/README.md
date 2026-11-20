@@ -37,8 +37,10 @@ O Gate A demonstra `H₀₀>2,8884×10^-10` para a contribuição retirada entre
 
 - Os novos replays dos painéis `[0,25)` e `[25,50)` contêm os **134.680 intervalos Arb arquivados** dos subtriângulos de 259 modos. Os quatro arquivos-fonte P236/P237 são vinculados por SHA-256. Em `[500,525)`, **20 entradas selecionadas** têm a bola histórica contida tanto no replay novo quanto no replay P245D em ponto fixo. Essas comparações são entre somas discretas GL60. [Auditoria P236/P237/P245](data/P251_GATE_B_HISTORICAL_AUDIT.json)
 - Os testes dos painéis 0 e 617 usam os brackets racionais P245B autenticados por SHA-256, pesos pela identidade da derivada de Legendre e amplitudes escalares em forma fechada. Os testes adversariais cobrem lacunas, duplicatas, β incorreto, ordem do triângulo, pivôs e inversas inválidos e cotas de perturbação inconclusivas.
+- O piloto `internal_panel_audit.py` acrescenta o painel interno `[200,201)`: para os modos 0 e 1 em cada paridade, compara seis intervalos entre a rotina de produção (raízes Arb nativas e recorrência descendente de Bessel) e uma referência escalar separada (brackets racionais P245B autenticados e fórmulas fechadas de `j₀,…,j₃`). Os seis pares de intervalos se sobrepõem. [Certificado do painel interno](data/P251_INTERNAL_PANEL_200_201.json)
+- O painel 200 não tinha um artefato GL60 individual arquivado; portanto este é um cross-check reproduzível entre duas avaliações, não uma comparação com um painel histórico independente. Ambos usam Arb como aritmética intervalar. O arquivo registra explicitamente que o agregado de 259 modos, a cota analítica GL60, os pivôs finitos, a ponte Weil–Zhu e RH **não** são recertificados por este piloto.
 - Reexecutei a ação matriz-livre de dois vetores diádicos, um por paridade, em todos os 618 painéis. As **518 coordenadas** coincidem por interseção de intervalos com a ação do agregado. O módulo da diferença enclausurado ficou abaixo de `1,021 × 10^-74` por coordenada nos vetores executados. [Replay matriz-livre](data/P251_GATE_B_MATRIX_FREE.json)
-- Foram aprovados **41 testes** em Python normal e com `-O`, sendo 13 do Gate B e 28 da P249, P250 e Gate A. O replay do Gate A também foi executado no commit-base deste Gate B.
+- A base reporta **41 testes** em Python normal e com `-O`, incluindo 13 do Gate B e 28 da P249, P250 e Gate A. Esta alteração acrescenta quatro testes do piloto; a suíte Gate B agora tem 17 testes, e as 17 verificações do Gate B e as quatro do piloto passam tanto em Python normal quanto com `-O`.
 
 ## Complemento modal e alcance
 
@@ -54,6 +56,10 @@ Executar na raiz do repositório. O replay C/MPFR requer um compilador C, GMP e 
 python -m pip install -r NUMERIA_ES8P249/requirements.txt
 python -m unittest NUMERIA_ES8P251.gate_b.test_finite_head -v
 python -O -m unittest NUMERIA_ES8P251.gate_b.test_finite_head -v
+python -m NUMERIA_ES8P251.gate_b.internal_panel_audit \
+  --out NUMERIA_ES8P251/gate_b/data/P251_INTERNAL_PANEL_200_201.json
+python -m unittest NUMERIA_ES8P251.gate_b.test_internal_panel_audit -v
+python -O -m unittest NUMERIA_ES8P251.gate_b.test_internal_panel_audit -v
 sha256sum -c NUMERIA_ES8P251/gate_b/SHA256SUMS
 python -m NUMERIA_ES8P251.gate_b.finite_head \
   --matrix NUMERIA_ES8P251/gate_b/data/P251_GATE_B_GL60.json.gz \
