@@ -13,7 +13,7 @@ from flint import arb, arb_mat, ctx
 from .finite_head_certify import certify_finite_head
 from .finite_head_quadrature import CUTOFF, MODES, SCHEMA, SECTORS, quadrature_chunk
 from NUMERIA_ES8P249.interval_audit import certify_p236_tail_start
-from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, HALF_WIDTH, fixed_symbol_half_width, modal_tail_bounds
+from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, HALF_WIDTH, four_prime_model_half_width, modal_tail_bounds
 
 
 ASSEMBLY_BITS = 384
@@ -36,7 +36,7 @@ def _parameters(cutoff, modes, half_width=HALF_WIDTH):
     return {
         "cutoff": cutoff,
         "beta_cutoff": ARCHIVED_CUTOFF,
-        "half_width": str(fixed_symbol_half_width(half_width)),
+        "half_width": str(four_prime_model_half_width(half_width)),
         "modes_per_parity": modes,
         "beta_identity_poles_and_analytic_remainder_added": False,
     }
