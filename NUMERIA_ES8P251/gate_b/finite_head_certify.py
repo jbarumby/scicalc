@@ -7,7 +7,7 @@ from operator import index
 from flint import arb, arb_mat, ctx
 
 from NUMERIA_ES8P249.interval_audit import _dyadic
-from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, fixed_symbol_half_width
+from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, four_prime_model_half_width
 from NUMERIA_ES8P249.prime_operator import P236_HALF_WIDTH, P236_PRIME_POWERS
 
 
@@ -26,10 +26,10 @@ def gl60_error_budget(sector, modes=259, cutoff=309, *, half_width=P236_HALF_WID
     with the same symbol bound <50 on the retained half-unit panels. The
     ellipse gives |Im t| <= 1/3 and |Re t| <= cutoff + 1/6. Rodrigues' bound
     and the plane-wave identity give |j_n(Lt)| <= min(2, 2 Y^n/(2n+1)!!)
-    for Y >= |Lt|. At L <= 19/20, exp(|Im Lt|) <= 1/(1-L/3) <= 60/41 < 2.
+    for Y >= |Lt|. At L <= 973/1000, exp(|Im Lt|) <= 1/(1-L/3) < 2.
     """
     modes, cutoff = index(modes), index(cutoff)
-    half_width = fixed_symbol_half_width(half_width)
+    half_width = four_prime_model_half_width(half_width)
     if sector not in _PARITY or modes < 1 or not 1 <= cutoff <= ARCHIVED_CUTOFF:
         raise ValueError("expected a parity, positive mode count and integer cutoff in [1, 504]")
     parity = _PARITY[sector]
@@ -75,7 +75,7 @@ def assemble_finite_head(quadrature, sector, *, cutoff=309, half_width=P236_HALF
     perturbation. It is therefore added only once by the Weyl step.
     """
     dimension = _dimension(quadrature)
-    half_width = fixed_symbol_half_width(half_width)
+    half_width = four_prime_model_half_width(half_width)
     budget = gl60_error_budget(sector, dimension, cutoff, half_width=half_width)
     half_width = arb(half_width.numerator) / half_width.denominator
     pi = arb.pi()
@@ -197,7 +197,7 @@ def certify_center_weyl(matrix, analytic_row_error=Fraction(0)):
 def certify_finite_head(quadrature, sector, *, cutoff=309, precision_bits=1024, half_width=P236_HALF_WIDTH):
     """Assemble and audit a finite head for a caller-supplied rigorous GL60 sum."""
     cutoff, precision_bits = index(cutoff), index(precision_bits)
-    half_width = fixed_symbol_half_width(half_width)
+    half_width = four_prime_model_half_width(half_width)
     if precision_bits < 128:
         raise ValueError("expected at least 128 Arb bits")
     with ctx.workprec(precision_bits):

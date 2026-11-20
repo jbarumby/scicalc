@@ -7,6 +7,7 @@ from operator import index
 
 HALF_WIDTH = Fraction(161, 200)
 MAX_FIXED_SYMBOL_HALF_WIDTH = Fraction(19, 20)
+MAX_FOUR_PRIME_MODEL_HALF_WIDTH = Fraction(973, 1000)
 SYMBOL_BOUND = 20
 ARCHIVED_CUTOFF = 504
 RATIO_BOUND = Fraction(3, 40)
@@ -27,6 +28,14 @@ def fixed_symbol_half_width(half_width):
     return half_width
 
 
+def four_prime_model_half_width(half_width):
+    """Validate a width for the auxiliary model with primes frozen at P237."""
+    half_width = Fraction(half_width)
+    if not HALF_WIDTH <= half_width <= MAX_FOUR_PRIME_MODEL_HALF_WIDTH:
+        raise ValueError("four-prime model half width must be in [161/200, 973/1000]")
+    return half_width
+
+
 def _squared_ratio(degree, argument):
     # The Legendre normalization grows with n, so this ratio includes
     # sqrt((2*n+5)/(2*n+1)) from the prefactor.
@@ -37,13 +46,12 @@ def modal_tail_bounds(cutoff, modes_per_parity, parity, *, half_width=HALF_WIDTH
     """Bound ||B||² and ||D - beta I|| using P239/P243 analytic premises.
 
     Uses the spherical Bessel envelopes and the fixed-beta symbol bound 20
-    on [0, 504]. The symbol stays fixed throughout the supported width
-    interval. The result concerns the complement and its coupling without
-    any assumption about the spectrum of the retained finite block.
+    on [0, 504] for the auxiliary four-prime model. The result concerns the
+    complement and its coupling without any assumption about the head spectrum.
     """
     cutoff = Fraction(cutoff)
     modes_per_parity, parity = index(modes_per_parity), index(parity)
-    half_width = fixed_symbol_half_width(half_width)
+    half_width = four_prime_model_half_width(half_width)
     if not 0 < cutoff <= ARCHIVED_CUTOFF or modes_per_parity < 1 or parity not in (0, 1):
         raise ValueError('use 0 < cutoff <= 504, positive modes and parity 0 or 1')
 
