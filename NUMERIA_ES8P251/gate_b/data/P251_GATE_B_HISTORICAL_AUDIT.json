@@ -1,0 +1,61 @@
+{
+  "schema": "NUMERIA.ES8P251.GATE_B.HISTORICAL_GL60_AUDIT.1",
+  "matrix_precision_bits": 256,
+  "bessel_precision_bits": 640,
+  "P236_P237_complete_retained_triangles": [
+    {
+      "sector": "even",
+      "panel_range": [
+        0,
+        25
+      ],
+      "source": "numeria/p245/gate_c/P236_CHUNK25_even.json.gz",
+      "source_sha256": "6cfc2d3080389751b08d62dbdcdabdbd16a8be64ea5b23993dac0f27f61383f5",
+      "archived_arb_intervals_contained": 33670
+    },
+    {
+      "sector": "odd",
+      "panel_range": [
+        0,
+        25
+      ],
+      "source": "numeria/p245/gate_c/P236_CHUNK25_odd.json.gz",
+      "source_sha256": "76a7c147bf805fca4b67f65cbfd01464cf95134b30e990d3b5f24226a4de1f3d",
+      "archived_arb_intervals_contained": 33670
+    },
+    {
+      "sector": "even",
+      "panel_range": [
+        25,
+        50
+      ],
+      "source": "numeria/p247/references/P237_CHUNK_even_0025_0050.json.gz",
+      "source_sha256": "3903e507a9b7c492cdab22b8a290481d43593d69d9ca0f8fde9fb80cb6d73da8",
+      "archived_arb_intervals_contained": 33670
+    },
+    {
+      "sector": "odd",
+      "panel_range": [
+        25,
+        50
+      ],
+      "source": "numeria/p247/references/P237_CHUNK_odd_0025_0050.json.gz",
+      "source_sha256": "ff0f5256cd92893ee2b27c2753b9c97e8a17c43e55c92c8c76c908beb899eeda",
+      "archived_arb_intervals_contained": 33670
+    }
+  ],
+  "P245_selected_entries": {
+    "panel_range": [
+      500,
+      525
+    ],
+    "source": "numeria/p245/gate_c/P245D_SELECTED_500_525.json",
+    "source_sha256": "597ea1038dc99f0a71074f33f1be27922f2a5e15011f5e5e447f656f604e1cd2",
+    "root_brackets_sha256": "bf3a05df56b98e7a947eed516e25e8342a473d3c9aa01f3d194a582580742218",
+    "archived_arb_intervals_contained_in_both_replays": {
+      "even": 10,
+      "odd": 10
+    }
+  },
+  "continuous_integral_remainder_part_of_comparison": false
+}
