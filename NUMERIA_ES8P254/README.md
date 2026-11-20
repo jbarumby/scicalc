@@ -37,8 +37,8 @@ A prova vem de `2|<u,Bv>| <= 2b||u||||v||`, mais o critério de Sylvester da mat
 `floor_schur.py` propaga intervalos exatos da correção de piso, verifica entradas simétricas, oferece um teste Gershgorin conservador e o teste escalar de Schur; falha se os dados não fecham. `test_floor_schur.py` contém testes de casos adversariais, intervalos e uma matriz de exemplo em que Weyl não fecha, mas Schur fecha. A matriz de exemplo **não** é um resultado NUMERIA.
 
 ```
-python -m unittest discover -s NUMERIA_ES8P254_GATE_A -p 'test_*.py' -v
-python -O -m unittest discover -s NUMERIA_ES8P254_GATE_A -p 'test_*.py' -v
+python -m unittest NUMERIA_ES8P254.test_floor_schur -v
+python -O -m unittest NUMERIA_ES8P254.test_floor_schur -v
 ```
 
 Sem `python-flint` disponível neste ambiente, **não reexecutei Arb/MPFR dos blocos da P253** e não inferi nova margem real. O próximo gate precisa:
