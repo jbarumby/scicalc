@@ -1,0 +1,50 @@
+{
+  "schema": "NUMERIA.ES8P256.RH_DEPENDENCY_MAP.1",
+  "source_repository": "https://github.com/Deicyde/riemann-hypothesis",
+  "source_commit": "e50d09817ad81469f737e8f637561e6ccf86c670",
+  "source_sha256_verified": {
+    "EveryCharacter.lean": "31f6e49936226cfc3d71b15685347bd2874db0aef384e5cf4fea7d09ba68dc71",
+    "MainConclusion.lean": "a5f71e107087e37b2c598709795b0f56c0a6741cf1e8ab99ee1f97e2fce0fe34",
+    "VwinOfRow.lean": "d2df45a5cf337190ae6f885e8e43056ae4e804ae8da250a2ab0abd64b1ca7080",
+    "EveryCharacterOfLiteratureOfVWin.lean": "246b74eeb03dae250c45b46c155b3590cb53c2bac86f5e35f4b74338db487068",
+    "CritLine.lean": "5b1552ac13442150f6900f37b9b44eff1491fad1bebe2ec07a959eecb9bcfe02",
+    "RhOfRight.lean": "7e2c0b519ee420192cad8fb281c2d2bfebae2ba553342fd579c81c2aa0bd3dc5",
+    "MainTheoremsAll.lean": "a209a6a2f6ea1cc4abe865996b909bfeef391adcb89d3a948858874cb5956fec"
+  },
+  "p255_headline_sources_verified_by_pinned_checker": [
+    "Main.lean",
+    "MainTheorems.lean"
+  ],
+  "checked_links": [
+    "top_level_RH",
+    "allChi_entry",
+    "RH_reduction",
+    "EveryCharacter.lean:0",
+    "EveryCharacter.lean:1",
+    "MainConclusion.lean:0",
+    "MainConclusion.lean:1",
+    "MainConclusion.lean:2",
+    "VwinOfRow.lean:0",
+    "VwinOfRow.lean:1",
+    "VwinOfRow.lean:2",
+    "VwinOfRow.lean:3",
+    "EveryCharacterOfLiteratureOfVWin.lean:0",
+    "EveryCharacterOfLiteratureOfVWin.lean:1",
+    "EveryCharacterOfLiteratureOfVWin.lean:2",
+    "CritLine.lean:0",
+    "CritLine.lean:1",
+    "CritLine.lean:2",
+    "RhOfRight.lean:0",
+    "RhOfRight.lean:1",
+    "RhOfRight.lean:2",
+    "MainTheoremsAll.lean:0",
+    "MainTheoremsAll.lean:1"
+  ],
+  "formal_input": "EveryCharacter: nonvanishing of every Dirichlet L-function in Re(s)>1/2, away from the trivial pole",
+  "formal_reduction": "allChi -> rhOfAll -> rh_of_every -> rh_of_right; the trivial character modulo 1 gives zeta nonvanishing to the right, then the functional equation reflects zeros",
+  "concentrated_upstream_input": "galoisLocalGlobalStrong_recParameter supplies Row0b; vwin_of_row yields VWin; the theta-integral/local-matching theorem yields EveryCharacter",
+  "lean_kernel_invoked": false,
+  "full_solution_replayed": false,
+  "imported_theorem_bodies_independently_verified": false,
+  "interpretation": "source-pinned dependency map only; not an independent proof or kernel replay"
+}
