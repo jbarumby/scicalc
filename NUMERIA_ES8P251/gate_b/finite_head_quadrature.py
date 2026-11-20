@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import json
+from fractions import Fraction
 from operator import index
 from pathlib import Path
 
@@ -104,12 +105,13 @@ def _batch(start, stop, modes, bits, bessel_bits, roots, widths, norms, terms, p
 
 def quadrature_chunk(
     start, stop, *, cutoff=CUTOFF, modes=MODES, bits=160,
-    bessel_bits=640, threads=1, batch_panels=8, vectors=None,
+    bessel_bits=640, threads=1, batch_panels=8, vectors=None, half_width=HALF_WIDTH,
 ):
     """Return the even and odd interval GL60 matrices for panels [start,stop).
 
     Each panel has width 1/2 and 60 nodes. The multiplier already subtracts
-    the P237 beta at cutoff 504. The beta identity, the signed pole matrix,
+    the P237 beta at cutoff 504 and uses its four prime powers for every
+    exact rational half width. The beta identity, the signed pole matrix,
     and the analytical quadrature remainder are added in the head certificate.
     The batch size bounds intermediate storage independently of the range.
     If given two vectors, return the enclosed GL60 actions as columns and
@@ -117,6 +119,9 @@ def quadrature_chunk(
     """
     start, stop, cutoff, modes, bits = _parameters(start, stop, cutoff, modes, bits)
     bessel_bits, threads, batch_panels = map(index, (bessel_bits, threads, batch_panels))
+    half_width = Fraction(half_width)
+    if half_width <= 0:
+        raise ValueError("the half width must be positive")
     if bessel_bits < bits or threads < 1 or batch_panels < 1:
         raise ValueError("invalid Bessel precision, thread count, or batch size")
     old_threads = ctx.threads
@@ -130,10 +135,10 @@ def quadrature_chunk(
                 raise ArithmeticError("Arb GL60 weights are not positive")
             if not sum((weight for _, weight in roots), arb(0)).contains(2):
                 raise ArithmeticError("Arb GL60 weight sum misses 2")
-            half_width = arb(HALF_WIDTH.numerator) / HALF_WIDTH.denominator
-            widths = half_width, arb(1) / 4
+            width_ball = arb(half_width.numerator) / half_width.denominator
+            widths = width_ball, arb(1) / 4
             norms = tuple(
-                (-1) ** (n // 2) * (2 * half_width * (2 * n + 1)).sqrt()
+                (-1) ** (n // 2) * (2 * width_ball * (2 * n + 1)).sqrt()
                 for n in range(2 * modes)
             )
             terms = _prime_terms()
@@ -167,10 +172,13 @@ def _dyadic(endpoint):
     return [str(mantissa), str(exponent)]
 
 
-def chunk_report(start, stop, *, cutoff=CUTOFF, modes=MODES, bits=160, **options):
+def chunk_report(start, stop, *, cutoff=CUTOFF, modes=MODES, bits=160, half_width=HALF_WIDTH, **options):
     """Serialize a computed chunk with exact, outward dyadic endpoints."""
     start, stop, cutoff, modes, bits = _parameters(start, stop, cutoff, modes, bits)
-    matrices = quadrature_chunk(start, stop, cutoff=cutoff, modes=modes, bits=bits, **options)
+    half_width = Fraction(half_width)
+    matrices = quadrature_chunk(
+        start, stop, cutoff=cutoff, modes=modes, bits=bits, half_width=half_width, **options,
+    )
     sectors = {}
     with ctx.workprec(bits):
         for sector, matrix in zip(SECTORS, matrices):
@@ -187,7 +195,7 @@ def chunk_report(start, stop, *, cutoff=CUTOFF, modes=MODES, bits=160, **options
         "panel_range": [start, stop],
         "cutoff": cutoff,
         "beta_cutoff": ARCHIVED_CUTOFF,
-        "half_width": str(HALF_WIDTH),
+        "half_width": str(half_width),
         "modes_per_parity": modes,
         "matrix_precision_bits": bits,
         "bessel_precision_bits": options.get("bessel_bits", 640),
@@ -203,6 +211,7 @@ def main():
     parser.add_argument("--stop", type=int, required=True)
     parser.add_argument("--cutoff", type=int, default=CUTOFF)
     parser.add_argument("--modes", type=int, default=MODES)
+    parser.add_argument("--half-width", type=Fraction, default=HALF_WIDTH)
     parser.add_argument("--bits", type=int, default=160)
     parser.add_argument("--bessel-bits", type=int, default=640)
     parser.add_argument("--threads", type=int, default=1)
@@ -210,7 +219,7 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     report = chunk_report(
-        args.start, args.stop, cutoff=args.cutoff, modes=args.modes, bits=args.bits,
+        args.start, args.stop, cutoff=args.cutoff, modes=args.modes, bits=args.bits, half_width=args.half_width,
         bessel_bits=args.bessel_bits, threads=args.threads, batch_panels=args.batch_panels,
     )
     args.out.write_bytes(gzip.compress(json.dumps(report, separators=(",", ":")).encode(), 3, mtime=0))

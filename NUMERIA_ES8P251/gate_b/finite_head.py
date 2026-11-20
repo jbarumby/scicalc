@@ -13,7 +13,7 @@ from flint import arb, arb_mat, ctx
 from .finite_head_certify import certify_finite_head
 from .finite_head_quadrature import CUTOFF, MODES, SCHEMA, SECTORS, quadrature_chunk
 from NUMERIA_ES8P249.interval_audit import certify_p236_tail_start
-from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, HALF_WIDTH, modal_tail_bounds
+from NUMERIA_ES8P249.legendre_tail import ARCHIVED_CUTOFF, HALF_WIDTH, fixed_symbol_half_width, modal_tail_bounds
 
 
 ASSEMBLY_BITS = 384
@@ -32,11 +32,11 @@ def _require_header(document, expected):
             raise ValueError(f"incompatible {field}")
 
 
-def _parameters(cutoff, modes):
+def _parameters(cutoff, modes, half_width=HALF_WIDTH):
     return {
         "cutoff": cutoff,
         "beta_cutoff": ARCHIVED_CUTOFF,
-        "half_width": str(HALF_WIDTH),
+        "half_width": str(fixed_symbol_half_width(half_width)),
         "modes_per_parity": modes,
         "beta_identity_poles_and_analytic_remainder_added": False,
     }
@@ -95,12 +95,12 @@ def _check_coverage(records, cutoff):
         raise ValueError("incomplete panel coverage")
 
 
-def aggregate_chunks(paths, *, cutoff=CUTOFF, modes=MODES):
+def aggregate_chunks(paths, *, cutoff=CUTOFF, modes=MODES, half_width=HALF_WIDTH):
     """Sum complete, nonoverlapping GL60 chunks and bind the compressed bytes."""
     chunks = []
     for path in paths:
         document, digest = _read_document(path)
-        _require_header(document, _parameters(cutoff, modes) | {"schema": SCHEMA})
+        _require_header(document, _parameters(cutoff, modes, half_width) | {"schema": SCHEMA})
         bounds = document.get("panel_range")
         if (not isinstance(bounds, list) or len(bounds) != 2
                 or any(type(endpoint) is not int for endpoint in bounds)):
@@ -139,7 +139,7 @@ def _point(value):
     return [str(mantissa), str(exponent)]
 
 
-def write_aggregate(path, matrices, records, *, cutoff=CUTOFF, modes=MODES):
+def write_aggregate(path, matrices, records, *, cutoff=CUTOFF, modes=MODES, half_width=HALF_WIDTH):
     """Save the unaugmented sum for independent positivity replay."""
     sectors = {}
     with ctx.workprec(ASSEMBLY_BITS):
@@ -148,7 +148,7 @@ def write_aggregate(path, matrices, records, *, cutoff=CUTOFF, modes=MODES):
                 [i, j, [_point(matrix[i, j].lower()), _point(matrix[i, j].upper())]]
                 for i in range(modes) for j in range(i, modes)
             ]
-    document = _parameters(cutoff, modes) | {
+    document = _parameters(cutoff, modes, half_width) | {
         "schema": AGGREGATE_SCHEMA,
         "panel_range": [0, 2 * cutoff],
         "GL60_nodes": 120 * cutoff,
@@ -166,7 +166,7 @@ def _dyadic_fraction(pair):
     return Fraction(mantissa) * Fraction(2)**exponent
 
 
-def _schur_transfer(sectors):
+def _schur_transfer(sectors, *, cutoff=CUTOFF, modes=MODES, half_width=HALF_WIDTH):
     """Transfer a positive finite margin to the model using exact budgets."""
     if not all(report["certified_positive"] for report in sectors.values()):
         return {"certified_for_reduced_model": False}
@@ -175,7 +175,7 @@ def _schur_transfer(sectors):
         _dyadic_fraction(report["assembly"]["beta_endpoints_dyadic"][0])
         for report in sectors.values()
     )
-    budgets = [modal_tail_bounds(CUTOFF, MODES, parity) for parity in (0, 1)]
+    budgets = [modal_tail_bounds(cutoff, modes, parity, half_width=half_width) for parity in (0, 1)]
     coupling_squared = max(pair[0] for pair in budgets)
     deviation = max(pair[1] for pair in budgets)
     # Apply Young with coefficient m/2 on the head and 2||B||²/m on the tail.
@@ -187,18 +187,18 @@ def _schur_transfer(sectors):
     }
 
 
-def load_aggregate(path):
-    """Load the complete Gate B aggregate and its compressed digest."""
+def load_aggregate(path, *, cutoff=CUTOFF, modes=MODES, half_width=HALF_WIDTH):
+    """Load the complete aggregate and its compressed digest."""
     document, digest = _read_document(path)
-    _require_header(document, _parameters(CUTOFF, MODES) | {
+    _require_header(document, _parameters(cutoff, modes, half_width) | {
         "schema": AGGREGATE_SCHEMA,
-        "panel_range": [0, 2 * CUTOFF],
-        "GL60_nodes": 120 * CUTOFF,
+        "panel_range": [0, 2 * cutoff],
+        "GL60_nodes": 120 * cutoff,
         "summation_precision_bits": ASSEMBLY_BITS,
     })
-    _check_coverage(document["chunks"], CUTOFF)
+    _check_coverage(document["chunks"], cutoff)
     with ctx.workprec(ASSEMBLY_BITS):
-        matrices = _decode_sectors(document, MODES)
+        matrices = _decode_sectors(document, modes)
     return matrices, document["chunks"], digest
 
 
