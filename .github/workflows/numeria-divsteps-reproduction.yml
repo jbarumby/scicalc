@@ -1,0 +1,106 @@
+name: NUMERIA-Q divsteps reproduction
+
+on:
+  push:
+    branches:
+      - research/divsteps-reproduction-2026-10
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  classical-reference:
+    name: Classical reference tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/divsteps-reproduction-2026-10
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run NUMERIA-Q reference tests
+        run: python -m unittest discover -s NUMERIA_Q_05_22_DIVSTEPS/tests -v
+
+  upstream-circuit:
+    name: Official divsteps circuit evaluator
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: andigu/uncompute
+          ref: 64b5a13aa249f1360846657392e6c66817b26d0f
+          path: upstream
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: upstream/uv.lock
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install upstream dependencies
+        working-directory: upstream
+        run: uv sync
+      - name: Record provenance
+        working-directory: upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "upstream commit: $(git rev-parse HEAD)"
+            echo "python: $(python --version 2>&1)"
+            echo "uv: $(uv --version)"
+            sha256sum tasks/modinv-point-add/circuits/divsteps/circuit.py tasks/modinv-point-add/contract.json uv.lock
+          } | tee provenance.txt
+      - name: Evaluate published divsteps circuit
+        working-directory: upstream
+        shell: bash
+        run: |
+          set -o pipefail
+          uv run python tools/eval.py modinv-point-add --circuit tasks/modinv-point-add/circuits/divsteps/circuit.py --out eval-out 2>&1 | tee divsteps-evaluator.log
+      - name: Upload evaluator log and structured report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: divsteps-evaluator-evidence
+          path: |
+            upstream/divsteps-evaluator.log
+            upstream/provenance.txt
+            upstream/eval-out
+          if-no-files-found: ignore
+
+  lean-proof:
+    name: Lean divsteps proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: andigu/uncompute
+          ref: 64b5a13aa249f1360846657392e6c66817b26d0f
+          path: upstream
+      - name: Install elan and Lean toolchain
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o elan-init.sh
+          sh elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Fetch Lean cache and build formal proof
+        working-directory: upstream/lean/divsteps
+        shell: bash
+        run: |
+          set -o pipefail
+          lake exe cache get 2>&1 | tee lean-cache.log
+          lake build 2>&1 | tee lean-build.log
+      - name: Upload Lean logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: divsteps-lean-logs
+          path: |
+            upstream/lean/divsteps/lean-cache.log
+            upstream/lean/divsteps/lean-build.log
+          if-no-files-found: ignore
