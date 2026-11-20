@@ -2,7 +2,7 @@
 
 A soma oscilatória dos primos permite antecipar de **504 para 309** o início de uma cauda com símbolo residual positivo na janela `L=161/200`, com o mesmo `β` da P237. Arb certificou a parte finita da cauda em 24.960 subintervalos. A fórmula clássica de Binet e a cota triangular dão a extensão a frequências arbitrariamente altas. Um novo cálculo com esse corte teria **618 painéis GL60**, 390 a menos que na P237, uma redução de 38,7%. O certificado do bloco de baixa frequência para o corte 309 ainda precisa ser construído.
 
-A P249 foi construída sobre o último commit P247 recuperado no histórico público. Os arquivos próprios da P240 e P241 foram localizados apenas por meio da revisão P244. As fontes e os certificados da P243 e da P248 seguem pendentes de localização. A positividade global da forma de Weil e a Hipótese de Riemann permanecem em aberto. [Base P247](https://github.com/jbarumby/scicalc/commit/6adabcca7cc09f60df740934114d49966893d3d7)
+A P249 foi construída sobre o último commit P247 recuperado no histórico público. A revisão da P240 e da P241 usou o relato da P244. Os arquivos originais dessas duas etapas e os da P243 e da P248 seguem pendentes de localização. A positividade global da forma de Weil e a Hipótese de Riemann permanecem em aberto. [Base P247](https://github.com/jbarumby/scicalc/commit/6adabcca7cc09f60df740934114d49966893d3d7)
 
 ## Cancelamento diádico
 
