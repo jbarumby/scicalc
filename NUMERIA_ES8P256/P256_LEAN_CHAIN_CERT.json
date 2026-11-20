@@ -1,0 +1,57 @@
+{
+  "schema": "NUMERIA.ES8P256.LEAN_DECLARATION_CHAIN.1",
+  "upstream": "Deicyde/riemann-hypothesis",
+  "ref": "40e56bab",
+  "checked_files": [
+    {
+      "name": "MainConclusion.lean",
+      "git_blob_sha1": "ee340012ab19713a8acfecf8adc6a331cbc2f1a4",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "EveryCharacter.lean",
+      "git_blob_sha1": "6ac769568b67f85f33565ba3e1eef7b91f53c55f",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "RiemannHypothesisOfEveryCharacter.lean",
+      "git_blob_sha1": "c6dfef5bfa62aa0ef1cd1481833e1cd2475cbbbc",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "ClaimStrip.lean",
+      "git_blob_sha1": "60b3e96d81c2cb7d821d14c978b38bd9fd0d97f8",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "HalfPlane.lean",
+      "git_blob_sha1": "dcd66cb38f94dfabe24700848a68dc9135bbd3fe",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "RowSrc.lean",
+      "git_blob_sha1": "f769999ac5e49241993e5efbf81e4d2cded18acd",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "VwinOfRow.lean",
+      "git_blob_sha1": "4cba179acd45ac08d3cad21f51c9b9d62715a9a4",
+      "declared_dependency_tokens_matched": true
+    },
+    {
+      "name": "EveryCharacterOfLiteratureOfVWin.lean",
+      "git_blob_sha1": "a13ba1f8c38d4dbf2ddd809fbf9610a007936c24",
+      "declared_dependency_tokens_matched": true
+    }
+  ],
+  "verified_via": "GitHub connector pinned blob SHA and exact substrings in current session",
+  "scope": "static source inspection, not Lean kernel proof or full transitive dependency tree",
+  "math_lemma": "Claim.factor_ne_zero: if Re(s)>0 and p is prime, 1-chi(p)*p^(-s) != 0",
+  "stated_intermediate_hypotheses": [
+    "OpenLiteratureStatements",
+    "Top.VWin",
+    "GalStar.Row0b"
+  ],
+  "deep_automorphic_proof_replayed": false,
+  "independent_RH_proof": false
+}
