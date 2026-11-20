@@ -1,0 +1,35 @@
+{
+  "schema": "NUMERIA.ES8P251.GATE_C.WEIL_BRIDGE.1",
+  "gate_b_GL60_sha256": "8854f0ff5c7c70aca84b3941ddda63e7f5c3cf4046515dfaa5edc6e0c983c4ae",
+  "gate_b_certificate_sha256": "86d9c56d8bcd7308120163a3bcd450558eca02b30d7348d050fee2847526f3b2",
+  "p250_recomputed_sha256": "2bde93ccce25b8d2a1c6e59b49bcce43475fb2c7bc83366edaa1a19b7d4efe38",
+  "cutoff": 309,
+  "beta_frozen_at": 504,
+  "fixed_window_model_floor_lower_exact": "8093/5000000000000000000000",
+  "p250_tail_symbol_lower_exact": "20773768130915242101238847830408510328436019544188775636079480328315169623/115792089237316195423570985008687907853269984665640564039457584007913129639936",
+  "local_extension": {
+    "half_width_left_exact": "161/200",
+    "half_width_right_exact": "1610000000000000000001/2000000000000000000000",
+    "half_width_increment_exact": "1/2000000000000000000000",
+    "prime_powers": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "prime_slope_upper_exact": "256627/46750",
+    "symbol_derivative_upper_exact": "29/2",
+    "common_band_and_pole_derivative_upper_exact": "344364/161",
+    "common_band_and_pole_loss_upper_exact": "107/100000000000000000000",
+    "new_band_symbol_lower_exact": "577667999999991039/3220000000000000000000",
+    "model_floor_lower_exact": "2743/5000000000000000000000"
+  },
+  "test_function_class": "complex C_c^infty(R) with support in [-L,L]",
+  "analytic_inputs": [
+    "Guinand–Weil explicit formula, Fourier inversion and Plancherel",
+    "Binet digamma lower bound and trigamma series",
+    "Legendre–Bessel identities and Gauss–Legendre Bernstein error bound"
+  ],
+  "cofinal_extension_established": false,
+  "Riemann_hypothesis_proved": false
+}
