@@ -20,7 +20,9 @@ Q_W(f) ≥ 3,41×10^-27 ‖f‖₂²
 para f ∈ C_c^∞(ℝ;ℂ), supp(f) ⊆ [−19/20,19/20].
 ```
 
-Por inclusão de suportes, a mesma cota vale em janelas menores. Os insumos analíticos são a fórmula explícita, as identidades de Bessel e Binet e o orçamento de Bernstein para GL60. A extensão cofinal e a Hipótese de Riemann permanecem em aberto. O próximo limiar aritmético nesta direção é `L=log(7)/2`, onde o suporte das correlações alcança o novo deslocamento `log(7)`. [Ponte de Weil no Gate C](../NUMERIA_ES8P251/gate_c/README.md)
+Por inclusão de suportes, a mesma cota vale em janelas menores. Os insumos analíticos são a fórmula explícita, as identidades de Bessel e Binet e o orçamento de Bernstein para GL60. A extensão da positividade a uma família cofinal de janelas permanece em aberto no NUMERIA. O próximo limiar aritmético nesta direção é `L=log(7)/2`, onde o suporte das correlações alcança o novo deslocamento `log(7)`. [Ponte de Weil no Gate C](../NUMERIA_ES8P251/gate_c/README.md)
+
+Uma auditoria espectral complementar delimitou os dois menores autovalores dos blocos finitos com intervalos de largura inferior a `5,562×10^-47`. Uma segunda verificação do bloco ímpar tratou o polo negativo por uma desigualdade escalar de Schur. [Relatório e reprodução](AUDITORIA_ESPECTRAL.md)
 
 ## Circuito quântico para o termo de primos
 
