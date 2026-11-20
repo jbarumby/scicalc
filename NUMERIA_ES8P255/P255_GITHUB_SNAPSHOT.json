@@ -1,0 +1,30 @@
+{
+  "schema": "NUMERIA.ES8P255.GITHUB_BASELINES.1",
+  "observed_date": "2026-11-20",
+  "repository": "jbarumby/scicalc",
+  "scope": "pin-only reference snapshots; no existing branch or certificate modified",
+  "branch_head_shas": {
+    "numeria-p249-prime-multiscale": "707185541303393401798f0bb46e1371a3e6a291",
+    "numeria-p250-adaptive-signed-tail": "356f17c19493ac77f3d5a6d4ac01b9043680d841",
+    "numeria-p251-nontransfer-gate": "8776449d51bbfc39461835416bc5cfd92cd8e38b",
+    "numeria-p251-gate-b": "276403a575d009de03af5f865f72aac71f3992a0",
+    "numeria-p251-gate-c": "442cc596fef0cf621113ca72fa3645cf28b9ac89",
+    "numeria-p252-wider-window-prime-circuit": "d04a791f89298b47da9600f631de0954c1ff2101",
+    "numeria-p252-spectral-brackets": "265bef05a6309330f3564bfccbf01f46b0ad5cb8",
+    "numeria-p253-prime7-threshold": "c21ea11a28ce2508f4796607ef429e1d70ae730f",
+    "numeria-p254-floor-schur-audit": "2588fe4699b7821257bcd5c5cc70807d174790f1",
+    "numeria-auditoria-alpoge-lean": "460e41c5ecf6323523b8d6e3045ef5adf2faf544"
+  },
+  "PRs_relevant": [
+    58,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    59,
+    60
+  ],
+  "RH_official_status": "Clay CMI website labels Riemann hypothesis Unsolved at consultation time"
+}
