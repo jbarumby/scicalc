@@ -1,0 +1,41 @@
+name: Reproduce NUMERIA P259 rational witness gate
+
+on:
+  push:
+    branches:
+      - numeria-p259-banded-floor-witness
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  rational-odd-witness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download P258 original certificate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p replay
+          gh run download 44858303395 --repo jbarumby/scicalc -n numeria-p258-certificates -D replay
+          printf '%s  %s\n' '1aa765357cfe1fa46f864d5b57fc407157375e75b3fa8b23b77f0db5c2e4985c' replay/P258_GL60.json | sha256sum -c -
+      - name: Execute rigorous P259 single-witness audit
+        run: |
+          python -m NUMERIA_ES8P259.p259_witness --p258 replay/P258_GL60.json --out replay/P259_RESULT.json
+          python -m unittest NUMERIA_ES8P259.test_p259 -v
+          python -O -m unittest NUMERIA_ES8P259.test_p259 -v
+          sha256sum replay/P259_RESULT.json > replay/P259_SHA256SUMS
+      - name: Preserve exact-rational certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p259-rational-witness
+          path: |
+            replay/P259_RESULT.json
+            replay/P259_SHA256SUMS
+          retention-days: 30
