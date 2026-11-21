@@ -1,0 +1,64 @@
+name: NUMERIA P261 Lee-Yang Fisher LP exact gates
+
+on:
+  push:
+    branches: [numeria-p261-lee-yang-fisher-lp-gates]
+    paths:
+      - "NUMERIA_ES8P261/**"
+      - ".github/workflows/numeria-p261-lee-yang.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-toy-theorems:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact-model unit tests
+        run: |
+          python -m unittest NUMERIA_ES8P261.test_p261 -v
+          python -O -m unittest NUMERIA_ES8P261.test_p261 -v
+      - name: Reproduce independent algebraic certificates
+        run: |
+          mkdir -p replay
+          python -m NUMERIA_ES8P261.leyang_fisher --out replay/P261_GATE_A.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          data=json.load(open('replay/P261_GATE_A.json'))
+          assert data['schema']=='NUMERIA.ES8P261.LEE_YANG_FISHER_LP.GATE_A.1'
+          ferro=data['ferromagnetic_4spin_exact']
+          anti=data['anti_ferromagnetic_4spin_exact']
+          if not ferro['all_zeros_on_unit_circle_proved'] or anti['all_zeros_on_unit_circle_proved']:
+              raise ArithmeticError('Lee-Yang counterexample mismatch')
+          assert F(ferro['discriminant_exact'])==F(13,4)
+          assert F(anti['discriminant_exact'])==F(40)
+          d=data['positive_definite_non_LP_counterexample']
+          if F(d['laguerre_inequality_at_tpi_exact']) != -F(1,8):
+              raise ArithmeticError('positive definite must not imply LP')
+          if d['all_15_principal_minors_exact']['4'] != ['0']:
+              raise ArithmeticError('Toeplitz determinant mismatch')
+          if any(data[k] for k in ('independent_Xi_Laguerre_Polya_membership_proved',
+                                   'Weil_operator_positive_transfer_proved',
+                                   'Riemann_hypothesis_proved')):
+              raise ArithmeticError('false RH or Weil claim')
+          print('P261: exact Lee-Yang/Fisher/LP barrier verified')
+          PY
+          sha256sum replay/P261_GATE_A.json > replay/SHA256SUMS
+          cat replay/SHA256SUMS
+      - name: Archive reproducibility package
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p261-lee-yang-fisher-gate-a
+          path: |
+            replay/P261_GATE_A.json
+            replay/SHA256SUMS
+          retention-days: 30
