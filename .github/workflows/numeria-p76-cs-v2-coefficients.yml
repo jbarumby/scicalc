@@ -1,0 +1,69 @@
+name: NUMERIA P76 — independently audit CS v2 B2 and B3 coefficients
+
+on:
+  push:
+    branches: [numeria-p76-cs-v2-coefficients]
+    paths:
+      - 'NUMERIA_P76_COEFFICIENTS/**'
+      - '.github/workflows/numeria-p76-cs-v2-coefficients.yml'
+  pull_request:
+    paths:
+      - 'NUMERIA_P76_COEFFICIENTS/**'
+      - '.github/workflows/numeria-p76-cs-v2-coefficients.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-b23:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned verified-real arithmetic
+        run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Enforce exact SHA-256 of source files
+        run: |
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('NUMERIA_P76_COEFFICIENTS')
+          manifest=json.loads((root/'SOURCE_SHA256.json').read_text())
+          if len(manifest)!=4:
+              raise SystemExit('Unexpected source manifest length')
+          for name, digest in manifest.items():
+              computed=hashlib.sha256((root/name).read_bytes()).hexdigest()
+              if computed!=digest:
+                  raise SystemExit(f'Source digest mismatch: {name}')
+              print('SHA-256 OK:',name)
+          PY
+      - name: Test all rows at normal Python and optimized -O
+        run: |
+          python -m unittest NUMERIA_P76_COEFFICIENTS.test_p76 -v
+          python -O -m unittest NUMERIA_P76_COEFFICIENTS.test_p76 -v
+      - name: Compute B2 and B3 from Theorem 1 at two precisions
+        run: |
+          python -m NUMERIA_P76_COEFFICIENTS.audit_b23 --precision 192 --out "$RUNNER_TEMP/p76_b23_192.json"
+          python -O -m NUMERIA_P76_COEFFICIENTS.audit_b23 --precision 256 --out "$RUNNER_TEMP/p76_b23_256.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])
+          for bits in (192,256):
+              d=json.loads((p/f'p76_b23_{bits}.json').read_text())
+              if (len(d['rows'])!=16 or not d['b2_b3_strict_upper_verified']
+                  or d['b1_recomputed'] or d['full_corollary_independently_audited']):
+                  raise SystemExit(f'FAIL-CLOSED P76 ({bits} bits)')
+              print('P76 B2/B3 PASS',bits,'bits; B1 remains unverified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p76-b23-arb-enclosures
+          path: |
+            ${{ runner.temp }}/p76_b23_192.json
+            ${{ runner.temp }}/p76_b23_256.json
