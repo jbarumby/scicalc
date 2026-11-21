@@ -138,3 +138,47 @@ R_{\mathrm{P260}}=R_{\mathrm{P259}}
 Por Plancherel, cada parcela é semidefinida positiva. **Não se provou que a nova matriz 377×377 seja SPD**, que a antiga direção negativa de 57 coordenadas tenha sido eliminada nem que a forma completa de Weil tenha positividade além da janela P252. Essas são tarefas do próximo Gate B e exigirão Arb/MPFR e replay de Rayleigh independente.
 
 **Escopo rigoroso:** novos pisos para um símbolo auxiliar, nada sobre a validade global da Hipótese de Riemann.
+
+
+## 6. Auditoria independente da base de polos (condicional à fórmula explícita)
+
+Se o **funcional de polos** tomado como entrada da fórmula explícita for
+
+\[
+P(f)=2\ell_+(f)\ell_-(f),\qquad
+\ell_\pm(f)=\int_{-L}^{L} f(x)e^{\pm x/2}\,dx
+\]
+
+para funções reais, então seus sinais por paridade podem ser deduzidos independentemente do software numérico. Na base Legendre normalizada,
+
+\[
+\phi_n(x)=\sqrt{\frac{2n+1}{2L}}P_n(x/L),
+\qquad
+\ell_+(\phi_n)=\sqrt{2L(2n+1)}\,i_n(L/2),
+\]
+
+onde \(i_n(z)=\sqrt{\pi/(2z)}I_{n+1/2}(z)\) é a Bessel esférica modificada. Isso usa a identidade integral clássica
+
+\[
+\int_{-1}^{1}P_n(u)e^{zu}\,du=2i_n(z).
+\]
+
+Ela foi auditada **coeficiente por coeficiente**: pela recorrência racional de Legendre e pela série de \(I_{n+1/2}\) em Gamma,
+
+\[
+[z^{n+2r}]\,i_n(z)
+=\frac{2^{n+1}(n+r+1)!}{r!\,(2n+2r+2)!}.
+\]
+
+Para cada \(n=0,\ldots,19\) e \(r=0,\ldots,11\), o programa verifica em frações exatas que
+
+\[
+\frac{1}{(n+2r)!}\int_{-1}^{1}u^{n+2r}P_n(u)\,du
+=2\frac{2^{n+1}(n+r+1)!}{r!\,(2n+2r+2)!}.
+\]
+
+São **240 igualdades racionais**, com testes adicionais de momentos nulos e de paridade. Como \(P_n(-u)=(-1)^nP_n(u)\), temos \(\ell_-(\phi_n)=(-1)^n\ell_+(\phi_n)\). Logo, para blocos homogêneos em paridade, o funcional assumido \(P(f)\) dá exatamente os fatores **+2 (par)** e **−2 (ímpar)** usados pela P251, com o mesmo fator de normalização da Bessel no vetor de polos.
+
+**Limite lógico:** isto certifica a transformação da **fórmula do funcional de polos assumida** para a matriz Legendre. **Não** deduz \(P(f)=2\ell_+(f)\ell_-(f)\) a partir de uma nova integral de contorno, nem revalida todos os termos da fórmula explícita de Weil. Esta etapa permanece separada e deve ser confrontada com a normalização de Mellin e os resíduos da equação funcional. A verificação de 240 coeficientes testa uma identidade de séries cujos termos gerais são deduzidos das recorrências; não se afirma que 240 exemplos finitos sejam uma prova de uma identidade sem a dedução algébrica precedente.
+
+Reprodução: python -m NUMERIA_ES8P260.pole_parity --out replay/P260_POLE.json
