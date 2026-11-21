@@ -1,0 +1,38 @@
+{
+  "schema": "NUMERIA.P72.ZERO_SIDE.1",
+  "start_t": "18",
+  "end_t": "89/2",
+  "step_t": "1/200",
+  "zero_count": 20,
+  "zero_source": "mpmath_preview_not_certified",
+  "certified_zeros_from_flint": false,
+  "number_of_grid_points": 5301,
+  "minimum_grid_at_t": "5077/200",
+  "grid_min_scaled": "7419088124789891972707511567226886607014454530518048142876299386752676345",
+  "grid_sha256": "b65f2577f86c5865d92ba93a71fc24d83a2844b2f26d78c3a85149b61581f01d",
+  "interpolation_loss_rational": [
+    "1",
+    "8000"
+  ],
+  "exp_end_upper_rational": [
+    "4603119211043354127",
+    "1000000000"
+  ],
+  "zero_tail_upper_rational": [
+    "11507798035137538405855607909471",
+    "1500000000000000000000000000000000"
+  ],
+  "uniform_lower_rational": [
+    "-226666339181080178717736223452268035791327281689171114274220367948394193",
+    "600000000000000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  "numerical_summary": {
+    "grid_min_lower": "0.00741908812479",
+    "curvature_loss": "0.000125",
+    "high_zero_tail_upper": "0.00767186535676",
+    "uniform_lower_bound": "-0.000377777231968"
+  },
+  "positive_given_input_intervals_are_valid": false,
+  "certified_positive": false,
+  "dependency": "Suzuki (1.3); Platt-Trudgian RH for |Im rho|<=3e12; Bellotti-Wong N(T) 2025"
+}
