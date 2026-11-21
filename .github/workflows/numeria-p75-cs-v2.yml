@@ -34,7 +34,7 @@ jobs:
           python -O -m unittest NUMERIA_P75_CS2.test_math NUMERIA_P75_CS2.test_flint -v
       - name: Run complete deterministic 500-zero window to 79
         run: |
-          python -m NUMERIA_P75_CS2.certify --start 18 --end 79 --zeros 500 --precision 256 --segments 128 --mesh 1/64 --out "$RUNNER_TEMP/p75-cs2-79.json"
+          python -m NUMERIA_P75_CS2.certify --start 18 --end 79 --zeros 500 --precision 256 --segments 256 --mesh 1/64 --out "$RUNNER_TEMP/p75-cs2-79.json"
           python - <<'PY'
           import json, os
           from pathlib import Path
