@@ -45,6 +45,7 @@ class SuzukiTest(unittest.TestCase):
         report = certify(128)
         self.assertEqual(report["positive_for_all_t_in"], "(0,log(128)]")
         self.assertGreater(report["certified_cells_after_initial_interval"], 25)
+        self.assertEqual(report["all_affine_prefixes_verified_through_limit"], 128)
         self.assertFalse(report["unbounded_range_established"])
 
 
@@ -54,6 +55,14 @@ class BandedWeilTest(unittest.TestCase):
         self.assertEqual(effective_head_step(Fraction(1, 4), Fraction(1, 8)), Fraction(1, 12))
         with self.assertRaises(ValueError):
             effective_head_step(Fraction(1, 4), 0)
+
+    def test_advanced_band_has_a_contiguous_adaptive_proof(self):
+        cert = certify_analytic_constants(590)["high_band_adaptive_certificate"]
+        self.assertEqual(cert["adaptive_range"], [590, 850])
+        self.assertEqual(cert["adaptive_cover"][0][0], "590")
+        self.assertEqual(cert["adaptive_cover"][-1][1], "850")
+        for left, right in zip(cert["adaptive_cover"], cert["adaptive_cover"][1:]):
+            self.assertEqual(left[1], right[0])
 
     def test_G850_endpoint_formula_against_a_direct_GL60_panel(self):
         args = {"cutoff": 850, "modes": 4}
