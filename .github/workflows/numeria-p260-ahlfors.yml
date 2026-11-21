@@ -1,0 +1,62 @@
+name: NUMERIA P260 Ahlfors rational digamma audit
+
+on:
+  push:
+    branches: [numeria-p260-ahlfors-archimedean-audit]
+    paths:
+      - "NUMERIA_ES8P260/**"
+      - ".github/workflows/numeria-p260-ahlfors.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-rational:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute nineteen source-level mathematical tests
+        run: |
+          python -m unittest NUMERIA_ES8P260.test_ahlfors -v
+          python -O -m unittest NUMERIA_ES8P260.test_ahlfors -v
+          python -m unittest NUMERIA_ES8P260.test_pole_parity -v
+          python -O -m unittest NUMERIA_ES8P260.test_pole_parity -v
+      - name: Reproduce exact-rational coefficient and archimedean floors
+        run: |
+          mkdir -p replay
+          python -m NUMERIA_ES8P260.ahlfors_digamma --out replay/P260_AHLFORS.json
+          python -m NUMERIA_ES8P260.pole_parity --out replay/P260_POLE.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          a=json.load(open('replay/P260_AHLFORS.json'))
+          if a['anchor_lower_grid'] != '2605374463140167/1000000000000000000':
+              raise ArithmeticError('anchor drift')
+          expected={850:Fraction(1,2),1100:Fraction(3,4),1500:Fraction(1),2000:Fraction(5,4)}
+          for record in a['new_piecewise_floors']:
+              t=record['threshold_frequency_exact']
+              if Fraction(record['certified_constant_floor_exact'])!=expected.pop(t):
+                  raise ArithmeticError('threshold drift')
+              if Fraction(record['four_prime_symbol_lower_grid'])<=Fraction(record['certified_constant_floor_exact']):
+                  raise ArithmeticError('claimed floor not established')
+          if expected or a['Weil_crossing_established'] or a['Riemann_hypothesis_proved']:
+              raise ArithmeticError('scope boundary violated')
+          print('P260: four strict rational floors and explicit scope confirmed')
+          PY
+          sha256sum replay/P260_AHLFORS.json replay/P260_POLE.json > replay/SHA256SUMS
+          cat replay/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p260-ahlfors-rational-certificate
+          path: |
+            replay/P260_AHLFORS.json
+            replay/P260_POLE.json
+            replay/SHA256SUMS
+          retention-days: 30
