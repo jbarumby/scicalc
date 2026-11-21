@@ -1,0 +1,74 @@
+name: NUMERIA P262 rigorous KPS theta and Bernstein consistency
+
+on:
+  push:
+    branches: [numeria-p262-kps-theta-moments-consistency]
+    paths:
+      - "NUMERIA_ES8P262/**"
+      - ".github/workflows/numeria-p262-kps-theta.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certified-moments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Arb dependencies
+        run: python -m pip install -r NUMERIA_ES8P249/requirements.txt
+      - name: Verify rational tail gates and directed moment smoke tests
+        run: |
+          python -m unittest NUMERIA_ES8P262.test_theta_moments -v
+          python -O -m unittest NUMERIA_ES8P262.test_theta_moments -v
+          python -m unittest NUMERIA_ES8P262.test_source_algebra -v
+          python -O -m unittest NUMERIA_ES8P262.test_source_algebra -v
+      - name: Certify F(0), F(2), F(4) and sign of printed KPS formula
+        run: |
+          mkdir -p replay
+          python -m NUMERIA_ES8P262.theta_moments --max-n 1 --bits 192 --out replay/P262_KPS_MOMENTS.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          d=json.load(open('replay/P262_KPS_MOMENTS.json'))
+          if d['schema']!='NUMERIA.ES8P262.KPS_THETA_BERNSTEIN_SIGN_GATE.1':
+              raise ArithmeticError('incorrect P262 schema')
+          if set(d['moments'])!={'0','2','4'}:
+              raise ArithmeticError('missing theta moments')
+          if not all(x['positive_proved'] for x in d['moments'].values()):
+              raise ArithmeticError('moment positivity not proved')
+          if any(x['sign']!='positive' for x in d['G_as_printed'].values()):
+              raise ArithmeticError('G sign not certified')
+          if d['phi_as_printed']['2']['sign']!='negative':
+              raise ArithmeticError('printed phi(2) negative not certified')
+          if any(d[k] for k in ('original_article_error_claimed','Bernstein_candidate_disproved',
+                               'Riemann_hypothesis_proved_or_disproved','Weil_positivity_claimed')):
+              raise ArithmeticError('scope claim violated')
+          print('P262 exact interval source consistency gate:',d['phi_as_printed'])
+          PY
+          python -m NUMERIA_ES8P262.source_algebra --moments replay/P262_KPS_MOMENTS.json --out replay/P262_SOURCE_ALGEBRA.json
+          python - <<'PY'
+          import json
+          d=json.load(open('replay/P262_SOURCE_ALGEBRA.json'))
+          if not d['phi2_intervals_disjoint'] or d['intended_Bernstein_candidate_ruled_out'] or d['Riemann_hypothesis_proved_or_disproved']:
+              raise ArithmeticError('source consistency or scope failure')
+          print('P262 source ratio and printed equation are disjoint, not an RH claim')
+          PY
+          sha256sum replay/P262_KPS_MOMENTS.json replay/P262_SOURCE_ALGEBRA.json > replay/P262_SHA256SUMS
+          cat replay/P262_SHA256SUMS
+      - name: Preserve interval certificates
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p262-kps-theta-moments
+          path: |
+            replay/P262_KPS_MOMENTS.json
+            replay/P262_SOURCE_ALGEBRA.json
+            replay/P262_SHA256SUMS
+          retention-days: 30
