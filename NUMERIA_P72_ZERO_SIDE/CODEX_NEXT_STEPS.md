@@ -1,6 +1,6 @@
 # NUMERIA–RIEMANN — passagem ao Codex (P71 → P72)
 
-**Branch:** `numeria-p72-zero-side-codex`  
+> **Atualização 2026-11-21:** o gate Arb 20 zeros foi executado com sucesso no GitHub Actions [run 44939756190](https://github.com/jbarumby/scicalc/actions/runs/44939756190), e os dois certificados JSON foram publicados. Ver [CI_ARB_RESULT.md](CI_ARB_RESULT.md). Os passos de geração abaixo permanecem como *replay independente* e revisão analítica, não como ausência de certificação executada.\n\n**Branch:** `numeria-p72-zero-side-codex`  
 **Base:** PR #71 (`numeria-suzuki-prefix-balance`), que cobre a faixa aritmética até `t=log(10^8)`.  
 **Estado P72:** prévias com 3, 10 e 20 zeros. A extensão até `t=44.35` é **condicional** aos intervalos dos 20 zeros: `preview_zeros.json` não é certificado por Arb. Não declarar esse resultado como teorema incondicional antes do gate.
 
