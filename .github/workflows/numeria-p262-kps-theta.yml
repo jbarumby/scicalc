@@ -28,6 +28,8 @@ jobs:
         run: |
           python -m unittest NUMERIA_ES8P262.test_theta_moments -v
           python -O -m unittest NUMERIA_ES8P262.test_theta_moments -v
+          python -m unittest NUMERIA_ES8P262.test_source_algebra -v
+          python -O -m unittest NUMERIA_ES8P262.test_source_algebra -v
       - name: Certify F(0), F(2), F(4) and sign of printed KPS formula
         run: |
           mkdir -p replay
@@ -51,7 +53,15 @@ jobs:
               raise ArithmeticError('scope claim violated')
           print('P262 exact interval source consistency gate:',d['phi_as_printed'])
           PY
-          sha256sum replay/P262_KPS_MOMENTS.json > replay/P262_SHA256SUMS
+          python -m NUMERIA_ES8P262.source_algebra --moments replay/P262_KPS_MOMENTS.json --out replay/P262_SOURCE_ALGEBRA.json
+          python - <<'PY'
+          import json
+          d=json.load(open('replay/P262_SOURCE_ALGEBRA.json'))
+          if not d['phi2_intervals_disjoint'] or d['intended_Bernstein_candidate_ruled_out'] or d['Riemann_hypothesis_proved_or_disproved']:
+              raise ArithmeticError('source consistency or scope failure')
+          print('P262 source ratio and printed equation are disjoint, not an RH claim')
+          PY
+          sha256sum replay/P262_KPS_MOMENTS.json replay/P262_SOURCE_ALGEBRA.json > replay/P262_SHA256SUMS
           cat replay/P262_SHA256SUMS
       - name: Preserve interval certificates
         uses: actions/upload-artifact@v4
@@ -59,5 +69,6 @@ jobs:
           name: numeria-p262-kps-theta-moments
           path: |
             replay/P262_KPS_MOMENTS.json
+            replay/P262_SOURCE_ALGEBRA.json
             replay/P262_SHA256SUMS
           retention-days: 30
