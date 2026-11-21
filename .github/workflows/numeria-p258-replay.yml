@@ -1,0 +1,63 @@
+name: Replay NUMERIA P258
+
+on:
+  push:
+    branches: [numeria-p258-prime7-reinforced-auxiliary]
+    paths:
+      - "NUMERIA_ES8P258/**"
+      - ".github/workflows/numeria-p258-replay.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned numeric dependencies
+        run: python -m pip install -r NUMERIA_ES8P249/requirements.txt
+      - name: Test P258 and replay preceding certificates
+        run: |
+          python -m unittest NUMERIA_ES8P253.test_threshold NUMERIA_ES8P254.test_floor_schur NUMERIA_ES8P256.test_weighted_bridge NUMERIA_ES8P257.test_p257 NUMERIA_ES8P258.test_p258 -v
+          python -O -m unittest NUMERIA_ES8P258.test_p258 -v
+      - name: Certify by endpoint identities and directed GL60
+        run: |
+          mkdir -p replay/chunks
+          python -m NUMERIA_ES8P258.audit --out replay/P258_ENDPOINT.json
+          seq 0 84 924 | xargs -P 2 -I@ bash -c '
+            python -m NUMERIA_ES8P258.concentration --start "$1" --stop "$(($1+84))" --out "replay/chunks/$1.json.gz"
+          ' _ @
+          python -m NUMERIA_ES8P258.concentration --chunks replay/chunks/*.json.gz --out replay/P258_G504.json.gz
+          sha=$(sha256sum replay/P258_G504.json.gz | cut -d ' ' -f 1)
+          python -m NUMERIA_ES8P258.audit --gram replay/P258_G504.json.gz --gram-sha "$sha" --out replay/P258_GL60.json
+          sha256sum replay/P258_ENDPOINT.json replay/P258_G504.json.gz replay/P258_GL60.json > replay/SHA256SUMS
+          cat replay/SHA256SUMS
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          from pathlib import Path
+          for result in (Path("replay/P258_ENDPOINT.json"), Path("replay/P258_GL60.json")):
+              data = json.loads(result.read_text())
+              print(result)
+              for sector, record in data["sectors"].items():
+                  witness = record.get("negative_witness")
+                  bound = float(Fraction(witness["exact_rational_replay"]["rayleigh_interval_exact"][1])) if witness else None
+                  print(sector, record["validation"]["status"], record["validation"]["positive_pivot_count"], bound)
+              print("Schur and local Weil:", data["model_and_local_Weil_margins"])
+          PY
+      - name: Archive interval certificates
+        uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p258-certificates
+          path: |
+            replay/P258_ENDPOINT.json
+            replay/P258_G504.json.gz
+            replay/P258_GL60.json
+            replay/SHA256SUMS
