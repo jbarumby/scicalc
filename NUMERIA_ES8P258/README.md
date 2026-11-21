@@ -2,6 +2,23 @@
 
 A P258 parte do commit [bb6ace41](https://github.com/jbarumby/scicalc/commit/bb6ace41f4e9739cde488d3952803b78e5a92118) do PR #63. O cálculo testa o modelo auxiliar truncado de quatro potências primas, com corte 504, piso espectral 1/4 e meia-largura racional 0,972955074527656652552676371721590. Essa largura fica cerca de 1,35×10⁻³⁴ acima de log(7)/2. Há 377 modos por setor de paridade.
 
+## Resultado executado
+
+**O piso 1/4 certifica o setor par, mas o setor ímpar ainda tem uma direção negativa.** Os dois cálculos de G concordaram nas 71.253 entradas triangulares de cada setor. O C/MPFR repetiu os 377 pivôs do setor par. No ímpar, a testemunha usa 29 coordenadas diádicas, preenchidas com zeros até a dimensão 377. O seu sinal foi conferido em Arb e por frações exatas, com as duas cotas GL60 incluídas.
+
+| Modelo na largura testada | Setor par | Setor ímpar |
+| --- | --- | --- |
+| P253, piso antigo, corte 504 | Rayleigh certificado < −1,12×10⁻²⁹ | Rayleigh certificado < −5,30×10⁻²³ |
+| P258, piso 1/4, corte 504 | Menor autovalor > 4,53×10⁻²⁸ | Rayleigh certificado < −1,7300×10⁻²⁴ |
+
+As testemunhas usadas em etapas distintas podem ser diferentes. Os valores negativos da tabela são cotas de Rayleigh. O diagnóstico de condicionamento provou κ₂>6,69×10²⁷ no setor par e κ₂>8,69×10²³ no ímpar. A negatividade sobrevive à dilatação para a largura racional inferior a log(7)/2 registrada no JSON. A extensão por zero então impede a positividade do mesmo auxiliar, com corte 504 e piso 1/4, em toda janela maior ou igual ao limiar. Uma congruência invertível preserva a direção negativa. [Resumo durável e testemunha](P258_RESULTADO.json) · [Certificados GL60 e de extremos](https://github.com/jbarumby/scicalc/actions/runs/44858303395/artifacts/14688468811) · [Replay independente MPFR e frações](https://github.com/jbarumby/scicalc/actions/runs/44859003923/artifacts/14688504136)
+
+### Obstrução para qualquer piso constante no corte 504
+
+Em t=58933/100, a avaliação da digama e dos quatro cossenos em Arb provou Ψ₄(t)<7/25. Um piso constante válido para toda a cauda precisa ser menor que esse teto. O teste em 7/25 serve como **majorante de forma pelo ordenamento em β**, pois, para β₁≤β₂, R_{β₂}−R_{β₁}=(β₂−β₁)(I−G₅₀₄)≥0 no espaço da janela. O replay encontrou, para a forma majorante com piso 7/25, um limite superior de Rayleigh ímpar menor que −4,04×10⁻²⁵ já na largura racional abaixo do limiar. Logo, nenhum piso constante admissível em |t|≥504 torna positivo esse auxiliar de quatro termos acima do limiar. O teto 7/25 é usado para comparação e a certificação do piso 1/4 na cauda continua válida. [Dados, digests e largura inferior](P258_RESULTADO.json)
+
+A janela de Weil certificada pelo NUMERIA permanece em 0,95. O obstáculo se refere ao auxiliar truncado, que descarta a parte do símbolo acima do piso. Uma próxima tentativa é reter pisos por faixas de frequência. Um candidato já tem validade analítica. Use 1/4 entre 504 e 850 e 1/2 a partir de 850. De fato, Binet e a soma de amplitudes dão Ψ₄(t)≥β+log(850/504)+1/504−1/850>1/2 para t≥850, pois log(850/504)>2(850−504)/(850+504)>1/2. Em relação à P258, isso acrescentaria (1/4)(I−G₈₅₀). A margem dessa nova matriz e a reserva para 7 ainda precisam ser certificadas.
+
 ## Certificados que entram no cálculo
 
 A P249 separou a parte oscilatória de primos e controlou o complemento modal. A P250 certificou a cauda antiga a partir de 309. A P251 verificou o bloco finito com o β antigo e sua passagem para Weil na janela de meia-largura 0,805. A P252 ampliou essa janela para 0,95, com margem superior a 3,41×10⁻²⁷ na forma de Weil. A P253 certificou direções negativas no auxiliar de quatro termos com corte 504 e piso antigo na largura usada agora. Seus limites superiores de Rayleigh eram −1,12×10⁻²⁹ no setor par e −5,30×10⁻²³ no ímpar. Esses limites incluíam o erro analítico GL60 e não se transportam automaticamente ao piso elevado. [P251 Gate C](../NUMERIA_ES8P251/gate_c/README.md) · [P252](../NUMERIA_ES8P252/README.md) · [P253](../NUMERIA_ES8P253/README.md)
@@ -28,7 +45,7 @@ O teste LDL usa pivôs em Arb e a cota da inversa do centro com a perturbação 
 
 Se o limite superior de Rayleigh for inferior à perda por dilatação, a negatividade também vale numa largura racional logo abaixo de log(7)/2. O modelo auxiliar conserva símbolos, polos e corte em todas essas larguras e a extensão por zero transporta essa direção a janelas maiores. Para a dilatação unitária de g em [−1,1], F_L(t)=√L Ĝ(Lt). Em |t|≤504, Plancherel dá ‖∂_L F_L‖≤1/(2L)+504<505 para 0,95≤L≤1, com ‖g‖=1. O residual na banda tem módulo menor que 21 pela cota P239 e pela diferença entre os pisos. Isso limita a derivada da contribuição integral por 21210. As amplitudes dos polos e suas derivadas têm módulo menor que 3. A regra do produto dá mais 36. Usamos 21250 como constante total. A extensão por zero refere-se ao operador limitado auxiliar.
 
-Para o teste de Schur no caso positivo, o orçamento modal de P249 continua válido. A P239 mostra |Ψ₄−β|<1384/75 na banda real até 504. Como |1/4−β|<1/4, |Ψ₄−1/4|<20, o mesmo majorante usado no complemento. Com a≥λ_min do bloco finito, d=1/4−‖D−(1/4)I‖ e b²≥‖B‖², a desigualdade (a−m)(d−m)>b² verifica a margem m no auxiliar. Essa forma de separar a parte limitada corresponde à fatoração de Schur de Dijksma e Langer. [Estimativa P239](../numeria/README_ES8P239_ZHU_EXTENSION.md) · [Dijksma e Langer](https://doi.org/10.1007/s43036-020-00050-0)
+Para o teste de Schur no caso positivo, o orçamento modal de P249 continua válido. A P239 mostra |Ψ₄−β|<1384/75 na banda real até 504. Como |1/4−β|<1/4, |Ψ₄−1/4|<20, o mesmo majorante usado no complemento. Com a≤λ_min do bloco finito, d=1/4−‖D−(1/4)I‖ e b²≥‖B‖², a desigualdade (a−m)(d−m)>b² verifica a margem m no auxiliar. Essa forma de separar a parte limitada corresponde à fatoração de Schur de Dijksma e Langer. [Estimativa P239](../numeria/README_ES8P239_ZHU_EXTENSION.md) · [Dijksma e Langer](https://doi.org/10.1007/s43036-020-00050-0)
 
 ## Limiar do primo 7
 
@@ -62,3 +79,12 @@ python -m NUMERIA_ES8P258.audit --gram replay/P258_G504.json.gz \
 ~~~
 
 O workflow restrito à branch P258 gera os dois relatórios JSON, o agregado GL60 comprimido e o manifesto SHA-256. A investigação textual de Alpöge e da soma ponderada de von Mangoldt nas P255 e P256 continua como linha separada. A identidade de Guinand–Weil é usada na passagem condicional das faixas. Nenhum passo usa a Hipótese de Riemann ou um teorema da formalização de Alpöge como premissa de positividade. [P255](https://github.com/jbarumby/scicalc/pull/61) · [P256](../NUMERIA_ES8P256/README.md)
+
+A execução principal passou 58 testes em Python normal, nas etapas P253, P254, P256, P257 e P258, e passou os cinco testes novos também com -O. A segunda execução conferiu novamente os três SHA-256 da execução principal, recompôs o bloco par e executou o LDL em C/MPFR com arredondamento dirigido. Os arquivos da quadratura **ponderada** de base vieram da P253 autenticada. A P258 regenerou integralmente a quadratura **não ponderada** de G₅₀₄ e repetiu o sinal da cauda. [Execução principal](https://github.com/jbarumby/scicalc/actions/runs/44858303395) · [Execução independente](https://github.com/jbarumby/scicalc/actions/runs/44859003923)
+
+Depois de gerar ou extrair o pacote principal em replay/, o replay independente pode ser repetido em Linux com cc, GMP e libmpfr.so.6.
+
+~~~bash
+python -m NUMERIA_ES8P258.postcheck --replay replay --out P258_POSTCHECK.json
+sha256sum P258_POSTCHECK.json
+~~~
