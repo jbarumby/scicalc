@@ -26,10 +26,13 @@ jobs:
         run: |
           python -m unittest NUMERIA_ES8P260.test_ahlfors -v
           python -O -m unittest NUMERIA_ES8P260.test_ahlfors -v
+          python -m unittest NUMERIA_ES8P260.test_pole_parity -v
+          python -O -m unittest NUMERIA_ES8P260.test_pole_parity -v
       - name: Reproduce exact-rational coefficient and archimedean floors
         run: |
           mkdir -p replay
           python -m NUMERIA_ES8P260.ahlfors_digamma --out replay/P260_AHLFORS.json
+          python -m NUMERIA_ES8P260.pole_parity --out replay/P260_POLE.json
           python - <<'PY'
           import json
           from fractions import Fraction
@@ -47,12 +50,13 @@ jobs:
               raise ArithmeticError('scope boundary violated')
           print('P260: four strict rational floors and explicit scope confirmed')
           PY
-          sha256sum replay/P260_AHLFORS.json > replay/SHA256SUMS
+          sha256sum replay/P260_AHLFORS.json replay/P260_POLE.json > replay/SHA256SUMS
           cat replay/SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
           name: numeria-p260-ahlfors-rational-certificate
           path: |
             replay/P260_AHLFORS.json
+            replay/P260_POLE.json
             replay/SHA256SUMS
           retention-days: 30
