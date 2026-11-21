@@ -1,0 +1,4150 @@
+{
+  "schema": "NUMERIA.P74.EXPERIMENTS.1",
+  "graded_by_precision_and_count": [
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 20,
+      "precision_bits": 192,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 20,
+        "count_at_height": 20,
+        "count_height": 78,
+        "count_height_dyadic": [
+          "39",
+          1
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "3783171949003609265519343756652588603152125178867689929757",
+            -185
+          ],
+          [
+            "3783171949003609265519343756652588603152125178867689930785",
+            -185
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "e6c4e3a1b5421a78047fd11ec415114200691c3e8cd7ae2e34215910a4563a8d",
+        "hardy_endpoint_sign_verified_count": 20,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "5601630441654948096596224458045863985112406867590526721027",
+          -199
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "4290903346398896046362117520031792047421047773443341713435",
+        -197
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "5601630441654948096596224458045863985112406867590526721027",
+            -199
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "5601630441654948096596224458045863985112406867590526721027",
+            -199
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "5601630441654948096596224458045863985112406867590526721027",
+            -199
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "5601630441654948096596224458045863985112406867590526721027",
+            -199
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "5601630441654948096596224458045863985112406867590526721027",
+            -199
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "d38d8d15ddf39fc3f4d6628ba2cab436aeafeeb56c0f3377ce1f14aef239c4f2"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 50,
+      "precision_bits": 192,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 50,
+        "count_at_height": 50,
+        "count_height": 144,
+        "count_height_dyadic": [
+          "9",
+          4
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "3509092248724244327504524103317973584301856428971399883473",
+            -184
+          ],
+          [
+            "3509092248724244327504524103317973584301856428971399883989",
+            -184
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "662bc01f008f8c221cc4d3a64ff06999c368ecb0e696cc852d6daf0bb8439dbc",
+        "hardy_endpoint_sign_verified_count": 50,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "4152285962807166784887621865030748828612995793925089691873",
+          -198
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "2687196176180986459929237803461494887404702056858257458405",
+        -196
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "4152285962807166784887621865030748828612995793925089691873",
+            -198
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "4152285962807166784887621865030748828612995793925089691873",
+            -198
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "4152285962807166784887621865030748828612995793925089691873",
+            -198
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "4152285962807166784887621865030748828612995793925089691873",
+            -198
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "4152285962807166784887621865030748828612995793925089691873",
+            -198
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "7057cef9ed99221fdf86621f65b7f747f013805e4adb3d31c7b42a7c8d3e8abb"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 100,
+      "precision_bits": 192,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 100,
+        "count_at_height": 100,
+        "count_height": 237,
+        "count_height_dyadic": [
+          "237",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "1449889309078410884205747630124994913945500664154490727597",
+            -182
+          ],
+          [
+            "724944654539205442102873815062497456972750332077245363863",
+            -181
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "af16a8dc8251e3442b9b194f5a7f3b0eda0b4fc078ac5e8a32b6ae566bcfaea9",
+        "hardy_endpoint_sign_verified_count": 100,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "2053668940229261844011526771438635427817627751040529721937",
+          -197
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "5905511752817987558664958151407323227386431253283277811485",
+        -197
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "2053668940229261844011526771438635427817627751040529721937",
+            -197
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "2053668940229261844011526771438635427817627751040529721937",
+            -197
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "2053668940229261844011526771438635427817627751040529721937",
+            -197
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "2053668940229261844011526771438635427817627751040529721937",
+            -197
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "2053668940229261844011526771438635427817627751040529721937",
+            -197
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "bbdca4396ad85fe7500eda687c65502d08e27a06210f224bc73315f2d043a2f1"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 200,
+      "precision_bits": 192,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 200,
+        "count_at_height": 200,
+        "count_height": 397,
+        "count_height_dyadic": [
+          "397",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "4859627392610202599511204263282197386468101546991192278521",
+            -183
+          ],
+          [
+            "4859627392610202599511204263282197386468101546991192278781",
+            -183
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "631b35e0813eb7cdb9a7d8cf3f7b2e95338ffe5112323c4958cb73ee6830e07d",
+        "hardy_endpoint_sign_verified_count": 200,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "2554338808873508401131845613844475419984767046325894119995",
+          -198
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "3182164949151010944247565414825196343440510482675033939849",
+        -196
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "2554338808873508401131845613844475419984767046325894119995",
+            -198
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "2554338808873508401131845613844475419984767046325894119995",
+            -198
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "2554338808873508401131845613844475419984767046325894119995",
+            -198
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "2554338808873508401131845613844475419984767046325894119995",
+            -198
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "2554338808873508401131845613844475419984767046325894119995",
+            -198
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "edc4b2720898a097a1f58958c0d171c1d5b4025e9ddc0bb10566293d4f7905b6"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 500,
+      "precision_bits": 192,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 500,
+        "count_at_height": 500,
+        "count_height": 812,
+        "count_height_dyadic": [
+          "203",
+          2
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "1243136412752425886949635631393124621384297506568212179147",
+            -180
+          ],
+          [
+            "310784103188106471737408907848281155346074376642053044795",
+            -178
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "e7c422976a9eaca14cec7a7ce6e724129f034ae1b02c9149d2a828d23a79c881",
+        "hardy_endpoint_sign_verified_count": 500,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2841,
+      "attempted_cell_count": 2992,
+      "endpoint_evaluation_count": 2842,
+      "maximum_subdivision_depth": 1,
+      "minimum": {
+        "lower_dyadic": [
+          "1934019009042099950965865164140939416594347487824657591167",
+          -210
+        ],
+        "cell": [
+          "2643/64",
+          "661/16"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "1688409174697588514654613450671983234058157219595943454269",
+        -195
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1926,
+          "minimum_through_target_dyadic": [
+            "1934019009042099950965865164140939416594347487824657591167",
+            -210
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1987,
+          "minimum_through_target_dyadic": [
+            "1934019009042099950965865164140939416594347487824657591167",
+            -210
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2162,
+          "minimum_through_target_dyadic": [
+            "1934019009042099950965865164140939416594347487824657591167",
+            -210
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2502,
+          "minimum_through_target_dyadic": [
+            "1934019009042099950965865164140939416594347487824657591167",
+            -210
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2841,
+          "minimum_through_target_dyadic": [
+            "1934019009042099950965865164140939416594347487824657591167",
+            -210
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "e062702728f7a7a75b87710fd054b07ccd9607fb1133bc4a91c0441bafb2f091"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 20,
+      "precision_bits": 256,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 20,
+        "count_at_height": 20,
+        "count_height": 78,
+        "count_height_dyadic": [
+          "39",
+          1
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "799164724099941636604856520180256099907130935322170596037328207051644795397",
+            -245
+          ],
+          [
+            "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+            -250
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "34893602365053271622174109127031258288548084627290698593466871910102824848057",
+            -248
+          ],
+          [
+            "34893602365053271622174109127031258288548084627290698593466871910102824848571",
+            -248
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "2732c34f097c10f6420b0fe1620a77c801049c141886c6a7d4bca72654bb3b93",
+        "hardy_endpoint_sign_verified_count": 20,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+          -752
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -240
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+          -294
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+              -294
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+              -299
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+              -302
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+              -305
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+              -302
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+              -307
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+              -308
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+              -306
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+              -308
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+              -310
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "815699587199957176796263433457867568794431181563595065344232148934034104587",
+              -306
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+              -314
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+              -314
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+              -316
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+              -316
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+              -317
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+          -263
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "4947074742252769933781916815293010633136719534019388555482709551671789613051",
+        -257
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+            -263
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+            -263
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+            -263
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+            -263
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "103331843152709432044120097131971153793241618658683004396031497772338095312393",
+            -263
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "299d5fbcbc1f9ec543c5d38558535c44644f86545c8a734eaa56662988e92854"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 50,
+      "precision_bits": 256,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 50,
+        "count_at_height": 50,
+        "count_height": 144,
+        "count_height_dyadic": [
+          "9",
+          4
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "799164724099941636604856520180256099907130935322170596037328207051644795397",
+            -245
+          ],
+          [
+            "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+            -250
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "64731326643254077935573312384526137175411055042611810752719432068356623254123",
+            -248
+          ],
+          [
+            "64731326643254077935573312384526137175411055042611810752719432068356623254639",
+            -248
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "7b7fabce17c4dd1506511227cc973214df3efcdb92a877953ab8c23a560642df",
+        "hardy_endpoint_sign_verified_count": 50,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+          -752
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -240
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+          -294
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+              -294
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+              -299
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+              -302
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+              -305
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+              -302
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+              -307
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+              -308
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+              -306
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+              -308
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+              -310
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "815699587199957176796263433457867568794431181563595065344232148934034104587",
+              -306
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+              -314
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+              -314
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+              -316
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+              -316
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+              -317
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+          -261
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "774531564654087189754861860961371556675219237477345887493099521217470872559",
+        -254
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+            -261
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+            -261
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+            -261
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+            -261
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "38298078238380231773026072849209854194848987357307084185180143914758825757423",
+            -261
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "70634c306142a7021161a062cbe0c72d63c99543528bc8774d418024dac7b034"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 100,
+      "precision_bits": 256,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 100,
+        "count_at_height": 100,
+        "count_height": 237,
+        "count_height_dyadic": [
+          "237",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "799164724099941636604856520180256099907130935322170596037328207051644795397",
+            -245
+          ],
+          [
+            "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+            -250
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "106982948079108049491035097288568893141690679378764905276023144420777375279335",
+            -248
+          ],
+          [
+            "106982948079108049491035097288568893141690679378764905276023144420777375279851",
+            -248
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "9048b5b9354951ed0cb8ed6137c92d00f60d337d25ce6976d498b612968b01dd",
+        "hardy_endpoint_sign_verified_count": 100,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+          -752
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -240
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+          -294
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+              -294
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+              -299
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+              -302
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+              -305
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+              -302
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+              -307
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+              -308
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+              -306
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+              -308
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+              -310
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "815699587199957176796263433457867568794431181563595065344232148934034104587",
+              -306
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+              -314
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+              -314
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+              -316
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+              -316
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+              -317
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+          -262
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "27234365982129329613277388049596173053205903761955621256881413930575237387453",
+        -259
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+            -262
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+            -262
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+            -262
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+            -262
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "75767010705071022594906724333243985009208380929360256647513061082315086271285",
+            -262
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "02d377bed4dc382574529313431ec27d2b81db032570ed03603b324ea50ef37c"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 200,
+      "precision_bits": 256,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 200,
+        "count_at_height": 200,
+        "count_height": 397,
+        "count_height_dyadic": [
+          "397",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "799164724099941636604856520180256099907130935322170596037328207051644795397",
+            -245
+          ],
+          [
+            "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+            -250
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "89644302805068855271446935653363781960364515235121325134537360796819097031787",
+            -247
+          ],
+          [
+            "89644302805068855271446935653363781960364515235121325134537360796819097032047",
+            -247
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "84ce772d808982098b81b5d42f808d7d0aa67e2fd57c5b6606e82701e78ddcb0",
+        "hardy_endpoint_sign_verified_count": 200,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+          -752
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -240
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+          -294
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+              -294
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+              -299
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+              -302
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+              -305
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+              -302
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+              -307
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+              -308
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+              -306
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+              -308
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+              -310
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "815699587199957176796263433457867568794431181563595065344232148934034104587",
+              -306
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+              -314
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+              -314
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+              -316
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+              -316
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+              -317
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2690,
+      "attempted_cell_count": 2690,
+      "endpoint_evaluation_count": 2691,
+      "maximum_subdivision_depth": 0,
+      "minimum": {
+        "lower_dyadic": [
+          "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+          -260
+        ],
+        "cell": [
+          "203/8",
+          "1625/64"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "58700582417317667799805568404131022923744584685120975514768222565209878463855",
+        -260
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+            -260
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1888,
+          "minimum_through_target_dyadic": [
+            "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+            -260
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2050,
+          "minimum_through_target_dyadic": [
+            "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+            -260
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2370,
+          "minimum_through_target_dyadic": [
+            "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+            -260
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2690,
+          "minimum_through_target_dyadic": [
+            "11779808571208426533735573148587325245441011697560128124405365994962599039123",
+            -260
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "4742f362f77f13e26fb5f15f4e2f3b1b856ffa0731d35f9233a28ec1c89f0e42"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "60",
+      "zero_count": 500,
+      "precision_bits": 256,
+      "tail_profile": "graded",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5",
+        "1187/25",
+        "50",
+        "55"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 500,
+        "count_at_height": 500,
+        "count_height": 812,
+        "count_height_dyadic": [
+          "203",
+          2
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "799164724099941636604856520180256099907130935322170596037328207051644795397",
+            -245
+          ],
+          [
+            "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+            -250
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "22931819254753363297036885928916081615337330990948463039001336167794454770003",
+            -244
+          ],
+          [
+            "5732954813688340824259221482229020403834332747737115759750334041948613692509",
+            -242
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "482002a69ea975efa119d9a8346a89303d9825697031598fa384c5e8e01d2896",
+        "hardy_endpoint_sign_verified_count": 500,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+          -752
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -240
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+          -294
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+              -294
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+              -299
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+              -302
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+              -305
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+              -302
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+              -307
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+              -308
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+              -306
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+              -308
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+              -310
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "815699587199957176796263433457867568794431181563595065344232148934034104587",
+              -306
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+              -314
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+              -314
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+              -316
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+              -316
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+              -317
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "60",
+      "cell_count": 2841,
+      "attempted_cell_count": 2992,
+      "endpoint_evaluation_count": 2842,
+      "maximum_subdivision_depth": 1,
+      "minimum": {
+        "lower_dyadic": [
+          "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+          -274
+        ],
+        "cell": [
+          "2643/64",
+          "661/16"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "62291303874699151916947529110331410491761797922804419476446741939694550258397",
+        -260
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1926,
+          "minimum_through_target_dyadic": [
+            "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+            -274
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 1987,
+          "minimum_through_target_dyadic": [
+            "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+            -274
+          ]
+        },
+        {
+          "target_exact": "50",
+          "status": "certified_positive",
+          "cells_through_target": 2162,
+          "minimum_through_target_dyadic": [
+            "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+            -274
+          ]
+        },
+        {
+          "target_exact": "55",
+          "status": "certified_positive",
+          "cells_through_target": 2502,
+          "minimum_through_target_dyadic": [
+            "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+            -274
+          ]
+        },
+        {
+          "target_exact": "60",
+          "status": "certified_positive",
+          "cells_through_target": 2841,
+          "minimum_through_target_dyadic": [
+            "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+            -274
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "f31542f62cfc72b7c1668a5a4db88e170b580a40e48485fef956f70f6a986426"
+    }
+  ],
+  "coarse_by_count": [
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "1187/25",
+      "zero_count": 20,
+      "precision_bits": 192,
+      "tail_profile": "coarse",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 20,
+        "count_at_height": 20,
+        "count_height": 78,
+        "count_height_dyadic": [
+          "39",
+          1
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "3783171949003609265519343756652588603152125178867689929757",
+            -185
+          ],
+          [
+            "3783171949003609265519343756652588603152125178867689930785",
+            -185
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "e6c4e3a1b5421a78047fd11ec415114200691c3e8cd7ae2e34215910a4563a8d",
+        "hardy_endpoint_sign_verified_count": 20,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "inconclusive",
+      "certified_through_exact": "61144507/1310720",
+      "cell_count": 1842,
+      "attempted_cell_count": 1855,
+      "endpoint_evaluation_count": 1849,
+      "maximum_subdivision_depth": 12,
+      "minimum": {
+        "lower_dyadic": [
+          "106588711912149977593708567438531462842996597675917245",
+          -197
+        ],
+        "cell": [
+          "30572251/655360",
+          "61144507/1310720"
+        ]
+      },
+      "first_unresolved_cell": {
+        "cell": [
+          "61144507/1310720",
+          "955383/20480"
+        ],
+        "cell_lower_dyadic": [
+          "-12644789964754185997553048836819740615621886867018713",
+          -197
+        ],
+        "point_envelope_upper_dyadic": [
+          "-3237066230977071615373580502225853597599203037107139439",
+          -205
+        ],
+        "depth": 12
+      },
+      "endpoint_envelope_upper_dyadic": [
+        "-4778746526503248499396002319256430194631871044795899630023",
+        -198
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "373951671887055068689168045128802257324508796690641395227",
+            -197
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "inconclusive",
+          "cells_through_target": null,
+          "minimum_through_target_dyadic": null
+        }
+      ],
+      "ordered_cell_bounds_sha256": "50e58c62dee40f44ed176d45f695b9f57f487ad9777f48db45b9aef5e875bbff"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "1187/25",
+      "zero_count": 50,
+      "precision_bits": 192,
+      "tail_profile": "coarse",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 50,
+        "count_at_height": 50,
+        "count_height": 144,
+        "count_height_dyadic": [
+          "9",
+          4
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "3509092248724244327504524103317973584301856428971399883473",
+            -184
+          ],
+          [
+            "3509092248724244327504524103317973584301856428971399883989",
+            -184
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "662bc01f008f8c221cc4d3a64ff06999c368ecb0e696cc852d6daf0bb8439dbc",
+        "hardy_endpoint_sign_verified_count": 50,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "inconclusive",
+      "certified_through_exact": "15441783/327680",
+      "cell_count": 1875,
+      "attempted_cell_count": 1894,
+      "endpoint_evaluation_count": 1885,
+      "maximum_subdivision_depth": 10,
+      "minimum": {
+        "lower_dyadic": [
+          "1611689742515622966601649063320928023112714294362343",
+          -197
+        ],
+        "cell": [
+          "7720889/163840",
+          "15441783/327680"
+        ]
+      },
+      "first_unresolved_cell": {
+        "cell": [
+          "15441783/327680",
+          "61767137/1310720"
+        ],
+        "cell_lower_dyadic": [
+          "-34965762958033992106915523865025643358729256253124915",
+          -197
+        ],
+        "point_envelope_upper_dyadic": [
+          "-17902470634513403958740748218893129399669379199732116173",
+          -206
+        ],
+        "depth": 12
+      },
+      "endpoint_envelope_upper_dyadic": [
+        "-5110896408075005991965756637185021756058513359292536987227",
+        -199
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "880130262425196112700129037053118393497780467925641395367",
+            -197
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "inconclusive",
+          "cells_through_target": null,
+          "minimum_through_target_dyadic": null
+        }
+      ],
+      "ordered_cell_bounds_sha256": "7e6ce477f81fe924ea1462b24c27418896d49d3c9d0b27f9f9413f15dffc0e6f"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "1187/25",
+      "zero_count": 100,
+      "precision_bits": 192,
+      "tail_profile": "coarse",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 100,
+        "count_at_height": 100,
+        "count_height": 237,
+        "count_height_dyadic": [
+          "237",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "1449889309078410884205747630124994913945500664154490727597",
+            -182
+          ],
+          [
+            "724944654539205442102873815062497456972750332077245363863",
+            -181
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "af16a8dc8251e3442b9b194f5a7f3b0eda0b4fc078ac5e8a32b6ae566bcfaea9",
+        "hardy_endpoint_sign_verified_count": 100,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "inconclusive",
+      "certified_through_exact": "62218897/1310720",
+      "cell_count": 1900,
+      "attempted_cell_count": 1921,
+      "endpoint_evaluation_count": 1909,
+      "maximum_subdivision_depth": 12,
+      "minimum": {
+        "lower_dyadic": [
+          "36085939249336086829814866482947024777827548949766257",
+          -197
+        ],
+        "cell": [
+          "15554723/327680",
+          "62218897/1310720"
+        ]
+      },
+      "first_unresolved_cell": {
+        "cell": [
+          "62218897/1310720",
+          "31109451/655360"
+        ],
+        "cell_lower_dyadic": [
+          "-8221313934147071537412873105855963412350026700780079",
+          -192
+        ],
+        "point_envelope_upper_dyadic": [
+          "-8418625468566601254310782060396506534246427341408720779",
+          -202
+        ],
+        "depth": 12
+      },
+      "endpoint_envelope_upper_dyadic": [
+        "-3031634940174001364057156894146854833207314429428890184755",
+        -199
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "850538918986026374492061861738973469679737002061349448247",
+            -197
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "inconclusive",
+          "cells_through_target": null,
+          "minimum_through_target_dyadic": null
+        }
+      ],
+      "ordered_cell_bounds_sha256": "3b54b4bb8161fefc0b4135417ebf55f2c18b80dcc780f9a1439e98261e052023"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "1187/25",
+      "zero_count": 200,
+      "precision_bits": 192,
+      "tail_profile": "coarse",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 200,
+        "count_at_height": 200,
+        "count_height": 397,
+        "count_height_dyadic": [
+          "397",
+          0
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "4859627392610202599511204263282197386468101546991192278521",
+            -183
+          ],
+          [
+            "4859627392610202599511204263282197386468101546991192278781",
+            -183
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "631b35e0813eb7cdb9a7d8cf3f7b2e95338ffe5112323c4958cb73ee6830e07d",
+        "hardy_endpoint_sign_verified_count": 200,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "inconclusive",
+      "certified_through_exact": "62226057/1310720",
+      "cell_count": 1912,
+      "attempted_cell_count": 1942,
+      "endpoint_evaluation_count": 1918,
+      "maximum_subdivision_depth": 12,
+      "minimum": {
+        "lower_dyadic": [
+          "4257273101308933388602359517120736403700502598251185",
+          -193
+        ],
+        "cell": [
+          "15556513/327680",
+          "62226057/1310720"
+        ]
+      },
+      "first_unresolved_cell": {
+        "cell": [
+          "62226057/1310720",
+          "31113031/655360"
+        ],
+        "cell_lower_dyadic": [
+          "-5832195032717746601366398404376702852652778074505863",
+          -192
+        ],
+        "point_envelope_upper_dyadic": [
+          "-47777341708023780158393535728653949768931557984863051823",
+          -205
+        ],
+        "depth": 12
+      },
+      "endpoint_envelope_upper_dyadic": [
+        "-4839299975661567652557962090618662025435681464544777154371",
+        -201
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 1831,
+          "minimum_through_target_dyadic": [
+            "27866178933650189131436999089910901796574764318879856661",
+            -197
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "inconclusive",
+          "cells_through_target": null,
+          "minimum_through_target_dyadic": null
+        }
+      ],
+      "ordered_cell_bounds_sha256": "90bb2be64440b681355b3769df473a242382def96be6c7e1821ad5c454a125b7"
+    },
+    {
+      "schema": "NUMERIA.P74.ZERO_SIDE.1",
+      "start_exact": "18",
+      "end_exact": "1187/25",
+      "zero_count": 500,
+      "precision_bits": 192,
+      "tail_profile": "coarse",
+      "method": "adaptive",
+      "mesh_width_exact": "1/64",
+      "checkpoint_inputs_exact": [
+        "233/5"
+      ],
+      "overlaps_prime_side_to_10_pow_8": true,
+      "zeros": {
+        "zero_count": 500,
+        "count_at_height": 500,
+        "count_height": 812,
+        "count_height_dyadic": [
+          "203",
+          2
+        ],
+        "first_ordinate_bounds_dyadic": [
+          [
+            "346582452017174193813233793676667525736315746532037894541",
+            -184
+          ],
+          [
+            "1386329808068696775252935174706670102945262986128151580213",
+            -186
+          ]
+        ],
+        "last_ordinate_bounds_dyadic": [
+          [
+            "1243136412752425886949635631393124621384297506568212179147",
+            -180
+          ],
+          [
+            "310784103188106471737408907848281155346074376642053044795",
+            -178
+          ]
+        ],
+        "ordered_ordinate_bounds_sha256": "e7c422976a9eaca14cec7a7ce6e724129f034ae1b02c9149d2a828d23a79c881",
+        "hardy_endpoint_sign_verified_count": 500,
+        "hardy_endpoint_sign_minimum_dyadic": [
+          "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+          -559
+        ],
+        "outward_padding_dyadic": [
+          "1",
+          -176
+        ]
+      },
+      "tail_bounds": {
+        "verified_critical_line_height": 3000000000000,
+        "all_positive_ordinate_mass_upper_dyadic": [
+          "2553134782250139487966504916903933239231103791430260960665",
+          -230
+        ],
+        "density_bounds": [
+          {
+            "sigma": "80/100",
+            "mass_upper_dyadic": [
+              "1609749222644213469613084015263334295422116289999885282017",
+              -231
+            ]
+          },
+          {
+            "sigma": "85/100",
+            "mass_upper_dyadic": [
+              "1882577195736562357248080436109716626998085559176971563459",
+              -237
+            ]
+          },
+          {
+            "sigma": "86/100",
+            "mass_upper_dyadic": [
+              "3380712823349148837016925768082444877236339030050712485783",
+              -239
+            ]
+          },
+          {
+            "sigma": "87/100",
+            "mass_upper_dyadic": [
+              "6069837133886051781952684703430298418733048697724469222483",
+              -241
+            ]
+          },
+          {
+            "sigma": "88/100",
+            "mass_upper_dyadic": [
+              "2724061299961033352905925789846131487013484540935448231125",
+              -241
+            ]
+          },
+          {
+            "sigma": "89/100",
+            "mass_upper_dyadic": [
+              "4888578076149200507080555796382216156143051120379213233941",
+              -243
+            ]
+          },
+          {
+            "sigma": "90/100",
+            "mass_upper_dyadic": [
+              "548171333731419334629738819880410177409124483468653806933",
+              -241
+            ]
+          },
+          {
+            "sigma": "91/100",
+            "mass_upper_dyadic": [
+              "1966393963865654889832855506210046668736715814461673586981",
+              -244
+            ]
+          },
+          {
+            "sigma": "92/100",
+            "mass_upper_dyadic": [
+              "3525468908658960402133721325218653986271823106674861680117",
+              -246
+            ]
+          },
+          {
+            "sigma": "93/100",
+            "mass_upper_dyadic": [
+              "394934653126841636070077660199142426138809242375704436463",
+              -244
+            ]
+          },
+          {
+            "sigma": "94/100",
+            "mass_upper_dyadic": [
+              "5660052893041425509075999466092801513985279372068771043599",
+              -249
+            ]
+          },
+          {
+            "sigma": "95/100",
+            "mass_upper_dyadic": [
+              "2533844982307779266840967253490210256285643823143123832851",
+              -249
+            ]
+          },
+          {
+            "sigma": "96/100",
+            "mass_upper_dyadic": [
+              "1133876656022988588490657964326304889434340417919220110705",
+              -249
+            ]
+          },
+          {
+            "sigma": "97/100",
+            "mass_upper_dyadic": [
+              "4057342662697500596840196937581917998199115435821653744399",
+              -252
+            ]
+          },
+          {
+            "sigma": "98/100",
+            "mass_upper_dyadic": [
+              "3628528649592388980550758593287495643649252933145250338813",
+              -253
+            ]
+          },
+          {
+            "sigma": "99/100",
+            "mass_upper_dyadic": [
+              "1622395965366460319964849614546110777428205930389779847979",
+              -253
+            ]
+          }
+        ],
+        "sources": {
+          "finite_height": "https://doi.org/10.1112/blms.12460",
+          "zero_count": "https://doi.org/10.1090/mcom/4133",
+          "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+        }
+      },
+      "status": "certified_positive",
+      "certified_through_exact": "1187/25",
+      "cell_count": 2115,
+      "attempted_cell_count": 2342,
+      "endpoint_evaluation_count": 2116,
+      "maximum_subdivision_depth": 2,
+      "minimum": {
+        "lower_dyadic": [
+          "2471167600646209520113456508052015837158419810094458224993",
+          -204
+        ],
+        "cell": [
+          "2163/64",
+          "541/16"
+        ]
+      },
+      "first_unresolved_cell": null,
+      "endpoint_envelope_upper_dyadic": [
+        "2993414931854004580284180506197378116704578450536447911429",
+        -202
+      ],
+      "checkpoints": [
+        {
+          "target_exact": "233/5",
+          "status": "certified_positive",
+          "cells_through_target": 2001,
+          "minimum_through_target_dyadic": [
+            "2471167600646209520113456508052015837158419810094458224993",
+            -204
+          ]
+        },
+        {
+          "target_exact": "1187/25",
+          "status": "certified_positive",
+          "cells_through_target": 2115,
+          "minimum_through_target_dyadic": [
+            "2471167600646209520113456508052015837158419810094458224993",
+            -204
+          ]
+        }
+      ],
+      "ordered_cell_bounds_sha256": "1bba4d62bd8fbbdb1991753de458338c31ab0f7d906cca00cef6d0a893e345f4"
+    }
+  ],
+  "uniform_control": {
+    "schema": "NUMERIA.P74.ZERO_SIDE.1",
+    "start_exact": "18",
+    "end_exact": "60",
+    "zero_count": 500,
+    "precision_bits": 192,
+    "tail_profile": "graded",
+    "method": "uniform",
+    "mesh_width_exact": "1/200",
+    "checkpoint_inputs_exact": [
+      "233/5",
+      "1187/25",
+      "50",
+      "55"
+    ],
+    "overlaps_prime_side_to_10_pow_8": true,
+    "zeros": {
+      "zero_count": 500,
+      "count_at_height": 500,
+      "count_height": 812,
+      "count_height_dyadic": [
+        "203",
+        2
+      ],
+      "first_ordinate_bounds_dyadic": [
+        [
+          "346582452017174193813233793676667525736315746532037894541",
+          -184
+        ],
+        [
+          "1386329808068696775252935174706670102945262986128151580213",
+          -186
+        ]
+      ],
+      "last_ordinate_bounds_dyadic": [
+        [
+          "1243136412752425886949635631393124621384297506568212179147",
+          -180
+        ],
+        [
+          "310784103188106471737408907848281155346074376642053044795",
+          -178
+        ]
+      ],
+      "ordered_ordinate_bounds_sha256": "e7c422976a9eaca14cec7a7ce6e724129f034ae1b02c9149d2a828d23a79c881",
+      "hardy_endpoint_sign_verified_count": 500,
+      "hardy_endpoint_sign_minimum_dyadic": [
+        "15628850007591371529179163144029787199060001387235153378210705084043083894613894300938619563454227101324477070436225",
+        -559
+      ],
+      "outward_padding_dyadic": [
+        "1",
+        -176
+      ]
+    },
+    "tail_bounds": {
+      "verified_critical_line_height": 3000000000000,
+      "all_positive_ordinate_mass_upper_dyadic": [
+        "2553134782250139487966504916903933239231103791430260960665",
+        -230
+      ],
+      "density_bounds": [
+        {
+          "sigma": "80/100",
+          "mass_upper_dyadic": [
+            "1609749222644213469613084015263334295422116289999885282017",
+            -231
+          ]
+        },
+        {
+          "sigma": "85/100",
+          "mass_upper_dyadic": [
+            "1882577195736562357248080436109716626998085559176971563459",
+            -237
+          ]
+        },
+        {
+          "sigma": "86/100",
+          "mass_upper_dyadic": [
+            "3380712823349148837016925768082444877236339030050712485783",
+            -239
+          ]
+        },
+        {
+          "sigma": "87/100",
+          "mass_upper_dyadic": [
+            "6069837133886051781952684703430298418733048697724469222483",
+            -241
+          ]
+        },
+        {
+          "sigma": "88/100",
+          "mass_upper_dyadic": [
+            "2724061299961033352905925789846131487013484540935448231125",
+            -241
+          ]
+        },
+        {
+          "sigma": "89/100",
+          "mass_upper_dyadic": [
+            "4888578076149200507080555796382216156143051120379213233941",
+            -243
+          ]
+        },
+        {
+          "sigma": "90/100",
+          "mass_upper_dyadic": [
+            "548171333731419334629738819880410177409124483468653806933",
+            -241
+          ]
+        },
+        {
+          "sigma": "91/100",
+          "mass_upper_dyadic": [
+            "1966393963865654889832855506210046668736715814461673586981",
+            -244
+          ]
+        },
+        {
+          "sigma": "92/100",
+          "mass_upper_dyadic": [
+            "3525468908658960402133721325218653986271823106674861680117",
+            -246
+          ]
+        },
+        {
+          "sigma": "93/100",
+          "mass_upper_dyadic": [
+            "394934653126841636070077660199142426138809242375704436463",
+            -244
+          ]
+        },
+        {
+          "sigma": "94/100",
+          "mass_upper_dyadic": [
+            "5660052893041425509075999466092801513985279372068771043599",
+            -249
+          ]
+        },
+        {
+          "sigma": "95/100",
+          "mass_upper_dyadic": [
+            "2533844982307779266840967253490210256285643823143123832851",
+            -249
+          ]
+        },
+        {
+          "sigma": "96/100",
+          "mass_upper_dyadic": [
+            "1133876656022988588490657964326304889434340417919220110705",
+            -249
+          ]
+        },
+        {
+          "sigma": "97/100",
+          "mass_upper_dyadic": [
+            "4057342662697500596840196937581917998199115435821653744399",
+            -252
+          ]
+        },
+        {
+          "sigma": "98/100",
+          "mass_upper_dyadic": [
+            "3628528649592388980550758593287495643649252933145250338813",
+            -253
+          ]
+        },
+        {
+          "sigma": "99/100",
+          "mass_upper_dyadic": [
+            "1622395965366460319964849614546110777428205930389779847979",
+            -253
+          ]
+        }
+      ],
+      "sources": {
+        "finite_height": "https://doi.org/10.1112/blms.12460",
+        "zero_count": "https://doi.org/10.1090/mcom/4133",
+        "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+      }
+    },
+    "status": "certified_positive",
+    "certified_through_exact": "60",
+    "cell_count": 8400,
+    "attempted_cell_count": 8400,
+    "endpoint_evaluation_count": 8401,
+    "maximum_subdivision_depth": 0,
+    "minimum": {
+      "lower_dyadic": [
+        "3232447083022171328087843730522477984778780152271671978419",
+        -197
+      ],
+      "cell": [
+        "1269/50",
+        "5077/200"
+      ]
+    },
+    "first_unresolved_cell": null,
+    "endpoint_envelope_upper_dyadic": [
+      "1688409174697588514654613450671983234058157219595943454269",
+      -195
+    ],
+    "checkpoints": [
+      {
+        "target_exact": "233/5",
+        "status": "certified_positive",
+        "cells_through_target": 5720,
+        "minimum_through_target_dyadic": [
+          "3232447083022171328087843730522477984778780152271671978419",
+          -197
+        ]
+      },
+      {
+        "target_exact": "1187/25",
+        "status": "certified_positive",
+        "cells_through_target": 5896,
+        "minimum_through_target_dyadic": [
+          "3232447083022171328087843730522477984778780152271671978419",
+          -197
+        ]
+      },
+      {
+        "target_exact": "50",
+        "status": "certified_positive",
+        "cells_through_target": 6400,
+        "minimum_through_target_dyadic": [
+          "3232447083022171328087843730522477984778780152271671978419",
+          -197
+        ]
+      },
+      {
+        "target_exact": "55",
+        "status": "certified_positive",
+        "cells_through_target": 7400,
+        "minimum_through_target_dyadic": [
+          "3232447083022171328087843730522477984778780152271671978419",
+          -197
+        ]
+      },
+      {
+        "target_exact": "60",
+        "status": "certified_positive",
+        "cells_through_target": 8400,
+        "minimum_through_target_dyadic": [
+          "3232447083022171328087843730522477984778780152271671978419",
+          -197
+        ]
+      }
+    ],
+    "ordered_cell_bounds_sha256": "235b64b1e3e820af7fba4c825aa72dc19fe44221ea6295626d8301ab4e650ea1"
+  },
+  "graded_extension": {
+    "schema": "NUMERIA.P74.ZERO_SIDE.1",
+    "start_exact": "18",
+    "end_exact": "135/2",
+    "zero_count": 500,
+    "precision_bits": 256,
+    "tail_profile": "graded",
+    "method": "adaptive",
+    "mesh_width_exact": "1/64",
+    "checkpoint_inputs_exact": [
+      "60"
+    ],
+    "overlaps_prime_side_to_10_pow_8": true,
+    "zeros": {
+      "zero_count": 500,
+      "count_at_height": 500,
+      "count_height": 812,
+      "count_height_dyadic": [
+        "203",
+        2
+      ],
+      "first_ordinate_bounds_dyadic": [
+        [
+          "799164724099941636604856520180256099907130935322170596037328207051644795397",
+          -245
+        ],
+        [
+          "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+          -250
+        ]
+      ],
+      "last_ordinate_bounds_dyadic": [
+        [
+          "22931819254753363297036885928916081615337330990948463039001336167794454770003",
+          -244
+        ],
+        [
+          "5732954813688340824259221482229020403834332747737115759750334041948613692509",
+          -242
+        ]
+      ],
+      "ordered_ordinate_bounds_sha256": "482002a69ea975efa119d9a8346a89303d9825697031598fa384c5e8e01d2896",
+      "hardy_endpoint_sign_verified_count": 500,
+      "hardy_endpoint_sign_minimum_dyadic": [
+        "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+        -752
+      ],
+      "outward_padding_dyadic": [
+        "1",
+        -240
+      ]
+    },
+    "tail_bounds": {
+      "verified_critical_line_height": 3000000000000,
+      "all_positive_ordinate_mass_upper_dyadic": [
+        "47097023913854487113680773988335034108835186488466538861603230447748442993557",
+        -294
+      ],
+      "density_bounds": [
+        {
+          "sigma": "80/100",
+          "mass_upper_dyadic": [
+            "14847315966485351185306934311111442053034503267995120317607408871012567234113",
+            -294
+          ]
+        },
+        {
+          "sigma": "85/100",
+          "mass_upper_dyadic": [
+            "8681854932188544556110140626576078788275333137172496735184664234231047187257",
+            -299
+          ]
+        },
+        {
+          "sigma": "86/100",
+          "mass_upper_dyadic": [
+            "31181572119514898782938064751292846456258117986974775233872908261332595745633",
+            -302
+          ]
+        },
+        {
+          "sigma": "87/100",
+          "mass_upper_dyadic": [
+            "111968732177894695913312431321184827190879328725071289482553185631998478489833",
+            -305
+          ]
+        },
+        {
+          "sigma": "88/100",
+          "mass_upper_dyadic": [
+            "6281257705184716153892889480375783441233940338444693706117069527158757802451",
+            -302
+          ]
+        },
+        {
+          "sigma": "89/100",
+          "mass_upper_dyadic": [
+            "90178348655071705591550673447366468527335296005304624288912283524684620823187",
+            -307
+          ]
+        },
+        {
+          "sigma": "90/100",
+          "mass_upper_dyadic": [
+            "80895810415100163525221936992217175599201473282656302200191509016168229315751",
+            -308
+          ]
+        },
+        {
+          "sigma": "91/100",
+          "mass_upper_dyadic": [
+            "9068391549879250880510304075956199417848184411816214491242557081110632464723",
+            -306
+          ]
+        },
+        {
+          "sigma": "92/100",
+          "mass_upper_dyadic": [
+            "16258355674462989584424660538906225663730976914430203532981213409591648922089",
+            -308
+          ]
+        },
+        {
+          "sigma": "93/100",
+          "mass_upper_dyadic": [
+            "29141033888280413554903512107111384158604587612709116592268366169693333818253",
+            -310
+          ]
+        },
+        {
+          "sigma": "94/100",
+          "mass_upper_dyadic": [
+            "815699587199957176796263433457867568794431181563595065344232148934034104587",
+            -306
+          ]
+        },
+        {
+          "sigma": "95/100",
+          "mass_upper_dyadic": [
+            "93482379822169421708561748610131856126459546548744253679877729213825574291917",
+            -314
+          ]
+        },
+        {
+          "sigma": "96/100",
+          "mass_upper_dyadic": [
+            "41832664969619337020224937010839230893211033830990632800951771931769143970747",
+            -314
+          ]
+        },
+        {
+          "sigma": "97/100",
+          "mass_upper_dyadic": [
+            "74844761718124051369658619854140922449894568184199800971086155457743833452979",
+            -316
+          ]
+        },
+        {
+          "sigma": "98/100",
+          "mass_upper_dyadic": [
+            "33467269681576861829952897849415155037094184660877503769164741292909309170199",
+            -316
+          ]
+        },
+        {
+          "sigma": "99/100",
+          "mass_upper_dyadic": [
+            "29927923159334038859318925147695738559265826686133671812813368201470916524905",
+            -317
+          ]
+        }
+      ],
+      "sources": {
+        "finite_height": "https://doi.org/10.1112/blms.12460",
+        "zero_count": "https://doi.org/10.1090/mcom/4133",
+        "zero_density_kln": "https://doi.org/10.1016/j.jmaa.2018.04.071"
+      }
+    },
+    "status": "certified_positive",
+    "certified_through_exact": "135/2",
+    "cell_count": 3457,
+    "attempted_cell_count": 3746,
+    "endpoint_evaluation_count": 3458,
+    "maximum_subdivision_depth": 1,
+    "minimum": {
+      "lower_dyadic": [
+        "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+        -274
+      ],
+      "cell": [
+        "2643/64",
+        "661/16"
+      ]
+    },
+    "first_unresolved_cell": null,
+    "endpoint_envelope_upper_dyadic": [
+      "34280969130037709324241972730249574500293114176702573208901496725150174907509",
+      -260
+    ],
+    "checkpoints": [
+      {
+        "target_exact": "60",
+        "status": "certified_positive",
+        "cells_through_target": 2839,
+        "minimum_through_target_dyadic": [
+          "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+          -274
+        ]
+      },
+      {
+        "target_exact": "135/2",
+        "status": "certified_positive",
+        "cells_through_target": 3457,
+        "minimum_through_target_dyadic": [
+          "35676353693488976991193704474175396708011108123447956123642805616133056925975",
+          -274
+        ]
+      }
+    ],
+    "ordered_cell_bounds_sha256": "3f4d22aacfef8d244785ab002a2041eb30e50f73a9fbb2c42563eb1a0279e39e"
+  },
+  "coarse_obstruction": {
+    "zero_count_cutoff": 812,
+    "upper_all_line_terms_dyadic": [
+      "290418723972344950562625221992010927647914121064709430037",
+      -191
+    ],
+    "coarse_tail_lower_at_50_dyadic": [
+      "5350396182350229144452121426753766470698623370534465187115",
+      -195
+    ],
+    "time": 50
+  }
+}
