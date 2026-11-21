@@ -135,13 +135,25 @@ def certify(limit=DEFAULT_LIMIT):
         log2 = arb(2).log()
         cover(_ball(EPSILON), log2, arb(0), arb(0), 33, ["1/64", "log(2)"])
         a, b = arb(0), arb(0)
+        prefix_minimum = None
+        prefix_digest = sha256()
         left = log2
         for index, (q, p) in enumerate(powers):
-            if q == limit:
-                break
             weight = arb(p).log() / arb(q).sqrt()
             a += weight
             b += weight * left
+
+            # The supremum of a*t - 4*exp(t/2) over all real t
+            # is 2*a*(log(a/2)-1). Check every affine prefix.
+            gap = (b - 2 * a * ((a / 2).log() - 1)).lower()
+            if not gap > 0:
+                raise ArithmeticError(f"prime-side tangent inequality undecided for prefix {q}")
+            if prefix_minimum is None or gap < prefix_minimum[0]:
+                prefix_minimum = gap, q
+            prefix_digest.update((json.dumps([q, _dyadic(gap)], separators=(",", ":")) + "\n").encode())
+            if q == limit:
+                break
+
             right_q = powers[index + 1][0] if index + 1 < len(powers) else limit
             right = arb(right_q).log()
             if not left < right:
@@ -161,6 +173,10 @@ def certify(limit=DEFAULT_LIMIT):
             "minimum_verified_lower_dyadic_after_initial_interval": _dyadic(smallest),
             "minimum_bound_cell": min_location,
             "ordered_leaf_certificate_sha256": digest.hexdigest(),
+            "prefix_tangent_minimum_strict_lower_dyadic": _dyadic(prefix_minimum[0]),
+            "prefix_tangent_minimum_prime_power": prefix_minimum[1],
+            "all_affine_prefixes_verified_through_limit": limit,
+            "prefix_tangent_certificate_sha256": prefix_digest.hexdigest(),
             "unbounded_range_established": False,
         }
 
