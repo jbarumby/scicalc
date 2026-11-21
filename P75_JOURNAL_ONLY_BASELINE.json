@@ -1,0 +1,75 @@
+{
+  "status": "inconclusive",
+  "positive_under_imported_lemmas": false,
+  "certified_through_exact": "4344693/65536",
+  "cell_count": 3497,
+  "attempted_cells": 3910,
+  "endpoint_evaluations": 3504,
+  "max_depth": 10,
+  "minimum": {
+    "lower_dyadic": [
+      "56783016390635933175666357261768839428688289427822852246669679127752113",
+      -256
+    ],
+    "cell": [
+      "1086173/16384",
+      "4344693/65536"
+    ]
+  },
+  "first_unresolved_cell": {
+    "cell": [
+      "4344693/65536",
+      "17378773/262144"
+    ],
+    "lower_dyadic": [
+      "-8031881347283180266816719414023356627005855715237878053944045699514735",
+      -260
+    ],
+    "depth": 12
+  },
+  "ordered_cells_sha256": "2b93b5f41a2428d09c2ec06374c93b762290c93ce9fa8dcb84e155c2c2e9b1a1",
+  "tail_source": "Journal-only: KLN 2018 Table 1, preceding sigma0 row for beta>=threshold; Bellotti-Wong 2025; Platt-Trudgian 2021; Suzuki JLMS 2023",
+  "profile": "strict-convention-safe KLN journal-only, 256 density bands",
+  "zero_meta": {
+    "zero_count": 500,
+    "count_at_height": 500,
+    "count_height": 812,
+    "count_height_dyadic": [
+      "203",
+      2
+    ],
+    "first_ordinate_bounds_dyadic": [
+      [
+        "799164724099941636604856520180256099907130935322170596037328207051644795397",
+        -245
+      ],
+      [
+        "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+        -250
+      ]
+    ],
+    "last_ordinate_bounds_dyadic": [
+      [
+        "22931819254753363297036885928916081615337330990948463039001336167794454770003",
+        -244
+      ],
+      [
+        "5732954813688340824259221482229020403834332747737115759750334041948613692509",
+        -242
+      ]
+    ],
+    "ordered_ordinate_bounds_sha256": "482002a69ea975efa119d9a8346a89303d9825697031598fa384c5e8e01d2896",
+    "hardy_endpoint_sign_verified_count": 500,
+    "hardy_endpoint_sign_minimum_dyadic": [
+      "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+      -752
+    ],
+    "outward_padding_dyadic": [
+      "1",
+      -240
+    ]
+  },
+  "precision_bits": 256,
+  "segments": 256,
+  "mesh": "1/64"
+}

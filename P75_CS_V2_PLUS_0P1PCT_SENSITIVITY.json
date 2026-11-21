@@ -1,0 +1,61 @@
+{
+  "status": "conditional_finite_positive",
+  "positive_under_imported_lemmas": true,
+  "certified_through_exact": "79",
+  "cell_count": 4284,
+  "attempted_cells": 4664,
+  "endpoint_evaluations": 4285,
+  "max_depth": 3,
+  "minimum": {
+    "lower_dyadic": [
+      "11518556144312194823715492175239685720768691593354437698379217871116527666393",
+      -271
+    ],
+    "cell": [
+      "2643/64",
+      "661/16"
+    ]
+  },
+  "first_unresolved_cell": null,
+  "ordered_cells_sha256": "be48809e4b229dc93640e60f9a0dedba40a2ad14c12a1abcbd00a198b7a594df",
+  "exact_uniform_coefficient_inflation": "1.001",
+  "zero_meta": {
+    "zero_count": 500,
+    "count_at_height": 500,
+    "count_height": 812,
+    "count_height_dyadic": [
+      "203",
+      2
+    ],
+    "first_ordinate_bounds_dyadic": [
+      [
+        "799164724099941636604856520180256099907130935322170596037328207051644795397",
+        -245
+      ],
+      [
+        "25573271171198132371355408645768195197028189930309459073194502625652633454753",
+        -250
+      ]
+    ],
+    "last_ordinate_bounds_dyadic": [
+      [
+        "22931819254753363297036885928916081615337330990948463039001336167794454770003",
+        -244
+      ],
+      [
+        "5732954813688340824259221482229020403834332747737115759750334041948613692509",
+        -242
+      ]
+    ],
+    "ordered_ordinate_bounds_sha256": "482002a69ea975efa119d9a8346a89303d9825697031598fa384c5e8e01d2896",
+    "hardy_endpoint_sign_verified_count": 500,
+    "hardy_endpoint_sign_minimum_dyadic": [
+      "10637095962617530778833634892171491652024781359970127643793779678249834671642016496551775645831537893695345981005065289370388925908420603501139600717178771",
+      -752
+    ],
+    "outward_padding_dyadic": [
+      "1",
+      -240
+    ]
+  }
+}
