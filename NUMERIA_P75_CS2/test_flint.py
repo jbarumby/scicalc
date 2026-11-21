@@ -38,7 +38,8 @@ class TestDirectedArb(unittest.TestCase):
             width=arb(1)/64
             maximum=local_curvature_upper(zeros,arb(18)+width/2,width)
             self.assertTrue(maximum<=arb(6))
-            self.assertTrue(maximum>0)
+            # An upper bound for the local curvature may be negative.
+            # The secant lower bound clips it at zero, which remains safe.
             lower=lower_secant_local(arb(1),arb(1),width,maximum)
             global_lower=arb(1)-arb(3)*width*width/4
             self.assertTrue(lower>=global_lower-arb('1e-40'))
