@@ -54,3 +54,6 @@ Como teste de robustez computacional — não como prova de arredondamento — a
 
 - [Baseline jornal-only com limiar KLN estrito corrigido](P75_JOURNAL_ONLY_BASELINE.json)
 - [Sensibilidade com inflação uniforme exata de 0,1%](P75_CS_V2_PLUS_0P1PCT_SENSITIVITY.json)
+
+
+O baseline tem um script autocontido, executável no branch de auditoria baseado na P74: [P75_JOURNAL_ONLY_BASELINE.py](P75_JOURNAL_ONLY_BASELINE.py). Reexecutei-o com `python3 P75_JOURNAL_ONLY_BASELINE.py --out /tmp/p75-journal.json`; os campos de status, célula final, contagens, margem mínima, primeira célula inconclusiva e SHA-256 da cobertura coincidiram exatamente com `P75_JOURNAL_ONLY_BASELINE.json`.
