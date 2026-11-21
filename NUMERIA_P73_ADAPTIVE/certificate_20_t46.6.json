@@ -1,0 +1,31 @@
+{
+  "schema": "NUMERIA.P73.DETERMINISTIC_CELL_PROOF.1",
+  "start_t": "18",
+  "end_t": "233/5",
+  "number_of_zeros": 20,
+  "cell_count": 565,
+  "zero_side_evaluations": 566,
+  "max_depth": 12,
+  "tail_bucket_width": "1/20",
+  "tail_bucket_evaluations": 516,
+  "minimum_cell": [
+    "112289/2560",
+    "7027/160"
+  ],
+  "min_lower_rational": [
+    "377862004698931157009280539328136944583893645191973810296151023431438193",
+    "9000000000000000000000000000000000000000000000000000000000000000000000000000"
+  ],
+  "approx_min_lower": "4.19846671888e-05",
+  "cell_coverage_sha256": "e282521e441fe0a1bdff1b30cfd91ee487b63afcaf53869332860dfbc3e1bc37",
+  "strictly_positive_conditional_on_zero_data_and_external_theorems": true,
+  "zero_provenance": "UNAUTHENTICATED INPUT; reproduce zeta zeros with FLINT/Arb before mathematical certification",
+  "external_dependencies": [
+    "Suzuki spectral identity (1.3)",
+    "Platt-Trudgian RH below H=3e12",
+    "Bellotti-Wong zero counting",
+    "FLINT/Arb zero isolation"
+  ],
+  "rigor_note": "Cells use exact Fractions and outward fixed-point cosine; random search never enters the certificate.",
+  "zeros_file_sha256": "c5993b75a6db7803251655955859cd935f4381b2c0bc20fd77b9f0258bdeddab"
+}
