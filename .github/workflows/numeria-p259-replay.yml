@@ -1,0 +1,78 @@
+name: Replay NUMERIA P259
+
+on:
+  push:
+    branches: [numeria-p259-suzuki-and-banded-weil]
+    paths:
+      - ".github/workflows/numeria-p259-replay.yml"
+      - "NUMERIA_ES8P259/*.py"
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Arb and numerical dependencies
+        run: python -m pip install -r NUMERIA_ES8P249/requirements.txt
+      - name: Run regression tests in both Python modes
+        run: |
+          python -m unittest NUMERIA_ES8P258.test_p258 NUMERIA_ES8P259.test_p259 -v
+          python -O -m unittest NUMERIA_ES8P258.test_p258 NUMERIA_ES8P259.test_p259 -v
+      - name: Certify Suzuki over the continuous range and repeat with -O
+        run: |
+          mkdir -p replay
+          python -m NUMERIA_ES8P259.suzuki --limit 1000000 --out replay/SUZUKI_FINITE.json
+          python -O -m NUMERIA_ES8P259.suzuki --limit 1000000 --out /tmp/SUZUKI_FINITE_OPT.json
+          cmp replay/SUZUKI_FINITE.json /tmp/SUZUKI_FINITE_OPT.json
+          echo "P259 SUZUKI $(jq -c . replay/SUZUKI_FINITE.json)"
+      - name: Certify the banded floor test
+        run: |
+          python -m NUMERIA_ES8P259.banded_weil --out replay/BANDED_WEIL.json
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          from pathlib import Path
+
+          def dyadic(pair):
+              m, e = map(int, pair)
+              return float(Fraction(m) * Fraction(2)**e)
+
+          data = json.loads(Path("replay/BANDED_WEIL.json").read_text())
+          results = {}
+          for sector, body in data["sectors"].items():
+              finite = body["finite_head"]
+              witness = body.get("finite_negative_witness")
+              prior = body["old_P258_witness_rayleigh_in_new_head_dyadic"]
+              results[sector] = {
+                  "status": finite["status"],
+                  "positive_pivots": finite["positive_pivot_count"],
+                  "head_margin": dyadic(finite["margin_lower_dyadic"]) if finite["certified_positive"] else None,
+                  "auxiliary_margin": float(Fraction(body["continuous_model_margin_exact"])) if body["continuous_model_margin_exact"] else None,
+                  "conservative_factors": [(row["effective_update_exact"], row["head_test"]["status"]) for row in body["block_transfers"]],
+                  "prior_witness_interval": list(map(dyadic, prior)) if prior else None,
+                  "new_negative_upper": float(Fraction(witness["rayleigh_interval_exact"][1])) if witness else None,
+              }
+          crossing = data["Weil_crossing"]
+          print("P259 WEIL", json.dumps({
+              "sectors": results,
+              "strip_constants": data["band_and_strip"],
+              "Weil_crossing": crossing,
+              "Weil_delta_decimal": float(Fraction(crossing["delta_exact"])) if crossing else None,
+              "Weil_margin_decimal": float(Fraction(crossing["Weil_strict_margin_lower_exact"])) if crossing else None,
+          }))
+          PY
+          sha256sum replay/*.json > replay/SHA256SUMS
+          cat replay/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p259-certificates
+          path: replay/
