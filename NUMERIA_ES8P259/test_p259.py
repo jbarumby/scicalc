@@ -6,7 +6,7 @@ import unittest
 from flint import arb, ctx
 
 from NUMERIA_ES8P258.concentration import analytic_concentration, compare_concentration, concentration_chunk
-from .banded_weil import certify_analytic_constants, effective_head_step
+from .banded_weil import certify_analytic_constants, chebyshev_tail_bounds, effective_head_step
 from .suzuki import SuzukiFormula, certify, prime_powers
 
 
@@ -63,6 +63,14 @@ class BandedWeilTest(unittest.TestCase):
         self.assertEqual(cert["adaptive_cover"][-1][1], "850")
         for left, right in zip(cert["adaptive_cover"], cert["adaptive_cover"][1:]):
             self.assertEqual(left[1], right[0])
+
+    def test_direct_chebyshev_bounds_for_590(self):
+        for parity in (0, 1):
+            coupling_squared, deviation = chebyshev_tail_bounds(590, 377, parity)
+            self.assertTrue(0 < coupling_squared < Fraction("1e-65"))
+            self.assertTrue(0 < deviation < Fraction("1e-65"))
+        with self.assertRaises(ValueError):
+            chebyshev_tail_bounds(850, 377, 0)
 
     def test_G850_endpoint_formula_against_a_direct_GL60_panel(self):
         args = {"cutoff": 850, "modes": 4}

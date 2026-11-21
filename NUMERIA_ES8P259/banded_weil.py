@@ -3,6 +3,7 @@
 import argparse
 from fractions import Fraction
 import json
+from operator import index
 from pathlib import Path
 
 from flint import arb, arb_mat, ctx
@@ -103,11 +104,34 @@ def _round_up_modal_bound(value):
     return Fraction(-(-value.numerator * scale // value.denominator), scale)
 
 
-def _sector(weighted, gram504, gram_high, sector, parity):
+def chebyshev_tail_bounds(cutoff, modes, parity, *, half_width=HALF_WIDTH):
+    """Bound the full discarded Legendre projection in the retained band."""
+    cutoff, modes, parity = map(index, (cutoff, modes, parity))
+    half_width = Fraction(half_width)
+    if not (0 < half_width < 1 and 504 <= cutoff <= 590 and modes >= 1 and parity in (0, 1)):
+        raise ValueError("parameters outside the analytic band and ellipse estimates")
+    degree = 2 * modes + parity
+    with ctx.workprec(256):
+        exponential = (_ball(Fraction(3 * cutoff, 4) * half_width)).exp().upper()
+        exponential_upper = _dyadic_fraction(exponential.man_exp())
+    transform = 6 * exponential_upper / 2**degree
+    pole = Fraction(12, 2**degree)
+    integral_coefficient = Fraction(20 * cutoff, 3)
+    coupling = 2 * integral_coefficient * transform + 4 * pole
+    deviation = integral_coefficient * transform**2 + 2 * pole**2
+    return coupling**2, deviation
+
+
+def assemble_banded_head(weighted, gram504, gram_high, sector):
     original, metadata = assemble_finite_head(weighted, sector, half_width=HALF_WIDTH, cutoff=CUTOFF)
     error = metadata["gl60_error_budget"]["row_sum_bound"]
     base = update_head(original, gram504, _ball(FLOOR) - fixed_beta())
     raised = update_head(base, gram_high, _ball(STEP))
+    return base, raised, error
+
+
+def _sector(weighted, gram504, gram_high, sector, parity, high_cutoff):
+    base, raised, error = assemble_banded_head(weighted, gram504, gram_high, sector)
     check = certify_center_weyl(raised, error)
     result = {
         "finite_head": check,
@@ -118,6 +142,28 @@ def _sector(weighted, gram504, gram_high, sector, parity):
     if not check["certified_positive"]:
         result["finite_negative_witness"] = _negative_witness(raised, check, error)
         return result
+
+    if high_cutoff <= 590:
+        # R = 1/2 I + the poles + a signed integral supported in [-590,590].
+        # Unlike the PSD-update proof below, this keeps the full finite update.
+        coupling_sq, deviation = chebyshev_tail_bounds(high_cutoff, MODES, parity)
+        coupling_sq = _round_up_modal_bound(coupling_sq)
+        deviation = _round_up_modal_bound(deviation)
+        head = _dyadic_fraction(check["margin_lower_dyadic"])
+        complement = Fraction(1, 2) - deviation
+        margin = min(head, complement) / 2
+        schur_product = (head - margin) * (complement - margin)
+        result["direct_chebyshev_transfer"] = {
+            "first_discarded_degree": 2 * MODES + parity,
+            "coupling_squared_upper_exact": str(coupling_sq),
+            "complement_deviation_upper_exact": str(deviation),
+            "complement_lower_exact": str(complement),
+            "candidate_margin_exact": str(margin),
+            "strict_schur_inequality": schur_product > coupling_sq and margin > 0,
+        }
+        if result["direct_chebyshev_transfer"]["strict_schur_inequality"]:
+            result["continuous_model_margin_exact"] = str(margin)
+            return result
 
     coupling_sq, deviation = modal_tail_bounds(CUTOFF, MODES, parity, half_width=HALF_WIDTH)
     coupling_sq = _round_up_modal_bound(coupling_sq)
@@ -153,20 +199,26 @@ def certify(high_cutoff=HIGH_CUTOFF):
     gram504 = analytic_concentration(cutoff=CUTOFF)
     gram_high = analytic_concentration(cutoff=high_cutoff, bits=2048)
     with ctx.workprec(1024):
-        sectors = {s: _sector(q, a, b, s, parity)
+        sectors = {s: _sector(q, a, b, s, parity, high_cutoff)
                    for parity, (s, q, a, b) in enumerate(zip(SECTORS, weighted, gram504, gram_high, strict=True))}
     crossing = None
     if all(record["continuous_model_margin_exact"] is not None for record in sectors.values()):
         margin = min(Fraction(record["continuous_model_margin_exact"]) for record in sectors.values())
-        room = 2 * HALF_WIDTH - arctanh_upper(Fraction(3, 4), 180)
+        log7_lower = arctanh_lower(Fraction(3, 4), 180)
+        log7_upper = arctanh_upper(Fraction(3, 4), 180)
+        room = 2 * HALF_WIDTH - log7_upper
         if not room > 0:
             raise ArithmeticError("no certified crossing room")
         strip = min(room / 2, margin / (2 * LOSS))
+        width_margin = margin - LOSS * (2 * HALF_WIDTH - log7_lower)
         crossing = {
             "delta_exact": str(strip),
             "new_Weil_half_width_expression": "log(7)/2 + delta/2",
             "Weil_strict_margin_lower_exact": str(margin - LOSS * strip),
         }
+        if width_margin > 0:
+            crossing["rational_half_width_exact"] = str(HALF_WIDTH)
+            crossing["rational_half_width_Weil_margin_lower_exact"] = str(width_margin)
     return {
         "schema": "NUMERIA.ES8P259.WEIL_BANDED.1",
         "four_prime_weighted_GL60_input_sha256": OLD_SHA,

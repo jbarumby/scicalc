@@ -1,0 +1,29 @@
+{
+  "schema": "NUMERIA.ES8P259.SUZUKI_FINITE.1",
+  "formula": "10.1112/jlms.12785, equations (1.1)-(1.3), Theorem 1.7",
+  "precision_bits": 192,
+  "certified_initial_slope_lower_exact": "1369260117973551389/4968865297516875300",
+  "initial_interval_end_exact": "1/64",
+  "positive_for_all_t_in": "(0,log(1000000)]",
+  "prime_power_count_through_limit": 78734,
+  "certified_cells_after_initial_interval": 78742,
+  "maximum_dyadic_subdivision_depth": 3,
+  "minimum_verified_lower_dyadic_after_initial_interval": [
+    "17862363200216170479276793787157651005369325569396813019",
+    -193
+  ],
+  "minimum_bound_cell": [
+    "1/64",
+    "log(2)",
+    "000"
+  ],
+  "ordered_leaf_certificate_sha256": "d299908b32397b65dd80ab58afe62fe2e87982fa5a876b9cca86f8f5daaef03c",
+  "prefix_tangent_minimum_strict_lower_dyadic": [
+    "4234629741747382634114275519276793747283233496715335402995",
+    -190
+  ],
+  "prefix_tangent_minimum_prime_power": 2,
+  "all_affine_prefixes_verified_through_limit": 1000000,
+  "prefix_tangent_certificate_sha256": "2d04f11b6fe5654c51a0c3e9f3e082be4851bde9c9b862a990e1783fd52b2b9e",
+  "unbounded_range_established": false
+}

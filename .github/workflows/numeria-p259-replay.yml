@@ -39,6 +39,7 @@ jobs:
           for high in 850 590; do
             python -m NUMERIA_ES8P259.banded_weil --high-cutoff "$high" --out "replay/BANDED_WEIL_$high.json"
           done
+          python -m NUMERIA_ES8P259.mpfr_replay --out replay/P259_MPFR.json
           python - <<'PY'
           import json
           from fractions import Fraction
@@ -73,6 +74,10 @@ jobs:
                   "Weil_crossing": crossing,
                   "Weil_delta_decimal": float(Fraction(crossing["delta_exact"])) if crossing else None,
                   "Weil_margin_decimal": float(Fraction(crossing["Weil_strict_margin_lower_exact"])) if crossing else None,
+                  "rational_width_Weil_margin": (
+                      float(Fraction(crossing["rational_half_width_Weil_margin_lower_exact"]))
+                      if crossing and "rational_half_width_Weil_margin_lower_exact" in crossing else None
+                  ),
               }))
           PY
           sha256sum replay/*.json > replay/SHA256SUMS
