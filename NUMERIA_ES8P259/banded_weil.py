@@ -85,6 +85,12 @@ def _past_witness(matrix, sector, operator_error):
     return [_point(q.lower()), _point(q.upper())]
 
 
+def _round_up_modal_bound(value):
+    # Keep the proof rational and the serialized denominator bounded.
+    scale = 10**110
+    return Fraction(-(-value.numerator * scale // value.denominator), scale)
+
+
 def _sector(weighted, gram504, gram850, sector, parity):
     original, metadata = assemble_finite_head(weighted, sector, half_width=HALF_WIDTH, cutoff=CUTOFF)
     error = metadata["gl60_error_budget"]["row_sum_bound"]
@@ -102,7 +108,8 @@ def _sector(weighted, gram504, gram850, sector, parity):
         return result
 
     coupling_sq, deviation = modal_tail_bounds(CUTOFF, MODES, parity, half_width=HALF_WIDTH)
-    tail_lower = FLOOR - deviation
+    coupling_sq = _round_up_modal_bound(coupling_sq)
+    tail_lower = FLOOR - _round_up_modal_bound(deviation)
     for reserved in (Fraction(1, 8), Fraction(6, 25), Fraction(249, 1000), Fraction(24999, 100000)):
         complement_lower = tail_lower - reserved
         if not complement_lower > 0:
