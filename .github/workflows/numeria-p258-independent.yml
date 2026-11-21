@@ -1,0 +1,38 @@
+name: Independent NUMERIA P258 replay
+
+on:
+  push:
+    branches: [numeria-p258-prime7-reinforced-auxiliary]
+    paths: [".github/workflows/numeria-p258-independent.yml"]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned numeric dependencies
+        run: python -m pip install -r NUMERIA_ES8P249/requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: numeria-p258-certificates
+          run-id: 44858303395
+          github-token: ${{ github.token }}
+          path: replay
+      - name: Verify SHA-256, replay with MPFR and check admissible floors
+        run: |
+          python -m NUMERIA_ES8P258.postcheck --replay replay --out P258_POSTCHECK.json
+          sha256sum P258_POSTCHECK.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p258-independent-certificate
+          path: P258_POSTCHECK.json
