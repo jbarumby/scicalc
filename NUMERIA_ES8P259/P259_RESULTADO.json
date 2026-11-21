@@ -1,0 +1,34 @@
+{
+  "schema": "NUMERIA.ES8P259.ODD_WITNESS_GATE_A.SUMMARY.1",
+  "input_P258_GL60_sha256": "1aa765357cfe1fa46f864d5b57fc407157375e75b3fa8b23b77f0db5c2e4985c",
+  "prior": "NUMERIA ES8-P258 four-prime auxiliary cutoff 504",
+  "half_width": "0.972955074527656652552676371721590",
+  "original_negative_witness_nonzero_modes": 29,
+  "old_rayleigh_interval_approx": "-1.73007525684909e-24 (both endpoints, actual exact fractions authenticated by script)",
+  "new_step_floor": [
+    {
+      "from": 504,
+      "floor": "1/4"
+    },
+    {
+      "from": 850,
+      "floor": "1/2"
+    }
+  ],
+  "floor_log_lower_exact": "346/677",
+  "correction": "(1/4)(I-G_850)",
+  "rigorous_lower_highpass_mass_grid": "4789/500000000000000000000000000",
+  "rigorous_lower_updated_rayleigh_grid": "1661/2500000000000000000000000000",
+  "integration_periods": 23,
+  "integration_band": "[850, 850+46*pi/L] contained in [850, 998.531]",
+  "exact_arithmetic": "Python Fraction; Machin atan bounds; integer spherical-Bessel polynomial recurrence; 320-bit integer-root rational enclosures",
+  "one_prior_negative_witness_now_positive": true,
+  "full_odd_matrix_377_positive_not_established": true,
+  "Riemann_hypothesis_proved": false,
+  "tests_locally_executed": {
+    "normal": 12,
+    "optimized": 12
+  },
+  "replay": "python -m NUMERIA_ES8P259.p259_witness --p258 replay/P258_GL60.json --out replay/P259_RESULT.json",
+  "next_gate": "Arb concentration G850 and interval LDL/Schur 377x377; search new negative witness if indefinite"
+}
