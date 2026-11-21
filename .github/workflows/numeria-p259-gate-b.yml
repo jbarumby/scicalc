@@ -40,7 +40,7 @@ jobs:
           python -O -m unittest NUMERIA_ES8P259.test_gate_b -v
       - name: Arb certificate for increasing odd prefixes
         run: |
-          python -m NUMERIA_ES8P259.gate_b --p258 replay/P258_GL60.json --max-dimension 48 --bits 1536 --out replay/P259_GATE_B_PREFIX.json
+          python -m NUMERIA_ES8P259.gate_b --p258 replay/P258_GL60.json --max-dimension 128 --bits 1536 --out replay/P259_GATE_B_PREFIX.json
           python - <<'PY'
           import json
           p=json.load(open('replay/P259_GATE_B_PREFIX.json'))
