@@ -30,6 +30,11 @@ jobs:
           print('P72 certified to t=',r['end_t'])
           print('margin=',r['numerical_summary']['uniform_lower_bound'])
           PY
+      - name: Require exact reproduction of the committed Arb certificates and sources
+        run: |
+          git diff --exit-code -- NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json NUMERIA_P72_ZERO_SIDE/arb_20_t44.35.json
+          (cd NUMERIA_P71_ZERO_SIDE && sha256sum -c NUMERIA_P71_ZERO_SIDE_SHA256SUMS.txt)
+          (cd NUMERIA_P72_ZERO_SIDE && sha256sum -c SHA256SUMS_P72.txt)
       - name: Check tests with and without assertions
         run: |
           cd NUMERIA_P72_ZERO_SIDE
