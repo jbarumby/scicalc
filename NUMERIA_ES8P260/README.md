@@ -23,10 +23,13 @@ Execute na raiz do repositório:
     mkdir -p replay
     python -m unittest NUMERIA_ES8P260.test_ahlfors -v
     python -O -m unittest NUMERIA_ES8P260.test_ahlfors -v
+    python -m unittest NUMERIA_ES8P260.test_pole_parity -v
+    python -O -m unittest NUMERIA_ES8P260.test_pole_parity -v
     python -m NUMERIA_ES8P260.ahlfors_digamma --out replay/P260_RESULTADO.json
+    python -m NUMERIA_ES8P260.pole_parity --out replay/P260_POLE.json
     sha256sum replay/P260_RESULTADO.json
 
-O workflow P260 compara os resultados com o JSON de referência e guarda os hashes. **19 testes passaram localmente tanto no Python normal quanto em -O.**
+O workflow P260 compara os resultados com o JSON de referência e guarda os hashes. **26 testes passaram localmente tanto no Python normal quanto em -O**, incluindo 240 identidades racionais de normalização dos polos sob a hipótese explícita do funcional 2ℓ₊ℓ₋.
 
 ## Próximo Gate B
 
