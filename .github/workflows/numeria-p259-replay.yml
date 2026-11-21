@@ -36,7 +36,9 @@ jobs:
           echo "P259 SUZUKI $(jq -c . replay/SUZUKI_FINITE.json)"
       - name: Certify the banded floor test
         run: |
-          python -m NUMERIA_ES8P259.banded_weil --out replay/BANDED_WEIL.json
+          for high in 850 590; do
+            python -m NUMERIA_ES8P259.banded_weil --high-cutoff "$high" --out "replay/BANDED_WEIL_$high.json"
+          done
           python - <<'PY'
           import json
           from fractions import Fraction
@@ -46,33 +48,37 @@ jobs:
               m, e = map(int, pair)
               return float(Fraction(m) * Fraction(2)**e)
 
-          data = json.loads(Path("replay/BANDED_WEIL.json").read_text())
-          results = {}
-          for sector, body in data["sectors"].items():
-              finite = body["finite_head"]
-              witness = body.get("finite_negative_witness")
-              prior = body["old_P258_witness_rayleigh_in_new_head_dyadic"]
-              results[sector] = {
-                  "status": finite["status"],
-                  "positive_pivots": finite["positive_pivot_count"],
-                  "head_margin": dyadic(finite["margin_lower_dyadic"]) if finite["certified_positive"] else None,
-                  "auxiliary_margin": float(Fraction(body["continuous_model_margin_exact"])) if body["continuous_model_margin_exact"] else None,
-                  "conservative_factors": [(row["effective_update_exact"], row["head_test"]["status"]) for row in body["block_transfers"]],
-                  "prior_witness_interval": list(map(dyadic, prior)) if prior else None,
-                  "new_negative_upper": float(Fraction(witness["rayleigh_interval_exact"][1])) if witness else None,
-              }
-          crossing = data["Weil_crossing"]
-          print("P259 WEIL", json.dumps({
-              "sectors": results,
-              "strip_constants": data["band_and_strip"],
-              "Weil_crossing": crossing,
-              "Weil_delta_decimal": float(Fraction(crossing["delta_exact"])) if crossing else None,
-              "Weil_margin_decimal": float(Fraction(crossing["Weil_strict_margin_lower_exact"])) if crossing else None,
-          }))
+          for path in sorted(Path("replay").glob("BANDED_WEIL_*.json")):
+              data = json.loads(path.read_text())
+              results = {}
+              for sector, body in data["sectors"].items():
+                  finite = body["finite_head"]
+                  witness = body.get("finite_negative_witness")
+                  prior = body["old_P258_witness_rayleigh_in_new_head_dyadic"]
+                  results[sector] = {
+                      "status": finite["status"],
+                      "positive_pivots": finite["positive_pivot_count"],
+                      "head_margin": dyadic(finite["margin_lower_dyadic"]) if finite["certified_positive"] else None,
+                      "auxiliary_margin": float(Fraction(body["continuous_model_margin_exact"])) if body["continuous_model_margin_exact"] else None,
+                      "conservative_factors": [(row["effective_update_exact"], row["head_test"]["status"]) for row in body["block_transfers"]],
+                      "prior_witness_interval": list(map(dyadic, prior)) if prior else None,
+                      "new_negative_upper": float(Fraction(witness["rayleigh_interval_exact"][1])) if witness else None,
+                  }
+              crossing = data["Weil_crossing"]
+              print("P259 WEIL " + path.stem + " ", json.dumps({
+                  "sectors": results,
+                  "band_start": data["band_and_strip"]["high_band_start"],
+                  "adaptive_tail_cells": (data["band_and_strip"]["high_band_adaptive_certificate"] or {}).get("adaptive_leaf_count"),
+                  "loss": data["band_and_strip"]["strip_loss_integer_upper"],
+                  "Weil_crossing": crossing,
+                  "Weil_delta_decimal": float(Fraction(crossing["delta_exact"])) if crossing else None,
+                  "Weil_margin_decimal": float(Fraction(crossing["Weil_strict_margin_lower_exact"])) if crossing else None,
+              }))
           PY
           sha256sum replay/*.json > replay/SHA256SUMS
           cat replay/SHA256SUMS
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: numeria-p259-certificates
           path: replay/
