@@ -1,0 +1,59 @@
+{
+  "schema": "NUMERIA.P74.P73_REPLAY.1",
+  "p73_commit": "e4c5cf326f8d7e05795ab5457a37deee6beb7a72",
+  "start_t": "18",
+  "end_t": "233/5",
+  "pinned_file_sha256": {
+    "NUMERIA_P72_ZERO_SIDE/export_zeros_flint.py": "0f7ac15589d3b8032df04dfeb9fc8213a18715c1fa9d820415b94a60c4ab5e6d",
+    "NUMERIA_P72_ZERO_SIDE/verify_spectral_rational.py": "6200a11f1cd8d97838dd90064406027fa4986d852b640aea428359523c84ce57",
+    "NUMERIA_P73_ADAPTIVE/certify_adaptive.py": "c3ce2de4d060d290f0de3de25876d3fdfbfe083b7f9eabf0b3ce827923e6bcd5",
+    "NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json": "c5993b75a6db7803251655955859cd935f4381b2c0bc20fd77b9f0258bdeddab",
+    "NUMERIA_P73_ADAPTIVE/certificate_20_t46.6.json": "9cca4b572b00ecb84545a5c4a34d861d96fc4d1fc7a930b9225d5727eb0d357d"
+  },
+  "zero_provenance_audit": {
+    "precision_bits": 320,
+    "opposite_sign_brackets": 20,
+    "count_height": 78,
+    "count_at_height": 20,
+    "minimum_absolute_hardy_endpoint_lower_dyadic": [
+      "1467411336562340119091857730710641834120217884453701221428531988786241144634720225321893384451671",
+      -507
+    ]
+  },
+  "replays": [
+    {
+      "precision_bits": 192,
+      "zeros_sha256": "c5993b75a6db7803251655955859cd935f4381b2c0bc20fd77b9f0258bdeddab",
+      "certificate_sha256": "9cca4b572b00ecb84545a5c4a34d861d96fc4d1fc7a930b9225d5727eb0d357d",
+      "cell_coverage_sha256": "e282521e441fe0a1bdff1b30cfd91ee487b63afcaf53869332860dfbc3e1bc37",
+      "cell_count": 565,
+      "endpoint_evaluations": 566,
+      "max_depth": 12,
+      "minimum_cell": [
+        "112289/2560",
+        "7027/160"
+      ],
+      "min_lower_rational": [
+        "377862004698931157009280539328136944583893645191973810296151023431438193",
+        "9000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    {
+      "precision_bits": 256,
+      "zeros_sha256": "c6f6be2c5c064abf0bf13bbf071681a9da663fcaad1c950cb7f92407f89689ca",
+      "certificate_sha256": "b6b2faece6610663b0e5af122c2dee79decec92979e17d977604aa4744217ec2",
+      "cell_coverage_sha256": "20a0d313c3e3be8694873ed48ea7e0861db1082dfb1bccd881fb6cd1a0730a71",
+      "cell_count": 565,
+      "endpoint_evaluations": 566,
+      "max_depth": 12,
+      "minimum_cell": [
+        "112289/2560",
+        "7027/160"
+      ],
+      "min_lower_rational": [
+        "188931002349465578504640269664068472291946822595987010358842922451163877",
+        "4500000000000000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    }
+  ]
+}

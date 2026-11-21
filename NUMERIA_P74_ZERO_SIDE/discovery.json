@@ -1,0 +1,132 @@
+{
+  "schema": "NUMERIA.P74.DISCOVERY.1",
+  "scouting_interval": [
+    46,
+    48
+  ],
+  "zero_count": 20,
+  "source_zero_sha256": "c5993b75a6db7803251655955859cd935f4381b2c0bc20fd77b9f0258bdeddab",
+  "proof_input": false,
+  "runs": [
+    {
+      "method": "uniform",
+      "seed": null,
+      "evaluations": 256,
+      "negative_proxy_samples": 67,
+      "first_negative_proxy_t": "46.6509803922",
+      "previous_nonnegative_proxy_t": "46.6431372549",
+      "first_sample_bracket_width": "0.0078431373",
+      "minimum_proxy_t": "47.5058823529",
+      "minimum_proxy_score": "-0.01549704658",
+      "rounded_point_trace_sha256": "a05b1190a400382e6401d42770b9f07166f5662ce6d0b5b784a83a3a63dda0a9"
+    },
+    {
+      "method": "adaptive",
+      "seed": null,
+      "evaluations": 256,
+      "negative_proxy_samples": 171,
+      "first_negative_proxy_t": "46.650390625",
+      "previous_nonnegative_proxy_t": "46.6494140625",
+      "first_sample_bracket_width": "0.0009765625",
+      "minimum_proxy_t": "47.5",
+      "minimum_proxy_score": "-0.01520106426",
+      "rounded_point_trace_sha256": "da13cbdfe362d3b8bde6ca227259e6fd9ec4ffcc956f318df667f61f157e0025"
+    },
+    {
+      "method": "random",
+      "seed": 73,
+      "evaluations": 256,
+      "negative_proxy_samples": 64,
+      "first_negative_proxy_t": "46.6558256164",
+      "previous_nonnegative_proxy_t": "46.6477909871",
+      "first_sample_bracket_width": "0.0080346293",
+      "minimum_proxy_t": "47.5068204265",
+      "minimum_proxy_score": "-0.01551803501",
+      "rounded_point_trace_sha256": "02844f468b152b986c6228772150821cde80510d41de44acdd4a18cc6f2139e2"
+    },
+    {
+      "method": "random",
+      "seed": 74,
+      "evaluations": 256,
+      "negative_proxy_samples": 71,
+      "first_negative_proxy_t": "46.6533818151",
+      "previous_nonnegative_proxy_t": "46.6431112866",
+      "first_sample_bracket_width": "0.010270529",
+      "minimum_proxy_t": "47.5085211822",
+      "minimum_proxy_score": "-0.01553868468",
+      "rounded_point_trace_sha256": "f3b28e108cf29b14c1986761bd090c76282e1d3ea445c89fd68021d7bad957fe"
+    },
+    {
+      "method": "random",
+      "seed": 101,
+      "evaluations": 256,
+      "negative_proxy_samples": 65,
+      "first_negative_proxy_t": "46.6520565337",
+      "previous_nonnegative_proxy_t": "46.6383104212",
+      "first_sample_bracket_width": "0.013746113",
+      "minimum_proxy_t": "47.5102252768",
+      "minimum_proxy_score": "-0.01553759724",
+      "rounded_point_trace_sha256": "a88a41bfbfae7c0169e277b4ea64a68892cd0dc6d35131ef76455c46293516d2"
+    },
+    {
+      "method": "uniform",
+      "seed": null,
+      "evaluations": 512,
+      "negative_proxy_samples": 135,
+      "first_negative_proxy_t": "46.6497064579",
+      "previous_nonnegative_proxy_t": "46.6457925636",
+      "first_sample_bracket_width": "0.0039138943",
+      "minimum_proxy_t": "47.5107632094",
+      "minimum_proxy_score": "-0.01553286819",
+      "rounded_point_trace_sha256": "a1b5844baef12821c2a77fa137f8e540ec9a1b005235b4919b4b572f1a44fd74"
+    },
+    {
+      "method": "adaptive",
+      "seed": null,
+      "evaluations": 512,
+      "negative_proxy_samples": 376,
+      "first_negative_proxy_t": "46.6499023438",
+      "previous_nonnegative_proxy_t": "46.6494140625",
+      "first_sample_bracket_width": "0.00048828125",
+      "minimum_proxy_t": "47.515625",
+      "minimum_proxy_score": "-0.01540042747",
+      "rounded_point_trace_sha256": "c3c639689b59330dc99772ff079eb839953e340b51aa03a84a558dc776c738a2"
+    },
+    {
+      "method": "random",
+      "seed": 73,
+      "evaluations": 512,
+      "negative_proxy_samples": 124,
+      "first_negative_proxy_t": "46.6557087845",
+      "previous_nonnegative_proxy_t": "46.6477909871",
+      "first_sample_bracket_width": "0.0079177974",
+      "minimum_proxy_t": "47.510449021",
+      "minimum_proxy_score": "-0.0155358818",
+      "rounded_point_trace_sha256": "f593f2544fc60186e15ba1599d930adee5050b01e3cfa4a435cd726e57255657"
+    },
+    {
+      "method": "random",
+      "seed": 74,
+      "evaluations": 512,
+      "negative_proxy_samples": 138,
+      "first_negative_proxy_t": "46.6500999929",
+      "previous_nonnegative_proxy_t": "46.6473733334",
+      "first_sample_bracket_width": "0.0027266594",
+      "minimum_proxy_t": "47.5085211822",
+      "minimum_proxy_score": "-0.01553868468",
+      "rounded_point_trace_sha256": "86b3146cced09f418fc4d9442cde14248ed6072cbdd82b76856d9b591b15f051"
+    },
+    {
+      "method": "random",
+      "seed": 101,
+      "evaluations": 512,
+      "negative_proxy_samples": 124,
+      "first_negative_proxy_t": "46.6520565337",
+      "previous_nonnegative_proxy_t": "46.6441716706",
+      "first_sample_bracket_width": "0.007884863",
+      "minimum_proxy_t": "47.5102252768",
+      "minimum_proxy_score": "-0.01553759724",
+      "rounded_point_trace_sha256": "dcda2dc01f095a31255206f5f1b04e4510150d301b42ae54d439b06ae07043a4"
+    }
+  ]
+}
