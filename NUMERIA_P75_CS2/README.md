@@ -1,3 +1,5 @@
+> **Replay 2026-11-21:** o workflow [P75/256 faixas](https://github.com/jbarumby/scicalc/actions/runs/44947512003) passou e cobriu \(18\\le t\\le79\) com 500 zeros, 256 bits e 4.284 células, com limite inferior \(3,0358387546\\times10^{-6}\). Ver [CI_RESULT.md](CI_RESULT.md). A dependência de Chourasiya–Simonič v2 continua sendo um **preprint** e requer revisão externa.
+
 # NUMERIA–RIEMANN · P75: Chourasiya–Simonič v2 em Arb + curvatura local
 
 **Base de continuidade:** [PR #74](https://github.com/jbarumby/scicalc/pull/74) (`numeria-p74-zero-side-certified`, `13e67b6...`). **Esta etapa preserva integralmente a P74.**
