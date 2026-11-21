@@ -49,6 +49,14 @@ jobs:
             print(q['dimension'],q['status'],'negative witness:',q['negative_witness'] is not None)
           PY
           sha256sum replay/P259_GATE_B_PREFIX.json > replay/P259_GATE_B_SHA256SUMS
+      - name: Replay exact Rayleigh and transport below the prime-7 threshold
+        run: |
+          printf '%s  %s\n' '09b5a27700fa90f9c268882dbff4459fef5e6d72bd0b528f8e6e9a52d628b69a' replay/P259_GATE_B_PREFIX.json | sha256sum -c -
+          python -m NUMERIA_ES8P259.transport --gate-b replay/P259_GATE_B_PREFIX.json --out replay/P259_GATE_B_TRANSPORT.json
+          python -m unittest NUMERIA_ES8P259.test_transport -v
+          python -O -m unittest NUMERIA_ES8P259.test_transport -v
+          sha256sum replay/P259_GATE_B_TRANSPORT.json >> replay/P259_GATE_B_SHA256SUMS
+
       - name: Upload bounded-interval certificate
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,5 +65,6 @@ jobs:
           path: |
             replay/P259_GATE_B_PREFIX.json
             replay/P259_GATE_B_SHA256SUMS
+            replay/P259_GATE_B_TRANSPORT.json
           if-no-files-found: warn
           retention-days: 30
