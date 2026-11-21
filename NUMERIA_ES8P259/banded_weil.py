@@ -1,4 +1,4 @@
-"""Test the Weil auxiliary with floor 1/4 up to 850 and 1/2 thereafter."""
+"""Test the Weil auxiliary with piecewise constant floors 1/4 and 1/2."""
 
 import argparse
 from fractions import Fraction
@@ -7,11 +7,14 @@ from pathlib import Path
 
 from flint import arb, arb_mat, ctx
 
+from NUMERIA_ES8P249.interval_audit import _arb_prime_terms
 from NUMERIA_ES8P249.legendre_tail import modal_tail_bounds
+from NUMERIA_ES8P249.prime_operator import P236_PRIME_POWERS
 from NUMERIA_ES8P251.gate_b.finite_head import _dyadic_fraction
 from NUMERIA_ES8P251.gate_b.finite_head_certify import assemble_finite_head, certify_center_weyl
 from NUMERIA_ES8P251.gate_b.finite_head_quadrature import fixed_beta
 from NUMERIA_ES8P251.gate_c.spectral_diagnostic import _point, _rayleigh
+from NUMERIA_ES8P253.prime7_tail import _positive_cover
 from NUMERIA_ES8P257.p257_strip_taper import (
     HIGH_REMAINDER, KAPPA_UP, PI_LO_TARGET, arctanh_lower, arctanh_upper, prime_7_constants,
 )
@@ -30,18 +33,27 @@ LOSS = 1839
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def certify_analytic_constants():
+def certify_analytic_constants(high_cutoff=HIGH_CUTOFF):
     prime_7_constants()
     log850_over504 = Fraction(2 * (HIGH_CUTOFF - CUTOFF), HIGH_CUTOFF + CUTOFF)
     if not log850_over504 > Fraction(1, 2):
-        raise ArithmeticError("insufficient Binet bound for the new band")
+        raise ArithmeticError("insufficient Binet bound above 850")
+    adaptive_certificate = None
+    if high_cutoff == 590:
+        with ctx.workprec(192):
+            adaptive_certificate = _positive_cover(
+                _arb_prime_terms(P236_PRIME_POWERS), arb(1) / 2, high_cutoff, HIGH_CUTOFF, arb.pi(),
+            )
+    elif high_cutoff != HIGH_CUTOFF:
+        raise ValueError("the supported high-band cutoffs are 590 and 850")
     tau = Fraction(13, 10)
     reserve = arctanh_lower(Fraction(17, 23), 8) - Fraction(1, 2)
     loss = (OMEGA + 1) * KAPPA_UP * tau / (PI_LO_TARGET * (tau - KAPPA_UP))
     if not (reserve > tau + HIGH_REMAINDER and loss < LOSS):
         raise ArithmeticError("insufficient boundary-strip reserve")
     return {
-        "high_band_start": HIGH_CUTOFF,
+        "high_band_start": high_cutoff,
+        "high_band_adaptive_certificate": adaptive_certificate,
         "high_band_floor_exact": "1/2",
         "high_band_log_ratio_strict_lower_exact": str(log850_over504),
         "absorption_cutoff": OMEGA,
@@ -91,11 +103,11 @@ def _round_up_modal_bound(value):
     return Fraction(-(-value.numerator * scale // value.denominator), scale)
 
 
-def _sector(weighted, gram504, gram850, sector, parity):
+def _sector(weighted, gram504, gram_high, sector, parity):
     original, metadata = assemble_finite_head(weighted, sector, half_width=HALF_WIDTH, cutoff=CUTOFF)
     error = metadata["gl60_error_budget"]["row_sum_bound"]
     base = update_head(original, gram504, _ball(FLOOR) - fixed_beta())
-    raised = update_head(base, gram850, _ball(STEP))
+    raised = update_head(base, gram_high, _ball(STEP))
     check = certify_center_weyl(raised, error)
     result = {
         "finite_head": check,
@@ -115,7 +127,7 @@ def _sector(weighted, gram504, gram850, sector, parity):
         if not complement_lower > 0:
             raise ArithmeticError("no remainder of complement margin")
         factor = effective_head_step(STEP, reserved)
-        conservative = update_head(base, gram850, _ball(factor))
+        conservative = update_head(base, gram_high, _ball(factor))
         test = certify_center_weyl(conservative, error)
         record = {
             "reserved_complement_exact": str(reserved),
@@ -134,15 +146,15 @@ def _sector(weighted, gram504, gram850, sector, parity):
     return result
 
 
-def certify():
-    constants = certify_analytic_constants()
+def certify(high_cutoff=HIGH_CUTOFF):
+    constants = certify_analytic_constants(high_cutoff)
     tail_sha = _verify_tail()
     weighted = _old_matrices(OLD_AGGREGATE)
     gram504 = analytic_concentration(cutoff=CUTOFF)
-    gram850 = analytic_concentration(cutoff=HIGH_CUTOFF, bits=2048)
+    gram_high = analytic_concentration(cutoff=high_cutoff, bits=2048)
     with ctx.workprec(1024):
         sectors = {s: _sector(q, a, b, s, parity)
-                   for parity, (s, q, a, b) in enumerate(zip(SECTORS, weighted, gram504, gram850, strict=True))}
+                   for parity, (s, q, a, b) in enumerate(zip(SECTORS, weighted, gram504, gram_high, strict=True))}
     crossing = None
     if all(record["continuous_model_margin_exact"] is not None for record in sectors.values()):
         margin = min(Fraction(record["continuous_model_margin_exact"]) for record in sectors.values())
@@ -171,8 +183,9 @@ def certify():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--high-cutoff", type=int, default=HIGH_CUTOFF, choices=(590, HIGH_CUTOFF))
     args = parser.parse_args()
-    args.out.write_text(json.dumps(certify(), indent=2) + "\n", encoding="utf-8")
+    args.out.write_text(json.dumps(certify(args.high_cutoff), indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
