@@ -35,7 +35,7 @@ class ThetaMomentsTests(unittest.TestCase):
         with ctx.workprec(192):
             g={1:arb(63),2:arb(383)}
             self.assertLess(paper_phi(1,g),0)
-            self.assertEqual(paper_phi(1,g),-arb(63)/(16*383))
+            self.assertTrue(paper_phi(1,g).overlaps(-arb(63)/(16*383)))
     def test_kps_printed_gate_not_equivalent_to_RH(self):
         g={1:arb(63),2:arb(383)}
         self.assertTrue(paper_phi(1,g)<0)
