@@ -1,3 +1,5 @@
+> **Atualização P75:** o replay com 256 faixas alcançou t=79 no [GitHub Actions](https://github.com/jbarumby/scicalc/actions/runs/44947512003). O primeiro teste com 128 faixas ficou inconclusivo em t≈78,62913. Ver [CI_RESULT.md](CI_RESULT.md). Antes de buscar t>79, faça auditoria independente do corolário v2, dos fatores de simetria e do JSON SHA-256.
+
 # Continuação Codex — P75
 
 Base preservada: [PR #74](https://github.com/jbarumby/scicalc/pull/74).
