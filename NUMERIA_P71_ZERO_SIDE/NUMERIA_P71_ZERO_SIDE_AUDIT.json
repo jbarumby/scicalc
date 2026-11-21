@@ -1,0 +1,32 @@
+{
+  "scope": "Psi(t)>0 for 18<=t<=34.5; external theorems and certified gamma intervals imported",
+  "primeness_or_prime_power_enumeration": false,
+  "arithmetic": "exact rationals / integer interval, no floating point evaluations",
+  "gamma_source": "FLINT acb_dirichlet_zeta_zeros 128 bit documentation: first three zero intervals",
+  "RH_up_to_height": 3000000000000,
+  "zero_count_majorant": "Bellotti-Wong 2025; N(T)<=T log(T)/(2 pi) for T>=3e12",
+  "points": 16501,
+  "intervals": 16500,
+  "grid_start_t": "18",
+  "grid_end_t": "34.5",
+  "grid_step": "0.001",
+  "grid_minimum_lower": "0.000512751726189403",
+  "grid_minimum_at": "16447/500",
+  "continuity_loss_upper": "0.000159047619047619",
+  "high_zero_tail_upper": "0.000231152760666667",
+  "uniform_lower_bound": "0.000122551346475117",
+  "strictly_positive": true,
+  "grid_sha256": "726d525c5b92540c290ccb2831a39547ee91280361c1599e7a5aa7d3c0cf3da9",
+  "gamma_centers": [
+    "14.1347251417346937904572519836",
+    "21.0220396387715549926284795939",
+    "25.0108575801456887632137909926"
+  ],
+  "gamma_radius": "1e-26",
+  "proof_numerators": {
+    "grid_lower_numerator": "51275172618940319259795631336670479519480902711867296840021915999641131644501",
+    "grid_lower_denominator": "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "uniform_lower_numerator": "85785942532582234818569419356693356636366318983071077880153411997487921511507",
+    "uniform_lower_denominator": "700000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

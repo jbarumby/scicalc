@@ -1,0 +1,48 @@
+name: NUMERIA P72 zero-side Arb and rational replay
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "NUMERIA_P72_ZERO_SIDE/**"
+      - ".github/workflows/numeria-p72-zero-side.yml"
+jobs:
+  certify-zero-side:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Arb-backed zero isolation
+        run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Generate rigorous zero intervals
+        run: python NUMERIA_P72_ZERO_SIDE/export_zeros_flint.py --n 20 --precision 192 --out NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json
+      - name: Prove window to 44.35 with rational enclosures
+        run: python NUMERIA_P72_ZERO_SIDE/verify_spectral_rational.py --zeros NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json --n 20 --to 44.35 --out NUMERIA_P72_ZERO_SIDE/arb_20_t44.35.json
+      - name: Verify positive margin (fail closed)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('NUMERIA_P72_ZERO_SIDE/arb_20_t44.35.json').read_text())
+          if not r['certified_positive']:
+              raise SystemExit('P72 gate did not certify the window')
+          print('P72 certified to t=',r['end_t'])
+          print('margin=',r['numerical_summary']['uniform_lower_bound'])
+          PY
+      - name: Require exact reproduction of the committed Arb certificates and sources
+        run: |
+          git diff --exit-code -- NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json NUMERIA_P72_ZERO_SIDE/arb_20_t44.35.json
+          (cd NUMERIA_P71_ZERO_SIDE && sha256sum -c NUMERIA_P71_ZERO_SIDE_SHA256SUMS.txt)
+          (cd NUMERIA_P72_ZERO_SIDE && sha256sum -c SHA256SUMS_P72.txt)
+      - name: Check tests with and without assertions
+        run: |
+          cd NUMERIA_P72_ZERO_SIDE
+          python -m unittest test_p72 -v
+          python -O -m unittest test_p72 -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NUMERIA-P72-Arb-20-zeros
+          path: |
+            NUMERIA_P72_ZERO_SIDE/arb_zeros_20.json
+            NUMERIA_P72_ZERO_SIDE/arb_20_t44.35.json
