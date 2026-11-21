@@ -1,0 +1,38 @@
+name: Replay NUMERIA Suzuki prefixes
+
+on:
+  push:
+    branches: [numeria-suzuki-prefix-balance]
+    paths:
+      - ".github/workflows/numeria-suzuki-prefix-replay.yml"
+      - "NUMERIA_SUZUKI_PREFIX/**"
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Arb and regression dependencies
+        run: python -m pip install -r NUMERIA_ES8P249/requirements.txt
+      - name: Run tests and independently enumerate all prime powers
+        run: |
+          python -m unittest NUMERIA_SUZUKI_PREFIX.test_prefix NUMERIA_ES8P259.test_p259 -v
+          python -O -m unittest NUMERIA_SUZUKI_PREFIX.test_prefix NUMERIA_ES8P259.test_p259 -v
+          python -O -m NUMERIA_SUZUKI_PREFIX.audit_sieve
+      - name: Replay and check the certificate
+        run: |
+          sha256sum -c NUMERIA_SUZUKI_PREFIX/SHA256SUMS
+          python -O -m NUMERIA_SUZUKI_PREFIX.certify --block-size 65521 --verify NUMERIA_SUZUKI_PREFIX/SUZUKI_PREFIX_100000000.json
+          jq -e -s '.[0].p259_overlap_sha256 == .[1].prefix_tangent_certificate_sha256' NUMERIA_SUZUKI_PREFIX/SUZUKI_PREFIX_100000000.json NUMERIA_ES8P259/data/SUZUKI_FINITE.json
+          jq -e '.quadratic_bound_positive_for_all_prefixes and .screw_extension.strictly_positive' NUMERIA_SUZUKI_PREFIX/SUZUKI_PREFIX_100000000.json
+          python -m NUMERIA_ES8P259.suzuki --limit 1000000 --out "$RUNNER_TEMP/SUZUKI_FINITE.json"
+          cmp "$RUNNER_TEMP/SUZUKI_FINITE.json" NUMERIA_ES8P259/data/SUZUKI_FINITE.json
