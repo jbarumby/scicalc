@@ -1,0 +1,40 @@
+{
+  "schema": "NUMERIA.P73.DISCOVERY_ONLY.1",
+  "zero_count": 20,
+  "start_t": 44.35,
+  "end_t": 47.48,
+  "evaluations_per_strategy": 512,
+  "strategies": [
+    {
+      "strategy": "uniform",
+      "seed": null,
+      "evaluations": 512,
+      "best_t": 47.48,
+      "minimum_heuristic_score": -0.01571390777676042,
+      "negative_samples": 56,
+      "first_negative_by_t": 46.63471624266145,
+      "trace_sha256": "6ad9a16844d8d47d39588be494c6543503572f97160253af52977b0ec1b0f6e8"
+    },
+    {
+      "strategy": "random",
+      "seed": 73,
+      "evaluations": 512,
+      "best_t": 47.48,
+      "minimum_heuristic_score": -0.01571390777676042,
+      "negative_samples": 48,
+      "first_negative_by_t": 46.64344215115836,
+      "trace_sha256": "d5d584e9fd1e8f9b79dbbf73c3b5d1ee5082c94452aba69da7d3245131d8c915"
+    },
+    {
+      "strategy": "adaptive",
+      "seed": null,
+      "evaluations": 512,
+      "best_t": 47.48,
+      "minimum_heuristic_score": -0.01571390777676042,
+      "negative_samples": 80,
+      "first_negative_by_t": 46.6363671875,
+      "trace_sha256": "cec42948eb8fb8b9b27947924adb8abfad4ab5185855bf758cbdfbcea81f9519"
+    }
+  ],
+  "disclaimer": "Floating-point exploration only; no randomized result certifies a continuous interval."
+}
