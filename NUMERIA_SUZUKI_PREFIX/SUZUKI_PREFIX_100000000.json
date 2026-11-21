@@ -1,0 +1,56 @@
+{
+  "schema": "NUMERIA.SUZUKI.PRIME_PREFIX.1",
+  "limit": 100000000,
+  "precision_bits": 192,
+  "prime_power_count": 5762859,
+  "tangent_minimum": {
+    "prime_power": 2,
+    "lower_dyadic": [
+      "4234629741747382634114275519276793747283233496715335402995",
+      -190
+    ]
+  },
+  "quadratic_minimum": {
+    "prime_power": 2,
+    "lower_dyadic": [
+      "5620047664333032000046940072102023260681675684262956324921",
+      -191
+    ]
+  },
+  "quadratic_bound_positive_for_all_prefixes": true,
+  "prefix_tangent_certificate_sha256": "1df86bab69cf0d6e8eaeb68343898dccceacfe0f7204b7cc8b72916f9c8f8a82",
+  "p259_overlap_limit": 1000000,
+  "p259_overlap_sha256": "2d04f11b6fe5654c51a0c3e9f3e082be4851bde9c9b862a990e1783fd52b2b9e",
+  "new_prime_power_count": 5684125,
+  "new_tangent_minimum": {
+    "prime_power": 1000003,
+    "lower_dyadic": [
+      "2002917597382517069895752887223480728962502740747268745429",
+      -185
+    ]
+  },
+  "new_quadratic_minimum": {
+    "prime_power": 1000033,
+    "lower_dyadic": [
+      "4005368821648502259562733401195980494947201251815276247527",
+      -186
+    ]
+  },
+  "screw_extension": {
+    "from_log_of": 1000000,
+    "through_log_of": 100000000,
+    "active_prefix_count": 5684126,
+    "uniform_lerch_tail_upper_dyadic": [
+      "2261564242918593506109539394457045239653636433240445902829",
+      -243
+    ],
+    "lower_bound_minimum": {
+      "prime_power": 34186367,
+      "lower_dyadic": [
+        "4318360927893703940788422983513693678409839460432211114861",
+        -197
+      ]
+    },
+    "strictly_positive": true
+  }
+}
