@@ -113,3 +113,38 @@ O artigo KPS, eqs. (4.15)–(4.18), sugere um problema de **momentos theta / fun
 4. exigir a normalização exata e um operador explícito antes de qualquer suposta transferência para a forma completa de Weil.
 
 **Nada nesta P261 altera** os certificados locais de Weil da P252, a nova testemunha negativa do minorante P259, a auditoria arquimediana P260 ou o status da RH. O Gate A apresenta exclusivamente identidades exatas e contraexemplos para impedir saltos lógicos.
+
+
+## 7. Um teste de Laguerre que é automaticamente positivo para \(\Xi\)
+
+A representação positiva do artigo KPS mostra que a função \(\varphi_\Xi(t)=\Xi(t)/\Xi(0)\) é a transformada característica de uma distribuição simétrica com densidade \(\Phi(x)/\Xi(0)\), cujo segundo momento é finito pela decadência rápida da densidade theta. Logo, **sem RH**,
+
+\[
+\varphi_\Xi(0)=1,\qquad \varphi_\Xi'(0)=0,\qquad
+\varphi_\Xi''(0)=-\mathbb E[X^2]<0,
+\]
+
+e, consequentemente,
+
+\[
+\mathcal L_1[\varphi_\Xi](0)
+=\varphi_\Xi'(0)^2-\varphi_\Xi(0)\varphi_\Xi''(0)
+=\mathbb E[X^2]>0.
+\]
+
+Isso é uma **obstrução metodológica**: conferir apenas a primeira desigualdade de Laguerre na origem, ou o primeiro menor de matriz de momentos, não acrescenta informação à RH. O contraexemplo exato da Seção 4 também possui \(\mathcal L_1(0)>0\), mas falha em \(t=\pi\).
+
+## 8. Gate B quantitativo baseado na Equação (4.18) de KPS
+
+A Seção 4.1 do artigo apresenta, como condição de uma possível representação em uma classe de processos de Lévy/Bernstein, para os índices em que as razões são definidas,
+
+\[
+\phi(n+1)=-\frac{G(2n)}{8(n+1)G(2n+2)},\quad
+G(2n)=64n(2n-1)\frac{F(2n-2)}{F(2n)}-1,
+\]
+
+com \(F(k)=\int_1^\infty(\log x)^k x^{-3/4}\theta_0(x)dx\) e \(\theta_0(x)=\sum_{m\ge1}e^{-\pi m^2 x}\).
+
+Uma função de Bernstein é não negativa, crescente e côncava, logo suas amostras devem ter diferenças de primeira ordem não negativas e de segunda ordem não positivas. **Próxima verificação realmente informativa:** obter enclosures intervalares rigorosos dos momentos \(F(0),F(2),\ldots,F(2N)\) com resíduos das integrais e das somas theta; construir os quocientes sem dividir por intervalos contendo zero; e testar essas **condições necessárias** com aritmética racional/Arb.
+
+Uma violação rigorosa poderia **excluir essa representação candidata de KPS**, mas **não refutaria a RH**, pois a classe candidata \(\mathcal D_P\) não foi demonstrada necessária para a RH. E um número finito de diferenças com os sinais esperados não demonstra que \(\phi\) é uma função de Bernstein em todos os argumentos.
