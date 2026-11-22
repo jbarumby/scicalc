@@ -1,0 +1,105 @@
+name: NUMERIA P89 Preissmann Lemma5 exterior Shan tails and P87 errata
+on:
+  push:
+    branches:
+      - numeria-p89-preissmann-lemma5-exterior-tails
+  pull_request:
+    paths:
+      - 'NUMERIA_P89_LEMMA5/**'
+      - '.github/workflows/numeria-p89-lemma5-exterior.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exterior-analytic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact rational regression tests
+        run: python -m unittest -v NUMERIA_P89_LEMMA5.test_p89
+      - name: Fail-closed tests under Python -O
+        run: python -O -m unittest -v NUMERIA_P89_LEMMA5.test_p89
+      - name: Rebuild three-region exterior-tail certificate
+        run: python -m NUMERIA_P89_LEMMA5.exterior --out p89-exterior.json
+      - name: Recompute and validate all rational witnesses and source errata
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          from NUMERIA_P89_LEMMA5.exterior import (
+              majorant,source_errata,exact_parts
+          )
+          a=json.load(open("p89-exterior.json"))
+          if a["schema"]!="NUMERIA.P89.PREISSMANN.LEMMA5.EXTERIOR.1":
+              raise ArithmeticError("wrong P89 schema")
+          if not a["exterior_bound_proved_for_all_finite_real_nodes"]:
+              raise ArithmeticError("missing analytic theorem statement")
+          if not a["exterior_cross_nonnegative_interior_cross_nonpositive_all_nodes"]:
+              raise ArithmeticError("three-region sign theorem missing")
+          for flag in (
+              "interior_middle_sharp_Lemma6_proved",
+              "full_Lemma5_variational_proof_reproduced",
+              "full_Lemma6_preissmann_reproved",
+              "RZ_double_sum_source_extended_below_3e12",
+              "RH_proved"):
+              if a[flag]: raise ArithmeticError("unearned theorem claim: "+flag)
+          count=0
+          for group in a["finite_sets"]:
+              for row in group["records"]:
+                  h,da,db=[F(row[k]) for k in ("h","delta_a","delta_b")]
+                  L,M,R=[F(row[k]) for k in
+                      ("left_exact","middle_exact","right_exact")]
+                  if L+M+R!=F(row["total_exact"]):
+                      raise ArithmeticError("wrong region splitting")
+                  for d,exact,bound,tail in (
+                      (da,"left_exact","left_bound_rational","left_tail_K_rational"),
+                      (db,"right_exact","right_bound_rational","right_tail_K_rational")
+                  ):
+                      prefix,tail_check,full=majorant(d,h,a["diagnostic_K"])
+                      if full!=F(row[bound]) or tail_check!=F(row[tail]):
+                          raise ArithmeticError("rational tail not reproducible")
+                      if F(row[exact])>full:
+                          raise ArithmeticError("exterior tail witness exceeds bound")
+                  csum=sum((F(row[k]) for k in
+                       ("cross_left_exact","cross_middle_exact","cross_right_exact")),F())
+                  if csum!=F(row["cross_total_exact"]):
+                      raise ArithmeticError("cross sum not conserved")
+                  if not(F(row["cross_left_exact"])>=0
+                         and F(row["cross_middle_exact"])<=0
+                         and F(row["cross_right_exact"])>=0):
+                      raise ArithmeticError("sign theorem regression")
+                  count+=1
+          if count!=a["finite_checked_pairs"] or count<25:
+              raise ArithmeticError("missing pair samples")
+          err=source_errata()
+          if err!=a["p87_errata"]:
+              raise ArithmeticError("P87 errata provenance mismatch")
+          if not(err["laplace_original_missing_factor_one_over_t"]
+                 and err["laplace_original_reversed_exponential_inequality"]
+                 and err["B5_original_used_upper_pi_bound_not_sufficient"]):
+              raise ArithmeticError("missing user-source critical corrections")
+          if F(err["B5_correct_use_lower_pi_bound"])<=F(157,50):
+              raise ArithmeticError("invalid strict Machin bound")
+          print("P89: exact rational pairs",count)
+          print("P89: all-spacing EXTERIOR theorem in README, Lema5/6 all-N still external")
+          print("P89: P87 source Laplace/π-direction errors recorded and corrected analytically")
+          PY
+      - name: SHA-256 sources and outputs
+        run: |
+          sha256sum NUMERIA_P89_LEMMA5/*.py \
+            NUMERIA_P89_LEMMA5/README.md \
+            NUMERIA_P89_LEMMA5/P87_UPLOAD_ERRATA.md \
+            NUMERIA_P87_PREISSMANN/shan_spacing.py \
+            NUMERIA_P88_LEMMA6/compensation.py \
+            p89-exterior.json > p89-SHA256SUMS.txt
+          cat p89-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p89-exterior-lemma5-and-p87-errata
+          path: |
+            p89-exterior.json
+            p89-SHA256SUMS.txt
