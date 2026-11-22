@@ -51,6 +51,7 @@ class S3AdoptionTests(unittest.TestCase):
         self.assertGreater(d["files_examined"],17)
         self.assertGreater(d["files_with_B1_references"],0)
         self.assertIn("VERSIONED_TABLE_OR_CONSUMER",d["classifications"])
+        self.assertEqual(d["unreviewed_consumer_count"],0)
 
     def test_robust_exceeds_existing_p79_six_decimal_majorants(self):
         upper=("17.484560","19.659253","22.239617","25.472651",
