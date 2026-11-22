@@ -1,0 +1,76 @@
+name: NUMERIA P92F three-scale Schur spectral certificate
+on:
+  push:
+    branches:
+      - numeria-p92f-delta-three-nearest-gap-scales
+  pull_request:
+    paths:
+      - 'NUMERIA_P92F_THREE_SCALES/**'
+      - '.github/workflows/numeria-p92f-three-scales.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-three-scale-certificate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight Fraction and LDL tests
+        run: python -m unittest -v NUMERIA_P92F_THREE_SCALES.test_p92f
+      - name: Eight Fraction and LDL tests without assert
+        run: python -O -m unittest -v NUMERIA_P92F_THREE_SCALES.test_p92f
+      - name: Write complete exact rational regression ledger
+        run: python -m NUMERIA_P92F_THREE_SCALES.certificate --out p92f-certificate.json
+      - name: Independent ledger audit and forbidden-global-claims guard
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=json.load(open('p92f-certificate.json',encoding='utf-8'))
+          if x['schema']!='NUMERIA.P92F.DELTA.SCALE_COUNT.SCHUR.1':
+              raise ArithmeticError('P92F schema mismatch')
+          if (x['regression_count'],x['ldlt_certified_count'],len(x['regressions']))!=(368,40,368):
+              raise ArithmeticError('wrong exact regression/LDLT census')
+          if not x['scale_class_unrestricted_number_of_nodes'] or not x['three_scales_imply_P88_residual_bound']:
+              raise ArithmeticError('missing theorem scope')
+          for key in ('arbitrarily_many_scales_proved',
+                      'full_Preissmann_Lemma5_or_6_proved',
+                      'Riemann_Hypothesis_proved'):
+              if x[key]:
+                  raise ArithmeticError('unsupported global promotion '+key)
+          pivots=0
+          counts=set()
+          for r in x['regressions']:
+              m=int(r['distinct_nearest_gap_values'])
+              counts.add(m)
+              if m>3 or m!=len(r['gap_values']):
+                  raise ArithmeticError('bad scale-count classification')
+              if F(r['max_weighted_schur_row'])>(m-1)*F(5,3):
+                  raise ArithmeticError('Schur envelope failed')
+              p=r['ldlt_min_pivot']
+              if p is not None:
+                  pivots+=1
+                  if F(p)<=0:
+                      raise ArithmeticError('non-positive LDL pivot')
+          if counts!={1,2,3} or pivots!=40:
+              raise ArithmeticError('missing scale examples or LDL checks')
+          if not 2*F(5,3)< F(25,8)**2/F(3)*F(109,100):
+              raise ArithmeticError('rational threshold comparison failed')
+          print('P92F PASS: 368 configurations, 40 exact LDL pivots, 1/2/3 scales')
+          print('Analytic proof in README applies to ALL real points with <=3 delta-values')
+          print('Arbitrarily many distinct scales, full Preissmann and RH remain OPEN')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92F_THREE_SCALES/*.py NUMERIA_P92F_THREE_SCALES/README.md p92f-certificate.json > p92f-SHA256SUMS.txt
+          cat p92f-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92f-three-nearest-gap-scales-exact-ledger
+          path: |
+            p92f-certificate.json
+            p92f-SHA256SUMS.txt

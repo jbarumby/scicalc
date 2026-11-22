@@ -1,0 +1,74 @@
+name: NUMERIA P92F refined scale-spectrum Schur certificate
+on:
+  push:
+    branches:
+      - numeria-p92f-delta-three-nearest-gap-scales
+  pull_request:
+    paths:
+      - 'NUMERIA_P92F_THREE_SCALES/**'
+      - '.github/workflows/numeria-p92f-spectrum.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ratio-spectrum-certificate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Six exact scale-spectrum tests
+        run: python -m unittest -v NUMERIA_P92F_THREE_SCALES.test_spectrum
+      - name: Six tests with optimizations
+        run: python -O -m unittest -v NUMERIA_P92F_THREE_SCALES.test_spectrum
+      - name: Produce scale-spectrum rational certificate
+        run: python -m NUMERIA_P92F_THREE_SCALES.spectrum_gate --out p92f-spectrum.json
+      - name: Independent spectrum ledger audit
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          d=json.load(open('p92f-spectrum.json',encoding='utf-8'))
+          if d['schema']!='NUMERIA.P92F.SCALE_SPECTRUM.RATIONAL_SCHUR.1':
+              raise ArithmeticError('schema mismatch')
+          if d['all_arbitrary_scale_spectra_global_Delta_proved'] or d['Riemann_Hypothesis_proved'] or d['full_Preissmann_Lemma6_proved']:
+              raise ArithmeticError('unearned general claim')
+          target=F(d['P88_target_lower'])
+          if F(d['five_scale_rational_norm_upper'])!=F(6829,2160):
+              raise ArithmeticError('wrong five-scale envelope')
+          a=next(x for x in d['cases'] if x['name']=='five_squares')
+          b=next(x for x in d['cases'] if x['name']=='five_scaled_squares')
+          if F(a['max_rational_schur_ceiling'])!=F(b['max_rational_schur_ceiling']):
+              raise ArithmeticError('scaling invariance')
+          if not F(a['max_rational_schur_ceiling'])<target:
+              raise ArithmeticError('residual threshold failed')
+          for entry in d['cases']:
+              if len(entry['rows'])!=entry['scale_count']:
+                  raise ArithmeticError('missing row')
+              computed=[]
+              for row in entry['rows']:
+                  lo=F(row['lower_scale_contribution'])
+                  hi=F(row['higher_scale_contribution_zeta_upper'])
+                  val=F(row['rational_upper'])
+                  if val!=lo+hi or min(lo,hi)<0:
+                      raise ArithmeticError('wrong exact scale row')
+                  computed.append(val)
+              if max(computed)!=F(entry['max_rational_schur_ceiling']):
+                  raise ArithmeticError('wrong exact max')
+              if entry['P88_target_proved_by_rational_lower']!=(max(computed)<target):
+                  raise ArithmeticError('incorrect scope classification')
+          print('P92F spectrum PASS: five distinct scales c*{1,4,9,16,25}')
+          print('Full Preissmann / arbitrary spectra / RH remain OPEN')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92F_THREE_SCALES/spectrum_gate.py NUMERIA_P92F_THREE_SCALES/test_spectrum.py NUMERIA_P92F_THREE_SCALES/SCALE_SPECTRUM_GATE.md p92f-spectrum.json > p92f-spectrum-SHA256SUMS.txt
+          cat p92f-spectrum-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92f-refined-five-scale-rational-certificates
+          path: |
+            p92f-spectrum.json
+            p92f-spectrum-SHA256SUMS.txt
