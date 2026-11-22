@@ -1,0 +1,72 @@
+name: NUMERIA P92I slow nearest-gap bands and irregular block gluing
+on:
+  push:
+    branches:
+      - numeria-p92i-delta-slow-band-block-gluing
+  pull_request:
+    paths:
+      - 'NUMERIA_P92I_SLOW_BANDS/**'
+      - '.github/workflows/numeria-p92i-slow-bands.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-band-proof-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify nine exact Fraction gates
+        run: python -m unittest -v NUMERIA_P92I_SLOW_BANDS.test_p92i
+      - name: Verify nine exact gates with -O
+        run: python -O -m unittest -v NUMERIA_P92I_SLOW_BANDS.test_p92i
+      - name: Export exact block certificate
+        run: python -m NUMERIA_P92I_SLOW_BANDS.certificate --out p92i-bands.json
+      - name: Independent rational JSON audit and scope guards
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          d=json.load(open('p92i-bands.json',encoding='utf8'))
+          if d['schema']!='NUMERIA.P92I.DELTA.SLOW_BANDS.BLOCK_GLUE.1':
+              raise ArithmeticError('wrong P92-I schema')
+          if not d['all_real_bounded_spread_proved_analytically'] or not d['irregular_block_comparator_proved']:
+              raise ArithmeticError('missing restricted theorem markers')
+          for key in ('arbitrary_configurations_global_residual_proved',
+                      'general_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved'):
+              if d[key]:
+                  raise ArithmeticError('unsupported theorem claim: '+key)
+          if (d['rational_regressions'],d['two_sided_LDL_cases'],len(d['cases']))!=(6,4,6):
+              raise ArithmeticError('regressions missing')
+          root=F(d['refined_ratio_sqrt'])
+          if F(d['refined_ratio'])!=root*root or F(d['refined_polynomial_margin'])!=F(24,5)-(root*(root-1)**2)**2:
+              raise ArithmeticError('refined bound not reproduced')
+          if F(d['refined_polynomial_margin'])<=0:
+              raise ArithmeticError('refined root failed')
+          for case in d['cases']:
+              if not case['block_test_passes'] or F(case['rational_block_norm_upper'])>=F(2725,768):
+                  raise ArithmeticError('inconclusive comparator')
+              for pair in case['cross_block_data']:
+                  actual=F(pair['actual_HS_squared'])
+                  ceiling=F(pair['integral_HS_squared_upper'])
+                  root_upper=F(pair['block_norm_upper'])
+                  if not (0<=actual<=ceiling<=root_upper*root_upper):
+                      raise ArithmeticError('invalid HS majorant')
+              pivots=case['two_sided_exact_ldlt_min_pivots']
+              if pivots is not None and not (len(pivots)==2 and all(F(v)>0 for v in pivots)):
+                  raise ArithmeticError('invalid LDL pivots')
+          print('P92I PASS: 6 exact rational configurations, 4 two-sided LDL, correct delimited scope')
+          PY
+      - name: Reproducible SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92I_SLOW_BANDS/*.py NUMERIA_P92I_SLOW_BANDS/README.md p92i-bands.json > p92i-SHA256SUMS.txt
+          cat p92i-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92i-bounded-spread-irregular-block-artefacts
+          path: |
+            p92i-bands.json
+            p92i-SHA256SUMS.txt
