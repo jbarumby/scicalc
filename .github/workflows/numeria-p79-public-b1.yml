@@ -1,0 +1,76 @@
+name: NUMERIA P79 Public B1 and Suzuki Replay
+on:
+  push:
+    branches:
+      - numeria-p79-b1-public-replay
+  pull_request:
+    paths:
+      - 'NUMERIA_P79_B1_PUBLIC/**'
+      - 'NUMERIA_P78_RAMARE_PUBLIC/**'
+      - '.github/workflows/numeria-p79-public-b1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install rigorous interval arithmetic
+        run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Unit tests in normal Python
+        run: python -m unittest -v NUMERIA_P79_B1_PUBLIC.test_public NUMERIA_P79_B1_PUBLIC.test_s2_exact
+      - name: Unit tests with optimizations
+        run: python -O -m unittest -v NUMERIA_P79_B1_PUBLIC.test_public NUMERIA_P79_B1_PUBLIC.test_s2_exact
+      - name: Rebuild B1 at 192-bit precision
+        run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 192 --out p79-b1-192.json
+      - name: Rebuild B1 at 256-bit precision and independently replay P75
+        run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 256 --out p79-b1-256.json --cover-out p79-suzuki-cover.json --start 18 --end 79 --segments 256
+      - name: Repeat Suzuki replay with 512 density bands
+        run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 256 --out p79-b1-256-512.json --cover-out p79-suzuki-cover-512.json --start 18 --end 79 --segments 512
+      - name: Verify independent-precision rounded table equality and fail closed
+        run: |
+          python - <<'PY'
+          import json
+          a=json.load(open('p79-b1-192.json'))
+          b=json.load(open('p79-b1-256.json'))
+          assert a['all_16_strict_new_B1'] and b['all_16_strict_new_B1']
+          assert a['table_v2_public_replacement']==b['table_v2_public_replacement']
+          assert a['table_sha256']==b['table_sha256']
+          assert all(x['old_B1_still_strict']==(i<10) for i,x in enumerate(b['coefficients'],1))
+          c=json.load(open('p79-suzuki-cover.json'))
+          assert c['P79_public_B1_table_sha256']==b['table_sha256']
+          d=json.load(open('p79-suzuki-cover-512.json'))
+          e=json.load(open('p79-b1-256-512.json'))
+          assert e['table_v2_public_replacement']==b['table_v2_public_replacement']
+          assert d['P79_public_B1_table_sha256']==b['table_sha256']
+          from fractions import Fraction
+          assert Fraction(d['certified_through_exact'])>=Fraction(c['certified_through_exact'])
+          if c['status']=='conditional_finite_positive':
+              assert c['first_unresolved_cell'] is None and c['certified_through_exact']=='79'
+          elif c['status']=='inconclusive':
+              assert c['first_unresolved_cell'] is not None
+          else:
+              raise AssertionError('unexpected replay status')
+          print('P79 table SHA',b['table_sha256'])
+          print('P79 Suzuki replay:',c['status'],c['certified_through_exact'])
+          print('P79 Suzuki 512-band replay:',d['status'],d['certified_through_exact'])
+          PY
+      - name: Hash input sources and outputs
+        run: |
+          sha256sum NUMERIA_P79_B1_PUBLIC/*.py NUMERIA_P79_B1_PUBLIC/prototype_input/* NUMERIA_P77_B1/audit_b1.py NUMERIA_P78_RAMARE_PUBLIC/certificate.json p79-*.json > p79-sha256sums.txt
+          cat p79-sha256sums.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p79-public-b1-and-suzuki
+          path: |
+            p79-b1-192.json
+            p79-b1-256.json
+            p79-suzuki-cover.json
+            p79-b1-256-512.json
+            p79-suzuki-cover-512.json
+            p79-sha256sums.txt
