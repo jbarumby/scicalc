@@ -51,6 +51,11 @@ class SourceV3Tests(unittest.TestCase):
         import ast
         source=Path(__file__).resolve().parent/"source_input/p78_s2_full_protocol.py"
         self.assertIn("NUMERIA P78-S3",source.read_text())
+        import hashlib
+        self.assertEqual(
+            hashlib.sha256(source.read_bytes()).hexdigest(),
+            "1faf315454a100a6a9850e843c795eca2bf734053ec9d32f202286709565b686",
+        )
         ast.parse(source.read_text(encoding="utf-8"))
 
 if __name__=="__main__":
