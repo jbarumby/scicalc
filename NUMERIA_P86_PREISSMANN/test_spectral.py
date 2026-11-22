@@ -2,7 +2,7 @@
 import unittest
 from fractions import Fraction as F
 from .spectral_rational import (
-    build,exact_ldl_positive,source_m0_pi,
+    build,exact_ldl_positive,source_m0_pi,row_energies,
     run,RHO,PI_LOWER,M0_LOWER,PAIRS,mat_mul,
 )
 
@@ -39,6 +39,14 @@ class P86SpectralTests(unittest.TestCase):
             self.assertEqual(len(s["ldl_pivots_exact"]),s["n"])
             self.assertTrue(all(F(q)>0 for q in s["ldl_pivots_exact"]))
             self.assertEqual(F(s["rho_lower_than_pi2_m02_exact"]),RHO)
+
+    def test_uniform_all_N_diagonal_energy_le_four(self):
+        self.assertTrue(self.result["general_all_N_energy_le_4_proved_independently"])
+        self.assertFalse(self.result["Preissmann_sharper_pi2_over3_row_energy_proved_here"])
+        for row in self.result["finite_samples"]:
+            calculated=row_energies(row["nodes_exact_rational"])
+            self.assertEqual([str(q) for q in calculated],row["row_energies_exact"])
+            self.assertTrue(all(F(0)<q<=F(4) for q in calculated))
 
     def test_wrong_too_small_bound_fails_closed(self):
         _,_,_,_,H=build(["0","1"],threshold=F(1,2))
