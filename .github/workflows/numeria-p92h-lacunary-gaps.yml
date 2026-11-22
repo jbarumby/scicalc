@@ -1,0 +1,70 @@
+name: NUMERIA P92H variable-ratio lacunary gap spectral Delta bound
+on:
+  push:
+    branches:
+      - numeria-p92h-delta-variable-lacunary-gaps
+  pull_request:
+    paths:
+      - 'NUMERIA_P92H_LACUNARY_GAPS/**'
+      - '.github/workflows/numeria-p92h-lacunary-gaps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-lacunary-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight exact tests normal Python
+        run: python -m unittest -v NUMERIA_P92H_LACUNARY_GAPS.test_p92h
+      - name: Eight exact tests with Python -O
+        run: python -O -m unittest -v NUMERIA_P92H_LACUNARY_GAPS.test_p92h
+      - name: Generate P92H Fraction JSON
+        run: python -m NUMERIA_P92H_LACUNARY_GAPS.certificate --out p92h-lacunary-certificate.json
+      - name: Independently audit exact margins and theorem scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as Q
+          d=json.load(open('p92h-lacunary-certificate.json',encoding='utf8'))
+          if d['schema']!='NUMERIA.P92H.DELTA.LACUNARY.GAP_RATIOS.1':
+              raise ArithmeticError('P92H schema mismatch')
+          if (d['minimum_gap_ratio'],d['rational_norm_upper'],d['strict_target'],d['exact_margin_to_target']) != ('64/25','12793/13824','15/16','167/13824'):
+              raise ArithmeticError('P92H constants were altered')
+          if (d['exact_rational_regression_count'],d['two_sided_exact_ldlt_cases'],len(d['cases'])) != (71,35,71):
+              raise ArithmeticError('missing P92H exact cases')
+          if not d['all_lacunary_variable_ratios_proved_analytically'] or d['geometric_exact_ratio_required']:
+              raise ArithmeticError('incorrect P92H hypothesis flags')
+          for guard in ('all_gap_ratios_above_one_proved_to_meet_15_over_16','arbitrary_point_configurations_proved','full_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved'):
+              if d[guard]:
+                  raise ArithmeticError('unsupported universal claim: '+guard)
+          count=0
+          for c in d['cases']:
+              val,mar=Q(c['max_exact_row_sum']),Q(c['margin_to_rational_bound'])
+              if not 0<=val<=Q(12793,13824) or mar!=Q(12793,13824)-val:
+                  raise ArithmeticError('invalid rational bound')
+              if any(Q(r)<Q(8,5) for r in c['root_multipliers']):
+                  raise ArithmeticError('ratio below theorem threshold')
+              if c['two_sided_exact_ldlt_min_pivots'] is not None:
+                  if len(c['two_sided_exact_ldlt_min_pivots'])!=2 or any(Q(x)<=0 for x in c['two_sided_exact_ldlt_min_pivots']):
+                      raise ArithmeticError('invalid two-sided LDL pivot')
+                  count+=1
+          if count!=35:
+              raise ArithmeticError('missing two-sided LDL certificates')
+          print('P92H PASS: 71 Fraction cases and 70 exact rational LDL factorizations')
+          print('The real-parameter lacunary theorem is analytical; general Preissmann and RH remain open')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92H_LACUNARY_GAPS/*.py NUMERIA_P92H_LACUNARY_GAPS/README.md p92h-lacunary-certificate.json > p92h-SHA256SUMS.txt
+          cat p92h-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92h-lacunary-variable-ratio-exact-fractions
+          path: |
+            p92h-lacunary-certificate.json
+            p92h-SHA256SUMS.txt
