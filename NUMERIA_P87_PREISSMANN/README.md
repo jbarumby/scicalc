@@ -170,7 +170,7 @@ python -m NUMERIA_P87_PREISSMANN.shan_spacing --out p87-shan.json
 python -m NUMERIA_P87_PREISSMANN.lemma6_bridge --out p87-lemma6.json
 ```
 
-A CI executa e revalida os exemplos com frações exatas, a contagem dos pares verificados e as identidades de \(m_0\), gerando hashes SHA-256. **Não confundir a aprovação desses testes com uma prova automática da demonstração geral escrita no README.**
+A CI executa e revalida os exemplos com frações exatas, a contagem dos pares verificados e as identidades de \(m_0\), gerando hashes SHA-256. Para evitar somar milhões de termos em configurações com espaçamentos extremamente irregulares, a implementação de diagnóstico usa, se \(\lfloor t_N\rfloor>256\), a **cota racional demonstrada** \(\sum_{j=1}^{\infty}j^{-2}<\sum_{j=1}^{256}j^{-2}+1/256\), proveniente de comparação integral. Isso produz um majorante seguro, porém mais fraco, apenas nos testes de exemplo; a prova analítica universal das Seções 1–2 continua usando a desigualdade finita exata do Lema 2.3 de Yangjit. **Não confundir a aprovação desses testes com uma prova automática da demonstração geral escrita no README.**
 
 ## Próxima prioridade — P88
 
