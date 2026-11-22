@@ -1,0 +1,95 @@
+name: NUMERIA P87 Shan Preissmann Lemma1 and Lemma6 spectral
+on:
+  push:
+    branches:
+      - numeria-p87-shan-lemma1-preissmann-lemma6
+  pull_request:
+    paths:
+      - 'NUMERIA_P87_PREISSMANN/**'
+      - '.github/workflows/numeria-p87-shan-lemma6.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-spacing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Unit tests exact fractions and adversarial cases
+        run: python -m unittest -v NUMERIA_P87_PREISSMANN.test_p87
+      - name: Optimized tests do not rely on Python assert
+        run: python -O -m unittest -v NUMERIA_P87_PREISSMANN.test_p87
+      - name: Rebuild Shan convexity finite witnesses
+        run: python -m NUMERIA_P87_PREISSMANN.shan_spacing --out p87-shan.json
+      - name: Audit finite Lemma6 and exact conditional m0 algebra
+        run: python -m NUMERIA_P87_PREISSMANN.lemma6_bridge --out p87-lemma6.json
+      - name: Independent exact verification and proof scope gates
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          from NUMERIA_P87_PREISSMANN.shan_spacing import F_N,mass_bound
+          from NUMERIA_P87_PREISSMANN.lemma6_bridge import quadratic_surd_chain
+          a=json.load(open('p87-shan.json'))
+          b=json.load(open('p87-lemma6.json'))
+          if a['schema']!='NUMERIA.P87.SHAN.PREISSMANN_LEMMA1.1':
+              raise ArithmeticError('wrong Shan schema')
+          if b['schema']!='NUMERIA.P87.PREISSMANN.LEMMA6.CONDITIONAL.BRIDGE.1':
+              raise ArithmeticError('wrong Lemma6 schema')
+          if len(a['cases'])!=9 or not a['Preissmann_Lemma1_reconstructed']:
+              raise ArithmeticError('missing convexity case data')
+          for example in a['cases']:
+              for row in example['rows']:
+                  total=sum((F(s['sum']) for s in row['sides']),F())
+                  if total!=F(row['row_energy']):raise ArithmeticError('energy not conserved')
+                  for side in row['sides']:
+                      if side['empty_side']:continue
+                      w=side['gap_lift']
+                      vals=[F(w['start']),F(w['after_lift']),
+                            F(w['mass']['mass_left']),F(w['mass']['finite_lattice_budget'])]
+                      if vals!=sorted(vals):
+                          raise ArithmeticError('invalid lifted convexity chain')
+                      for step in w['descent_steps']:
+                          if not F(step['after'])>=F(step['before']):
+                              raise ArithmeticError('invalid descent correction')
+          paircount=0
+          for dataset in b['finite_samples'].values():
+              paircount+=dataset['number_pairs']
+              for item in dataset['pairs']:
+                  if F(item['rhs_with_pi_lower_exact'])-F(item['left_exact'])!=F(item['slack_exact']):
+                      raise ArithmeticError('wrong Lemma6 rational slack')
+                  if F(item['slack_exact'])<=0:
+                      raise ArithmeticError('no finite strict witness')
+          if paircount!=b['finite_exact_pair_count'] or paircount<=100:
+              raise ArithmeticError('incomplete pair audit')
+          if b['spectral_bridge']!=quadratic_surd_chain():
+              raise ArithmeticError('conditional quadratic identity mismatch')
+          if (a['Preissmann_Lemma6_reconstructed'] or
+              a['Preissmann_full_m0_reproved_without_Lemma6'] or
+              b['Preissmann_Lemma6_all_N_proved_here'] or
+              b['Preissmann_constant_m0_unconditionally_independent'] or
+              b['C3_C4_B1_recertification_repeated'] or
+              a['RH_proved'] or b['global_RH_proved']):
+              raise ArithmeticError('false all-N Lemma6 or global RH claim')
+          print('P87 PASS: rigorous symbolic Shan argument in README; exact rational witnesses checked')
+          print('P87 finite Lemma6 pairs checked:',paircount)
+          print('P87 Lemma6 all-N remains external, spectral m0 transfer algebraically closed conditionally')
+          PY
+      - name: SHA256 provenance
+        run: |
+          sha256sum NUMERIA_P87_PREISSMANN/*.py \
+            NUMERIA_P86_PREISSMANN/spectral_rational.py \
+            NUMERIA_P85_HILBERT_B4STAR/hilbert_source.py \
+            p87-shan.json p87-lemma6.json > p87-SHA256SUMS.txt
+          cat p87-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p87-shan-lemma1-lemma6-ledger
+          path: |
+            p87-shan.json
+            p87-lemma6.json
+            p87-SHA256SUMS.txt
