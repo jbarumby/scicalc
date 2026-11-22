@@ -1,0 +1,62 @@
+name: NUMERIA P92D analytic rank-two Delta star theorem
+on:
+  push:
+    branches:
+      - numeria-p92d-delta-star-analytic
+  pull_request:
+    paths:
+      - 'NUMERIA_P92D_DELTA_STAR/**'
+      - '.github/workflows/numeria-p92d-delta-star.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  star-analytic-rational-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Seven exact checks
+        run: python -m unittest -v NUMERIA_P92D_DELTA_STAR.test_p92d
+      - name: Seven exact checks without assert
+        run: python -O -m unittest -v NUMERIA_P92D_DELTA_STAR.test_p92d
+      - name: Export exact rational certificate
+        run: python -m NUMERIA_P92D_DELTA_STAR.certificate --out p92d-star-certificate.json
+      - name: Independently audit exported exact rational margins and scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction
+          p=json.load(open('p92d-star-certificate.json',encoding='utf8'))
+          if p['schema']!='NUMERIA.P92D.DELTA.STAR.ANALYTIC.1' or p['rational_regression_count']!=56:
+              raise AssertionError('incorrect result schema/count')
+          if not p['star_family_proved_analytically']:
+              raise AssertionError('family theorem missing')
+          for guard in ('global_Delta_bound_proved','full_Preissmann_Lemma6_proved',
+                        'Riemann_Hypothesis_proved'):
+              if p[guard]:
+                  raise AssertionError('unsupported global promotion: '+guard)
+          if len(p['rational_regressions'])!=56:
+              raise AssertionError('missing regressions')
+          for row in p['rational_regressions']:
+              val=Fraction(row['squared_norm_exact'])
+              cap=Fraction(row['integral_ceiling_exact'])
+              mar=Fraction(row['margin_to_1_over_12_exact'])
+              if not (0<=val<=cap<=Fraction(1,12) and mar==Fraction(1,12)-val):
+                  raise AssertionError('bad exact inequality in certificate')
+          print('P92D PASS: 56 exact Fraction rows verified independently')
+          print('The theorem over all real parameters follows from the analytic proof in README.md')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92D_DELTA_STAR/*.py NUMERIA_P92D_DELTA_STAR/README.md p92d-star-certificate.json > p92d-SHA256SUMS.txt
+          cat p92d-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92d-star-analytic-exact-rational-regressions
+          path: |
+            p92d-star-certificate.json
+            p92d-SHA256SUMS.txt
