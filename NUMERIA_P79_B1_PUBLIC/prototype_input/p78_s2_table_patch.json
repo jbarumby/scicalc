@@ -1,0 +1,103 @@
+{
+ "schema": "NUMERIA.P78.S2.TABLE.PATCH",
+ "based_on": [
+  "p78_b1_sensitivity_results.json (NUMERIA.P78.S1.PROTOTYPE)",
+  "p78_b1_resolution_results.json (NUMERIA.P78.S2.REPRINT.PROTOTYPE, modo STANDALONE_RECONSTRUCTION)"
+ ],
+ "policy": "default_variant = robust: menor multiplo de 1/100 com margem absoluta >= 1e-3 sobre B1_upper(b4 publico), mesma ordem das folgas originais do P77 (0.0009-0.0096). Variante minimal: menor multiplo de 1/100 com margem estrita > 0 (gate do P77). Valores definitivos exigem REPO_CERTIFIED.",
+ "default_variant": "robust",
+ "verification": "Pre-adocao: python3 p78_s2_recertify.py --proposed p78_s2_table_patch.json [--dyadic 192,256,384]. Pos-adocao (apos editar a TABLE): python3 p78_s2_recertify.py. Depois: certificado oficial dyadic + CI + SHA256 do pipeline NUMERIA e recertificacao downstream (ver p78_s2_downstream_scan.py).",
+ "rows": [
+  {
+   "row": 10,
+   "delta": "0.150",
+   "b4_public": "557/1000",
+   "b1_old": "17.21",
+   "b1_new_minimal": "17.49",
+   "b1_new_robust": "17.49",
+   "expected_upper_public_float": 17.48455866645479,
+   "expected_margin_minimal_float": 0.005441333545206817,
+   "expected_margin_robust_float": 0.005441333545206817,
+   "e_exponent_closed": 0.5263157894736842,
+   "growth_vs_old_pct": 1.627
+  },
+  {
+   "row": 11,
+   "delta": "0.170",
+   "b4_public": "557/1000",
+   "b1_old": "19.31",
+   "b1_new_minimal": "19.66",
+   "b1_new_robust": "19.67",
+   "expected_upper_public_float": 19.65925116093891,
+   "expected_margin_minimal_float": 0.0007488390610888018,
+   "expected_margin_robust_float": 0.010748839061090365,
+   "e_exponent_closed": 0.5945945945945946,
+   "growth_vs_old_pct": 1.8125
+  },
+  {
+   "row": 12,
+   "delta": "0.192",
+   "b4_public": "279/500",
+   "b1_old": "21.77",
+   "b1_new_minimal": "22.24",
+   "b1_new_robust": "22.25",
+   "expected_upper_public_float": 22.23961587781391,
+   "expected_margin_minimal_float": 0.00038412218608741,
+   "expected_margin_robust_float": 0.010384122186088973,
+   "e_exponent_closed": 0.6666666666666666,
+   "growth_vs_old_pct": 2.1589
+  },
+  {
+   "row": 13,
+   "delta": "0.215",
+   "b4_public": "559/1000",
+   "b1_old": "24.83",
+   "b1_new_minimal": "25.48",
+   "b1_new_robust": "25.48",
+   "expected_upper_public_float": 25.472649570595227,
+   "expected_margin_minimal_float": 0.007350429404773706,
+   "expected_margin_robust_float": 0.007350429404773706,
+   "e_exponent_closed": 0.7428571428571429,
+   "growth_vs_old_pct": 2.6178
+  },
+  {
+   "row": 14,
+   "delta": "0.241",
+   "b4_public": "14/25",
+   "b1_old": "29.01",
+   "b1_new_minimal": "29.89",
+   "b1_new_robust": "29.89",
+   "expected_upper_public_float": 29.881216071425158,
+   "expected_margin_minimal_float": 0.008783928574843003,
+   "expected_margin_robust_float": 0.008783928574843003,
+   "e_exponent_closed": 0.8235294117647058,
+   "growth_vs_old_pct": 3.0334
+  },
+  {
+   "row": 15,
+   "delta": "0.270",
+   "b4_public": "561/1000",
+   "b1_old": "35.35",
+   "b1_new_minimal": "36.59",
+   "b1_new_robust": "36.59",
+   "expected_upper_public_float": 36.58616888222226,
+   "expected_margin_minimal_float": 0.0038311177777430316,
+   "expected_margin_robust_float": 0.0038311177777430316,
+   "e_exponent_closed": 0.9090909090909091,
+   "growth_vs_old_pct": 3.5078
+  },
+  {
+   "row": 16,
+   "delta": "0.303",
+   "b4_public": "303/500",
+   "b1_old": "46.06",
+   "b1_new_minimal": "51.65",
+   "b1_new_robust": "51.65",
+   "expected_upper_public_float": 51.64809555590469,
+   "expected_margin_minimal_float": 0.0019044440953095432,
+   "expected_margin_robust_float": 0.0019044440953095432,
+   "e_exponent_closed": 1.0,
+   "growth_vs_old_pct": 12.1363
+  }
+ ]
+}
