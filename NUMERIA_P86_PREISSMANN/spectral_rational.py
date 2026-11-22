@@ -85,8 +85,8 @@ def build(nodes,threshold=RHO):
     # A=K*D is similar to B = sqrt(D)*K*sqrt(D).
     A=[[K[i][j]*d[j] for j in range(n)] for i in range(n)]
     A2=mat_mul(A,A)
-    # H = D^(-1)*(rho I+A^2) = rho D^(-1)+K D K
-    # (since A^2=K D K D). This is symmetric.
+    # H = (rho I+A^2)*D^(-1) = rho D^(-1)+K D K,
+    # because A^2=K D K D. This is symmetric.
     H=[[ (F(threshold,d[i]) if i==j else F(0)) +
          sum((K[i][k]*d[k]*K[k][j] for k in range(n)),F(0))
         for j in range(n)] for i in range(n)]
@@ -119,9 +119,28 @@ def exact_ldl_positive(H):
                 raise ArithmeticError("LDL exact reconstruction failed")
     return d
 
+def row_energies(nodes):
+    """Exact rational values Q_i=sum_(j!=i)delta_i delta_j/(xi-xj)^2.
+
+    Uniform proof, for ALL REAL nodes in README:
+    on the right, nearest-neighbor contribution <=1, and every
+    further term telescopes <=1; likewise on the left. Hence Q_i<=4.
+    """
+    x=rational_nodes(nodes)
+    d=gaps(x)
+    total=[]
+    for i in range(len(x)):
+        q=sum((d[i]*d[j]/(x[i]-x[j])**2
+               for j in range(len(x)) if j!=i),F(0))
+        if not 0<q<=4:
+            raise ArithmeticError("general row energy <=4 failed for rational sample")
+        total.append(q)
+    return total
+
 def example(name,values):
     nodes,d,K,A,H=build(values)
     pivots=exact_ldl_positive(H)
+    energies=row_energies(nodes)
     # These are exactly verified witnesses of a finite-configuration
     # inequality stronger than norm(B)<pi*m0.
     raw=";".join(str(x) for x in nodes).encode()
@@ -133,6 +152,8 @@ def example(name,values):
         "nodes_sha256":sha256(raw).hexdigest(),
         "rho_lower_than_pi2_m02_exact":str(RHO),
         "ldl_pivots_exact":[str(x) for x in pivots],
+        "row_energies_exact":[str(x) for x in energies],
+        "row_energy_le_4_every_index":all(q<=4 for q in energies),
         "min_pivot_sign_verified":all(v>0 for v in pivots),
         "spectral_norm_strictly_below_pi_m0_for_these_nodes":True,
     }
@@ -152,6 +173,10 @@ def run():
       "spectral_equivalence":
           "||sqrt(D) K sqrt(D)||_2^2 < rho iff rho*D^(-1)+K D K is positive definite",
       "proof_of_equivalence":"similarity A=KD and congruence by sqrt(D)",
+      "general_all_N_row_energy_le_4":
+          "For ANY distinct real x and ANY N>=2, sum_(j!=i) delta_i*delta_j/(xi-xj)^2 <= 4 by two telescoping one-sided series",
+      "general_all_N_energy_le_4_proved_independently":True,
+      "Preissmann_sharper_pi2_over3_row_energy_proved_here":False,
       "general_uniform_small_n_le_5":
           "for any distinct REAL x_1..x_N with N<=5: |B_ij|<=1, ||B||_2 <= N-1 <= 4 < pi*m0",
       "general_all_N_Preissmann_proved_here":False,
