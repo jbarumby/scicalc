@@ -1,0 +1,73 @@
+name: NUMERIA P91 exact sharp Lemma6 with two interior nodes
+on:
+  push:
+    branches:
+      - numeria-p91-preissmann-three-gaps
+  pull_request:
+    paths:
+      - 'NUMERIA_P91_THREE_GAPS/**'
+      - '.github/workflows/numeria-p91-three-gaps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-three-gap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Seven exact rational tests
+        run: python -m unittest -v NUMERIA_P91_THREE_GAPS.test_p91
+      - name: Seven tests with Python assertions disabled
+        run: python -O -m unittest -v NUMERIA_P91_THREE_GAPS.test_p91
+      - name: Emit full 447-coefficient rational certificate
+        run: python -m NUMERIA_P91_THREE_GAPS.certificate --out p91-three-gaps.json
+      - name: Independently check artifact fields and all coefficient signs
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          from NUMERIA_P91_THREE_GAPS.certificate import (
+              TRIANGLES, certify, homogeneous_numerator
+          )
+          with open('p91-three-gaps.json',encoding='utf-8') as f:
+              obj=json.load(f)
+          if obj!=certify():
+              raise ArithmeticError('P91 certificate JSON not reproducible')
+          if not obj['three_gap_budget_proved']:
+              raise ArithmeticError('P91 theorem flag missing')
+          for flag in ('four_or_more_gaps_proved','full_Preissmann_Lemma5_reconstructed',
+                       'full_Preissmann_Lemma6_reproved','Riemann_Hypothesis_proved'):
+              if obj[flag]:
+                  raise ArithmeticError('P91 claimed a theorem beyond scope')
+          if len(obj['triangles'])!=9:
+              raise ArithmeticError('incomplete triangle partition')
+          coeff_count=0
+          for idx,(order,left,right,raw) in enumerate(TRIANGLES):
+              vs=tuple(tuple(map(F,p)) for p in raw)
+              actual=homogeneous_numerator(order,left,right,vs)
+              expected=obj['triangles'][idx]['coefficients']
+              if set(expected)!={','.join(map(str,k)) for k in actual}:
+                  raise ArithmeticError('monomial exponent mismatch')
+              for (i,j,k),v in actual.items():
+                  if v<=0 or F(expected[f'{i},{j},{k}'])!=v:
+                      raise ArithmeticError('coefficient not positive or not exact')
+              coeff_count+=len(actual)
+          if coeff_count!=447:
+              raise ArithmeticError('expected 447 nonzero coefficients')
+          print('P91 PASS: 9 triangles, all 447 Fraction coefficients positive')
+          print('Scope: b-a<=3 only; full Preissmann L6 and RH remain unproved')
+          PY
+      - name: SHA256 source and certificate
+        run: |
+          sha256sum NUMERIA_P91_THREE_GAPS/*.py NUMERIA_P91_THREE_GAPS/README.md p91-three-gaps.json > p91-SHA256SUMS.txt
+          cat p91-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p91-three-gap-exact-rational-proof
+          path: |
+            p91-three-gaps.json
+            p91-SHA256SUMS.txt
