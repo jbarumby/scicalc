@@ -1,0 +1,69 @@
+name: NUMERIA P86 Preissmann spectral and exact rational LDL
+on:
+  push:
+    branches:
+      - numeria-p86-preissmann-spectral-ledger
+  pull_request:
+    paths:
+      - 'NUMERIA_P86_PREISSMANN/**'
+      - '.github/workflows/numeria-p86-preissmann.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preissmann-ledger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact rational tests
+        run: python -m unittest -v NUMERIA_P86_PREISSMANN.test_spectral
+      - name: Exact rational tests without assertions
+        run: python -O -m unittest -v NUMERIA_P86_PREISSMANN.test_spectral
+      - name: Build rational finite certificates
+        run: python -m NUMERIA_P86_PREISSMANN.spectral_rational --out p86-spectral-ledger.json
+      - name: Reconstruct every finite LDL and reject unearned proof claims
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          from NUMERIA_P86_PREISSMANN.spectral_rational import build,exact_ldl_positive
+          d=json.load(open('p86-spectral-ledger.json'))
+          if d['schema']!='NUMERIA.P86.PREISSMANN.SPECTRAL.RATIONAL.1':
+              raise ArithmeticError('bad schema')
+          if d['samples_count']!=8 or len(d['finite_samples'])!=8:
+              raise ArithmeticError('incomplete cases')
+          for row in d['finite_samples']:
+              nodes=row['nodes_exact_rational']
+              x,delta,K,A,H=build(nodes)
+              pivots=exact_ldl_positive(H)
+              if [str(v) for v in pivots]!=row['ldl_pivots_exact']:
+                  raise ArithmeticError('modified or fabricated pivots')
+              if not all(v>0 for v in pivots) or len(pivots)!=row['n']:
+                  raise ArithmeticError('non-PD finite certificate')
+              if F(row['rho_lower_than_pi2_m02_exact']) != F(d['constants']['rho_strict_below_(pi_m0)^2']):
+                  raise ArithmeticError('wrong rho')
+          for flag in ('general_all_N_Preissmann_proved_here',
+                       'Preissmann_Lemma1_general_spacing_maximizer_proved_here',
+                       'Preissmann_Lemmas2_to_5_global_spacing_perturbations_proved_here',
+                       'Preissmann_Lemma6_three_point_denominator_bound_proved_here',
+                       'Preissmann_final_uniform_spectral_estimate_proved_here',
+                       'RZ_double_sum_bound_reproved',
+                       'X_lower_3e10_3e12_covered','RH_proved'):
+              if d[flag]:
+                  raise ArithmeticError('false uniform analytic proof status: '+flag)
+          print('P86: exact rational finite SPD certificates verified; Preissmann all-N remains open')
+          PY
+      - name: SHA256 provenance
+        run: |
+          sha256sum NUMERIA_P86_PREISSMANN/*.py NUMERIA_P85_HILBERT_B4STAR/hilbert_source.py p86-spectral-ledger.json > p86-SHA256SUMS.txt
+          cat p86-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p86-preissmann-spectral-rational
+          path: |
+            p86-spectral-ledger.json
+            p86-SHA256SUMS.txt
