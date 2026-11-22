@@ -2,6 +2,7 @@
 import unittest
 from fractions import Fraction as F
 from .exterior import kernel,majorant,exact_parts,audit,source_errata,SCHEMA
+from NUMERIA_P88_LEMMA6.compensation import mixed_balance
 
 class P89Tests(unittest.TestCase):
     @classmethod
@@ -43,6 +44,13 @@ class P89Tests(unittest.TestCase):
                 self.assertLessEqual(F(r["right_exact"]),F(r["right_bound_rational"]))
                 self.assertGreaterEqual(F(r["left_gap_rational"]),0)
                 self.assertGreaterEqual(F(r["right_gap_rational"]),0)
+                self.assertGreaterEqual(F(r["cross_left_exact"]),0)
+                self.assertLessEqual(F(r["cross_middle_exact"]),0)
+                self.assertGreaterEqual(F(r["cross_right_exact"]),0)
+                self.assertEqual(
+                    F(r["cross_total_exact"]),
+                    sum((F(r[k]) for k in
+                         ("cross_left_exact","cross_middle_exact","cross_right_exact")),F(0)))
 
     def test_degenerate_inputs(self):
         with self.assertRaises(ValueError):exact_parts([0,0,1],0,1)
