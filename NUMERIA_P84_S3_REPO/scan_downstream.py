@@ -20,6 +20,14 @@ ROOT=Path(__file__).resolve().parents[1]
 UPLOADED=Path(__file__).resolve().parent/"input_unverified"/"p78_s3_downstream_scan.json"
 
 def role(name,content):
+    # Build outputs and YAML workflows are not runtime Python consumers.
+    # Keep them visible but never conflate mentions of B1 with live imports.
+    if name.startswith("p84-grade/") or name.startswith("p84-") and name.endswith(".json") or name.startswith("DOC") and name.endswith("_repo_interval.json"):
+        return "GENERATED_CERTIFICATE_OR_REPLAY"
+    if name.startswith(".github/workflows/"):
+        return "CI_WORKFLOW_REFERENCE"
+    if name.startswith("NUMERIA_P80_SOURCE_GATE/source_input/"):
+        return "ARCHIVED_PROTOTYPE"
     if name in ("NUMERIA_P76_COEFFICIENTS/table.py","NUMERIA_P75_CS2/cs_v2.py"):
         return "VERSIONED_TABLE_OR_CONSUMER"
     if name.startswith(("NUMERIA_P77_B1/","NUMERIA_P78_RAMARE_PUBLIC/",
