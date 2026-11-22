@@ -44,8 +44,16 @@ jobs:
                   raise ArithmeticError('modified or fabricated pivots')
               if not all(v>0 for v in pivots) or len(pivots)!=row['n']:
                   raise ArithmeticError('non-PD finite certificate')
+              from NUMERIA_P86_PREISSMANN.spectral_rational import row_energies
+              energy=row_energies(nodes)
+              if [str(v) for v in energy]!=row['row_energies_exact']:
+                  raise ArithmeticError('non-exact finite diagonal energy')
+              if not all(F(0)<v<=4 for v in energy):
+                  raise ArithmeticError('uniform energy bound regression')
               if F(row['rho_lower_than_pi2_m02_exact']) != F(d['constants']['rho_strict_below_(pi_m0)^2']):
                   raise ArithmeticError('wrong rho')
+          if not d['general_all_N_energy_le_4_proved_independently'] or d['Preissmann_sharper_pi2_over3_row_energy_proved_here']:
+              raise ArithmeticError('wrong all-N energy proof status')
           for flag in ('general_all_N_Preissmann_proved_here',
                        'Preissmann_Lemma1_general_spacing_maximizer_proved_here',
                        'Preissmann_Lemmas2_to_5_global_spacing_perturbations_proved_here',
