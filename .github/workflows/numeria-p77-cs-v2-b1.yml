@@ -6,6 +6,12 @@ on:
     paths:
       - 'NUMERIA_P77_B1/**'
       - '.github/workflows/numeria-p77-cs-v2-b1.yml'
+  pull_request:
+    branches:
+      - numeria-p76-cs-v2-coefficients
+    paths:
+      - 'NUMERIA_P77_B1/**'
+      - '.github/workflows/numeria-p77-cs-v2-b1.yml'
   workflow_dispatch:
 permissions:
   contents: read
