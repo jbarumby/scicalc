@@ -30,6 +30,8 @@ jobs:
         run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 192 --out p79-b1-192.json
       - name: Rebuild B1 at 256-bit precision and independently replay P75
         run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 256 --out p79-b1-256.json --cover-out p79-suzuki-cover.json --start 18 --end 79 --segments 256
+      - name: Repeat Suzuki replay with 512 density bands
+        run: python -m NUMERIA_P79_B1_PUBLIC.audit_public --precision 256 --out p79-b1-256-512.json --cover-out p79-suzuki-cover-512.json --start 18 --end 79 --segments 512
       - name: Verify independent-precision rounded table equality and fail closed
         run: |
           python - <<'PY'
@@ -42,6 +44,12 @@ jobs:
           assert all(x['old_B1_still_strict']==(i<10) for i,x in enumerate(b['coefficients'],1))
           c=json.load(open('p79-suzuki-cover.json'))
           assert c['P79_public_B1_table_sha256']==b['table_sha256']
+          d=json.load(open('p79-suzuki-cover-512.json'))
+          e=json.load(open('p79-b1-256-512.json'))
+          assert e['table_v2_public_replacement']==b['table_v2_public_replacement']
+          assert d['P79_public_B1_table_sha256']==b['table_sha256']
+          from fractions import Fraction
+          assert Fraction(d['certified_through_exact'])>=Fraction(c['certified_through_exact'])
           if c['status']=='conditional_finite_positive':
               assert c['first_unresolved_cell'] is None and c['certified_through_exact']=='79'
           elif c['status']=='inconclusive':
@@ -50,6 +58,7 @@ jobs:
               raise AssertionError('unexpected replay status')
           print('P79 table SHA',b['table_sha256'])
           print('P79 Suzuki replay:',c['status'],c['certified_through_exact'])
+          print('P79 Suzuki 512-band replay:',d['status'],d['certified_through_exact'])
           PY
       - name: Hash input sources and outputs
         run: |
@@ -62,4 +71,6 @@ jobs:
             p79-b1-192.json
             p79-b1-256.json
             p79-suzuki-cover.json
+            p79-b1-256-512.json
+            p79-suzuki-cover-512.json
             p79-sha256sums.txt
