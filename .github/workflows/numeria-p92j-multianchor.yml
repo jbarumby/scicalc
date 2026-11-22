@@ -1,0 +1,67 @@
+name: NUMERIA P92J multi-anchor analytic Schur certificate
+on:
+  push:
+    branches:
+      - numeria-p92j-delta-multianchor-schur
+  pull_request:
+    paths:
+      - 'NUMERIA_P92J_MULTIANCHOR/**'
+      - '.github/workflows/numeria-p92j-multianchor.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-multianchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact Fraction regression tests (normal)
+        run: python -m unittest -v NUMERIA_P92J_MULTIANCHOR.test_p92j
+      - name: Exact Fraction regression tests (Python -O)
+        run: python -O -m unittest -v NUMERIA_P92J_MULTIANCHOR.test_p92j
+      - name: Produce analytic-family certificate
+        run: python -m NUMERIA_P92J_MULTIANCHOR.certificate --out p92j-multianchor.json
+      - name: Audit exact JSON and scientific scope independently
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          c=json.load(open('p92j-multianchor.json',encoding='utf8'))
+          if c['schema']!='NUMERIA.P92J.DELTA.MULTIANCHOR.SCHUR.1':
+              raise ArithmeticError('wrong schema')
+          if (c['fraction_regressions'],c['reduced_exact_ldlt_cases'],
+              c['independent_full_two_sided_ldlt_cases'],len(c['records']))!=(43,43,28,43):
+              raise ArithmeticError('missing rational regressions or LDL checks')
+          for guard in ('arbitrary_point_configurations_proved','all_block_partitions_pass_Schur',
+                        'full_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved'):
+              if c[guard]:
+                  raise ArithmeticError('unearned global theorem: '+guard)
+          for item in c['records']:
+              q=F(item['hs_square_exact'])
+              cap=F(item['analytic_rational_envelope'])
+              if not (0<=q<=cap<=F(5,48)<F(1,9)):
+                  raise ArithmeticError('bad exact norm bound')
+              if not item['exact_reduced_schur_ldlt_positive'] or len(item['reduced_schur_pivot_numerator_bits'])!=item['anchors']:
+                  raise ArithmeticError('Schur certificate missing')
+          special=c['row_sum_stress_example']
+          if (special['anchors'],special['cluster_points'])!=(4,280) or F(special['lower_bound'])!=F(7875,2144):
+              raise ArithmeticError('wrong exact stress witness')
+          if not (F(special['lower_bound'])>F(special['P88_rational_residual_lower'])==F(2725,768)):
+              raise ArithmeticError('line-sum failure not proved')
+          print('P92J PASS: 43 exact rational cases, 43 reduced LDL, 28 full two-sided LDL')
+          print('Scope: structured family ONLY; general Preissmann and RH NOT proved')
+          PY
+      - name: SHA256 source and JSON manifest
+        run: |
+          sha256sum NUMERIA_P92J_MULTIANCHOR/*.py NUMERIA_P92J_MULTIANCHOR/README.md p92j-multianchor.json > p92j-SHA256SUMS.txt
+          cat p92j-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92j-multianchor-Schur-Fraction-certificates
+          path: |
+            p92j-multianchor.json
+            p92j-SHA256SUMS.txt
