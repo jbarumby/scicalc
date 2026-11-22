@@ -59,7 +59,7 @@ Este certificado **não** reconstrói os 16 `B1` com os novos valores `b4`, não
 python -m NUMERIA_P78_RAMARE_PUBLIC.restricted_lemma6 --verify NUMERIA_P78_RAMARE_PUBLIC/certificate.json
 python -m unittest NUMERIA_P78_RAMARE_PUBLIC.test_p78 -v
 python -O -m unittest NUMERIA_P78_RAMARE_PUBLIC.test_p78 -v
-(cd NUMERIA_P78_RAMARE_PUBLIC && sha256sum -c SHA256SUMS)
+sha256sum NUMERIA_P78_RAMARE_PUBLIC/*.py NUMERIA_P78_RAMARE_PUBLIC/certificate.json
 ```
 
 **Ponto de prudência:** o certificado prova uma **implicação exata a partir das cotas publicadas**, não rederiva as cotas originais de Ramaré e Zúñiga Alterman. A avaliação matemática completa de sua demonstração permanece independente desta verificação.
