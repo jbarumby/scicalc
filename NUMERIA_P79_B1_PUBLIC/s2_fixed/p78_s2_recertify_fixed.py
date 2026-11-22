@@ -324,9 +324,12 @@ def main():
         "gate_fail_rows": fails,
         "all_gates_pass": not fails,
         "model_consistent_all": all(r["model_consistent"] for r in rows_out),
-        "min_margin_lower": min(v for r in rows_out
-                                for v in r["dyadic"].values()
-                                if isinstance(v, dict) and "margin_lower" in v),
+        "min_margin_lower": float(min(
+            exact_dyad(v["margin_lower_dyadic"])
+            for r in rows_out for v in r["dyadic"].values())),
+        "min_margin_lower_exact_rational": str(min(
+            exact_dyad(v["margin_lower_dyadic"])
+            for r in rows_out for v in r["dyadic"].values())),
         "verdict": ("todos os gates passam em todas as precisoes; integrar ao "
                     "certificado oficial dyadic + CI + SHA256 e recertificar "
                     "downstream (p78_s2_downstream_scan.py)."
