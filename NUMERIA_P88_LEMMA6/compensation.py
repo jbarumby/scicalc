@@ -19,7 +19,13 @@ from pathlib import Path
 from itertools import combinations
 
 from NUMERIA_P86_PREISSMANN.spectral_rational import PAIRS, rational_nodes, gaps
-from NUMERIA_P87_PREISSMANN.lemma6_bridge import machin_pi_lower
+from functools import lru_cache
+from NUMERIA_P87_PREISSMANN.lemma6_bridge import machin_pi_lower as _raw_pi_lower
+
+@lru_cache(maxsize=1)
+def machin_pi_lower():
+    """Memoize the exactly rational high-precision Machin lower bound."""
+    return _raw_pi_lower()
 
 SCHEMA = "NUMERIA.P88.PREISSMANN.LEMMA6.MIXED_COMPENSATION.1"
 SOURCE_YANGJIT = "https://arxiv.org/pdf/2203.14950"
