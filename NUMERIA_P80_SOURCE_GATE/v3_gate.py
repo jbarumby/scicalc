@@ -59,10 +59,11 @@ def verify_log_lower():
     """(11/4)>e with an exact rational series bound; powers upper-limit e^n."""
     e_upper=sum((F(1,factorial(k)) for k in range(7)), F(0))
     e_upper += F(8,7*factorial(7))
-    assert e_upper<F(11,4)
-    assert F(11,4)**28<F(3*10**12)
-    assert F(11,4)**36<F(10**16)
-    assert F(11,4)**75<F(10**33)
+    if not (e_upper<F(11,4) and
+            F(11,4)**28<F(3*10**12) and
+            F(11,4)**36<F(10**16) and
+            F(11,4)**75<F(10**33)):
+        raise ArithmeticError("elementary e/log height proof invalid")
     return fraction_repr(e_upper)
 
 def ceil_strict_1000(value):
@@ -72,7 +73,8 @@ def ceil_strict_1000(value):
 def best_zone(delta,zone_index,versions=("v1","v3")):
     label,log_lower,opts=ZONES[zone_index]
     eta=2*F(delta)/log_lower
-    assert 0<eta<=F(1,25)
+    if not 0<eta<=F(1,25):
+        raise ArithmeticError("eta outside preprint parameter domain")
     eligible=[]
     for version,epsilon_cap,S_bound,location in opts:
         if version not in versions or eta>F(epsilon_cap):
