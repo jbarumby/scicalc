@@ -1,0 +1,635 @@
+{
+ "schema": "NUMERIA.P78.S2.DOWNSTREAM.SCAN",
+ "summary": {
+  "root": "/tmp/kit_p78",
+  "files_scanned": 17,
+  "files_with_hits": 17,
+  "files_to_review": [
+   "p78_s2_chain_check.py",
+   "p78_s2_full_protocol.py",
+   "p78_s3_adocao_table.py",
+   "p78_s3_verifica_tudo.py",
+   "p78_s2_cadeia_verificacao.json",
+   "p78_s3_adocao_table.json",
+   "p78_s3_certificado_oficial.json",
+   "p78_s3_doc1_certificado.json",
+   "p78_s3_doc2_certificado.json"
+  ],
+  "table_updated_hint": "a TABLE (fonte da verdade) deve receber os novos b1 das linhas 10-16; certificados e caches com os valores antigos devem ser regenerados; os demais arquivos listados entram na re-certificacao downstream, no padrao do pipeline NUMERIA.",
+  "verdict": "HITs encontrados \u2014 revisar arquivos em files_to_review"
+ },
+ "files": [
+  {
+   "file": "p78_b1_resolution.py",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "b1_attr": [
+     289,
+     336,
+     347
+    ],
+    "B1_ident": [
+     3,
+     8,
+     18,
+     25,
+     30,
+     34,
+     120,
+     133,
+     168,
+     173,
+     272,
+     273,
+     379,
+     429,
+     431,
+     434
+    ],
+    "ref_P78": [
+     275
+    ]
+   }
+  },
+  {
+   "file": "p78_b1_sensitivity.py",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "b1_attr": [
+     141,
+     146
+    ],
+    "B1_ident": [
+     1,
+     14,
+     116,
+     117,
+     160
+    ],
+    "ref_P77": [
+     4
+    ],
+    "ref_P78": [
+     121
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_chain_check.py",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "B1_ident": [
+     4,
+     244,
+     265
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_downstream_scan.py",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "b1_attr": [
+     8,
+     65
+    ],
+    "b1_key": [
+     8
+    ],
+    "B1_ident": [
+     3,
+     8,
+     11,
+     67,
+     129
+    ],
+    "ref_P77": [
+     13,
+     68
+    ],
+    "ref_P78": [
+     13,
+     69
+    ]
+   },
+   "old_B1_values_still_present": {
+    "10": [
+     10,
+     31
+    ],
+    "11": [
+     10,
+     31
+    ],
+    "12": [
+     10,
+     31
+    ],
+    "13": [
+     10,
+     31
+    ],
+    "14": [
+     10,
+     32
+    ],
+    "15": [
+     10,
+     32
+    ],
+    "16": [
+     10,
+     32
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     12,
+     33
+    ],
+    "19.66": [
+     12,
+     33
+    ],
+    "19.67": [
+     12,
+     33
+    ],
+    "22.24": [
+     12,
+     33
+    ],
+    "22.25": [
+     12,
+     33
+    ],
+    "25.48": [
+     34
+    ],
+    "29.89": [
+     34
+    ],
+    "36.59": [
+     34
+    ],
+    "51.65": [
+     34
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_full_protocol.py",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "b1_attr": [
+     238
+    ],
+    "B1_ident": [
+     26,
+     210,
+     211
+    ],
+    "ref_P78": [
+     225
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_recertify.py",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "b1_attr": [
+     235,
+     241,
+     267,
+     268
+    ],
+    "B1_ident": [
+     3,
+     74,
+     170,
+     171
+    ],
+    "ref_P78": [
+     210
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_adocao_table.py",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "b1_attr": [
+     57,
+     58,
+     59,
+     60,
+     61,
+     62,
+     63
+    ],
+    "b1_key": [
+     38
+    ]
+   },
+   "old_B1_values_still_present": {
+    "10": [
+     57
+    ],
+    "11": [
+     58
+    ],
+    "12": [
+     59
+    ],
+    "13": [
+     60
+    ],
+    "14": [
+     61
+    ],
+    "15": [
+     62
+    ],
+    "16": [
+     63
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     57
+    ],
+    "19.67": [
+     58
+    ],
+    "22.25": [
+     59
+    ],
+    "25.48": [
+     60
+    ],
+    "29.89": [
+     61
+    ],
+    "36.59": [
+     62
+    ],
+    "51.65": [
+     63
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_recert_docs.py",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "B1_ident": [
+     19,
+     219,
+     227,
+     350,
+     357,
+     371,
+     379
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_verifica_tudo.py",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "B1_ident": [
+     10,
+     220,
+     222,
+     296,
+     337,
+     391
+    ]
+   }
+  },
+  {
+   "file": "p78_b1_resolution_results.json",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {
+    "B1_ident": [
+     42,
+     251,
+     252,
+     253
+    ]
+   },
+   "old_B1_values_still_present": {
+    "10": [
+     61
+    ],
+    "11": [
+     90
+    ],
+    "12": [
+     119
+    ],
+    "13": [
+     148
+    ],
+    "14": [
+     177
+    ],
+    "15": [
+     206
+    ],
+    "16": [
+     235
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     24,
+     33,
+     68,
+     70
+    ],
+    "19.66": [
+     25,
+     97
+    ],
+    "22.24": [
+     26,
+     126
+    ],
+    "25.48": [
+     27,
+     36,
+     155,
+     157
+    ],
+    "29.89": [
+     28,
+     37,
+     184,
+     186
+    ],
+    "36.59": [
+     29,
+     38,
+     213,
+     215
+    ],
+    "51.65": [
+     30,
+     39,
+     242,
+     244
+    ],
+    "19.67": [
+     34,
+     99
+    ],
+    "22.25": [
+     35,
+     128
+    ]
+   }
+  },
+  {
+   "file": "p78_b1_sensitivity_results.json",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {},
+   "old_B1_values_still_present": {
+    "10": [
+     8
+    ],
+    "11": [
+     23
+    ],
+    "12": [
+     38
+    ],
+    "13": [
+     53
+    ],
+    "14": [
+     68
+    ],
+    "15": [
+     83
+    ],
+    "16": [
+     98
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_cadeia_verificacao.json",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "B1_ident": [
+     256
+    ]
+   }
+  },
+  {
+   "file": "p78_s2_table_patch.json",
+   "classification": "prototipo_S1_S2 (hits esperados)",
+   "b1_references": {},
+   "old_B1_values_still_present": {
+    "10": [
+     15
+    ],
+    "11": [
+     28
+    ],
+    "12": [
+     41
+    ],
+    "13": [
+     54
+    ],
+    "14": [
+     67
+    ],
+    "15": [
+     80
+    ],
+    "16": [
+     93
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     16,
+     17
+    ],
+    "19.66": [
+     29
+    ],
+    "19.67": [
+     30
+    ],
+    "22.24": [
+     42
+    ],
+    "22.25": [
+     43
+    ],
+    "25.48": [
+     55,
+     56
+    ],
+    "29.89": [
+     68,
+     69
+    ],
+    "36.59": [
+     81,
+     82
+    ],
+    "51.65": [
+     94,
+     95
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_adocao_table.json",
+   "classification": "etapa_P77_P78 (revisar)",
+   "b1_references": {
+    "b1_attr": [
+     78
+    ],
+    "b1_key": [
+     16,
+     25,
+     34,
+     43,
+     52,
+     61,
+     70
+    ]
+   },
+   "old_B1_values_still_present": {
+    "10": [
+     17,
+     78
+    ],
+    "11": [
+     26,
+     78
+    ],
+    "12": [
+     35,
+     78
+    ],
+    "13": [
+     44,
+     78
+    ],
+    "14": [
+     53,
+     78
+    ],
+    "15": [
+     62,
+     78
+    ],
+    "16": [
+     71,
+     78
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     18,
+     78
+    ],
+    "19.67": [
+     27,
+     78
+    ],
+    "22.25": [
+     36,
+     78
+    ],
+    "25.48": [
+     45,
+     78
+    ],
+    "29.89": [
+     54,
+     78
+    ],
+    "36.59": [
+     63,
+     78
+    ],
+    "51.65": [
+     72,
+     78
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_certificado_oficial.json",
+   "classification": "certificado (regenerar apos re-certificacao)",
+   "b1_references": {
+    "B1_ident": [
+     483
+    ]
+   },
+   "new_B1_values_present": {
+    "17.49": [
+     79,
+     105
+    ],
+    "19.66": [
+     135
+    ],
+    "19.67": [
+     161
+    ],
+    "22.24": [
+     191
+    ],
+    "22.25": [
+     217
+    ],
+    "25.48": [
+     247,
+     273
+    ],
+    "29.89": [
+     303,
+     329
+    ],
+    "36.59": [
+     359,
+     385
+    ],
+    "51.65": [
+     415,
+     441
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_doc1_certificado.json",
+   "classification": "certificado (regenerar apos re-certificacao)",
+   "b1_references": {
+    "B1_ident": [
+     4,
+     320
+    ]
+   }
+  },
+  {
+   "file": "p78_s3_doc2_certificado.json",
+   "classification": "certificado (regenerar apos re-certificacao)",
+   "b1_references": {
+    "B1_ident": [
+     4,
+     463
+    ]
+   }
+  }
+ ]
+}
