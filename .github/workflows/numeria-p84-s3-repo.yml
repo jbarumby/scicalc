@@ -1,0 +1,131 @@
+name: NUMERIA P84 S3 Repository Arb Certification and Downstream
+on:
+  push:
+    branches:
+      - numeria-p84-s3-repo-certified-adoption
+  pull_request:
+    paths:
+      - 'NUMERIA_P84_S3_REPO/**'
+      - 'NUMERIA_P76_COEFFICIENTS/table.py'
+      - 'NUMERIA_P75_CS2/cs_v2.py'
+      - '.github/workflows/numeria-p84-s3-repo.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  repo-arb-certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned Arb and mpmath
+        run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Test versioned TABLE and uploaded evidence integrity
+        run: python -m unittest -v NUMERIA_P84_S3_REPO.test_s3
+      - name: Fail-closed test under Python optimizations
+        run: python -O -m unittest -v NUMERIA_P84_S3_REPO.test_s3
+      - name: Full Arb recertification 192 bits
+        run: python -m NUMERIA_P84_S3_REPO.audit_s3 --bits 192 --output p84-s3-interval-192.json
+      - name: Full Arb recertification 256 bits and optional Suzuki replay
+        run: |
+          python -m NUMERIA_P84_S3_REPO.audit_s3 --bits 256 \
+            --output p84-s3-interval-256.json \
+            --replay-output p84-s2-robust-suzuki-512.json
+      - name: Full Arb recertification 384 bits
+        run: python -m NUMERIA_P84_S3_REPO.audit_s3 --bits 384 --output p84-s3-interval-384.json
+      - name: Assemble DOC1 and DOC2 from authentic dyadic endpoints
+        run: |
+          mkdir -p p84-grade
+          cp p84-s3-interval-192.json p84-grade/s3-interval-192.json
+          cp p84-s3-interval-256.json p84-grade/s3-interval-256.json
+          cp p84-s3-interval-384.json p84-grade/s3-interval-384.json
+          python -m NUMERIA_P84_S3_REPO.build_docs \
+            --input-dir p84-grade --output-dir .
+      - name: Scan actual repository downstream consumers
+        run: |
+          python -m NUMERIA_P84_S3_REPO.scan_downstream \
+            --repo-root . --out p84-real-downstream-scan.json
+      - name: Strict proof and scope audit
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          from pathlib import Path
+          original=[]
+          for bits in (192,256,384):
+              j=json.load(open(f'p84-s3-interval-{bits}.json'))
+              if (j['schema']!='NUMERIA.P84.S3.ADOPTED.TABLE.INTERVAL.1' or
+                  j['status']!='REPO_INTERVAL_CERTIFIED_CONDITIONALLY' or
+                  j['precision_bits']!=bits or len(j['rows'])!=16):
+                  raise ArithmeticError('incomplete S3 Arb grade')
+              for i,row in enumerate(j['rows'],1):
+                  if row['row']!=i or not row['adopted_margin_positive']:
+                      raise ArithmeticError('mismatched row')
+                  if i>=10 and (F(row['adopted_margin_exact_rational'])<F(1,1000) or not row['old_B1_fails']):
+                      raise ArithmeticError('S2 robust gate failed')
+                  if i<=9 and row['old_B1_fails']:
+                      raise ArithmeticError('first nine not preserved')
+                  for k in ('B1_upper_dyadic','K1_integral_lower_dyadic','K2_upper_dyadic','K3_lower_dyadic'):
+                      m,e=row[k]
+                      if not isinstance(m,str) or not isinstance(e,int):
+                          raise ArithmeticError('float masquerading as dyadic endpoint')
+              if (j['X_3e10_to_3e12_covered'] or j['analytic_external_S_epsilon_reproved']
+                  or j['analytic_external_MV_reproved'] or j['global_RH_proved']):
+                  raise ArithmeticError('unwarranted theorem claim')
+              original.append([row['B1_S2_adopted'] for row in j['rows']])
+          if not (original[0]==original[1]==original[2]):
+              raise ArithmeticError('precision-specific table changes')
+          for name in ('DOC1_repo_interval.json','DOC2_repo_interval.json'):
+              d=json.load(open(name))
+              if d['status']!='REPO_INTERVAL_CERTIFIED_CONDITIONALLY' or len(d['rows'])!=16:
+                  raise ArithmeticError('document not independently built')
+              if d['global_RH_proved']:
+                  raise ArithmeticError('invalid RH claim')
+          scan=json.load(open('p84-real-downstream-scan.json'))
+          if scan['files_examined']<=17 or scan['historical_kit_scan_root']!='/tmp/kit_p78':
+              raise ArithmeticError('downstream run did not inspect real repo')
+          replay=json.load(open('p84-s2-robust-suzuki-512.json'))
+          if replay['source_table']!='TABLE_V2_S2_PUBLIC_ROBUST (not P79 six-decimal table)':
+              raise ArithmeticError('wrong downstream coefficients')
+          if replay['status']=='conditional_finite_positive':
+              if replay['certified_through_exact']!='79' or replay['first_unresolved_cell'] is not None:
+                  raise ArithmeticError('invalid positive-window conclusion')
+          elif replay['status']=='inconclusive':
+              if replay['first_unresolved_cell'] is None:
+                  raise ArithmeticError('inconclusive without unresolved cell')
+          else:
+              raise ArithmeticError('unknown replay status')
+          print('P84: 48 Arb rows, three precisions, and two exact-source reports passed')
+          print('S2 robust Suzuki replay:',replay['status'],replay['certified_through_exact'])
+          print('Real downstream files scanned:',scan['files_examined'])
+          PY
+      - name: Manifest SHA-256 of all source inputs and output artifacts
+        run: |
+          sha256sum \
+            NUMERIA_P84_S3_REPO/*.py \
+            NUMERIA_P84_S3_REPO/input_unverified/* \
+            NUMERIA_P76_COEFFICIENTS/table.py \
+            NUMERIA_P75_CS2/cs_v2.py \
+            NUMERIA_P77_B1/audit_b1.py \
+            NUMERIA_P79_B1_PUBLIC/audit_public.py \
+            NUMERIA_P78_RAMARE_PUBLIC/certificate.json \
+            NUMERIA_P79_B1_PUBLIC/prototype_input/p78_s2_table_patch.json \
+            p84-s3-interval-*.json DOC*_repo_interval.json \
+            p84-real-downstream-scan.json p84-s2-robust-suzuki-512.json \
+            > p84-SHA256SUMS.txt
+          cat p84-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p84-s3-robust-interval-grade-and-downstream
+          path: |
+            p84-s3-interval-192.json
+            p84-s3-interval-256.json
+            p84-s3-interval-384.json
+            DOC1_repo_interval.json
+            DOC2_repo_interval.json
+            p84-real-downstream-scan.json
+            p84-s2-robust-suzuki-512.json
+            p84-SHA256SUMS.txt
