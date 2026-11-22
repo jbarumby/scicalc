@@ -36,7 +36,7 @@ class SourceV3Tests(unittest.TestCase):
     def test_strict_analytic_log_bounds(self):
         self.assertEqual(F(v3_gate.verify_log_lower())<F(11,4),True)
     def test_reject_out_of_scope(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             v3_gate.best_zone(F(3),0)
         with self.assertRaises(ArithmeticError):
             v3_gate.best_zone(F(303,1000),0,versions=("missing",))
