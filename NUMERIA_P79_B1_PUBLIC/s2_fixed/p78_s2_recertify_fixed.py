@@ -280,8 +280,12 @@ def main():
         model_chk = rec0["e_exponent_checked"]
         model_ok = ((bpub == B54 and model_chk is None) or
                     (bpub != B54 and model_chk is not None and abs(model_chk-e_c) < 1e-9))
+        # Compare exact dyadic Arb endpoints with 0.001 as a rational, never floats.
+        def exact_dyad(pair):
+            return Fr(int(pair[0])) * (Fr(2) ** int(pair[1]))
         robust_ok = (origem != "PROPOSED" or variant != "robust" or
-                     all(Fr(str(v["margin_lower"])) >= Fr("0.001") for v in per_prec.values()))
+                     all(exact_dyad(v["margin_lower_dyadic"]) >= Fr("0.001")
+                         for v in per_prec.values()))
         rows_out.append({
             "row": idx, "delta": str(row.delta),
             "sigma_start": row.sigma_start,
@@ -296,7 +300,9 @@ def main():
                            "k3": v["k3"], "k3_at_0_54": v["k3_at_0_54"],
                            "B1_upper_lower": v["up_lo"], "B1_upper_upper": v["up_hi"],
                            "B1_upper_0_54_upper": v["B1_upper_0_54_upper"],
-                           "margin_lower": v["margin_lower"],
+                           "margin_lower": v["margin_lower"],  # float diagnostic only
+                           "B1_upper_endpoint_dyadic": v["B1_upper_dyadic"],
+                           "margin_lower_dyadic": v["margin_lower_dyadic"],
                            "gate_pass": v["gate_pass"],
                            **({"margin_table_old_lower": v["margin_table_old_lower"]}
                               if "margin_table_old_lower" in v else {})}
