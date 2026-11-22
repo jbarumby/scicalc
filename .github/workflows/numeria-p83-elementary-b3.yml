@@ -1,0 +1,66 @@
+name: NUMERIA P83 Independent Elementary b3 Proof
+on:
+  push:
+    branches:
+      - numeria-p83-elementary-b3-proof
+  pull_request:
+    paths:
+      - 'NUMERIA_P83_B3_ELEMENTARY/**'
+      - '.github/workflows/numeria-p83-elementary-b3.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  independent-b3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact fraction tests including Möbius coefficients
+        run: python -m unittest -v NUMERIA_P83_B3_ELEMENTARY.test_b3
+      - name: Exact fraction tests under Python optimization
+        run: python -O -m unittest -v NUMERIA_P83_B3_ELEMENTARY.test_b3
+      - name: Rebuild analytic proof budget with rational endpoints
+        run: python -m NUMERIA_P83_B3_ELEMENTARY.b3_proof --out p83-b3-proof.json --diagnose-X 100
+      - name: Independently recompute published rational bound
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as Q
+          d=json.load(open('p83-b3-proof.json'))
+          if d['schema']!='NUMERIA.P83.INDEPENDENT_B3.SHORT_RANGE.1':
+              raise ArithmeticError('unexpected schema')
+          if d['X0']!=10**9 or d['proof_scope']!='ALL REAL X>=1e9':
+              raise ArithmeticError('wrong analytic domain')
+          # Independently reproduce the arithmetic constants:
+          upper = Q(7500,24649)+Q(201,100)*Q(65,24)/30000+Q(3,10)+Q(1,4*10**9)
+          expected=Q(121,200)-upper
+          if not (expected>0 and
+                  expected==Q(d['positive_rational_slack']) and
+                  upper==Q(d['normalized_total_majorant'])):
+              raise ArithmeticError('b3 proof-budget failure')
+          if not Q(d['pi_machin_rational_lower'])>Q(157,50):
+              raise ArithmeticError('pi bound failure')
+          if not d['b3_inequality_proved_from_elementary_standard_identities']:
+              raise ArithmeticError('missing analytic proof')
+          if any(d[k] for k in ('ramare_short_range_lemma_required_as_external',
+                                'mv_hilbert_inequality_independently_proved',
+                                'RZ_S_epsilon_bounds_independently_proved',
+                                'RH_globally_proved')):
+              raise ArithmeticError('invalid source/proof assertion')
+          print('P83 b3 exact rational margin',expected)
+          print('P83 normalized bound',upper)
+          PY
+      - name: SHA-256 provenance
+        run: |
+          sha256sum NUMERIA_P83_B3_ELEMENTARY/*.py NUMERIA_P82_FX_AUDIT/fx_audit.py p83-b3-proof.json > p83-sha256sums.txt
+          cat p83-sha256sums.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p83-independent-b3-proof
+          path: |
+            p83-b3-proof.json
+            p83-sha256sums.txt
