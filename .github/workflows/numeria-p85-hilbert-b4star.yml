@@ -1,0 +1,102 @@
+name: NUMERIA P85 Hilbert transfer and Arb b4star thresholds
+on:
+  push:
+    branches:
+      - numeria-p85-hilbert-b4star-gates
+  pull_request:
+    paths:
+      - 'NUMERIA_P85_HILBERT_B4STAR/**'
+      - '.github/workflows/numeria-p85-hilbert-b4star.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-roots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned numerical runtime
+        run: python -m pip install python-flint==0.9.0 mpmath==1.3.0
+      - name: Exact algebra tests
+        run: python -m unittest -v NUMERIA_P85_HILBERT_B4STAR.test_p85
+      - name: Exact algebra tests without Python assertions
+        run: python -O -m unittest -v NUMERIA_P85_HILBERT_B4STAR.test_p85
+      - name: Source-grounded Hilbert and real-cancellation report
+        run: python -m NUMERIA_P85_HILBERT_B4STAR.hilbert_source --out p85-hilbert-source.json
+      - name: Certify both b4star thresholds with Arb at 192 bits
+        run: python -m NUMERIA_P85_HILBERT_B4STAR.b4star_arb --bits 192 --out p85-b4star-192.json
+      - name: Certify both b4star thresholds with Arb at 256 bits
+        run: python -m NUMERIA_P85_HILBERT_B4STAR.b4star_arb --bits 256 --out p85-b4star-256.json
+      - name: Certify both b4star thresholds with Arb at 384 bits
+        run: python -m NUMERIA_P85_HILBERT_B4STAR.b4star_arb --bits 384 --out p85-b4star-384.json
+      - name: Cross-check 14 root intervals at all three precisions
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          values={}
+          for bits in (192,256,384):
+              x=json.load(open(f'p85-b4star-{bits}.json'))
+              if x['schema']!='NUMERIA.P85.EXACT_ARB_B4STAR_BRACKETS.1' or x['bits']!=bits or len(x['rows'])!=7:
+                  raise ArithmeticError('wrong P85 source/precision/row count')
+              if x['Preissmann_weighted_Hilbert_theorem_reproved'] or x['RZ_double_sum_reproved'] or x['lower_X_3e10_3e12_covered'] or x['global_RH_proved']:
+                  raise ArithmeticError('unsupported analytic theorem claim')
+              for row in x['rows']:
+                  i=row['row']
+                  if i not in range(10,17):raise ArithmeticError('wrong strip')
+                  public=F(row['b4_public_exact'])
+                  old=row['old_print_threshold']
+                  new=row['new_robust_threshold']
+                  for threshold in (old,new):
+                      lo,hi=F(threshold['root_lower_rational']),F(threshold['root_upper_rational'])
+                      if not (F(0)<lo<hi<F(1) and hi-lo<=F(4,10**10) and threshold['strict_signs_proved']):
+                          raise ArithmeticError('root enclosure invalid')
+                      for name in ('root_lower_dyadic','root_upper_dyadic'):
+                          m,e=threshold[name]
+                          if not isinstance(m,str) or not isinstance(e,int):
+                              raise ArithmeticError('non-dyadic fabricated endpoint')
+                  if not (F(old['root_upper_rational'])<public<F(new['root_lower_rational'])):
+                      raise ArithmeticError('old/new root ordering failed')
+                  for name in ('dB1_db4_lower_dyadic','B1_public_lower_dyadic','B1_public_upper_dyadic'):
+                      m,e=row[name]
+                      exact=F(int(m))*(F(2)**e)
+                      if exact<=0: raise ArithmeticError('nonpositive exact interval')
+                  values.setdefault(i,[]).append({
+                      'old':(F(old['root_lower_rational']),F(old['root_upper_rational'])),
+                      'new':(F(new['root_lower_rational']),F(new['root_upper_rational'])),
+                  })
+          for i,triples in values.items():
+              if len(triples)!=3:raise ArithmeticError('missing precision')
+              for name in ('old','new'):
+                  lower=max(x[name][0] for x in triples)
+                  upper=min(x[name][1] for x in triples)
+                  if not lower<upper:raise ArithmeticError('cross-precision root intervals disjoint')
+          h=json.load(open('p85-hilbert-source.json'))
+          if h['source_theorem_Preissmann_proved_in_P85'] or h['global_RH_proved']:
+              raise ArithmeticError('false Preissmann/RH claim')
+          if len(h['finite_symbolic_pair_cancellation_tests'])!=4:
+              raise ArithmeticError('missing exact tests')
+          print('P85 success: 7 strips x 2 targets x 3 precisions = 42 certified rational root brackets')
+          print('Hilbert: initial endpoint cancellation proven; Preissmann weighted theorem remains imported')
+          PY
+      - name: SHA256 provenance manifest
+        run: |
+          sha256sum NUMERIA_P85_HILBERT_B4STAR/*.py \
+            NUMERIA_P79_B1_PUBLIC/audit_public.py \
+            NUMERIA_P76_COEFFICIENTS/table.py \
+            NUMERIA_P78_RAMARE_PUBLIC/certificate.json \
+            p85-hilbert-source.json p85-b4star-*.json > p85-SHA256SUMS.txt
+          cat p85-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p85-hilbert-b4star-intervals
+          path: |
+            p85-hilbert-source.json
+            p85-b4star-192.json
+            p85-b4star-256.json
+            p85-b4star-384.json
+            p85-SHA256SUMS.txt
