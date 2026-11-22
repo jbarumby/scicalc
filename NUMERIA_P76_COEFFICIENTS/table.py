@@ -56,3 +56,37 @@ def validate_table():
 
 
 validate_table()
+
+# P84: versioned adoption of S2 B1 upper bounds.  Do not overwrite the
+# verbatim 2025 Chourasiya--Simonič table used by historical P76/P77 tests.
+# This is a *separate*, explicitly selectable table within the TABLE module.
+from dataclasses import replace as _replace
+
+S2_ROBUST_B1 = {
+    10: "17.49", 11: "19.67", 12: "22.25", 13: "25.48",
+    14: "29.89", 15: "36.59", 16: "51.65",
+}
+TABLE_CS_V2_PRINTED = TABLE
+TABLE_S2_PUBLIC_ROBUST = tuple(
+    _replace(row, b1=S2_ROBUST_B1.get(i, row.b1))
+    for i, row in enumerate(TABLE_CS_V2_PRINTED, 1)
+)
+
+def validate_table_s2_robust():
+    """Check exact intended versioned B1 patch; every other field unchanged."""
+    from fractions import Fraction
+    validate_table()
+    if len(TABLE_S2_PUBLIC_ROBUST) != 16:
+        raise ArithmeticError("S2 table must have 16 strips")
+    for index, (old, new) in enumerate(zip(TABLE_CS_V2_PRINTED, TABLE_S2_PUBLIC_ROBUST), 1):
+        expected = S2_ROBUST_B1.get(index, old.b1)
+        if new.b1 != expected:
+            raise ArithmeticError(f"S2 changed B1 unexpectedly at row {index}")
+        if Fraction(new.b1) <= 0:
+            raise ArithmeticError("S2 B1 must be positive")
+        for field in ("sigma_start","b2","b3","d","kappa","delta","log10_a0"):
+            if getattr(old, field) != getattr(new, field):
+                raise ArithmeticError(f"S2 changed original {field} at row {index}")
+    return True
+
+validate_table_s2_robust()
