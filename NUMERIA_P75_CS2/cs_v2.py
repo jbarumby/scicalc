@@ -118,3 +118,11 @@ class ChourasiyaV2Tail:
           'row_coefficients_v2':[list(r) for r in TABLE_V2],
           'mass_caps_dyadic':[_dyadic(v) for v in self.mass_caps],
         }
+
+# P84: explicit S2 public-source B1 table, opt-in only.  The original
+# TABLE_V2 above is retained literally for reproducibility of P75/P77.
+from NUMERIA_P76_COEFFICIENTS.table import TABLE_S2_PUBLIC_ROBUST as _TABLE_S2
+TABLE_V2_S2_PUBLIC_ROBUST = tuple((r.b1, r.b2, r.b3) for r in _TABLE_S2)
+if len(TABLE_V2_S2_PUBLIC_ROBUST) != 16:
+    raise ArithmeticError("S2 B1 table requires all sixteen strips")
+
