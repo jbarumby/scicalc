@@ -1,0 +1,70 @@
+name: NUMERIA P92 four-gap exact polyhedral certificate
+on:
+  push:
+    branches:
+      - numeria-p92-preissmann-four-gaps-exact
+  pull_request:
+    paths:
+      - 'NUMERIA_P92_FOUR_GAPS/**'
+      - '.github/workflows/numeria-p92-four-gaps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rational-four-gaps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact proof checks in normal Python
+        run: python -m unittest -v NUMERIA_P92_FOUR_GAPS.test_p92
+      - name: Exact proof checks with Python assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92_FOUR_GAPS.test_p92
+      - name: Export all 133363 rational coefficients and every exact tetrahedron
+        run: python -m NUMERIA_P92_FOUR_GAPS.certificate --full --out p92-four-gaps-full.json
+      - name: Independent JSON scope and full-count audit
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          d=json.load(open('p92-four-gaps-full.json',encoding='utf8'))
+          if d['schema'] != 'NUMERIA.P92.PREISSMANN.FOUR_GAPS.EXACT_POLYHEDRA.1':
+              raise ArithmeticError('incorrect P92 schema')
+          if (d['region_count'],d['tetra_count'],d['positive_exact_coefficients'],
+              d['negative_coefficients'],d['half_simplex_volume']) != (35,246,133363,0,'1/12'):
+              raise ArithmeticError('P92 coefficient or geometry census changed')
+          if not d['all_four_gap_budget_proved'] or any(d[k] for k in
+              ('all_m_ge_5_budget_proved','full_Preissmann_Lemma5_proved',
+               'full_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved')):
+              raise ArithmeticError('unearned general theorem status')
+          count=0
+          volumes=F(0)
+          for r in d['regions']:
+              for tet in r['tetrahedra']:
+                  coefs=tet['coefficients']
+                  if len(coefs)!=tet['positive_monomials']:
+                      raise ArithmeticError('coefficient listing incomplete')
+                  if any(F(q)<=0 for q in coefs.values()):
+                      raise ArithmeticError('negative/zero listed coefficient')
+                  if any(sum(map(int,key.split(',')))!=13 for key in coefs):
+                      raise ArithmeticError('bad homogeneous degree')
+                  count+=len(coefs)
+                  volumes+=F(tet['volume'])
+          if count!=133363 or volumes!=F(1,12):
+              raise ArithmeticError('missing coefficient or tetrahedron')
+          print('P92 PASS: 35 regions, 246 tetrahedra, 133363 positive Fraction coefficients')
+          print('Scope limited to index separation <=4, NOT general Lemma 6 or RH')
+          PY
+      - name: SHA256 of source and full certificate
+        run: |
+          sha256sum NUMERIA_P92_FOUR_GAPS/*.py NUMERIA_P92_FOUR_GAPS/README.md p92-four-gaps-full.json > p92-SHA256SUMS.txt
+          cat p92-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92-four-gaps-all-exact-coefficients
+          path: |
+            p92-four-gaps-full.json
+            p92-SHA256SUMS.txt
