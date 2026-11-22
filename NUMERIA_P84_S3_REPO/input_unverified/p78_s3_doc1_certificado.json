@@ -1,0 +1,323 @@
+{
+ "schema": "NUMERIA.P78.S3.DOC1.CERT.REPO_STANDARD",
+ "documento": {
+  "titulo": "Proposicao auxiliar: dependencia e monotonicidade de B1 em relacao a b4 (Documento 1)",
+  "arquivo": "p78_s2_proposicao_auxiliar_b1.pdf",
+  "sha256": "acd532d7f48c828577f3d1080f19f6741ab23af6594412b34ac5dbe7ed246841"
+ },
+ "padrao": {
+  "aritmetica": "python-flint arb \u2014 intervalos rigorosos em todo o caminho",
+  "zeta": "arb.zeta intervalar (sem ponto flutuante envelopado)",
+  "workprec_referencia": 256,
+  "grade_dyadic": [
+   192,
+   256,
+   384
+  ],
+  "sha256_inputs": "padrao P77 (todos os insumos + PDFs dos documentos)",
+  "envelopes": {
+   "alfa_beta_D_rel": 1e-12,
+   "m0_L_rel": 1e-11,
+   "gamma1_abs": 1e-15
+  }
+ },
+ "sha256_inputs": {
+  "p78_b1_sensitivity_results.json": {
+   "path": "/home/z/my-project/upload/p78_b1_sensitivity_results.json",
+   "sha256": "e8b6c0b1c0ef81e2fe256c4198320a95272b12d68aa9b3e1229d016fac70affc"
+  },
+  "p78_b1_resolution_results.json": {
+   "path": "/home/z/my-project/download/p78_b1_resolution_results.json",
+   "sha256": "c8f568359a72252aa3e18f52a470a4685606f9f0c861259a8adf5e4de6ef665d"
+  },
+  "p78_s2_table_patch.json": {
+   "path": "/home/z/my-project/download/p78_s2_table_patch.json",
+   "sha256": "087ccd10d4640be05aa84cc7dabe56f0a7a53cf890d884da7d072facdfb6eea1"
+  },
+  "p78_s2_cadeia_verificacao.json": {
+   "path": "/home/z/my-project/download/p78_s2_cadeia_verificacao.json",
+   "sha256": "0e821f2f285b3d15fe127d2728836cbc3af5b044ca916bb9209741becd73ce83"
+  },
+  "p78_s2_proposicao_auxiliar_b1.pdf": {
+   "path": "/home/z/my-project/download/p78_s2_proposicao_auxiliar_b1.pdf",
+   "sha256": "acd532d7f48c828577f3d1080f19f6741ab23af6594412b34ac5dbe7ed246841"
+  },
+  "p78_s2_passagem_completa.pdf": {
+   "path": "/home/z/my-project/download/p78_s2_passagem_completa.pdf",
+   "sha256": "a52ae9cac7777130c5383b4c70267663bbf0594c05798d6b3b001e32c06d90ab"
+  },
+  "p78_s2_lema6_justificativa.pdf": {
+   "path": "/home/z/my-project/download/p78_s2_lema6_justificativa.pdf",
+   "sha256": "4f4683773dc305bc9543adc48c0291df9f48c5f53adbcf3e3345cdc9ccf4f57e"
+  },
+  "p78_s2_chain_check.py": {
+   "path": "/home/z/my-project/scripts/p78_s2_chain_check.py",
+   "sha256": "a9c9ea06eb9b98f8bd6dd18852001f74534111001c23bdfa6998879df8d128f9"
+  },
+  "p78_s3_recert_docs.py": {
+   "path": "/home/z/my-project/download/p78_s3_recert_docs.py",
+   "sha256": "7b7abb634c7969b64bfc7b704d4760c6f3c8071855a270ae1d59e289259e08e8"
+  },
+  "p78_s3_verifica_tudo.py": {
+   "path": "/home/z/my-project/download/p78_s3_verifica_tudo.py",
+   "sha256": "6f049d9fd3ac74f3c80ef2a10ccbc8722bb0b76bb099b2821ac503abd5158847"
+  }
+ },
+ "escopo_condicionado": {
+  "linhas_1_9": "CONDICIONADO \u2014 fora do escopo do S1; aguarda certificate.json do usuario; mesmo protocolo a rodar em modo REPO",
+  "faixa_3e10_a_3e12": "CONDICIONADO a novo insumo publico certificado \u2014 as duas fronteiras (X0 = 3e10, T0 = 3e12) sao certificadas aqui; a folga eps e crescente quando X diminui (L no denominador), logo o interior da faixa herda a folga da fronteira X0; reavaliar se o insumo publico mudar"
+ },
+ "linhas": [
+  {
+   "row": 10,
+   "delta": "0.150",
+   "sigma_start": 25,
+   "e_exato": "20/38",
+   "b4_public": "557/1000",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.005441333518517458,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.005441333518517458,
+   "b4star_upper": 0.5404552003022776,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.5573302736326013,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 17.484558666481483,
+     "margin_robust_lower": 0.005441333518517458,
+     "monotonia_deriv_lower": 16.477535747937697
+    },
+    "256": {
+     "B1_upper_upper": 17.484558666481483,
+     "margin_robust_lower": 0.005441333518517458,
+     "monotonia_deriv_lower": 16.477535747937697
+    },
+    "384": {
+     "B1_upper_upper": 17.484558666481483,
+     "margin_robust_lower": 0.005441333518517458,
+     "monotonia_deriv_lower": 16.477535747937697
+    }
+   }
+  },
+  {
+   "row": 11,
+   "delta": "0.170",
+   "sigma_start": 26,
+   "e_exato": "22/37",
+   "b4_public": "557/1000",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.010748839029746125,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.010748839029746125,
+   "b4star_upper": 0.5404084367648293,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.5575138486154558,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 19.659251160970253,
+     "margin_robust_lower": 0.010748839029746125,
+     "monotonia_deriv_lower": 20.92219805164247
+    },
+    "256": {
+     "B1_upper_upper": 19.659251160970253,
+     "margin_robust_lower": 0.010748839029746125,
+     "monotonia_deriv_lower": 20.92219805164247
+    },
+    "384": {
+     "B1_upper_upper": 19.659251160970253,
+     "margin_robust_lower": 0.010748839029746125,
+     "monotonia_deriv_lower": 20.92219805164247
+    }
+   }
+  },
+  {
+   "row": 12,
+   "delta": "0.192",
+   "sigma_start": 27,
+   "e_exato": "24/36",
+   "b4_public": "279/500",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.010384122149023655,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.010384122149023655,
+   "b4star_upper": 0.5403577757827053,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.5583922274234147,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 22.239615877850976,
+     "margin_robust_lower": 0.010384122149023655,
+     "monotonia_deriv_lower": 26.477838232478824
+    },
+    "256": {
+     "B1_upper_upper": 22.239615877850976,
+     "margin_robust_lower": 0.010384122149023655,
+     "monotonia_deriv_lower": 26.477838232478824
+    },
+    "384": {
+     "B1_upper_upper": 22.239615877850976,
+     "margin_robust_lower": 0.010384122149023655,
+     "monotonia_deriv_lower": 26.477838232478824
+    }
+   }
+  },
+  {
+   "row": 13,
+   "delta": "0.215",
+   "sigma_start": 28,
+   "e_exato": "26/35",
+   "b4_public": "559/1000",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.007350429360372378,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.007350429360372378,
+   "b4star_upper": 0.5400253329986296,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.559217994457394,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 25.47264957063963,
+     "margin_robust_lower": 0.007350429360372378,
+     "monotonia_deriv_lower": 33.72010747023149
+    },
+    "256": {
+     "B1_upper_upper": 25.47264957063963,
+     "margin_robust_lower": 0.007350429360372378,
+     "monotonia_deriv_lower": 33.72010747023149
+    },
+    "384": {
+     "B1_upper_upper": 25.47264957063963,
+     "margin_robust_lower": 0.007350429360372378,
+     "monotonia_deriv_lower": 33.72010747023149
+    }
+   }
+  },
+  {
+   "row": 14,
+   "delta": "0.241",
+   "sigma_start": 29,
+   "e_exato": "28/34",
+   "b4_public": "14/25",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.008783928520348231,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.008783928520348231,
+   "b4star_upper": 0.540148658945043,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.5602007870847798,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 29.881216071479653,
+     "margin_robust_lower": 0.008783928520348231,
+     "monotonia_deriv_lower": 43.74885603443566
+    },
+    "256": {
+     "B1_upper_upper": 29.881216071479653,
+     "margin_robust_lower": 0.008783928520348231,
+     "monotonia_deriv_lower": 43.74885603443566
+    },
+    "384": {
+     "B1_upper_upper": 29.881216071479653,
+     "margin_robust_lower": 0.008783928520348231,
+     "monotonia_deriv_lower": 43.74885603443566
+    }
+   }
+  },
+  {
+   "row": 15,
+   "delta": "0.270",
+   "sigma_start": 30,
+   "e_exato": "30/33",
+   "b4_public": "561/1000",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.0038311177078935938,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.0038311177078935938,
+   "b4star_upper": 0.5400784333379463,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.5610649510336728,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 36.58616888229211,
+     "margin_robust_lower": 0.0038311177078935938,
+     "monotonia_deriv_lower": 58.98501823751029
+    },
+    "256": {
+     "B1_upper_upper": 36.58616888229211,
+     "margin_robust_lower": 0.0038311177078935938,
+     "monotonia_deriv_lower": 58.98501823751029
+    },
+    "384": {
+     "B1_upper_upper": 36.58616888229211,
+     "margin_robust_lower": 0.0038311177078935938,
+     "monotonia_deriv_lower": 58.98501823751029
+    }
+   }
+  },
+  {
+   "row": 16,
+   "delta": "0.303",
+   "sigma_start": 31,
+   "e_exato": "32/32",
+   "b4_public": "303/500",
+   "k3_min_gt_1": true,
+   "gate_minimal_all_precs": true,
+   "gate_robust_all_precs": true,
+   "margin_robust_min_lower": 0.001904443991993118,
+   "contraprova_old_fail_all": true,
+   "expect_consistente_all_precs": true,
+   "monotonia_deriv_lower_min": 0.001904443991993118,
+   "b4star_upper": 0.5400681105224232,
+   "b4star_lt_b4public": true,
+   "b4star_novo_upper": 0.6060224698384568,
+   "per_prec": {
+    "192": {
+     "B1_upper_upper": 51.64809555600801,
+     "margin_robust_lower": 0.001904443991993118,
+     "monotonia_deriv_lower": 84.75558034328539
+    },
+    "256": {
+     "B1_upper_upper": 51.64809555600801,
+     "margin_robust_lower": 0.001904443991993118,
+     "monotonia_deriv_lower": 84.75558034328539
+    },
+    "384": {
+     "B1_upper_upper": 51.64809555600801,
+     "margin_robust_lower": 0.001904443991993118,
+     "monotonia_deriv_lower": 84.75558034328539
+    }
+   }
+  }
+ ],
+ "summary": {
+  "gates_total": 56,
+  "gate_failures": [],
+  "all_gates_pass": true,
+  "verdict": "DOC 1 CERTIFICADO no padrao REPO_CERTIFIED: modelo exato, monotonia estrita, limiar b4*, gates de re-impressao minimal/robust e contraprova passam em [192, 256, 384].",
+  "runtime_s": 0.0
+ },
+ "notas": [
+  "e exato racional por linha: (2*s2-1)/(2-s2), s2=(sigma_start+1)/32.",
+  "Monotonia: derivada intervalar D*e*alfa*k3^(e-1) com k3 no extremo superior de b4 in [27/50, b4_publico]; lower > 0 por precisao.",
+  "b4* do B1 ANTIGO resolvido intervalarmente: k3* = (printed_old/D)^(1/e), b4* = (k3*-beta)/alfa; gate b4*_upper < b4_publico; o b4* do novo print robust fica registrado (b4star_novo_upper).",
+  "Modo REPO acrescenta a quadratura K1/K2 (p78_s2_recertify.py)."
+ ]
+}
