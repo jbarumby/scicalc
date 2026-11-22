@@ -1,0 +1,72 @@
+name: NUMERIA P92K quadratic multicluster spectral comparison
+on:
+  push:
+    branches:
+      - numeria-p92k-delta-multicluster-quadratic-gluing
+  pull_request:
+    paths:
+      - 'NUMERIA_P92K_MULTICLUSTER_GLUING/**'
+      - '.github/workflows/numeria-p92k-multicluster.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  quadratic-separated-multicluster:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Nine rational proof regressions
+        run: python -m unittest -v NUMERIA_P92K_MULTICLUSTER_GLUING.test_p92k
+      - name: Nine rational regressions with Python -O
+        run: python -O -m unittest -v NUMERIA_P92K_MULTICLUSTER_GLUING.test_p92k
+      - name: Produce exact pairwise certificate
+        run: python -m NUMERIA_P92K_MULTICLUSTER_GLUING.certificate --out p92k-multicluster.json
+      - name: Independently audit all exact 760 pair bounds and scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          cert=json.load(open('p92k-multicluster.json',encoding='utf8'))
+          if cert['schema']!='NUMERIA.P92K.DELTA.MULTICLUSTER.QUADRATIC_SEPARATION.1':
+              raise ArithmeticError('wrong schema')
+          if tuple(cert[k] for k in ('fraction_configurations','pairwise_interactions',
+                   'exact_full_LDL','exact_comparison_LDL'))!=(11,760,4,11):
+              raise ArithmeticError('incorrect certificate census')
+          if not cert['all_real_parameters_with_quadratic_separation_proved']:
+              raise ArithmeticError('missing bounded theorem status')
+          for k in ('arbitrary_configurations_proved','general_Preissmann_Lemma6_proved',
+                    'Riemann_Hypothesis_proved'):
+              if cert[k]:raise ArithmeticError('unsupported theorem claim '+k)
+          n=0
+          for case in cert['cases']:
+              K=case['group_count']
+              if case['pair_count']!=K*(K-1)//2:
+                  raise ArithmeticError('missing cross-group blocks')
+              if F(case['max_rational_comparison_row_sum'])>=F(10,7):
+                  raise ArithmeticError('row-sum comparison failed')
+              for p in case['pairs']:
+                  rho=F(p['rho'])
+                  sq=F(p['hs_square'])
+                  cap=F(p['hs_square_ceiling'])
+                  if rho < (p['s']-p['r'])**2 or not 0<=sq<=cap==F(1,8)/rho**2:
+                      raise ArithmeticError('invalid block HS bound')
+                  n+=1
+          if n!=760:
+              raise ArithmeticError('incomplete pairwise certificate')
+          print('P92K PASS: 11 exact arrays, 760 exact HS comparisons, 4 full LDL and 11 block LDL')
+          print('The theorem applies only under quadratic group separations; general Preissmann and RH remain OPEN')
+          PY
+      - name: Export SHA-256 hashes
+        run: |
+          sha256sum NUMERIA_P92K_MULTICLUSTER_GLUING/*.py NUMERIA_P92K_MULTICLUSTER_GLUING/README.md p92k-multicluster.json > p92k-SHA256SUMS.txt
+          cat p92k-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92k-multicluster-quadratic-fraction-certificate
+          path: |
+            p92k-multicluster.json
+            p92k-SHA256SUMS.txt
