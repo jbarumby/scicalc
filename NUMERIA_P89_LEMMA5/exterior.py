@@ -57,6 +57,14 @@ def exact_parts(values,a,b):
                 for k in range(a+1,b)),F())
     direct=sum((delta[k]/((x[k]-x[a])**2*(x[k]-x[b])**2)
                 for k in range(len(x)) if k not in (a,b)),F())
+    cross_left=sum((delta[k]/((x[k]-x[a])*(x[k]-x[b]))
+                    for k in range(a)),F())
+    cross_mid=sum((delta[k]/((x[k]-x[a])*(x[k]-x[b]))
+                    for k in range(a+1,b)),F())
+    cross_right=sum((delta[k]/((x[k]-x[a])*(x[k]-x[b]))
+                     for k in range(b+1,len(x))),F())
+    if not (cross_left>=0 and cross_mid<=0 and cross_right>=0):
+        raise ArithmeticError("sign of three-region cross term is wrong")
     if left+right+middle!=direct:
         raise ArithmeticError("three-region decomposition is wrong")
     _, lt, lu=majorant(delta[a],h)
@@ -68,6 +76,10 @@ def exact_parts(values,a,b):
        "delta_a":str(delta[a]),"delta_b":str(delta[b]),
        "left_exact":str(left),"middle_exact":str(middle),
        "right_exact":str(right),"total_exact":str(direct),
+       "cross_left_exact":str(cross_left),
+       "cross_middle_exact":str(cross_mid),
+       "cross_right_exact":str(cross_right),
+       "cross_total_exact":str(cross_left+cross_mid+cross_right),
        "left_bound_rational":str(lu),"right_bound_rational":str(ru),
        "left_tail_K_rational":str(lt),"right_tail_K_rational":str(rt),
        "left_gap_rational":str(lu-left),
@@ -143,6 +155,7 @@ def audit():
           "L<=delta_a*sum_{j>=1}[(j delta_a)^2(h+j delta_a)^2]^-1, similarly R with delta_b",
        "general_proof":"Shan one-sided positive convex decreasing f(t)=1/[t²(t+h)²]; monotone g*f(jg) for g>0",
        "three_regions_split_exact":True,
+       "exterior_cross_nonnegative_interior_cross_nonpositive_all_nodes":True,
        "exterior_bound_proved_for_all_finite_real_nodes":True,
        "interior_middle_sharp_Lemma6_proved":False,
        "full_Lemma5_variational_proof_reproduced":False,
