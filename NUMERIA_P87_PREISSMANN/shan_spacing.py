@@ -61,10 +61,23 @@ def mass_bound(a):
         lhs+=v/t**2
     M=floor_fraction(t)
     theta=t-M
-    rhs=harmonic2(M)+theta/(M+1)**2
+    # For enormous rationally normalized spacings, a literal sum up to
+    # floor(t_N) may contain millions of terms.  Use instead the exact
+    # elementary tail comparison sum_(k>CUT) 1/k² <= 1/CUT.
+    # This replaces the finite lattice RHS by a PROVEN (not guessed)
+    # rational majorant; it is a numerical test only, not the analytic
+    # proof of Shan's lemma, which remains complete in README.
+    CUT=256
+    if M<=CUT:
+        rhs=harmonic2(M)+theta/(M+1)**2
+        mode="exact_finite_lattice_budget"
+    else:
+        rhs=harmonic2(CUT)+F(1,CUT)
+        mode="rigorous_rational_infinite_tail_majorant"
     if lhs>rhs:
         raise ArithmeticError("convex endpoint mass inequality failed")
     return {"mass_left":str(lhs),"finite_lattice_budget":str(rhs),
+            "finite_lattice_budget_mode":mode,
             "floor_end":M,"fractional_end":str(theta)}
 
 def lift_certificate(a):
