@@ -81,6 +81,34 @@ Assim, `||B||_infinity<=N-1`, `||B||_1<=N-1` porque B é antissimétrica, e
 
 **Esta prova é válida uniformemente para todo conjunto real de 2 a 5 pontos.** É uma contribuição independente verificável; não fecha o caso de dimensão arbitrária necessário ao teorema de valor médio.
 
+## 3a. Outro resultado uniforme: energia diagonal menor ou igual a 4 para qualquer N
+
+Fixe o índice i e ordene os pontos \`x_1<...<x_N\`. Tome
+\`g=x_{i+1}-x_i>0\` se há pontos à direita e \`y_j=x_j-x_i\`. Temos
+\`delta_i<=g\`. A primeira parcela à direita satisfaz
+
+\`\`\`
+delta_i*delta_(i+1)/g^2 <= delta_i/g <= 1.
+\`\`\`
+
+Para \`j>=i+2\`, escreva \`h_j=x_j-x_(j-1)=y_j-y_(j-1)\`. Como \`delta_j<=h_j\` e \`1/t²\` é decrescente,
+
+\`\`\`
+delta_i*delta_j/y_j²
+ <= delta_i*(y_j-y_(j-1))/y_j²
+ <= delta_i*(1/y_(j-1)-1/y_j).
+\`\`\`
+
+A soma telescopa e é no máximo \`delta_i/g<=1\`. Portanto toda a contribuição à direita é **menor ou igual a 2**, para qualquer número de pontos e qualquer distribuição de espaçamentos. O mesmo argumento, lendo os pontos na ordem inversa, dá **menor ou igual a 2** à esquerda. Consequentemente,
+
+\`\`\`
+Q_i := sum_(j!=i) delta_i*delta_j/(x_i-x_j)^2 <= 4
+\`\`\`
+
+para **todos N>=2 e todos os pontos reais distintos**. Esta é uma demonstração independente (não uma extrapolação de exemplos). O script grava \`Q_i\` como frações exatas em cada caso de teste.
+
+**Limite científico:** a prova original de Preissmann obtém a cota **mais forte** \`Q_i<=pi²/3≈3.28987\`, por meio de seu Lema 1 e do argumento de espaçamentos. **Nossa cota 4 não é forte o suficiente para simplesmente manter a constante m0** no restante da prova. Portanto esse elo ainda precisa ser fechado na versão mais forte.
+
 ## 4. Cadeia original de Preissmann: registro das lacunas
 
 | Elo na fonte original | Papel matemático | P86 |
