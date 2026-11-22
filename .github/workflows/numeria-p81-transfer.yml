@@ -1,0 +1,70 @@
+name: NUMERIA P81 Double-sum to Lemma 6 transfer
+on:
+  push:
+    branches:
+      - numeria-p81-double-sum-to-lemma6-transfer
+  pull_request:
+    paths:
+      - 'NUMERIA_P81_TRANSFER/**'
+      - '.github/workflows/numeria-p81-transfer.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  conditional-transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact source tests
+        run: python -m unittest -v NUMERIA_P81_TRANSFER.test_transfer
+      - name: Optimized Python source tests
+        run: python -O -m unittest -v NUMERIA_P81_TRANSFER.test_transfer
+      - name: Generate P81 source transfer with 96 rational gates
+        run: python -m NUMERIA_P81_TRANSFER.transfer --out p81-transfer.json
+      - name: Verify all gates and strict scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=json.load(open('p81-transfer.json'))
+          if x['schema']!='NUMERIA.P81.S_EPS_TO_LEMMA6.CONDITIONAL.1':
+              raise ArithmeticError('schema mismatch')
+          if x['total_branch_zone_checks']!=96 or len(x['rows'])!=16:
+              raise ArithmeticError('incomplete P81 transfer')
+          if not x['all_checks_pass'] or F(x['smallest_rational_b4_slack'])<=0:
+              raise ArithmeticError('nonpositive bound')
+          for r in x['rows']:
+              if len(r['zones'])!=3:
+                  raise ArithmeticError('missing X zone')
+              for zone in r['zones']:
+                  if [z['branch'] for z in zone['branches']]!=['epsilon_2','epsilon_1']:
+                      raise ArithmeticError('missing epsilon branch')
+                  for z in zone['branches']:
+                      if F(z['slack_under_b4'])<=0:
+                          raise ArithmeticError('bad branch bound')
+                      if F(z['epsilon_zone_max'])>F(z['source_epsilon_cap']):
+                          raise ArithmeticError('source scope mismatch')
+          if any(x[k] for k in (
+              'external_S_epsilon_theorems_proved_here',
+              'independent_KLN_F_X_lemma_proved_here',
+              'original_CS_Lemma6_full_X_range_proved_here',
+              'Suzuki_new_window_proved_here',
+              'global_RH_proved')):
+              raise ArithmeticError('false mathematical proof claim')
+          print('P81 checked 96 positive rational gates, source restrictions preserved')
+          print('Minimum exact b4 slack:',x['smallest_rational_b4_slack'])
+          PY
+      - name: SHA-256 provenance
+        run: |
+          sha256sum NUMERIA_P81_TRANSFER/*.py NUMERIA_P80_SOURCE_GATE/v3_gate.py NUMERIA_P78_RAMARE_PUBLIC/certificate.json p81-transfer.json > p81-sha256sums.txt
+          cat p81-sha256sums.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p81-conditional-lemma6-transfer
+          path: |
+            p81-transfer.json
+            p81-sha256sums.txt
