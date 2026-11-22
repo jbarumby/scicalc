@@ -1,0 +1,61 @@
+name: NUMERIA P92G geometric-gap Delta scale-free spectral theorem
+on:
+  push:
+    branches:
+      - numeria-p92g-delta-geometric-unbounded-scales
+  pull_request:
+    paths:
+      - 'NUMERIA_P92G_GEOMETRIC_GAPS/**'
+      - '.github/workflows/numeria-p92g-geometric-gaps.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  geometric-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact checks normal Python
+        run: python -m unittest -v NUMERIA_P92G_GEOMETRIC_GAPS.test_p92g
+      - name: Exact checks assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92G_GEOMETRIC_GAPS.test_p92g
+      - name: Produce exact rational regression
+        run: python -m NUMERIA_P92G_GEOMETRIC_GAPS.certificate --out p92g-geometric.json
+      - name: Audit complete JSON and no unearned global theorem claims
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          p=json.load(open('p92g-geometric.json',encoding='utf8'))
+          if p["schema"]!="NUMERIA.P92G.DELTA.GEOMETRIC_GAPS.SCALE_FREE.1":
+              raise ArithmeticError("wrong schema")
+          if (p["rational_regressions"],p["independent_rational_ldlt"],len(p["cases"]))!=(57,42,57):
+              raise ArithmeticError("missing rational checks")
+          if not (p["all_real_geometric_ratios_proved_analytically"] and p["number_of_distinct_scales_unbounded_in_theorem"]):
+              raise ArithmeticError("missing delimited geometric theorem")
+          for key in ("arbitrary_point_configurations_proved","general_Preissmann_Lemma6_proved","Riemann_Hypothesis_proved"):
+              if p[key]:
+                  raise ArithmeticError("unearned theorem: "+key)
+          for c in p["cases"]:
+              value, ceiling, margin=(F(c[k]) for k in (
+                  "actual_max_row_sum","universal_rational_ceiling","margin_to_15_over_16"))
+              if not (0<=value<=ceiling<F(15,16)) or margin!=F(15,16)-value:
+                  raise ArithmeticError("invalid rational certificate")
+              if c["exact_ldlt_min_pivot"] is not None and F(c["exact_ldlt_min_pivot"])<=0:
+                  raise ArithmeticError("invalid exact LDL")
+          print("P92G PASSED: 57 exact Fraction cases and 42 exact LDL, scale-free theorem only for geometric gaps")
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92G_GEOMETRIC_GAPS/*.py NUMERIA_P92G_GEOMETRIC_GAPS/README.md p92g-geometric.json > p92g-SHA256SUMS.txt
+          cat p92g-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92g-geometric-gap-exact-fractions-and-ldl
+          path: |
+            p92g-geometric.json
+            p92g-SHA256SUMS.txt
