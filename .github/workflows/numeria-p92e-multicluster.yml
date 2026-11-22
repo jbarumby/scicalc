@@ -1,0 +1,75 @@
+name: NUMERIA P92E exact multicluster Delta bound
+on:
+  push:
+    branches:
+      - numeria-p92e-delta-multicluster
+  pull_request:
+    paths:
+      - 'NUMERIA_P92E_MULTICLUSTER/**'
+      - '.github/workflows/numeria-p92e-multicluster.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-multicluster:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight exact rational proofs/regressions
+        run: python -m unittest -v NUMERIA_P92E_MULTICLUSTER.test_p92e
+      - name: Eight exact rational proofs/regressions without Python assertions
+        run: python -O -m unittest -v NUMERIA_P92E_MULTICLUSTER.test_p92e
+      - name: Export exact rational block certificate
+        run: python -m NUMERIA_P92E_MULTICLUSTER.certificate --out p92e-certificate.json
+      - name: Independently audit JSON scope, 162 pairs, 1/8 and positive margins
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          d=json.load(open('p92e-certificate.json',encoding='utf-8'))
+          if d['schema']!='NUMERIA.P92E.DELTA.MULTICLUSTER.BLOCK_HS.1':
+              raise ArithmeticError('wrong schema')
+          if (d['case_count'],d['finite_exact_pair_count'],d['cluster_count_unconditional_residual_gate'])!=(8,162,11):
+              raise ArithmeticError('wrong census')
+          if not d['full_Preissmann_constant_for_up_to_11_uniform_clusters_under_gap_condition']:
+              raise ArithmeticError('restricted theorem gate not marked')
+          if any(d[k] for k in ('all_arbitrary_spacings_global_Delta_bound_proved',
+                    'arbitrary_number_of_clusters_global_Delta_bound_proved',
+                    'full_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved')):
+              raise ArithmeticError('unjustified global promotion')
+          if not F(25,8)**4>F(375,4):
+              raise ArithmeticError('incorrect rational pi comparison')
+          total=0
+          for sample in d['cases']:
+              K=sample['cluster_count']
+              if sample['pair_count']!=K*(K-1)//2:
+                  raise ArithmeticError('missing pair in sample')
+              total+=sample['pair_count']
+              for pair in sample['pairs']:
+                  actual=F(pair['finite_HS_square'])
+                  upper=F(pair['integral_HS_ceiling_square'])
+                  root=F(pair['rational_sqrt_upper'])
+                  if not (0<=actual<=upper<=F(1,8) and root*root>=upper):
+                      raise ArithmeticError('HS estimate not certified rationally')
+              if K<=11 and not sample['row_enclosure_below_target_sufficient_by_25_over_8']:
+                  raise ArithmeticError('restricted sample failed')
+          if total!=162:
+              raise ArithmeticError('incorrect pair sum')
+          print('P92E PASS: 8 examples, 162 exact block pairs, 8 Python tests + -O')
+          print('Universal ANALYTIC theorem: <=11 uniformly-spaced separated clusters')
+          print('Unrestricted Preissmann and RH remain OPEN')
+          PY
+      - name: Exact checksum manifest
+        run: |
+          sha256sum NUMERIA_P92E_MULTICLUSTER/*.py NUMERIA_P92E_MULTICLUSTER/README.md p92e-certificate.json > p92e-SHA256SUMS.txt
+          cat p92e-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92e-multicluster-exact-rational-blocks
+          path: |
+            p92e-certificate.json
+            p92e-SHA256SUMS.txt
