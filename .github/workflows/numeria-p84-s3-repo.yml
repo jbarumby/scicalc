@@ -87,6 +87,8 @@ jobs:
           scan=json.load(open('p84-real-downstream-scan.json'))
           if scan['files_examined']<=17 or scan['historical_kit_scan_root']!='/tmp/kit_p78':
               raise ArithmeticError('downstream run did not inspect real repo')
+          if scan['unreviewed_consumer_count']!=0:
+              raise ArithmeticError('unexpected unreviewed runtime consumer')
           replay=json.load(open('p84-s2-robust-suzuki-512.json'))
           if replay['source_table']!='TABLE_V2_S2_PUBLIC_ROBUST (not P79 six-decimal table)':
               raise ArithmeticError('wrong downstream coefficients')
