@@ -1,0 +1,38 @@
+name: NUMERIA P78 source bound exact-rational replay
+on:
+  push:
+    branches: [numeria-p78-ramare-public-source]
+    paths:
+      - "NUMERIA_P78_RAMARE_PUBLIC/**"
+      - ".github/workflows/numeria-p78-ramare-source.yml"
+  pull_request:
+    paths:
+      - "NUMERIA_P78_RAMARE_PUBLIC/**"
+      - ".github/workflows/numeria-p78-ramare-source.yml"
+permissions:
+  contents: read
+jobs:
+  exact-rational-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify 16-row certificate, fail closed
+        run: python -m NUMERIA_P78_RAMARE_PUBLIC.restricted_lemma6 --verify NUMERIA_P78_RAMARE_PUBLIC/certificate.json
+      - name: Run tests with and without assertions
+        run: |
+          python -m unittest NUMERIA_P78_RAMARE_PUBLIC.test_p78 -v
+          python -O -m unittest NUMERIA_P78_RAMARE_PUBLIC.test_p78 -v
+      - name: Reproduce certificate twice
+        run: |
+          python -m NUMERIA_P78_RAMARE_PUBLIC.restricted_lemma6 --out /tmp/p78-rational.json
+          python -O -m NUMERIA_P78_RAMARE_PUBLIC.restricted_lemma6 --out /tmp/p78-optimized.json
+          cmp /tmp/p78-rational.json /tmp/p78-optimized.json
+          cmp /tmp/p78-rational.json NUMERIA_P78_RAMARE_PUBLIC/certificate.json
+          sha256sum NUMERIA_P78_RAMARE_PUBLIC/*.py NUMERIA_P78_RAMARE_PUBLIC/certificate.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p78-restricted-b4-certificate
+          path: NUMERIA_P78_RAMARE_PUBLIC/certificate.json
