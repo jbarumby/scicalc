@@ -1,0 +1,101 @@
+name: NUMERIA P90 Sharp Lemma6 for zero or one interior node
+on:
+  push:
+    branches:
+      - numeria-p90-preissmann-interior-variational
+  pull_request:
+    paths:
+      - 'NUMERIA_P90_INTERIOR/**'
+      - '.github/workflows/numeria-p90-interior-nearby.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nearby-sharp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test exact Fraction proof steps and adversarial samples
+        run: python -m unittest -v NUMERIA_P90_INTERIOR.test_p90
+      - name: Repeat without Python assertions
+        run: python -O -m unittest -v NUMERIA_P90_INTERIOR.test_p90
+      - name: Emit exact rational theorem ledger
+        run: python -m NUMERIA_P90_INTERIOR.nearby_sharp --out p90-nearby-sharp.json
+      - name: Independently reconstruct and validate rational proof gates
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          from NUMERIA_P90_INTERIOR.nearby_sharp import (
+              H,uniform_budget_identity,one_interior_poly,budget_instance,
+              sharp_pair_direct
+          )
+          from NUMERIA_P90_INTERIOR.variational import compare_profiles
+          d=json.load(open('p90-nearby-sharp.json'))
+          if d['schema']!='NUMERIA.P90.PREISSMANN.INTERIOR.NEIGHBOR_SHARP.1':
+              raise ArithmeticError('wrong P90 schema')
+          if not(d['universal_adjacent_pairs_proved_in_README']
+                 and d['universal_one_interior_pairs_proved_in_README']
+                 and d['D_strictly_decreasing_proved_by_polynomial']):
+              raise ArithmeticError('missing mathematical proof statement')
+          for flag in (
+              'arbitrary_interior_count_Lemma6_proved',
+              'full_Preissmann_Lemma5_variations_reconstructed',
+              'full_Preissmann_Lemma6_independently_reproved',
+              'm0_without_external_Lemma6_proved',
+              'RZ_S_epsilon_reproved','RH_proved'):
+              if d[flag]:
+                  raise ArithmeticError('unearned general theorem status: '+flag)
+          for m in range(1,41):
+              if uniform_budget_identity(m)!=d['uniform_all_m_closed_forms'][m-1]:
+                  raise ArithmeticError('uniform harmonic budget not exact')
+          for item in d['one_interior_symbolic_regressions']:
+              if one_interior_poly(F(item['t']))!=item:
+                  raise ArithmeticError('symbolic one-node factorization failed')
+          node_count=0
+          for v in d['exact_nearby_pair_cases']:
+              for row in v['nearby_pairs']:
+                  if row['interior_count'] not in (0,1):
+                      raise ArithmeticError('pair outside theorem scope')
+                  if F(row['strict_pi_lower_margin'])<=0:
+                      raise ArithmeticError('invalid near-pair finite certificate')
+                  if F(row['sharp_RHS_pi_lower_exact'])-F(row['sharp_LHS_exact'])!=F(row['strict_pi_lower_margin']):
+                      raise ArithmeticError('wrong exact margin')
+                  node_count+=1
+          if node_count!=d['exact_nearby_pair_count'] or node_count!=96:
+              raise ArithmeticError('missing nearby finite pairs')
+          for q in d['interior_sufficient_budget_finite_checks']:
+              if budget_instance(q['gaps_exact'])!=q:
+                  raise ArithmeticError('multi-interior positive budget not reproducible')
+              if F(q['certified_positive_margin'])<=0:
+                  raise ArithmeticError('failed finite budget diagnostic')
+          phi=compare_profiles()
+          if phi['full_Preissmann_Lemma5_variational_objective_reconstructed']:
+              raise ArithmeticError('variational proof falsely promoted')
+          if d['uploaded_P87']['ledger_gates_reported']!=24 or d['uploaded_P87']['ledger_gates_failed_reported']!=0:
+              raise ArithmeticError('P87 input source summary incorrect')
+          if not d['uploaded_P87']['ledger_B5_wrong_upper_pi_and_float_margins']:
+              raise ArithmeticError('P87 incorrect proof-direction not flagged')
+          print('P90: 96 rational sharp-L6 pair witnesses and 40 exact lattice identities')
+          print('P90: universal theorem proved for zero or one interior node in README')
+          print('P90: the all-spacing two-or-more-interior case remains UNPROVED independently')
+          PY
+      - name: SHA256 code and output provenance
+        run: |
+          sha256sum \
+            NUMERIA_P90_INTERIOR/*.py NUMERIA_P90_INTERIOR/README.md \
+            NUMERIA_P89_LEMMA5/exterior.py NUMERIA_P89_LEMMA5/README.md \
+            NUMERIA_P88_LEMMA6/compensation.py \
+            NUMERIA_P87_PREISSMANN/shan_spacing.py \
+            p90-nearby-sharp.json > p90-SHA256SUMS.txt
+          cat p90-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p90-sharp-neighbor-and-one-interior
+          path: |
+            p90-nearby-sharp.json
+            p90-SHA256SUMS.txt
