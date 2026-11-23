@@ -1,0 +1,67 @@
+name: NUMERIA P92Q sharp L6 on arbitrary thinned arithmetic subgrids
+on:
+  push:
+    branches:
+      - numeria-p92q-lattice-thinning-variational
+  pull_request:
+    paths:
+      - 'NUMERIA_P92Q_LATTICE_THINNING/**'
+      - '.github/workflows/numeria-p92q-lattice-thinning.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tent-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Exact rational tent and sharp-L6 tests
+        run: python -m unittest -v NUMERIA_P92Q_LATTICE_THINNING.test_p92q
+      - name: Exact tests with assert disabled
+        run: python -O -m unittest -v NUMERIA_P92Q_LATTICE_THINNING.test_p92q
+      - name: Emit rational coefficient and energy certificate
+        run: python -m NUMERIA_P92Q_LATTICE_THINNING.certificate --out p92q-certificate.json
+      - name: Independently check exact certificate fields and thresholds
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          x=json.load(open('p92q-certificate.json',encoding='utf8'))
+          if x['schema']!='NUMERIA.P92Q.PREISSMANN.LATTICE_THINNING.TENT_PACKING.1':
+              raise ArithmeticError('schema mismatch')
+          if len(x['cases'])!=85 or len(x['full_checks'])!=5:
+              raise ArithmeticError('incomplete rational regression')
+          if not x['analytic_universal_for_stated_lattice_class']:
+              raise ArithmeticError('missing theorem qualifier')
+          for name in ('general_Lemma5_and_6_for_arbitrary_real_positions','general_Riemann_Hypothesis_proved'):
+              if x[name]:
+                  raise ArithmeticError('unsupported global claim')
+          for c in x['cases']:
+              interior=F(c['normalized_interior_sum_exact'])
+              complete=F(c['normalized_complete_sum_exact'])
+              margin=F(c['thinning_margin_exact'])
+              budget=F(c['twice_D_of_1_over_M_exact'])
+              if not (0<=interior<=complete==budget and margin==complete-interior):
+                  raise ArithmeticError('failed exact comparison')
+              if F(c['min_unused_slot_mass_exact'])<0:
+                  raise ArithmeticError('overloaded tent mesh')
+          for c in x['full_checks']:
+              if F(c['full_L6_margin_with_pi_lower_exact'])<=0:
+                  raise ArithmeticError('invalid certified sharp full L6')
+          print('P92Q PASS: 85 exact Fraction tent cases; 5 full rational L6 checks')
+          print('Universal result relies on analytic tent/Jensen proof in README; arbitrary real gaps remain OPEN')
+          PY
+      - name: SHA-256 provenance
+        run: |
+          sha256sum NUMERIA_P92Q_LATTICE_THINNING/*.py NUMERIA_P92Q_LATTICE_THINNING/README.md p92q-certificate.json > p92q-SHA256SUMS.txt
+          cat p92q-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92q-lattice-thinning-rational-tent-certificate
+          path: |
+            p92q-certificate.json
+            p92q-SHA256SUMS.txt
