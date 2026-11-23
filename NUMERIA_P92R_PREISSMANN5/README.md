@@ -218,4 +218,4 @@ Reprodução na raiz do repo:
     python -O -m unittest -v NUMERIA_P92R_PREISSMANN5.test_p92r
     python -m NUMERIA_P92R_PREISSMANN5.certificate --out p92r-certificate.json
 
-**Pendências científicas:** revisão externa da passagem global R1–R7, comparação contra o enunciado original sem OCR, rigor formal opcional em Lean/Isabelle/Coq. Não inferir nem declarar a Hipótese de Riemann demonstrada. Não realizar merge automático.
+**Nota sobre as duas implementações:** no repositório GitHub a execução compacta de revisão usa `python -m unittest -v NUMERIA_P92R_PREISSMANN5.test_p92r_github` e `python -m NUMERIA_P92R_PREISSMANN5.verify --out p92r-review.json`. Os comandos `test_p92r`/`certificate` acima correspondem ao pacote local completo entregue ao usuário. O teorema e os argumentos analíticos são os mesmos; os hashes dos JSONs diferem por terem esquemas e apresentações distintos.\n\n**Pendências científicas:** revisão externa da passagem global R1–R7, comparação contra o enunciado original sem OCR, rigor formal opcional em Lean/Isabelle/Coq. Não inferir nem declarar a Hipótese de Riemann demonstrada. Não realizar merge automático.
