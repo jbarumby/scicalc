@@ -58,7 +58,7 @@ class P92QTests(unittest.TestCase):
 
     def test_full_sharp_L6_with_outside_points(self):
         for M,J in ((8,(2,3,6)),(17,(1,6,10,16)),(40,(1,2,20,39))):
-            x=[F(-1,2),F(0)]+[F(j) for j in J]+[F(M),F(M+1,3)]
+            x=[F(-1,2),F(0)]+[F(j) for j in J]+[F(M),F(M)+F(1,3)]
             lhs,rhs,d=full_L6_left_right(x,1,len(x)-2)
             self.assertLess(lhs,rhs)
             self.assertLessEqual(d[1],1)
