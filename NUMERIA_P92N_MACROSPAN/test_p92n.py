@@ -66,9 +66,9 @@ class P92NTests(unittest.TestCase):
         self.assertLess(F(case["macro_comparison_row_sum_exact"]),rational_threshold())
 
     def test_invalid_physical_spans(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             build([F(1)], [3])
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             build([F(1,3)], [1])
 
 if __name__=="__main__":
