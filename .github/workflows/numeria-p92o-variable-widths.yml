@@ -1,0 +1,61 @@
+name: NUMERIA P92O variable-width adaptive Delta spectra
+on:
+  push:
+    branches:
+      - numeria-p92o-delta-variable-widths
+  pull_request:
+    paths:
+      - 'NUMERIA_P92O_VARIABLE_WIDTHS/**'
+      - '.github/workflows/numeria-p92o-variable-widths.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-variable-width:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ten Fraction tests
+        run: python -m unittest -v NUMERIA_P92O_VARIABLE_WIDTHS.test_p92o
+      - name: Ten Fraction tests Python -O
+        run: python -O -m unittest -v NUMERIA_P92O_VARIABLE_WIDTHS.test_p92o
+      - name: Exact rational certificate JSON
+        run: python -m NUMERIA_P92O_VARIABLE_WIDTHS.certificate --out p92o-certificate.json
+      - name: Independently audit JSON and scientific scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          c=json.load(open('p92o-certificate.json',encoding='utf8'))
+          assert c['schema']=='NUMERIA.P92O.DELTA.VARIABLE_WIDTHS.1'
+          assert c['case_count']==9
+          assert c['exact_comparison_LDL']==9
+          assert c['full_delta_LDL']==1
+          assert c['HS_checks']>=450
+          assert not any(c[k] for k in ('all_configurations','Preissmann_general','Riemann_hypothesis'))
+          d={x['name']:x for x in c['cases']}
+          assert F(d['anchor_plus_12_microgroups']['max_row'])>F(18,5)
+          assert not d['anchor_plus_12_microgroups']['pairwise_3over4']
+          assert F(d['anchor_plus_12_microgroups']['ldlt_pivot_lower'])>3
+          assert d['six_irregular_not_N']['pairwise_3over4']
+          assert not d['six_irregular_not_N']['old_P92N']
+          assert d['thirty_giant_clusters']['points']>90000
+          for case in c['cases']:
+              assert F(case['ldlt_pivot_lower'])>0
+              if case['pairwise_3over4']: assert F(case['max_row'])<3
+          print('P92-O PASS: 9 exact LDL, 450+ HS pairs; universal RH/Preissmann NOT claimed')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92O_VARIABLE_WIDTHS/*.py NUMERIA_P92O_VARIABLE_WIDTHS/README.md p92o-certificate.json > p92o-SHA256SUMS.txt
+          cat p92o-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92o-variable-widths-fraction-certificate
+          path: |
+            p92o-certificate.json
+            p92o-SHA256SUMS.txt
