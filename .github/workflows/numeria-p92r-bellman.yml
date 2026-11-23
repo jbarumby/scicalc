@@ -1,0 +1,66 @@
+name: NUMERIA P92R quantitative Lemma 5 Bellman independent audit
+on:
+  push:
+    branches:
+      - numeria-p92r-lemma5-bellman-reconstruction
+  pull_request:
+    paths:
+      - 'NUMERIA_P92R_PREISSMANN5/**'
+      - '.github/workflows/numeria-p92r-bellman.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-bellman-lemma5-lemma6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ten exact arithmetic tests
+        run: python -m unittest -v NUMERIA_P92R_PREISSMANN5.test_p92r_github
+      - name: Ten independent tests with assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92R_PREISSMANN5.test_p92r_github
+      - name: Export Fraction certificate from independent implementation
+        run: python -m NUMERIA_P92R_PREISSMANN5.verify --out p92r-review.json
+      - name: Check research scope and exact rational margins independently
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          d=json.load(open('p92r-review.json',encoding='utf8'))
+          if d['schema']!='NUMERIA.P92R.LEMMA5.BELLMAN.1':
+              raise ArithmeticError('wrong schema')
+          if d['counts']!={'L5':222,'ramp':400,'mixed':12,'L6':60}:
+              raise ArithmeticError('wrong counts')
+          if not d['analytic_independent_L5_proof_in_README']:
+              raise ArithmeticError('missing theorem')
+          if not d['analytic_general_L6_reconstruction_proposed_for_audit']:
+              raise ArithmeticError('missing strict L6 review qualifier')
+          if d['independent_peer_review_completed'] or d['Riemann_Hypothesis_proved']:
+              raise ArithmeticError('unsupported claim')
+          for r in d['l5']:
+              if F(r['margin'])!=F(r['bound'])-F(r['sum']) or F(r['margin'])<0:
+                  raise ArithmeticError('invalid L5 fraction')
+          for r in d['bellman']:
+              if F(r)<0:raise ArithmeticError('invalid Bellman fraction')
+          for r in d['mixed']:
+              if F(r['margin'])<0 or F(r['remainder'])<0:
+                  raise ArithmeticError('invalid mixed fraction')
+          for r in d['l6']:
+              if F(r['margin'])!=F(r['rhs_pi_lower'])-F(r['lhs']) or F(r['margin'])<0:
+                  raise ArithmeticError('invalid L6 fraction')
+          print('PASS: all exact Fraction rows; universal analytic argument requires independent mathematical review')
+          PY
+      - name: SHA256 provenance
+        run: |
+          sha256sum NUMERIA_P92R_PREISSMANN5/*.py NUMERIA_P92R_PREISSMANN5/README.md p92r-review.json > p92r-SHA256SUMS.txt
+          cat p92r-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92r-independent-bellman-lemma5-lemma6-review
+          path: |
+            p92r-review.json
+            p92r-SHA256SUMS.txt
