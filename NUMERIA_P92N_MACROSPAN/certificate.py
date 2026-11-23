@@ -9,19 +9,19 @@ PI_L=16*(F(1,5)-F(1,375))-4*F(1,239)
 PI_U=16*(F(1,5)-F(1,375)+F(1,15625))-4*(F(1,239)-F(1,3*239**3))
 
 def rational_threshold():
-    assert PI_L>F(157,50) and PI_U<F(22,7)
-    assert F(5477,5000)**2<F(6,5) and PI_L**2/F(3)*F(5477,5000)>T
-    assert 2*Q**2>1 and 125*16**4<294*13**4
+    if not (PI_L>F(157,50) and PI_U<F(22,7)): raise ArithmeticError("P92N exact regression check 1 failed")
+    if not (F(5477,5000)**2<F(6,5) and PI_L**2/F(3)*F(5477,5000)>T): raise ArithmeticError("P92N exact regression check 2 failed")
+    if not (2*Q**2>1 and 125*16**4<294*13**4): raise ArithmeticError("P92N exact regression check 3 failed")
     b=Q/C**2*PI_U**2/F(3)
-    assert b==F(619520,173901) and b<T
+    if not (b==F(619520,173901) and b<T): raise ArithmeticError("P92N exact regression check 4 failed")
     return b
 
 def build(roots,sizes,materialize=False):
     roots=list(map(F,roots)); sizes=list(sizes)
-    assert len(roots)==len(sizes)>0
-    assert all(x>0 for x in roots) and all(m>=2 for m in sizes)
+    if not (len(roots)==len(sizes)>0): raise ArithmeticError("P92N exact regression check 5 failed")
+    if not (all(x>0 for x in roots) and all(m>=2 for m in sizes)): raise ArithmeticError("P92N exact regression check 6 failed")
     steps=[v*v for v in roots]
-    assert all((m-1)*h<=1 for m,h in zip(sizes,steps))
+    if not (all((m-1)*h<=1 for m,h in zip(sizes,steps))): raise ArithmeticError("P92N exact regression check 7 failed")
     g=[]; x=[]; at=F(0)
     for i,(v,h,m) in enumerate(zip(roots,steps,sizes)):
         if i: at+=max(C,steps[i-1],h)
@@ -33,7 +33,7 @@ def build(roots,sizes,materialize=False):
 
 def exact_ldl(a):
     M=[list(map(F,row)) for row in a];n=len(M);least=None
-    assert all(len(row)==n for row in M)
+    if not (all(len(row)==n for row in M)): raise ArithmeticError("P92N exact regression check 8 failed")
     for k in range(n):
         p=M[k][k]
         if p<=0:raise ArithmeticError("nonpositive exact LDL pivot")
@@ -61,16 +61,16 @@ def audit(name, roots, sizes,full=False):
         vr,hr,mr,start_r,end_r=g[r]
         vs,hs,ms,start_s,end_s=g[s]
         D=start_s-end_r
-        assert D>=C*(s-r) and D>=max(hr,hs)
+        if not (D>=C*(s-r) and D>=max(hr,hs)): raise ArithmeticError("P92N exact regression check 9 failed")
         beta=vr*vs*(vr-vs)**2/F(2)
         HS2=sum((beta**2/(D+j*hr+k*hs)**4
                  for j in range(mr) for k in range(ms)),F(0))
-        assert 2*D**4*HS2<=1
+        if not (2*D**4*HS2<=1): raise ArithmeticError("P92N exact regression check 10 failed")
         A[r][s]=A[s][r]=Q/D**2
-        assert HS2<=A[r][s]**2
+        if not (HS2<=A[r][s]**2): raise ArithmeticError("P92N exact regression check 11 failed")
         pairs+=1
     rowmax=max(map(sum,A))
-    assert rowmax<rational_threshold()
+    if not (rowmax<rational_threshold()): raise ArithmeticError("P92N exact regression check 12 failed")
     block_pivot=exact_ldl([[T*(i==j)-A[i][j] for j in range(K)] for i in range(K)])
     full_pivot=None
     if full:
@@ -86,13 +86,13 @@ def large_macro():
     sizes=[k*k+1 for k in range(1,41)]
     g,_=build(roots,sizes)
     D=g[-1][3]-g[0][4]
-    assert D==F(559,8) and D**4<39**5 and sum(sizes)==22180
+    if not (D==F(559,8) and D**4<39**5 and sum(sizes)==22180): raise ArithmeticError("P92N exact regression check 13 failed")
     A=[[F(0)]*40 for _ in range(40)]
     for i,j in combinations(range(40),2):
         d=g[j][3]-g[i][4]
         A[i][j]=A[j][i]=Q/d**2
     rowmax=max(map(sum,A))
-    assert rowmax<rational_threshold()
+    if not (rowmax<rational_threshold()): raise ArithmeticError("P92N exact regression check 14 failed")
     return {"groups":40,"points":22180,"distinct_scales":40,
             "max_group_size":1601,"end_to_end_gap":str(D),
             "P92M_separation_violated":True,"full_matrix_constructed":False,
@@ -108,8 +108,8 @@ def certify():
         ("eight_mixed",[F(1,2),F(1,8),F(1,4),F(1,6),F(1,10),F(1,3),F(1,9),F(1,7)],[4,5,3,6,7,3,5,6],False)
     ]
     cases=[audit(*config) for config in configs]
-    assert len(cases)==6 and sum(c["pair_hs_checks"] for c in cases)==56
-    assert sum(c["full_ldl_min_pivot"] is not None for c in cases)==3
+    if not (len(cases)==6 and sum(c["pair_hs_checks"] for c in cases)==56): raise ArithmeticError("P92N exact regression check 15 failed")
+    if not (sum(c["full_ldl_min_pivot"] is not None for c in cases)==3): raise ArithmeticError("P92N exact regression check 16 failed")
     return dict(schema=SCHEMA,
                 analytic_theorem_for_all_real_macroscale_configurations=True,
                 unrestricted_point_configurations_proved=False,
