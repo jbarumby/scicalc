@@ -99,7 +99,7 @@ O coeficiente `1` no erro simples `a/X` não pode ser reduzido universalmente: e
 
 ## 4. Comparação rigorosa das caudas do núcleo do Lema 6
 
-Seja `h>0` e `\phi_h(u)=[u^2(u+h)^2]^{-1}` para `u>0`. A função é positiva, decrescente e estritamente convexa; pode-se aplicar R2 à cauda de pontos à esquerda ou à direita de um par de âncoras. Seja `g` a primeira lacuna da cauda e `d` a distância ao vizinho mais próximo na âncora; `d<=g`. Por R2,
+Seja `h>0` e `\phi_h(u)=[u^2(u+h)^2]^{-1}` para `u>0`. A função é positiva, decrescente e estritamente convexa; pode-se aplicar R2 à cauda de pontos à esquerda ou à direita de um par de âncoras. **Justificativa da classe R1:** como `\phi_h,\phi_h'\to0` no infinito e `\phi_h''(u)=2(10u^2+10uh+3h^2)/[u^4(u+h)^4]>0`, integração por partes duas vezes dá `\phi_h(u)=\int_u^\infty(T-u)\phi_h''(T)\,dT`. Trata-se, portanto, de uma mistura positiva de rampas; a passagem da soma para a integral é justificada por Tonelli. Seja `g` a primeira lacuna da cauda e `d` a distância ao vizinho mais próximo na âncora; `d<=g`. Por R2,
 
 \[
 \sum_{j\ \mathrm{cauda}}\delta_j\phi_h(\mathrm{dist}_j)
@@ -125,6 +125,8 @@ Trunque os índices de `r=t-A` até `r=s+J`, e defina (sempre excluindo `t,s`)
 \Sigma_t^{A}=\sum_r\frac{\delta_r}{y_r-y_t},\qquad
 \Sigma_s^{A}=\sum_r\frac{\delta_r}{y_r-y_s}.
 \]
+
+**Convenções essenciais de sinais, exclusões e bordas:** `\Sigma_t^A` e `\Sigma_s^A` são somas **assinadas** de `\delta_r/(y_r-y_i)`, excluindo **ambas** as âncoras `t,s`. As somas unilaterais `P_t` e `P_s` incluem a âncora oposta antes da subtração explícita. Nas duas extremidades do truncamento, os valores `\delta` são os da configuração bilateral prolongada completa: `L` à esquerda e `R` à direita. Os somatórios `\Sigma_t,\Sigma_s` tomados isoladamente divergem em geral; apenas a **diferença pareada** converge absolutamente, por decaimento `O(k^{-2})` das contribuições de ambas as caudas.
 
 A soma unilateral **à esquerda de s**, incluindo o nó t antes de excluí-lo, satisfaz pelo Teorema R3
 
