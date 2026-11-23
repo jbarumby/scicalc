@@ -12,7 +12,7 @@ def rational_threshold():
     if not (PI_L>F(157,50) and PI_U<F(22,7)): raise ArithmeticError("P92N exact regression check 1 failed")
     if not (F(5477,5000)**2<F(6,5) and PI_L**2/F(3)*F(5477,5000)>T): raise ArithmeticError("P92N exact regression check 2 failed")
     if not (2*Q**2>1 and 125*16**4<294*13**4): raise ArithmeticError("P92N exact regression check 3 failed")
-    b=Q/C**2*PI_U**2/F(3)
+    b=Q/C**2*F(22,7)**2/F(3)
     if not (b==F(619520,173901) and b<T): raise ArithmeticError("P92N exact regression check 4 failed")
     return b
 
