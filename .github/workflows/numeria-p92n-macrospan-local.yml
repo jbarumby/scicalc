@@ -1,0 +1,64 @@
+name: NUMERIA P92N macrospan and local gaps exact certificate
+on:
+  push:
+    branches:
+      - numeria-p92n-macrospan-local-gap-control
+  pull_request:
+    paths:
+      - 'NUMERIA_P92N_MACROSPAN/**'
+      - '.github/workflows/numeria-p92n-macrospan-local.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-fraction-certificate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight exact regression tests
+        run: python -m unittest -v NUMERIA_P92N_MACROSPAN.test_p92n
+      - name: Eight exact tests with assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92N_MACROSPAN.test_p92n
+      - name: Export rational certificate
+        run: python -m NUMERIA_P92N_MACROSPAN.certificate --out p92n-certificate.json
+      - name: Independently inspect JSON scope and rational pivots
+        run: |
+          python - <<'PY'
+          from fractions import Fraction as F
+          import json
+          d=json.load(open('p92n-certificate.json',encoding='utf8'))
+          if d['schema'] != "NUMERIA.P92N.MACROSPAN.LOCAL_GAPS.1":
+              raise ArithmeticError('incorrect schema')
+          if (d['rational_regressions'],d['exact_pair_hs_checks'],d['full_exact_ldl_count']) != (6,56,3):
+              raise ArithmeticError('incomplete exact regression census')
+          if not F(d['universal_rational_upper'])==F(619520,173901)<F(18,5):
+              raise ArithmeticError('incorrect rational macro upper')
+          for key in ('unrestricted_point_configurations_proved','full_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved'):
+              if d[key]:
+                  raise ArithmeticError('scope was silently extended: '+key)
+          for case in d['cases']:
+              if F(case['comparison_ldl_min_pivot'])<=0:
+                  raise ArithmeticError('failed rational block LDL')
+              if case['full_ldl_min_pivot'] is not None and F(case['full_ldl_min_pivot'])<=0:
+                  raise ArithmeticError('failed rational full LDL')
+          macro=d['macro40']
+          if (macro['groups'],macro['points'],macro['distinct_scales'])!=(40,22180,40):
+              raise ArithmeticError('invalid 40-scale family')
+          if macro['full_matrix_constructed'] or not macro['P92M_separation_violated']:
+              raise ArithmeticError('macro-only proof misrepresented')
+          print('P92N: 56 exact block HS, 3 full LDL, 40-group comparison; universal proof is analytic in README')
+          PY
+      - name: SHA256 hashes
+        run: |
+          sha256sum NUMERIA_P92N_MACROSPAN/*.py NUMERIA_P92N_MACROSPAN/README.md p92n-certificate.json > p92n-SHA256SUMS.txt
+          cat p92n-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92n-macrospan-exact-fraction-audit
+          path: |
+            p92n-certificate.json
+            p92n-SHA256SUMS.txt
