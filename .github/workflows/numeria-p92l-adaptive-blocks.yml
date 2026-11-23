@@ -1,0 +1,71 @@
+name: NUMERIA P92L sublinear separation and adaptive block spectral gate
+on:
+  push:
+    branches:
+      - numeria-p92l-adaptive-blocks
+  pull_request:
+    paths:
+      - 'NUMERIA_P92L_ADAPTIVE_BLOCKS/**'
+      - '.github/workflows/numeria-p92l-adaptive-blocks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-p92l:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Nine exact Fraction tests
+        run: python -m unittest -v NUMERIA_P92L_ADAPTIVE_BLOCKS.test_p92l
+      - name: Nine exact tests optimized Python
+        run: python -O -m unittest -v NUMERIA_P92L_ADAPTIVE_BLOCKS.test_p92l
+      - name: Generate rational JSON certificate
+        run: python -m NUMERIA_P92L_ADAPTIVE_BLOCKS.certificate --out p92l-certificate.json
+      - name: Independently audit JSON exact rational bounds and scientific scope
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          x=json.load(open('p92l-certificate.json',encoding='utf8'))
+          if x['schema']!='NUMERIA.P92L.DELTA.LINEAR_SUBLINEAR_ADAPTIVE_BLOCKS.1':
+              raise ArithmeticError('wrong schema')
+          if (x['fraction_cases'],x['pair_checks'],x['full_fraction_LDL_cases'])!=(8,249,4):
+              raise ArithmeticError('wrong regression census')
+          for key in ('arbitrary_point_configurations_proved',
+                      'general_Preissmann_Lemma6_proved',
+                      'Riemann_Hypothesis_proved'):
+              if x[key]:
+                  raise ArithmeticError('unsupported claim: '+key)
+          for case in x['cases']:
+              if F(case['max_comparison_row_sum'])<0:
+                  raise ArithmeticError('negative comparison bound')
+              for pair in case['pairs']:
+                  if not pair['linear_separation']:
+                      raise ArithmeticError('linear separation invalid')
+                  if not 0<=F(pair['HS_squared'])<=F(pair['rational_bound'])**2:
+                      raise ArithmeticError('pair norm bound invalid')
+              if case['full_Delta_LDL_min_pivot'] is not None:
+                  if F(case['full_Delta_LDL_min_pivot'])<=0:
+                      raise ArithmeticError('full LDL invalid')
+          star=x['spectral_star_counterexample_to_row_gate']
+          if not (star['groups']==13 and star['total_points']==88
+                  and F(star['max_row_sum'])>4
+                  and F(star['spectral_radius_squared'])<F(9,4)
+                  and F(star['exact_comparison_LDL_min_pivot'])>0):
+              raise ArithmeticError('star exact spectral gate invalid')
+          print('P92L PASS: 8 rational configurations, 249 pairs, 4 full LDL, 13-block star with spectral gate')
+          PY
+      - name: SHA256 exact artifacts
+        run: |
+          sha256sum NUMERIA_P92L_ADAPTIVE_BLOCKS/*.py NUMERIA_P92L_ADAPTIVE_BLOCKS/README.md p92l-certificate.json > p92l-SHA256SUMS.txt
+          cat p92l-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92l-adaptive-blocks-exact-rational-certificates
+          path: |
+            p92l-certificate.json
+            p92l-SHA256SUMS.txt
