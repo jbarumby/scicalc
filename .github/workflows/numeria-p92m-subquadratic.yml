@@ -1,0 +1,65 @@
+name: NUMERIA P92M subquadratic separation and 1-over-rho obstruction
+on:
+  push:
+    branches:
+      - numeria-p92m-delta-adaptive-spectral-gluing
+  pull_request:
+    paths:
+      - 'NUMERIA_P92M/**'
+      - '.github/workflows/numeria-p92m-subquadratic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prove-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Ten exact Fraction tests
+        run: python -m unittest -v NUMERIA_P92M.test_p92m
+      - name: Ten exact Fraction tests with assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92M.test_p92m
+      - name: Generate rational JSON and SHA256
+        run: |
+          python -m NUMERIA_P92M.certificate --out p92m-certificate.json
+          sha256sum NUMERIA_P92M/*.py NUMERIA_P92M/README.md p92m-certificate.json > p92m-SHA256SUMS.txt
+          sha256sum -c p92m-SHA256SUMS.txt
+      - name: Independent audit of file scope, integer counts and exact pivots
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          with open('p92m-certificate.json',encoding='utf8') as f: d=json.load(f)
+          assert d['schema']=='NUMERIA.P92M.SUBQUADRATIC.M_FREE.SPECTRAL.1'
+          assert d['rational_configurations']==10
+          assert d['rational_pair_checks']==139
+          assert d['full_exact_ldl']==7
+          assert len(d['sharp_exponent_obstructions'])==6
+          assert F(d['exact_machin_pi_lower'])>F(25,8)
+          assert F(25,8)**4>F(375,4)
+          assert len(d['cases'])==10
+          for c in d['cases']:
+              assert c['pair_interactions']==c['K']*(c['K']-1)//2
+              assert F(c['comparison_ldl_min_pivot'])>0
+              if c['full_ldl_min_pivot'] is not None:
+                  assert F(c['full_ldl_min_pivot'])>0
+          for c in d['sharp_exponent_obstructions']:
+              n=c['n']
+              assert F(c['analytic_lower_on_operator_norm'])==(1-F(1,n))**2/(18*n)
+              assert F(c['analytic_lower_on_operator_norm'])>=F(1,72*n)
+              if c['bilinear_exact'] is not None:
+                  assert F(c['bilinear_exact'])>F(c['analytic_lower_on_operator_norm'])
+          for name in ('unrestricted_point_configurations_proved','general_Preissmann_Lemma6_proved','Riemann_Hypothesis_proved'):
+              assert d[name] is False
+          print('P92M PASS: 10 cases, 139 pairs, 7 LDL and 6 1/rho obstructions; scope verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92m-exact-rational-subquadratic
+          path: |
+            p92m-certificate.json
+            p92m-SHA256SUMS.txt
