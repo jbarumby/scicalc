@@ -1,0 +1,70 @@
+name: NUMERIA P92P two-index exact potential Schur bridge
+on:
+  push:
+    branches:
+      - numeria-p92p-preissmann-two-index-schur
+  pull_request:
+    paths:
+      - 'NUMERIA_P92P_LEMMA56_BRIDGE/**'
+      - '.github/workflows/numeria-p92p-lemma56-bridge.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  p92p-exact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Eight exact rational unittests
+        run: python -m unittest -v NUMERIA_P92P_LEMMA56_BRIDGE.test_p92p
+      - name: Eight unittests with assertions disabled
+        run: python -O -m unittest -v NUMERIA_P92P_LEMMA56_BRIDGE.test_p92p
+      - name: Export exact Fraction certificate
+        run: python -m NUMERIA_P92P_LEMMA56_BRIDGE.certificate --out p92p-certificate.json
+      - name: Independently audit exact scalar and operatorial margins
+        run: |
+          python - <<'PY'
+          import json
+          from fractions import Fraction as F
+          d=json.load(open('p92p-certificate.json',encoding='utf8'))
+          if d['schema']!='NUMERIA.P92P.LEMMA56.EXACT_POTENTIAL_SCHUR.1':
+              raise ArithmeticError('wrong schema')
+          if not (d['universal_algebraic_bridge_proved'] and d['rational_schur_equivalence_proved']):
+              raise ArithmeticError('missing exact reduction')
+          for key in ('all_configurations_lemma5_proved','all_configurations_lemma6_independently_proved',
+                      'Riemann_Hypothesis_proved'):
+              if d[key]:
+                  raise ArithmeticError('false scientific scope: '+key)
+          if d['exact_fraction_case_count']!=63 or len(d['cases'])!=63 or d['independent_dense_ldlt_count']!=27:
+              raise ArithmeticError('incomplete samples/LDL')
+          nldl=0
+          for c in d['cases']:
+              h=F(c['h'])
+              left=F(c['rhs_budget'])-F(c['h_squared_kernel'])
+              right=F(c['energy_slack_s'])+F(c['energy_slack_t'])+2*F(c['potential_difference'])/h
+              if not(left==right==F(c['slack']) and left>0):
+                  raise ArithmeticError('exact two-index identity fails')
+              if c['ldlt_min_pivot'] is not None:
+                  nldl+=1
+                  if F(c['ldlt_min_pivot'])<=0:
+                      raise ArithmeticError('LDL pivot fails')
+          if nldl!=27: raise ArithmeticError('LDL count fails')
+          witness=[c for c in d['cases'] if c['n']==7 and c['s']==0 and c['t']==5]
+          if len(witness)!=1 or F(witness[0]['potential_difference'])!=F(31333,261800):
+              raise ArithmeticError('five-gap exact witness missing')
+          print('PASS: 63 exact samples, 27 rational LDL, general L5/L6 remain open')
+          PY
+      - name: SHA256 manifest
+        run: |
+          sha256sum NUMERIA_P92P_LEMMA56_BRIDGE/*.py NUMERIA_P92P_LEMMA56_BRIDGE/README.md p92p-certificate.json > p92p-SHA256SUMS.txt
+          cat p92p-SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: numeria-p92p-preissmann-two-index-rational-Schur
+          path: |
+            p92p-certificate.json
+            p92p-SHA256SUMS.txt
