@@ -1,0 +1,35 @@
+name: NUMERIA P92S Lean formal core of Preissmann R1-R7
+on:
+  push:
+    branches:
+      - numeria-p92s-lean-formal-core
+  pull_request:
+    paths:
+      - 'NUMERIA_P92S_LEAN/**'
+      - '.github/workflows/numeria-p92s-lean-formal-core.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean-kernel-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject admitted or sorry proofs
+        run: |
+          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92S_LEAN/NumeriaP92S.lean; then
+            echo "No sorry/admit permitted"; exit 1
+          fi
+      - name: Lean Mathlib build with cache
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_P92S_LEAN
+          use-mathlib-cache: true
+          use-github-cache: true
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+      - name: Report Lean source hash
+        run: sha256sum NUMERIA_P92S_LEAN/NumeriaP92S.lean
