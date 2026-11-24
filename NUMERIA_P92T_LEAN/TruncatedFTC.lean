@@ -1,5 +1,7 @@
 import TruncatedKernel
 import Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus
+import Mathlib.Analysis.Calculus.Deriv.Inv
+import Mathlib.Analysis.Calculus.Deriv.Pow
 import Mathlib.Tactic
 
 /-!
@@ -67,8 +69,7 @@ theorem truncated_density_FTC
   have hFTC := intervalIntegral.integral_eq_sub_of_hasDerivAt hder hint
   unfold reciprocalPrimitive at hFTC
   convert hFTC using 1
-  · field_simp [ne_of_gt hu, ne_of_gt (lt_of_lt_of_le hu hUX)]
-    ring
+  · field_simp [ne_of_gt hu, ne_of_gt (lt_of_lt_of_le hu hUX)] <;> ring
 
 /-- The complete truncated reciprocal formula: continuous density
 plus the nonnegative endpoint atomic mass X⁻² at T=X. -/
