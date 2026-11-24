@@ -64,7 +64,7 @@ theorem fullRamp_both_mono (L a b : ℝ)
     have hB := ceil_ramp_support L b hpos hb
     have hfrac : L / b ≤ L / a := by
       apply (div_le_div_iff₀ hb ha).2
-      exact mul_le_mul_of_nonneg_left hab (le_of_lt hL)
+      exact mul_le_mul_of_nonneg_left hab hL
     have hn : Nat.ceil (L / b) ≤ Nat.ceil (L / a) :=
       Nat.ceil_mono hfrac
     have hcompare :=
