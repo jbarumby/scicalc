@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Reject sorry and admit
         run: |
-          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92T_LEAN/NumeriaP92T.lean; then
+          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92T_LEAN/*.lean; then
             echo "No sorry or admit permitted"; exit 1
           fi
       - name: Install elan and generate Lake manifest
@@ -37,4 +37,4 @@ jobs:
           test: false
           lint: false
       - name: Record source SHA256
-        run: sha256sum NUMERIA_P92T_LEAN/NumeriaP92T.lean
+        run: sha256sum NUMERIA_P92T_LEAN/*.lean
