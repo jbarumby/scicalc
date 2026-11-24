@@ -37,9 +37,7 @@ private theorem reciprocalPrimitive_hasDerivAt
   have hsum := (hinv.const_mul (-2)).add (hsq.const_mul u)
   unfold reciprocalPrimitive
   convert hsum using 1
-  · ring
-  · field_simp [hne]
-    ring
+  · field_simp [hne] <;> ring
 
 private theorem reciprocalDensity_continuousOn
     (u X : ℝ) (hu : 0 < u) (hUX : u ≤ X) :
