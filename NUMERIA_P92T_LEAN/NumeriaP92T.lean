@@ -23,11 +23,11 @@ def affineRampSum (L h : ℝ) : ℕ → ℝ
   | n + 1 => affineRampSum L h n + h * (L - (n : ℝ) * h)
 
 /-- Its rational-polynomial closed form, valid algebraically for every n. -/
-def rampPoly0 (L h : ℝ) (n : ℕ) : ℝ :=
+noncomputable def rampPoly0 (L h : ℝ) (n : ℕ) : ℝ :=
   h * (n : ℝ) * L - h ^ 2 * ((n : ℝ) * ((n : ℝ) - 1)) / 2
 
 /-- The first term h*L is removed to obtain the shifted tail U₁. -/
-def rampPoly1 (L h : ℝ) (n : ℕ) : ℝ :=
+noncomputable def rampPoly1 (L h : ℝ) (n : ℕ) : ℝ :=
   rampPoly0 L h n - h * L
 
 theorem affineRampSum_closed (L h : ℝ) (n : ℕ) :
