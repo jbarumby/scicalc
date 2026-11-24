@@ -22,7 +22,7 @@ namespace NUMERIA.P92W
 open MeasureTheory
 
 /-- The positive density 2/T³ supported on 0<T<X. -/
-noncomputable def truncatedDensity (X T : ℝ) : ℝ≥0∞ :=
+noncomputable def truncatedDensity (X T : ℝ) : ENNReal :=
   ENNReal.ofReal (if 0 < T ∧ T < X then 2 / T ^ 3 else 0)
 
 /-- The complete P92-R measure: continuous density plus boundary atom. -/
