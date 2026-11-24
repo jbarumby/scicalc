@@ -259,4 +259,33 @@ theorem finiteRamp0_boundary_agree (L h : ℝ) (n : ℕ)
   rw [hL]
   simp
 
+
+/-- The Bellman inequality is stable under finite nonnegative combinations.
+    This is the first formally checked "positive mixtures" mechanism; the
+    measure-theoretic Tonelli extension is a later analytic gate. -/
+theorem bellman_finite_positive_mixture
+    {ι : Type*} (S : Finset ι)
+    (f : ι → ℝ → ℝ) (U : ι → ℝ → ℝ → ℝ) (c : ι → ℝ)
+    (hc : ∀ i ∈ S, 0 ≤ c i)
+    (hstep : ∀ i ∈ S, ∀ w h b : ℝ,
+        min h b * f i w + U i (w + b) b ≤ U i w h)
+    (w h b : ℝ) :
+    min h b * (∑ i ∈ S, c i * f i w) +
+        (∑ i ∈ S, c i * U i (w + b) b) ≤
+      ∑ i ∈ S, c i * U i w h := by
+  calc
+    min h b * (∑ i ∈ S, c i * f i w) +
+        (∑ i ∈ S, c i * U i (w + b) b) =
+      ∑ i ∈ S, c i *
+        (min h b * f i w + U i (w + b) b) := by
+          rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+          apply Finset.sum_congr rfl
+          intro i hi
+          ring
+    _ ≤ ∑ i ∈ S, c i * U i w h := by
+          apply Finset.sum_le_sum
+          intro i hi
+          exact mul_le_mul_of_nonneg_left
+            (hstep i hi w h b) (hc i hi)
+
 end NUMERIA.P92T
