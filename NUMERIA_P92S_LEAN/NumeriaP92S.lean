@@ -164,4 +164,27 @@ theorem sharp_rhs_positive
   rw [heq]
   exact div_pos hnumer hden
 
+
+/-- The nearest-neighbor weights of a finite chain of consecutive gaps.
+For an internal point the weight is the minimum of its adjacent gaps;
+the right endpoint carries the final gap, exactly as in P92-R/R3. -/
+def nearestMass : List ℝ → ℝ
+  | [] => 0
+  | [a] => a
+  | a :: b :: rest => min a b + nearestMass (b :: rest)
+
+/-- The total nearest-neighbor mass is at most the sum of consecutive gaps.
+This is the missing **unconditional finite** input used for boundary accounting
+in R3: the total gap sum is the interval length X. -/
+theorem nearestMass_le_sum (gaps : List ℝ) :
+    nearestMass gaps ≤ gaps.sum := by
+  induction gaps with
+  | nil => simp [nearestMass]
+  | cons a rest ih =>
+      cases rest with
+      | nil => simp [nearestMass]
+      | cons b tail =>
+          change min a b + nearestMass (b :: tail) ≤ a + (b :: tail).sum
+          exact add_le_add (min_le_left a b) ih
+
 end NUMERIA.P92S
