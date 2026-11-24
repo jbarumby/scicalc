@@ -21,6 +21,11 @@ jobs:
           if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92S_LEAN/NumeriaP92S.lean; then
             echo "No sorry/admit permitted"; exit 1
           fi
+      - name: Install elan and generate Lake manifest
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          cd NUMERIA_P92S_LEAN
+          "$HOME/.elan/bin/lake" update
       - name: Lean Mathlib build with cache
         uses: leanprover/lean-action@v1
         with:
