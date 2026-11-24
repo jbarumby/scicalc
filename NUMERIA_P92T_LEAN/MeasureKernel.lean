@@ -14,7 +14,7 @@ the continuous part diverges at the origin.
 Remaining obligations: show (i) the weighted Bochner integral agrees
 with the previously checked interval integral, (ii) the relevant
 ramps/potentials are integrable for w>0, (iii) identify mixedRamp μ_X
-with f_X. Those claims are NOT axioms or sorry-proofs in this file.
+with f_X. Those claims are NOT axioms or admitted proofs in this file.
 -/
 
 namespace NUMERIA.P92W
