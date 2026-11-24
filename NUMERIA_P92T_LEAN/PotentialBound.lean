@@ -53,7 +53,6 @@ theorem fullRamp0_le_quadratic (L h : ℝ)
       unfold rampPoly0
       nlinarith
     have hstep : h * (n : ℝ) ≤ L + h := by
-      dsimp [n] at hcell
       nlinarith [hcell.2.1]
     have hmul : (h * (n : ℝ)) * L ≤ (L + h) * L :=
       mul_le_mul_of_nonneg_right hstep hL
