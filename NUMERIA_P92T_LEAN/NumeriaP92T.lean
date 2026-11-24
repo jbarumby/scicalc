@@ -226,4 +226,37 @@ theorem ramp_terms_zero_after_support (L h : ℝ) (n j : ℕ)
   have hnonpos : L - (j : ℝ) * h ≤ 0 := by linarith
   exact max_eq_right hnonpos
 
+
+/-- The support switch at L=n*h is continuous: the newly included
+    affine summand has value h*(L-n*h)=0. -/
+theorem rampPoly0_boundary_agree (L h : ℝ) (n : ℕ)
+    (hL : L = (n : ℝ) * h) :
+    rampPoly0 L h n = rampPoly0 L h (n + 1) := by
+  calc
+    rampPoly0 L h n = affineRampSum L h n :=
+      (affineRampSum_closed L h n).symm
+    _ = affineRampSum L h (n + 1) := by
+      change affineRampSum L h n =
+        affineRampSum L h n + h * (L - (n : ℝ) * h)
+      rw [hL]
+      ring
+    _ = rampPoly0 L h (n + 1) := affineRampSum_closed L h (n + 1)
+
+/-- The shifted U₁ polynomial has the same boundary continuity. -/
+theorem rampPoly1_boundary_agree (L h : ℝ) (n : ℕ)
+    (hL : L = (n : ℝ) * h) :
+    rampPoly1 L h n = rampPoly1 L h (n + 1) := by
+  unfold rampPoly1
+  rw [rampPoly0_boundary_agree L h n hL]
+
+/-- The actual positive-part ramp sums also agree at support switches;
+    this equality is independent of the analytic monotonicity issue. -/
+theorem finiteRamp0_boundary_agree (L h : ℝ) (n : ℕ)
+    (hL : L = (n : ℝ) * h) :
+    finiteRamp0 L h n = finiteRamp0 L h (n + 1) := by
+  unfold finiteRamp0
+  rw [Finset.sum_range_succ]
+  rw [hL]
+  simp
+
 end NUMERIA.P92T
