@@ -114,4 +114,31 @@ theorem bellman_for_all_ramps (T w h b : ℝ)
   rw [hshiftHeight, ← fullRamp_shift L b hL hb]
   exact fullRamp_bellman L h b hL hh hb
 
+
+/-- Unconditional Bellman for every FINITE nonnegative mixture of
+    shifted ramps, with arbitrary real support parameters Tᵢ.
+    Infinite positive mixtures still require Tonelli in Lean. -/
+theorem bellman_finite_ramp_mixture
+    {ι : Type*} (S : Finset ι) (T c : ι → ℝ)
+    (hc : ∀ i ∈ S, 0 ≤ c i)
+    (w h b : ℝ) (hh : 0 < h) (hb : 0 < b) :
+    min h b * (∑ i ∈ S, c i * max (T i - w) 0) +
+        (∑ i ∈ S, c i * rampPotential (T i) (w + b) b) ≤
+      ∑ i ∈ S, c i * rampPotential (T i) w h := by
+  calc
+    min h b * (∑ i ∈ S, c i * max (T i - w) 0) +
+        (∑ i ∈ S, c i * rampPotential (T i) (w + b) b) =
+      ∑ i ∈ S, c i *
+        (min h b * max (T i - w) 0 +
+          rampPotential (T i) (w + b) b) := by
+            rw [Finset.mul_sum, ← Finset.sum_add_distrib]
+            apply Finset.sum_congr rfl
+            intro i hi
+            ring
+    _ ≤ ∑ i ∈ S, c i * rampPotential (T i) w h := by
+      apply Finset.sum_le_sum
+      intro i hi
+      exact mul_le_mul_of_nonneg_left
+        (bellman_for_all_ramps (T i) w h b hh hb) (hc i hi)
+
 end NUMERIA.P92T
