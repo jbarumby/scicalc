@@ -50,21 +50,46 @@ e comprova a não negatividade da contribuição atômica. A igualdade para a in
 
 **Porta seguinte:** provar a avaliação efetiva ∫_u^X 2(T-u)/T³dT e demonstrar que as medidas resultantes tornam integráveis os três potenciais de bellman_integral_ramps. Não confundir a igualdade de extremos da primitiva com uma prova formal do Teorema Fundamental do Cálculo.
 
-## 3. Escopo honesto
+## 4. Troca finita integral–soma e suporte uniforme (Lean)
+
+O módulo `FiniteInterchange.lean` demonstra a igualdade de Bochner
+\[
+\int h\sum_{j\in S}(T-w-jh)_+\,d\mu(T)
+=
+h\sum_{j\in S}\int(T-w-jh)_+\,d\mu(T),
+\]
+para todo conjunto finito `S` e sempre que as rampas individuais são integráveis. Não reivindica intercâmbio de série infinita com integral.
+
+Também demonstra que, **para todos os parâmetros de rampa `T≤X`**, um passo `h>0` e
+\[
+j\ge\left\lceil\frac{X-w}{h}\right\rceil
+\]
+implicam \((T-w-jh)_+=0\). O limite é uniforme em `T`; consequentemente, uma mistura concentrada em `T≤X` tem apenas um número finito de parcelas potenciais não nulas para cada `w,h`.
+
+**Importante:** ainda falta demonstrar em Lean que a medida concreta para `f_X` (densidade `2/T³` abaixo de `X` mais o átomo em `X`) satisfaz as hipóteses de integrabilidade e que sua integral contínua tem a primitiva indicada. Sem esses dois resultados, o Lema 5 quantitativo ainda não está formalizado por completo.
+
+### Estado de CI
+
+- [Execução #45309959995](https://github.com/jbarumby/scicalc/actions/runs/45309959995): `IntegralRamp.lean` aceito pelo Lean.
+- [Execução #45310189271](https://github.com/jbarumby/scicalc/actions/runs/45310189271): `TruncatedKernel.lean` aceito pelo Lean.
+- [Execução #45310589835](https://github.com/jbarumby/scicalc/actions/runs/45310589835): todos os seis alvos Lean compilados, incluindo `FiniteInterchange.lean`, e verificação sem `sorry`/`admit` aprovada.
+
+## 5. Escopo honesto
 
 | Resultado | Estado |
 |---|---|
 | Bellman global para rampas individuais | Formalizado P92-T |
 | Bellman para misturas finitas positivas | Formalizado P92-T |
-| Integração positiva de Bellman para medidas arbitrárias **sob integrabilidade explícita** | Objeto da CI P92-U |
-| Extremos algébricos da primitiva e átomo Dirac | Objeto da CI P92-U; o teorema fundamental do cálculo continua pendente |
+| Integração positiva de Bellman para medidas arbitrárias **sob integrabilidade explícita** | **Compilado no Lean — CI #45310589835** |
+| Extremos algébricos da primitiva e átomo Dirac | **Compilado no Lean**; o teorema fundamental do cálculo continua pendente |
+| Troca de somas finitas com integrais e limite uniforme de suporte | **Compilado no Lean — CI #45310589835** |
 | Lema 5 quantitativo para configurações reais arbitrárias no Lean | Pendente |
 | Compensação infinita de dois índices R5→R6 | Pendente |
 | Lema 6 geral no Lean ou Hipótese de Riemann | **Não demonstrados** |
 
-## 4. Build e governança
+## 6. Build e governança
 
-Código: `NUMERIA_P92T_LEAN/IntegralRamp.lean` e `NUMERIA_P92T_LEAN/TruncatedKernel.lean`, incluídos nos alvos obrigatórios da biblioteca Lake. Lean 4.35.0 + Mathlib v4.35.0.
+Código: `NUMERIA_P92T_LEAN/IntegralRamp.lean`, `NUMERIA_P92T_LEAN/TruncatedKernel.lean` e `NUMERIA_P92T_LEAN/FiniteInterchange.lean`, incluídos nos alvos obrigatórios da biblioteca Lake. Lean 4.35.0 + Mathlib v4.35.0.
 
 ```bash
 cd NUMERIA_P92T_LEAN
