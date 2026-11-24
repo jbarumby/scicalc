@@ -1,5 +1,5 @@
 import Mathlib.Tactic
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 
 /-!
 # NUMERIA P92-S — First machine-checked kernel of the P92-R reconstruction
@@ -70,7 +70,7 @@ theorem pathCost_le_of_bellman (f : ℝ → ℝ) (U : ℝ → ℝ → ℝ)
         pathCost f w h (b :: bs) =
             min h b * f w + pathCost f (w + b) b bs := rfl
         _ ≤ min h b * f w + U (w + b) b :=
-          add_le_add_left (ih (w + b) b) _
+          add_le_add_right (ih (w + b) b) _
         _ ≤ U w h := step w h b
 
 /-- Exact algebra that converts a truncated R2 bound into R3.
@@ -88,7 +88,7 @@ theorem boundary_accounting
       (∑ i ∈ S, δ i / z i) =
         (∑ i ∈ S, δ i * (1 / z i - 1 / X)) +
           (∑ i ∈ S, δ i) / X := by
-    rw [← Finset.sum_div, ← Finset.sum_add_distrib]
+    rw [Finset.sum_div, ← Finset.sum_add_distrib]
     apply Finset.sum_congr rfl
     intro i hi
     ring
