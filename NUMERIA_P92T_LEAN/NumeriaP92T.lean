@@ -141,4 +141,89 @@ theorem bellman_ramp_same_cell (L h b : ℝ) (n : ℕ)
       (le_trans hupper (mul_le_mul_of_nonneg_left
         (min_le_left h b) (Nat.cast_nonneg n)))
 
+
+/-- The actual finite positive-part ramp sum. -/
+noncomputable def finiteRamp0 (L h : ℝ) (n : ℕ) : ℝ :=
+  h * ∑ j ∈ Finset.range n, max (L - (j : ℝ) * h) 0
+
+/-- Exact identification of a positive-part ramp sum with an affine sum
+    when all n included summands are nonnegative. -/
+theorem finiteRamp0_eq_affine (L h : ℝ) :
+    ∀ n : ℕ, (∀ j : ℕ, j < n → (j : ℝ) * h ≤ L) →
+      finiteRamp0 L h n = affineRampSum L h n := by
+  intro n
+  induction n with
+  | zero =>
+      intro _
+      simp [finiteRamp0, affineRampSum]
+  | succ n ih =>
+      intro hsupp
+      have hsuppn : ∀ j : ℕ, j < n → (j : ℝ) * h ≤ L := by
+        intro j hj
+        exact hsupp j (Nat.lt_succ_of_lt hj)
+      have hlast : (n : ℝ) * h ≤ L :=
+        hsupp n (Nat.lt_succ_self _)
+      have hmax :
+          max (L - (n : ℝ) * h) 0 = L - (n : ℝ) * h :=
+        max_eq_left (sub_nonneg.mpr hlast)
+      calc
+        finiteRamp0 L h (n + 1) =
+            finiteRamp0 L h n + h * (L - (n : ℝ) * h) := by
+              simp only [finiteRamp0, Finset.sum_range_succ, hmax]
+              ring
+        _ = affineRampSum L h (n + 1) := by
+              rw [ih hsuppn]
+              rfl
+
+/-- The positive-part ramp sum really equals P₀ on its support cell. -/
+theorem finiteRamp0_closed (L h : ℝ) (n : ℕ)
+    (hsupp : ∀ j : ℕ, j < n → (j : ℝ) * h ≤ L) :
+    finiteRamp0 L h n = rampPoly0 L h n :=
+  (finiteRamp0_eq_affine L h n hsupp).trans (affineRampSum_closed L h n)
+
+/-- Support condition follows from the last positive ramp being nonnegative. -/
+theorem ramp_support_of_cell (L h : ℝ) (n : ℕ)
+    (hh : 0 ≤ h)
+    (hlower : ((n : ℝ) - 1) * h ≤ L) :
+    ∀ j : ℕ, j < n → (j : ℝ) * h ≤ L := by
+  intro j hj
+  have hjN : j + 1 ≤ n := Nat.succ_le_iff.mpr hj
+  have hjR : (j : ℝ) + 1 ≤ (n : ℝ) := by exact_mod_cast hjN
+  have hbound : (j : ℝ) ≤ (n : ℝ) - 1 := by linarith
+  exact (mul_le_mul_of_nonneg_right hbound hh).trans hlower
+
+/-- Real Bellman inequality for *actual finite sums of positive-part ramps*,
+    not merely auxiliary polynomials, on every fixed-support cell. -/
+theorem finiteRamp_bellman_same_cell
+    (L h b : ℝ) (n : ℕ)
+    (hn : 1 ≤ n) (hh : 0 ≤ h) (hb : 0 ≤ b)
+    (hlower : ((n : ℝ) - 1) * max h b ≤ L)
+    (hupper : L ≤ (n : ℝ) * min h b) :
+    min h b * L + (finiteRamp0 L b n - b * L) ≤
+      finiteRamp0 L h n := by
+  have hn1 : (0 : ℝ) ≤ (n : ℝ) - 1 := by
+    have hnR : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+    linarith
+  have hlh : ((n : ℝ) - 1) * h ≤ L :=
+    (mul_le_mul_of_nonneg_left (le_max_left h b) hn1).trans hlower
+  have hlb : ((n : ℝ) - 1) * b ≤ L :=
+    (mul_le_mul_of_nonneg_left (le_max_right h b) hn1).trans hlower
+  have hsuph := ramp_support_of_cell L h n hh hlh
+  have hsupb := ramp_support_of_cell L b n hb hlb
+  rw [finiteRamp0_closed L b n hsupb,
+      finiteRamp0_closed L h n hsuph]
+  change min h b * L + rampPoly1 L b n ≤ rampPoly0 L h n
+  exact bellman_ramp_same_cell L h b n hn hlower hupper
+
+/-- All terms beyond the support count vanish, with no hidden convergence
+    assumption. -/
+theorem ramp_terms_zero_after_support (L h : ℝ) (n j : ℕ)
+    (hh : 0 ≤ h) (hupper : L ≤ (n : ℝ) * h) (hnj : n ≤ j) :
+    max (L - (j : ℝ) * h) 0 = 0 := by
+  have hnR : (n : ℝ) ≤ (j : ℝ) := by exact_mod_cast hnj
+  have hmul : (n : ℝ) * h ≤ (j : ℝ) * h :=
+    mul_le_mul_of_nonneg_right hnR hh
+  have hnonpos : L - (j : ℝ) * h ≤ 0 := by linarith
+  exact max_eq_right hnonpos
+
 end NUMERIA.P92T
