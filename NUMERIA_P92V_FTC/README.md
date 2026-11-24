@@ -15,7 +15,7 @@ temos
 F_u'(T)=\frac{2(T-u)}{T^3} \quad(T>0).
 \]
 
-O módulo Lean [TruncatedFTC.lean](../NUMERIA_P92T_LEAN/TruncatedFTC.lean) formaliza a tentativa de demonstrar
+O módulo Lean [TruncatedFTC.lean](../NUMERIA_P92T_LEAN/TruncatedFTC.lean) demonstra e verifica no kernel Lean
 \[
 \boxed{\int_u^X\frac{2(T-u)}{T^3}\,dT
 =F_u(X)-F_u(u)}
@@ -27,6 +27,14 @@ pelo teorema fundamental do cálculo, com integrabilidade decorrente da continui
 \frac1{X^2}\int(T-u)_+\,d\delta_X(T)
 =\frac1u-\frac1X.}
 \]
+
+O arquivo também demonstra a equivalência com a parte positiva
+\[
+\int_u^X\frac{2(T-u)}{T^3}\,dT + X^{-2}\int(T-u)_+\,d\delta_X(T)
+=\left(\frac1u-\frac1X\right)_+
+\quad (0<u\le X),
+\]
+bem como a nulidade de \((1/u-1/X)_+\) para \(u\ge X>0\).
 
 ## O que isso não demonstrará sozinho
 
@@ -42,4 +50,6 @@ A compensação pareada R5→R6 e a transferência das caudas R4 permanecem aber
 
 Lean 4.35.0, Mathlib v4.35.0. O novo módulo está incluído como alvo obrigatório Lake na pasta NUMERIA_P92T_LEAN; workflow: .github/workflows/numeria-p92v-truncated-ftc.yml, sem sorry ou admit.
 
-**Estado do novo código:** em compilação. Só declarar verificado após confirmação de CI do commit. PR draft, sem merge automático.
+**Estado certificado:** [GitHub Actions #45312336677](https://github.com/jbarumby/scicalc/actions/runs/45312336677) — `completed/success` no commit `1a304bec763eca15a9736868e1b842f8eb8fc2ae`. Compilaram os sete alvos Lean obrigatórios; os controles sem `sorry` e `admit` também passaram. Os teoremas principais incluem `truncated_density_FTC`, `truncated_reciprocal_integral_with_atom`, `truncated_reciprocal_as_positive_part` e `truncated_reciprocal_zero_above_cutoff`.
+
+**Próximo gate P92-W:** identificar a medida concreta \(\mu_X\) pelo `withDensity` e pela massa de Dirac, provar a integrabilidade dos três potenciais para \(w,h,b>0\) e então conectar a identidade provada ao teorema `mixedRamp_bellman` da P92-U e ao R2/R3 da P92-S. A PR continua draft, sem merge automático.
