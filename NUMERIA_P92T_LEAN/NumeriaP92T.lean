@@ -288,4 +288,99 @@ theorem bellman_finite_positive_mixture
           exact mul_le_mul_of_nonneg_left
             (hstep i hi w h b) (hc i hi)
 
+
+/-! ## P92-T2: gluing an arbitrary finite number of support cells
+
+In contrast to the same-cell lemmas, this theorem has an arbitrary
+natural-number gap between support counts, i.e. it crosses *any*
+number of ramp-transition thresholds. The proof is by Nat.le_induction
+and an explicit intermediate mesh q=L/m at each transition. -/
+
+/-- Global comparison between *all closed support cells*, when h_small ≤ h_big
+and the active-term counts satisfy n ≤ m. Both U0 and U1 are compared
+simultaneously so that the induction glues their boundary identities. -/
+theorem rampPoly_mono_across_cells (L : ℝ) (n m : ℕ)
+    (hn : 1 ≤ n) (hnm : n ≤ m) :
+    ∀ a b : ℝ, 0 < a → 0 < b → a ≤ b →
+      ((m : ℝ) - 1) * a ≤ L → L ≤ (m : ℝ) * a →
+      ((n : ℝ) - 1) * b ≤ L → L ≤ (n : ℝ) * b →
+      rampPoly0 L a m ≤ rampPoly0 L b n ∧
+        rampPoly1 L b n ≤ rampPoly1 L a m := by
+  induction m, hnm using Nat.le_induction with
+  | base =>
+      intro a b ha hb hab hmal hmau hnbl hnbu
+      exact ⟨rampPoly0_mono_same_cell L a b n hn hab hnbl,
+        rampPoly1_antitone_same_cell L a b n hn hab hmau⟩
+  | succ m hnm ih =>
+      intro a b ha hb hab hmal hmau hnbl hnbu
+      have hm : 1 ≤ m := le_trans hn hnm
+      have hmpos : (0 : ℝ) < (m : ℝ) := by
+        exact_mod_cast (show 0 < m by omega)
+      let q : ℝ := L / (m : ℝ)
+      have hqmul : (m : ℝ) * q = L := by
+        dsimp [q]
+        field_simp [ne_of_gt hmpos]
+      have hsmalleq : (m : ℝ) * a ≤ L := by
+        have hr : (((m + 1 : ℕ) : ℝ) - 1) * a =
+            (m : ℝ) * a := by
+          push_cast
+          ring
+        rw [hr] at hmal
+        exact hmal
+      have haq : a ≤ q := by
+        apply (le_div_iff₀ hmpos).2
+        simpa [mul_comm] using hsmalleq
+      have hnm_real : (n : ℝ) ≤ (m : ℝ) := by
+        exact_mod_cast hnm
+      have hmulb : (n : ℝ) * b ≤ (m : ℝ) * b :=
+        mul_le_mul_of_nonneg_right hnm_real (le_of_lt hb)
+      have hqb : q ≤ b := by
+        apply (div_le_iff₀ hmpos).2
+        simpa [mul_comm] using le_trans hnbu hmulb
+      have hqpos : 0 < q := lt_of_lt_of_le ha haq
+      have hqlower : ((m : ℝ) - 1) * q ≤ L := by
+        nlinarith [hqmul]
+      have hqupper : L ≤ (m : ℝ) * q := le_of_eq hqmul.symm
+      have hcut : (((m + 1 : ℕ) : ℝ) - 1) * q ≤ L := by
+        simp only [Nat.cast_add, Nat.cast_one]
+        nlinarith [hqmul]
+      have hleft0 :
+          rampPoly0 L a (m + 1) ≤ rampPoly0 L q (m + 1) :=
+        rampPoly0_mono_same_cell L a q (m + 1)
+          (by omega) haq hcut
+      have hleft1 :
+          rampPoly1 L q (m + 1) ≤ rampPoly1 L a (m + 1) :=
+        rampPoly1_antitone_same_cell L a q (m + 1)
+          (by omega) haq hmau
+      have hqboundary : L = (m : ℝ) * q := hqmul.symm
+      have hbridge0 := rampPoly0_boundary_agree L q m hqboundary
+      have hbridge1 := rampPoly1_boundary_agree L q m hqboundary
+      obtain ⟨ih0, ih1⟩ :=
+        ih q b hqpos hb hqb hqlower hqupper hnbl hnbu
+      constructor
+      · exact hleft0.trans (hbridge0.symm.le.trans ih0)
+      · exact ih1.trans (hbridge1.le.trans hleft1)
+
+/-- Monotonicity of genuine finite positive-part ramp sums across
+any number of distinct support cells. Here the count ordering n≤m is
+explicit; the next step is to derive this automatically from Nat.ceil. -/
+theorem finiteRamp_mono_across_cells (L a b : ℝ) (n m : ℕ)
+    (hn : 1 ≤ n) (hnm : n ≤ m) (ha : 0 < a) (hb : 0 < b)
+    (hab : a ≤ b)
+    (hmal : ((m : ℝ) - 1) * a ≤ L)
+    (hmau : L ≤ (m : ℝ) * a)
+    (hnbl : ((n : ℝ) - 1) * b ≤ L)
+    (hnbu : L ≤ (n : ℝ) * b) :
+    finiteRamp0 L a m ≤ finiteRamp0 L b n ∧
+      (finiteRamp0 L b n - b * L) ≤
+      (finiteRamp0 L a m - a * L) := by
+  have hsupma := ramp_support_of_cell L a m (le_of_lt ha) hmal
+  have hsupnb := ramp_support_of_cell L b n (le_of_lt hb) hnbl
+  obtain ⟨h0,h1⟩ :=
+    rampPoly_mono_across_cells L n m hn hnm a b
+      ha hb hab hmal hmau hnbl hnbu
+  rw [finiteRamp0_closed L a m hsupma,
+      finiteRamp0_closed L b n hsupnb]
+  exact ⟨h0, h1⟩
+
 end NUMERIA.P92T
