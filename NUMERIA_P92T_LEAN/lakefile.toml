@@ -1,6 +1,6 @@
 name = "numeria_p92t_lean"
 version = "0.1.0"
-defaultTargets = ["NumeriaP92T", "GlobalRamp", "ShiftRamp", "IntegralRamp", "TruncatedKernel", "FiniteInterchange", "TruncatedFTC", "MeasureKernel", "PotentialBound"]
+defaultTargets = ["NumeriaP92T", "GlobalRamp", "ShiftRamp", "IntegralRamp", "TruncatedKernel", "FiniteInterchange", "TruncatedFTC", "MeasureKernel", "PotentialBound", "LocalIntegrability"]
 
 [[lean_lib]]
 name = "NumeriaP92T"
@@ -33,3 +33,6 @@ name = "MeasureKernel"
 
 [[lean_lib]]
 name = "PotentialBound"
+
+[[lean_lib]]
+name = "LocalIntegrability"
