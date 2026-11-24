@@ -32,6 +32,24 @@ O último termo é a contribuição do **átomo de massa `X^{-2}` em `T=X`**. Se
 
 A prova de Bellman para as misturas integrais é um componente; para aplicá-la de verdade a `f_X` ainda é necessário formalizar a identidade integral acima **com seus domínios**, além das condições de integrabilidade da medida `2 T^{-3} \mathbf 1_{(0,X)}dT+X^{-2}\delta_X` quando integrada contra as rampas relevantes.
 
+## 3. Certificado parcial do átomo de fronteira
+
+O módulo adicional TruncatedKernel.lean demonstra no Lean **a identidade algébrica dos extremos da primitiva** da densidade 2(T-u)/T³:
+
+\[
+\left[-\frac2T+\frac u{T^2}\right]_{u}^{X}
++\frac{X-u}{X^2}=\frac1u-\frac1X.
+\]
+
+Ele também formaliza, pelo lema integral_dirac da Mathlib, que
+\[
+\frac1{X^2}\int (T-u)_+\,d\delta_X(T)=\frac{X-u}{X^2}
+\quad(0<u\le X),
+\]
+e comprova a não negatividade da contribuição atômica. A igualdade para a integral da **densidade contínua** ainda não foi formalizada: a identidade da primitiva e a avaliação pelo teorema fundamental do cálculo são obrigações diferentes.
+
+**Porta seguinte:** provar a avaliação efetiva ∫_u^X 2(T-u)/T³dT e demonstrar que as medidas resultantes tornam integráveis os três potenciais de bellman_integral_ramps. Não confundir a igualdade de extremos da primitiva com uma prova formal do Teorema Fundamental do Cálculo.
+
 ## 3. Escopo honesto
 
 | Resultado | Estado |
@@ -39,14 +57,14 @@ A prova de Bellman para as misturas integrais é um componente; para aplicá-la 
 | Bellman global para rampas individuais | Formalizado P92-T |
 | Bellman para misturas finitas positivas | Formalizado P92-T |
 | Integração positiva de Bellman para medidas arbitrárias **sob integrabilidade explícita** | Objeto da CI P92-U |
-| Identidade do núcleo `f_X` com densidade mais átomo | Pendente de formalização integral completa |
+| Extremos algébricos da primitiva e átomo Dirac | Objeto da CI P92-U; o teorema fundamental do cálculo continua pendente |
 | Lema 5 quantitativo para configurações reais arbitrárias no Lean | Pendente |
 | Compensação infinita de dois índices R5→R6 | Pendente |
 | Lema 6 geral no Lean ou Hipótese de Riemann | **Não demonstrados** |
 
 ## 4. Build e governança
 
-Código: `NUMERIA_P92T_LEAN/IntegralRamp.lean`, incluído nos alvos obrigatórios da biblioteca Lake. Lean 4.35.0 + Mathlib v4.35.0.
+Código: `NUMERIA_P92T_LEAN/IntegralRamp.lean` e `NUMERIA_P92T_LEAN/TruncatedKernel.lean`, incluídos nos alvos obrigatórios da biblioteca Lake. Lean 4.35.0 + Mathlib v4.35.0.
 
 ```bash
 cd NUMERIA_P92T_LEAN
