@@ -82,4 +82,29 @@ theorem truncated_reciprocal_integral_with_atom
       NUMERIA.P92U.dirac_ramp_boundary_atom u X hUX hX]
   exact NUMERIA.P92U.reciprocal_trunc_primitive_plus_atom u X hu hX
 
+
+/-- For 0<u≤X, the result is precisely the positive part defining f_X. -/
+theorem truncated_reciprocal_as_positive_part
+    (u X : ℝ) (hu : 0 < u) (hUX : u ≤ X) :
+    (∫ T : ℝ in u..X, 2 * (T - u) / T ^ 3) +
+      (1 / X ^ 2) *
+        (∫ T : ℝ, max (T - u) 0 ∂Measure.dirac X) =
+      max (1 / u - 1 / X) 0 := by
+  have hX : 0 < X := lt_of_lt_of_le hu hUX
+  have hrec : 1 / X ≤ 1 / u := by
+    apply (div_le_div_iff₀ hX hu).2
+    simpa only [one_mul] using hUX
+  rw [truncated_reciprocal_integral_with_atom u X hu hUX]
+  exact (max_eq_left (sub_nonneg.mpr hrec)).symm
+
+/-- The truncated reciprocal vanishes when u lies above the cutoff X. -/
+theorem truncated_reciprocal_zero_above_cutoff
+    (u X : ℝ) (hX : 0 < X) (hXu : X ≤ u) :
+    max (1 / u - 1 / X) 0 = 0 := by
+  have hu : 0 < u := lt_of_lt_of_le hX hXu
+  have hrec : 1 / u ≤ 1 / X := by
+    apply (div_le_div_iff₀ hu hX).2
+    simpa only [one_mul] using hXu
+  exact max_eq_right (sub_nonpos.mpr hrec)
+
 end NUMERIA.P92V
