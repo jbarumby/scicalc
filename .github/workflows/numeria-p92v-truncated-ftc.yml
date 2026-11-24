@@ -1,0 +1,41 @@
+name: NUMERIA P92V Lean FTC truncated density
+on:
+  push:
+    branches:
+      - numeria-p92v-truncated-ftc
+  pull_request:
+    paths:
+      - 'NUMERIA_P92T_LEAN/**'
+      - 'NUMERIA_P92U_INTEGRAL/**'
+      - '.github/workflows/numeria-p92u-lean-integral.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean-integral:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject admits and sorry in all Lean modules
+        run: |
+          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92T_LEAN/*.lean; then
+            echo 'Admission tokens are prohibited'; exit 1
+          fi
+      - name: Install elan and generate Lake manifest
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          cd NUMERIA_P92T_LEAN
+          "$HOME/.elan/bin/lake" update
+      - name: Compile Lean / Mathlib all seven formal modules
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_P92T_LEAN
+          use-mathlib-cache: true
+          use-github-cache: true
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+      - name: Provenance
+        run: sha256sum NUMERIA_P92T_LEAN/*.lean
