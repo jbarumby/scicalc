@@ -42,12 +42,16 @@ theorem fullRamp_shift (L b : ℝ) (hL : 0 ≤ L) (hb : 0 < b) :
   rcases le_total L b with hsmall | hlarge
   · by_cases hz : L = 0
     · subst L
-      simp [fullRamp0, fullRamp1, finiteRamp0]
+      have hmax : max (-b) (0 : ℝ) = 0 :=
+        max_eq_right (neg_nonpos.mpr (le_of_lt hb))
+      simp [fullRamp0, fullRamp1, finiteRamp0, hmax]
     · have hpos : 0 < L := lt_of_le_of_ne hL (Ne.symm hz)
       have hfrac : L / b ≤ 1 := by
         apply (div_le_iff₀ hb).2
         simpa using hsmall
-      have hceil_le : Nat.ceil (L / b) ≤ 1 := (Nat.ceil_le).2 hfrac
+      have hceil_le : Nat.ceil (L / b) ≤ 1 := by
+        apply (Nat.ceil_le).2
+        simpa only [Nat.cast_one] using hfrac
       have hceil_pos : 1 ≤ Nat.ceil (L / b) :=
         (Nat.one_le_ceil_iff).2 (div_pos hpos hb)
       have hceil : Nat.ceil (L / b) = 1 := by omega
