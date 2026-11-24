@@ -1,48 +1,50 @@
-# NUMERIA P92-T — Formalização das rampas de Bellman em Lean 4
+# NUMERIA–RIEMANN P92-T — Bellman global de rampas formalizado em Lean 4
 
-**Base:** [PR #108, P92-S](https://github.com/jbarumby/scicalc/pull/108), sobre [PR #107, P92-R](https://github.com/jbarumby/scicalc/pull/107).
+**Status verificado:** [GitHub Actions #45308852409](https://github.com/jbarumby/scicalc/actions/runs/45308852409) — `success`; Lean 4.35.0, Mathlib v4.35.0; os três módulos obrigatórios compilam sem `sorry` nem `admit`. Branch do [PR #109 (draft)](https://github.com/jbarumby/scicalc/pull/109) baseada na [PR #108, P92-S](https://github.com/jbarumby/scicalc/pull/108).
 
-**Alvo final:** a desigualdade geral de Bellman para a função convexa de rampa
+A P92-T **formaliza universalmente a desigualdade de Bellman para cada rampa convexa** e **para combinações finitas com coeficientes não negativos**. Ela ainda NÃO formaliza R1 para toda função convexa, nem os Lemas 5/6 completos de Preissmann ou a Hipótese de Riemann.
+
+## 1. O novo teorema global
+
+Para `L≥0` e `h>0`, seja
 \[
-f_T(u)=(T-u)_+,\qquad
-\min(h,b)f_T(w)+U_0(w+b,b)\le U_0(w,h),
+n_h=\lceil L/h\rceil,\qquad
+U_0(L,h)=h\sum_{j=0}^{n_h-1}(L-jh)_+,\qquad
+U_1(L,h)=U_0(L,h)-hL.
 \]
-com `U_0(w,h)=h\sum_{j\ge0}f_T(w+jh)`. Isso permitirá eliminar a hipótese analítica `step` do teorema de telescopagem P92-S.
-
-## Monotonicidade e Bellman em cada faixa de suporte fixo
-
-Defina `L=T-w`, e, para um inteiro `n>=1`, as formas fechadas
+O Lean provou, **sem restrição de suporte comum**, que, se `0<a≤b`,
 \[
-P_0(L,h,n)=hnL-\frac{h^2n(n-1)}{2},
-\qquad
-P_1(L,h,n)=P_0(L,h,n)-hL.
+\boxed{U_0(L,a)\le U_0(L,b),\qquad U_1(L,b)\le U_1(L,a).}
 \]
-São exatamente as somas das rampas se `(n-1)h\le L\le nh`. A P92-T formaliza em Lean:
+Em consequência, para todos `L≥0` e `h,b>0`,
+\[
+\boxed{\min(h,b)L+U_1(L,b)\le U_0(L,h).}
+\]
 
-- `affineRampSum_closed`: fórmula fechada da soma afim de `n` termos.
-- `rampPoly0_mono_same_cell`: monotonicidade de `P_0` dentro de uma célula de suporte.
-- `rampPoly1_antitone_same_cell`: antitonicidade de `P_1` dentro da célula.
-- `bellman_ramp_small_step_same_cell`: desigualdade de Bellman no ramo `b<=h` sob suporte comum.
-- `bellman_ramp_large_step_same_cell`: desigualdade de Bellman no ramo `h<=b` sob suporte comum.
-- `bellman_ramp_same_cell`: combinação dos ramos quando `(n-1)max(h,b)<=L<=n min(h,b)`.
+Para a rampa original `f_T(w)=(T-w)_+=\max(T-w,0)`, com `T,w\in\mathbb R`, defina o potencial real
+\[
+U_T(w,h)=U_0((T-w)_+,h).
+\]
+O teorema Lean `bellman_for_all_ramps` prova exatamente:
+\[
+\boxed{\min(h,b)f_T(w)+U_T(w+b,b)\le U_T(w,h),\qquad h,b>0.}
+\]
+A identidade necessária `U_1(L,b)=U_0((L-b)_+,b)` é **também formalizada** em `fullRamp_shift` usando `Nat.ceil_add_one`, inclusive os casos de fronteira.
 
-**Resultados ampliados já compilados no Lean:** o arquivo também formaliza o núcleo real `finiteRamp0` como soma de `max(L-jh,0)` e demonstra `finiteRamp0_eq_affine`, `finiteRamp0_closed`, `ramp_support_of_cell` e `finiteRamp_bellman_same_cell`. Assim, **a identificação entre soma de rampas e polinômio está provada em toda célula de suporte fixo**. Os lemas `ramp_terms_zero_after_support`, `rampPoly0_boundary_agree`, `rampPoly1_boundary_agree` e `finiteRamp0_boundary_agree` comprovam que as parcelas posteriores ao corte são zero e que os dois lados de cada nó `L=nh` concordam exatamente.
+## 2. Como a prova cruza todos os limiares
 
-**Misturas positivas finitas:** `bellman_finite_positive_mixture` prova, por soma de desigualdades, que Bellman é estável sob combinações **finitas** de núcleos já válidos, com coeficientes não negativos. Esse resultado é condicional à desigualdade para cada núcleo componente. Sua compilação está registrada no GitHub Actions.
+A prova não enumera casos racionais nem amostra valores de `h`.
 
-**Atenção ao escopo:** apesar dessas provas sem `sorry` ou `admit`, a **desigualdade global** para passos quaisquer ainda **não está provada no Lean**, pois falta formalizar a colagem de diferentes números de parcelas. A colagem tem demonstração matemática no arquivo `GLUING_RAMPAS.md`, que não substitui um teorema Lean. A integração de misturas positivas arbitrárias por Tonelli e as etapas R5–R6 de séries infinitas também continuam pendentes.
+1. `NumeriaP92T.lean` prova a fórmula polinomial exata da soma real finita, as duas monotonias em cada célula de suporte, a nulidade dos termos posteriores ao suporte e a continuidade em `L=nh`.
+2. `rampPoly_mono_across_cells` e `finiteRamp_mono_across_cells` colam uma quantidade **arbitrária** de células por indução em `m≥n`: cortam em `q=L/m`, passam pelas igualdades de fronteira e usam a hipótese indutiva.
+3. `GlobalRamp.lean` escolhe os suportes exatos `n_h=Nat.ceil(L/h)`, prova as duas desigualdades globais com `Nat.ceil_mono` e obtém `fullRamp_bellman`.
+4. `ShiftRamp.lean` prova `finiteRamp0_shift`, `fullRamp_shift` e `bellman_for_all_ramps` com os argumentos explícitos `(T,w,h,b)`.
+5. `bellman_finite_ramp_mixture` multiplica cada desigualdade por um peso não negativo e soma em qualquer `Finset`. Portanto uma família **finita** de rampas com pesos não negativos também satisfaz Bellman.
 
-## Porta matemática para o próximo avanço
+Todos os enunciados foram compilados em Lean 4.35.0/Mathlib v4.35.0. O workflow `.github/workflows/numeria-p92t-lean-bellman.yml` rejeita `sorry`/`admit` em **todos os três módulos** e exige `lake build` dos três alvos.
 
-1. Definir `U_0(L,h)` via soma finita `Finset.range (Nat.ceil (L/h))`, com o suporte exato.
-2. Usar o suporte exato `n=ceil(L/h)` para passar dos lemas por célula ao potencial global; a igualdade nos nós já foi formalizada.
-3. Colar as desigualdades de células sucessivas; como há apenas um número finito de nós entre dois passos positivos `h<=b`, concluir monotonicidade global.
-4. Integrar misturas positivas de rampas: prova para `f_X`, para `u^{-2}` e para o núcleo `phi_h`; eliminar os parâmetros condicionais da P92-S.
-5. Formalizar convergência pareada R5→R6.
+## 3. Como reproduzir
 
-## Reprodução
-
-Da raiz:
 ```bash
 cd NUMERIA_P92T_LEAN
 lake update
@@ -50,6 +52,22 @@ lake exe cache get
 lake build
 ```
 
-A CI `.github/workflows/numeria-p92t-lean-bellman.yml` compila em Lean 4.35.0 / Mathlib v4.35.0, sem `sorry` ou `admit`.
+Fontes:
 
-**Escopo:** formalização parcial das rampas; a P92-R ainda não é uma prova Lean completa dos Lemas 5/6 de Preissmann. A Hipótese de Riemann permanece em aberto. Manter PR draft sem merge automático.
+- [NumeriaP92T.lean](NumeriaP92T.lean) — células, continuidade e colagem finita arbitrária;
+- [GlobalRamp.lean](GlobalRamp.lean) — suporte `Nat.ceil` e Bellman global;
+- [ShiftRamp.lean](ShiftRamp.lean) — potencial deslocado e misturas finitas;
+- [GLUING_RAMPAS.md](GLUING_RAMPAS.md) — reconstrução matemática em papel, originalmente escrita antes da colagem global verificada.
+
+## 4. Pendências científicas e próximo gate P92-U
+
+O resultado da P92-T **não** basta para remover o parâmetro de Bellman abstrato de todos os teoremas da P92-S, porque as funções `u^{-2}`, `f_X(u)=(1/u-1/X)_+` e `φ_H(u)=1/[u²(u+H)²]` são **misturas integrais**, não combinações finitas de rampas.
+
+Próximas obrigações, em ordem:
+
+1. Formalizar a extensão de `bellman_for_all_ramps` a integrais de rampas com medidas positivas (Tonelli e domínio de integrabilidade). Incluir a **massa atômica `X^{-2}` em `T=X`** para `f_X`.
+2. Especializar o Bellman integral a `f_X` e `u^{-2}` e conectar diretamente os teoremas `pathCost_le_of_bellman` e `boundary_accounting` da P92-S, eliminando as premissas agora demonstráveis.
+3. Formalizar a comparação R4 das caudas reais e o limite pareado absolutamente convergente R5→R6; **não** tratar as duas somas assinadas individuais como convergentes.
+4. Somente então compor o Lema 6 afiado R7 no Lean, confrontando ainda as convenções com o artigo original de Preissmann.
+
+**Governança:** PR #109 permanece em rascunho, sem merge automático. Os Lemas 5/6 gerais são resultados publicados de Preissmann, mas a reconstrução NUMERIA em Lean ainda é **parcial**. Não há prova da Hipótese de Riemann.
