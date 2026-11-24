@@ -18,7 +18,8 @@ open MeasureTheory
 theorem measurable_truncatedDensity (X : ℝ) :
     Measurable (truncatedDensity X) := by
   unfold truncatedDensity
-  fun_prop
+  apply Measurable.ennreal_ofReal
+  exact Measurable.ite (by measurability) (by fun_prop) measurable_const
 
 theorem reciprocalMeasure_ae_le_cutoff (X : ℝ) :
     ∀ᵐ T : ℝ ∂reciprocalMeasure X, T ≤ X := by
