@@ -1,0 +1,41 @@
+name: NUMERIA P92W concrete measure and potential integrability
+on:
+  push:
+    branches:
+      - numeria-p92w-measure-integrability
+  pull_request:
+    paths:
+      - 'NUMERIA_P92T_LEAN/**'
+      - 'NUMERIA_P92W_MEASURE/**'
+      - '.github/workflows/numeria-p92w-measure.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean-measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject sorry and admit
+        run: |
+          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92T_LEAN/*.lean; then
+            echo 'sorry/admit prohibited'; exit 1
+          fi
+      - name: Install elan and resolve Lake manifest
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          cd NUMERIA_P92T_LEAN
+          "$HOME/.elan/bin/lake" update
+      - name: Kernel-compile all Lake targets with Mathlib
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_P92T_LEAN
+          use-mathlib-cache: true
+          use-github-cache: true
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+      - name: SHA256 of proof sources
+        run: sha256sum NUMERIA_P92T_LEAN/*.lean
