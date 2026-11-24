@@ -24,7 +24,7 @@ open MeasureTheory NUMERIA.P92T
 /-- A precise local-mass-to-integrability implication. -/
 theorem rampPotential_integrable_of_local_tail
     (μ : Measure ℝ) (X w h : ℝ) (hh : 0 < h)
-    (hfinite : μ (Set.Ioi w) < ∞)
+    (hfinite : μ (Set.Ioi w) < ⊤)
     (hmeas : AEStronglyMeasurable (fun T : ℝ =>
       rampPotential T w h) μ)
     (hcut : ∀ᵐ T : ℝ ∂(μ.restrict (Set.Ioi w)), T ≤ X) :
