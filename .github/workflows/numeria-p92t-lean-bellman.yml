@@ -1,0 +1,40 @@
+name: NUMERIA P92T Lean Bellman ramp monotonicity
+on:
+  push:
+    branches:
+      - numeria-p92t-lean-bellman-ramps
+  pull_request:
+    paths:
+      - 'NUMERIA_P92T_LEAN/**'
+      - '.github/workflows/numeria-p92t-lean-bellman.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lean-bellman:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject sorry and admit
+        run: |
+          if grep -nE '(^|[^a-zA-Z])(sorry|admit)([^a-zA-Z]|$)' NUMERIA_P92T_LEAN/*.lean; then
+            echo "No sorry or admit permitted"; exit 1
+          fi
+      - name: Install elan and generate Lake manifest
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          cd NUMERIA_P92T_LEAN
+          "$HOME/.elan/bin/lake" update
+      - name: Compile Lean source against Mathlib
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: NUMERIA_P92T_LEAN
+          use-mathlib-cache: true
+          use-github-cache: true
+          auto-config: false
+          build: true
+          test: false
+          lint: false
+      - name: Record source SHA256
+        run: sha256sum NUMERIA_P92T_LEAN/*.lean

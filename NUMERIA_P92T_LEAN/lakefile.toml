@@ -1,0 +1,17 @@
+name = "numeria_p92t_lean"
+version = "0.1.0"
+defaultTargets = ["NumeriaP92T", "GlobalRamp", "ShiftRamp"]
+
+[[lean_lib]]
+name = "NumeriaP92T"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0"
+
+[[lean_lib]]
+name = "GlobalRamp"
+
+[[lean_lib]]
+name = "ShiftRamp"
