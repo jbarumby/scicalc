@@ -1,0 +1,4 @@
+0 full [(1, True, 1), (2, True, 2), (3, True, 3), (4, True, 4), (5, True, 5), (6, True, 6), (7, True, 7), (8, True, 8)]
+0 localized [(1, True, 1), (2, True, 2), (3, True, 3), (4, False, 3), (5, False, 3), (6, False, 3), (7, False, 3), (8, False, 3)]
+1 full [(1, True, 1), (2, True, 2), (3, True, 3), (4, True, 4), (5, True, 5), (6, True, 6), (7, True, 7), (8, True, 8)]
+1 localized [(1, True, 1), (2, True, 2), (3, True, 3), (4, False, 3), (5, False, 3), (6, False, 3), (7, False, 3), (8, False, 3)]
