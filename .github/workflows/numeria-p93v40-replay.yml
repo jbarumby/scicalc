@@ -47,4 +47,4 @@ jobs:
           cmp NUMERIA_P93V40/transfer.json "$RUNNER_TEMP/transfer.json"
       - name: Reassemble the finite heads without using the archived entries
         run: |
-          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json
+          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json

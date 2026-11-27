@@ -4,7 +4,16 @@ A V.40 importa os arquivos da V.39 sem alterar seus bytes. O ZIP recebido tem SH
 
 ## Resultados executados
 
-A montagem física por bandas certificou **12, 25 e 50 modos por paridade**, com deslocamento de $10^{-60}$. Para 50 modos, a LDL direta ficou inconclusiva, e a congruência triangular verificou ambos os setores. Os cinco valores de $\theta$ têm a mesma compressão até 600 modos. As dimensões acima da maior cabeça certificada continuam em aberto. [Prefixos em Arb](prefix_replay_50.json)
+A montagem física certificou os prefixos pedidos de **25 e 50 modos por paridade**, com deslocamento $h=10^{-60}$. A rodada de 100 modos, com GL140 e 768 bits, reaproveitou a mesma montagem para provar **65 modos pares e 75 ímpares**.
+
+Na dimensão seguinte de cada setor, a rodada verificou vetores diádicos com quociente de Rayleigh nos recintos abaixo. Os recintos decimais da tabela foram arredondados para fora a partir do JSON.
+
+| Setor | Último prefixo provado nesta rodada | Suporte do vetor | Quociente de Rayleigh da cabeça sem deslocamento |
+| --- | ---: | ---: | ---: |
+| Par | 65 | 66 | $(6{,}55608,\ 6{,}55610)\cdot10^{-61}$ |
+| Ímpar | 75 | 76 | $(7{,}74850,\ 7{,}74852)\cdot10^{-61}$ |
+
+Esses intervalos ficam inteiramente entre zero e $h$. Logo a desigualdade pedida com $hI$ falha em todas as cabeças maiores que contêm esses vetores, incluindo os tamanhos 100 a 3309. As cinco variantes harmônicas têm a mesma forma nesses vetores porque seu suporte fica nos primeiros 600 modos. Esse teste resolve o sinal da forma deslocada na direção testemunha. A positividade da matriz sem deslocamento em todas as direções maiores permanece em aberto. [Certificado dos 100 modos e testemunhas](prefix_replay_100.json)
 
 Os programas originais reproduziram os seis JSONs das matrizes e dos resultados dos dois perfis de 12 modos, com os SHA-256 do manifesto. Com Binet, as duas paridades fecharam os 12 pivôs históricos. O ensaio anterior, sem Binet, parou no décimo segundo pivô ímpar. O auditor usa uma cópia temporária e mantém os certificados originais. A montagem da V.40 calcula diretamente uma forma espectral de cabeça em base ortonormal. Ela é diferente da forma suficiente por momentos usada para o replay histórico. [Replay dos 12 modos](historical_replay.json)
 
@@ -59,7 +68,7 @@ python -m NUMERIA_P93V40.historical_replay --verify NUMERIA_P93V40/historical_re
 python -O -m NUMERIA_P93V40.spectral_replay --verify NUMERIA_P93V40/spectral_replay.json
 python -m NUMERIA_P93V40.digamma_binet --precision 256
 python -m NUMERIA_P93V40.transfer
-python -m NUMERIA_P93V40.prefix --out /tmp/v40-head.json --modes 50 --bits 384
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json
 ```
 
 A certificação é para a forma finita especificada. Ela deixa em aberto o cruzamento completo e a Hipótese de Riemann global.
