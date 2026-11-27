@@ -15,6 +15,8 @@ Na dimensão seguinte de cada setor, a rodada verificou vetores diádicos com qu
 
 Esses intervalos ficam inteiramente entre zero e $h$. Logo a desigualdade pedida com $hI$ falha em todas as cabeças maiores que contêm esses vetores, incluindo os tamanhos 100 a 3309. As cinco variantes harmônicas têm a mesma forma nesses vetores porque seu suporte fica nos primeiros 600 modos. Esse teste resolve o sinal da forma deslocada na direção testemunha. A positividade da matriz sem deslocamento em todas as direções maiores permanece em aberto. [Certificado dos 100 modos e testemunhas](prefix_replay_100.json)
 
+Uma segunda avaliação por Wronskians recompõe $v^\top Bv$ para cada testemunha. Somando-a ao recorte anterior, os quocientes da cabeça sem penalidade $A_0$ são menores que $6{,}5610\cdot10^{-61}$ e $7{,}7571\cdot10^{-61}$, respectivamente. Assim, reduzir ou redistribuir apenas uma penalidade positiva não recupera $h=10^{-60}$. Com a margem tentativa $10^{-64}$, a transferência ainda teria saldo para a largura do ZIP, e a cota 18 exige 3316, 3317, 3318, 3318 e 3320 modos na ordem dos cinco $\theta$. A positividade dessas cabeças com margem menor continua como condição. [Origem da obstrução](obstruction_origin.json) · [Orçamento com margem menor](transfer_relaxed.json)
+
 Os programas originais reproduziram os seis JSONs das matrizes e dos resultados dos dois perfis de 12 modos, com os SHA-256 do manifesto. Com Binet, as duas paridades fecharam os 12 pivôs históricos. O ensaio anterior, sem Binet, parou no décimo segundo pivô ímpar. O auditor usa uma cópia temporária e mantém os certificados originais. A montagem da V.40 calcula diretamente uma forma espectral de cabeça em base ortonormal. Ela é diferente da forma suficiente por momentos usada para o replay histórico. [Replay dos 12 modos](historical_replay.json)
 
 ## Déficit espectral e Binet
@@ -24,6 +26,8 @@ Para $\beta=2$ e $T=4500$, [o certificado espectral](spectral_replay.json) valid
 Em Binet, $|\Im(1/4+it/2)^2|=|t|/4$ e $\int_0^\infty u/(e^{2\pi u}-1)\,du=1/24$. Assim, o módulo da correção integral da digama é no máximo $1/(3|t|)$. A soma das amplitudes primas é menor que $9{,}944$, o que confirma a cota histórica $\Psi_9(t)-2<\log|t|+8$. Separar a integral em $u\le |t|/4$ e sua cauda também permite $\log|t|+6{,}1059$. O teste de Schur recompõe exatamente os multiplicadores $2$ para 1.110 componentes e $14$ para 120 componentes. A reserva localizada é **$0{,}118376416138\ldots$**. [Auditoria Binet e reserva](binet_replay.json) · [DLMF, fórmula de Binet](https://dlmf.nist.gov/5.9.E15)
 
 ## Montagem, sinais e controle dos erros
+
+As duas penalidades adaptativas completas, de ordem 600, foram montadas a 384 bits, com os multiplicadores e todos os termos de Wronskian. O maior raio de entrada após a montagem fica abaixo de $1{,}722\cdot10^{-102}$ em ambas as paridades. O certificado registra SHA-256 da sequência canônica de extremos diádicos de cada triângulo inferior. Ele verifica a reconstrução de $B$ e suas cotas de arredondamento. A positividade de $B$ decorre da representação como soma ponderada de Gram. [Replay das duas penalidades](penalty_replay_600.json)
 
 Para $\phi_n(x)=\sqrt{(2n+1)/(2a)}P_n(x/a)$, a transformada é $i^n\sqrt{2a(2n+1)}j_n(at)$. Para dois modos de mesma paridade, o produto carrega a fase real $(-1)^{(n-m)/2}$. A cabeça $A_0$ integra o símbolo $\Psi_9-\beta$ na faixa $[0,T]$, adiciona $\beta I$ e conserva o termo dos polos $2(-1)^p vv^\top$. A concentração $G_T$ e as bandas da penalidade $B$ usam primitivas de Bessel. Se $n\ne m$,
 
@@ -68,7 +72,10 @@ python -m NUMERIA_P93V40.historical_replay --verify NUMERIA_P93V40/historical_re
 python -O -m NUMERIA_P93V40.spectral_replay --verify NUMERIA_P93V40/spectral_replay.json
 python -m NUMERIA_P93V40.digamma_binet --precision 256
 python -m NUMERIA_P93V40.transfer
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json
+python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
+python -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
 ```
 
 A certificação é para a forma finita especificada. Ela deixa em aberto o cruzamento completo e a Hipótese de Riemann global.

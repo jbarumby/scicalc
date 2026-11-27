@@ -26,9 +26,14 @@ def _head_digest(matrix):
     return digest.hexdigest()
 
 
-def run(modes=25, bits=384):
+def run(modes=25, bits=384, margin=MARGIN):
     if type(modes) is not int or modes < 1 or type(bits) is not int or bits < 256:
         raise ValueError("require positive integral modes and at least 256 bits")
+    if isinstance(margin, (float, bool)):
+        raise ValueError("use an exact nonnegative margin")
+    margin = Fraction(margin)
+    if margin < 0:
+        raise ValueError("use an exact nonnegative margin")
     constants = json.loads((ARCHIVE / "hybrid39.json").read_text(encoding="utf-8"))
     c, d, lam = (constants[key] for key in ("c", "d", "lambda"))
     sizes = sorted({modes, *(n for n in CHECKPOINTS if n <= modes)})
@@ -41,8 +46,8 @@ def run(modes=25, bits=384):
                 cap = Fraction(c)
                 for i in range(LOCALIZATION, modes):
                     head[i,i] -= arb(cap.numerator) / cap.denominator
-            ldl = certify_prefixes(head, sizes, MARGIN)
-            fallback = None if ldl["certified"] else certify_by_congruence(head, sizes, MARGIN)
+            ldl = certify_prefixes(head, sizes, margin)
+            fallback = None if ldl["certified"] else certify_by_congruence(head, sizes, margin)
             covered = {item["size"] for item in ldl["prefixes"] if item["status"] == "certified"}
             if fallback:
                 covered.update(item["size"] for item in fallback["prefixes"] if item["certified"])
@@ -56,7 +61,7 @@ def run(modes=25, bits=384):
                 g = sector["g"]
                 hq = arb_mat([[int(i==j)-g[i,j] for j in range(LOCALIZATION, modes)]
                               for i in range(LOCALIZATION, modes)])
-                data = certify_hybrid(sector["a0"], sector["b"], hq, c, d, lam, MARGIN)
+                data = certify_hybrid(sector["a0"], sector["b"], hq, c, d, lam, margin)
                 hybrids = []
                 for item in data["results"]:
                     theta = item["theta_exact"]
@@ -64,7 +69,7 @@ def run(modes=25, bits=384):
                     congruence = None
                     if not passed and theta != "0":
                         weighted = assemble_congruence(sector["a0"], sector["b"], hq,
-                                                       c, d, lam, theta, MARGIN)
+                                                       c, d, lam, theta, margin)
                         congruence = certify_by_congruence(weighted, [modes], 0)
                         passed = congruence["status"] == "certified"
                     hybrids.append({
@@ -99,18 +104,20 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--modes", type=int, default=25)
     parser.add_argument("--bits", type=int, default=384)
+    parser.add_argument("--margin", type=Fraction, default=MARGIN)
     io = parser.add_mutually_exclusive_group(required=True)
     io.add_argument("--out", type=Path)
     io.add_argument("--verify", type=Path)
     args = parser.parse_args()
     if args.verify is not None:
         previous = json.loads(args.verify.read_text())
-        result = run(previous["modes_assembled_per_parity"], previous["working_precision_bits"])
+        result = run(previous["modes_assembled_per_parity"], previous["working_precision_bits"],
+                     previous["sectors"][0]["margin_exact"])
         if json.dumps(result, sort_keys=True) != json.dumps(previous, sort_keys=True):
             raise ValueError("prefix certificate differs from rigorous replay")
         print(f"Verified {args.verify}")
     else:
-        result = run(args.modes, args.bits)
+        result = run(args.modes, args.bits, args.margin)
         args.out.write_text(json.dumps(result, indent=2)+"\n")
         print([(r["parity"], r["verified_positive_prefixes"]) for r in result["sectors"]])
 

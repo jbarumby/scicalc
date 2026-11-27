@@ -2,6 +2,7 @@
 
 from fractions import Fraction
 from functools import lru_cache
+import argparse
 import json
 from math import factorial
 from pathlib import Path
@@ -15,7 +16,6 @@ BETA = 2
 RHO = Fraction(33, 25)
 WIDTH_CAP = Fraction(1387, 1000)
 H = Fraction(1, 10**60)
-TARGET = Fraction(9, 10) * H
 THETAS = tuple(Fraction(j, 4) for j in range(5))
 PRIMES = ((2, 2), (3, 3), (4, 2), (5, 5), (7, 7), (8, 2), (9, 3), (11, 11), (13, 13))
 
@@ -52,7 +52,11 @@ def pole_audit(n):
     return Fraction(48, factorial_n), Fraction(72, factorial_n**2)
 
 
-def certify_transfer():
+def certify_transfer(head_margin=H):
+    head_margin = Fraction(head_margin)
+    if head_margin <= 0:
+        raise ValueError("the head margin must be positive")
+    target = Fraction(9, 10) * head_margin
     with ctx.workprec(512):
         historical = json.loads((PACKAGE / "hybrid39.json").read_text())
         c, d, lam = (ball(historical[key]) for key in ("c", "d", "lambda"))
@@ -74,7 +78,7 @@ def certify_transfer():
         if not bfloor - mass > BETA + 1:
             raise ArithmeticError("far spectral reserve did not close")
         loss = (omega * delta / 6).upper()
-        transferred_margin = (ball(TARGET) - loss).lower()
+        transferred_margin = (ball(target) - loss).lower()
         if not transferred_margin > 0:
             raise ArithmeticError("the conditional crossing margin is exhausted")
 
@@ -89,9 +93,9 @@ def certify_transfer():
             pole_cross, pole_tail = map(ball, pole_audit(n))
             mixing = spectral_cap + ball(theta) * d / (1 - lam)
             reserve = (BETA - (1-ball(theta))*c - ball(theta)*f1
-                       - spectral_cap*gg - pole_tail - ball(TARGET))
+                       - spectral_cap*gg - pole_tail - ball(target))
             cross_square = 2 * mixing**2 * gg + 2 * pole_cross**2
-            slack = (ball(H - TARGET)*reserve - cross_square).lower()
+            slack = (ball(head_margin - target)*reserve - cross_square).lower()
             return bool(slack > 0 and reserve > 0), gg, reserve.lower(), slack
 
         reports = []
@@ -121,7 +125,7 @@ def certify_transfer():
             "conditional_on_complete_heads_and_spectral_majorant": True,
             "width_exact": str(width),
             "rho_exact": str(RHO),
-            "head_target_exact": str(H),
+            "head_target_exact": str(head_margin),
             "delta_lower_dyadic": dyadic(delta.lower()),
             "delta_upper_dyadic": dyadic(delta.upper()),
             "far_symbol_lower_dyadic": dyadic((bfloor-mass).lower()),
@@ -133,4 +137,6 @@ def certify_transfer():
 
 
 if __name__ == "__main__":
-    print(json.dumps(certify_transfer(), indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--margin", default=str(H))
+    print(json.dumps(certify_transfer(parser.parse_args().margin), indent=2))

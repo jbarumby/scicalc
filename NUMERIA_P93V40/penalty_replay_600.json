@@ -1,0 +1,35 @@
+{
+  "schema": "NUMERIA.P93V40.PENALTY.1",
+  "width_exact": "69314718055994530941723212145817656807550013436025525412068000949339362197/50000000000000000000000000000000000000000000000000000000000000000000000000",
+  "modes": 600,
+  "working_precision_bits": 384,
+  "signed_endpoints": 11060,
+  "component_count": 1230,
+  "bands": 9833,
+  "sectors": [
+    {
+      "parity": 0,
+      "ordered_lower_triangle_sha256": "2428c241a0fb1188ab9899a9511211b46e01ee10e3c8ffd742ac1bbfce3d838d",
+      "minimum_diagonal_lower_dyadic": [
+        "15457166826060876967064982284951279349582107910251885741710899701079864852796419309800054444068824400254826270025795",
+        -400
+      ],
+      "entry_radius_upper_dyadic": [
+        "129345901",
+        -365
+      ]
+    },
+    {
+      "parity": 1,
+      "ordered_lower_triangle_sha256": "dda9fd5d5ba2aaa6075805a527e97ef7ce753c2a60db2f38495842cbfa80d49a",
+      "minimum_diagonal_lower_dyadic": [
+        "5421329617766677745750957401288130652213974351171946830112453733188997536945116070493325486781321450118702249278941",
+        -396
+      ],
+      "entry_radius_upper_dyadic": [
+        "1034417199",
+        -368
+      ]
+    }
+  ]
+}

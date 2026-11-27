@@ -45,6 +45,24 @@ jobs:
           cmp NUMERIA_P93V40/binet_replay.json "$RUNNER_TEMP/binet.json"
           python -m NUMERIA_P93V40.transfer > "$RUNNER_TEMP/transfer.json"
           cmp NUMERIA_P93V40/transfer.json "$RUNNER_TEMP/transfer.json"
+          python -m NUMERIA_P93V40.transfer --margin 1e-64 > "$RUNNER_TEMP/transfer-relaxed.json"
+          cmp NUMERIA_P93V40/transfer_relaxed.json "$RUNNER_TEMP/transfer-relaxed.json"
       - name: Reassemble the finite heads without using the archived entries
         run: |
+          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json
           python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json
+          python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
+  penalty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Reconstruct the two full adaptive penalties
+        run: python -O -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
