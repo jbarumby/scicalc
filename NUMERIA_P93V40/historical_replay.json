@@ -1,0 +1,50 @@
+{
+  "schema": "NUMERIA.P93V40.HISTORICAL_V39_REPLAY.1",
+  "manifest_sha256": "3bbd1adcc85c217ddae346143f7ba44c6a77eb08c2a6ae417b85630fd41472cb",
+  "manifest_entries": 35,
+  "width_exact": "69314718055994530941723212145817656807550013436025525412068000949339362197/50000000000000000000000000000000000000000000000000000000000000000000000000",
+  "schur_and_congruence_replay_match": true,
+  "schur_exact_replay_sha256": "520bae1e62dbf53e1c7902d399800b3e1fda3ffc1f5dc92c53032dceeea410bb",
+  "adaptive": {
+    "adaptive": {
+      "bytes_match": true,
+      "hashes": {
+        "matrices_adaptive_12_p0.json": "3f5fd909483c05de9af8acebd8336e33b4044f5cc6104b237be9aec8b8326895",
+        "matrices_adaptive_12_p1.json": "17880c42aada2098eddc43084d4d827bacec04dc3e1d0fad0b50f758278df8a1",
+        "moments_adaptive_12.json": "934b45748252d7df34c8df0d554af165458ff25b9732be887fa7944342833755"
+      },
+      "parities": [
+        {
+          "p": 0,
+          "positive": true,
+          "pivots": 12
+        },
+        {
+          "p": 1,
+          "positive": false,
+          "pivots": 11
+        }
+      ]
+    },
+    "adaptive_binet": {
+      "bytes_match": true,
+      "hashes": {
+        "matrices_adaptive_binet_12_p0.json": "c3e31e028a5e62a4c5aec94f3e848f784d05071e106c8829769ebe899ec3ba6d",
+        "matrices_adaptive_binet_12_p1.json": "c97519f8651c73fa825e54ea2b60e71cbaf036412f29856ad1d0f87074c3a060",
+        "moments_adaptive_binet_12.json": "73f92c94494f47c9333142daa6bacdb6a8d381e9c5b2a249a6495a4db4390307"
+      },
+      "parities": [
+        {
+          "p": 0,
+          "positive": true,
+          "pivots": 12
+        },
+        {
+          "p": 1,
+          "positive": true,
+          "pivots": 12
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+name: NUMERIA P93-V.40 directed replay
+
+on:
+  push:
+    branches: [numeria-p93v40-prime16-arb]
+    paths:
+      - "NUMERIA_P93V39/**"
+      - "NUMERIA_P93V40/**"
+      - ".github/workflows/numeria-p93v40-replay.yml"
+  pull_request:
+    paths:
+      - "NUMERIA_P93V39/**"
+      - "NUMERIA_P93V40/**"
+      - ".github/workflows/numeria-p93v40-replay.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Check manifests and test both Python modes
+        run: |
+          (cd NUMERIA_P93V39 && sha256sum -c SHA256SUMS.txt)
+          sha256sum -c NUMERIA_P93V40/SHA256SUMS
+          python -m unittest discover -s NUMERIA_P93V40 -t . -v
+          python -O -m unittest discover -s NUMERIA_P93V40 -t . -v
+      - name: Replay historical, spectral and transfer certificates
+        run: |
+          python -m NUMERIA_P93V40.historical_replay --verify NUMERIA_P93V40/historical_replay.json
+          python -O -m NUMERIA_P93V40.spectral_replay --verify NUMERIA_P93V40/spectral_replay.json
+          python -m NUMERIA_P93V40.digamma_binet --precision 256 --out "$RUNNER_TEMP/binet.json"
+          cmp NUMERIA_P93V40/binet_replay.json "$RUNNER_TEMP/binet.json"
+          python -m NUMERIA_P93V40.transfer > "$RUNNER_TEMP/transfer.json"
+          cmp NUMERIA_P93V40/transfer.json "$RUNNER_TEMP/transfer.json"
+      - name: Reassemble the finite heads without using the archived entries
+        run: |
+          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json

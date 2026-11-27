@@ -1,0 +1,58 @@
+{
+  "schema": "NUMERIA.P93V40.NINE_TERM_DEFICIT_REPLAY.1",
+  "source_sha256": "2c9111dfbe2c77d2d3775c9d4187e658a6c784b3e416c417b3c59dd907dfb8cc",
+  "precision_bits": 128,
+  "start": 4500,
+  "stop": 1000000,
+  "status": "certified",
+  "scope_has_no_gap_above_4500": true,
+  "ordered_leaf_partition_sha256": "c9d47b2ef3a19b892a9006f3e1801b0bfabb55e29c20de4a6f9042f381829940",
+  "listed_cells_attempted": 9833,
+  "omitted_chunks_attempted": 498085,
+  "listed_accepted_leaves": 9833,
+  "omitted_accepted_leaves": 681817,
+  "subdivisions": 183732,
+  "minimum_listed": {
+    "margin_lower_dyadic": [
+      "10745441438577671295432439055774690143",
+      -132
+    ],
+    "cell": [
+      [
+        229256970240,
+        262144
+      ],
+      [
+        229256986624,
+        262144
+      ]
+    ],
+    "cap_micro": 23023
+  },
+  "minimum_omitted": {
+    "margin_lower_dyadic": [
+      "44752957216512405069814833097022140193",
+      -151
+    ],
+    "cell": [
+      [
+        52364787712,
+        262144
+      ],
+      [
+        52365312000,
+        262144
+      ]
+    ],
+    "cap_micro": 0
+  },
+  "first_unresolved": null,
+  "total_amplitude_upper_dyadic": [
+    "105740286939538187832468013989163825177",
+    -123
+  ],
+  "binet_tail_floor_margin_lower_dyadic": [
+    "184376939368742956903061594654448031883",
+    -132
+  ]
+}
