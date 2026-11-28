@@ -1,0 +1,43 @@
+name: NUMERIA fixed directional 400 then 600
+on:
+  push:
+    branches: [numeria-p93v42-directional-400]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  directed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Verify historical inputs
+        run: |
+          (cd NUMERIA_P93V39 && sha256sum -c SHA256SUMS.txt)
+          sha256sum -c NUMERIA_P93V40/SHA256SUMS
+          python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_complement.json
+          python -m NUMERIA_P93V42_DIRECTIONAL.extend --self-test
+          python -O -m NUMERIA_P93V42_DIRECTIONAL.extend --self-test
+      - name: Assemble and certify 400 modes, fixed infinite cutoff
+        run: |
+          mkdir -p directional-results
+          python -O -m NUMERIA_P93V42_DIRECTIONAL.extend --modes 400 --split 200 --bits 768 --out directional-results/400.json
+      - name: Extend to 600 only on both positive sectors
+        run: |
+          if python -c 'import json,sys; sys.exit(not json.load(open("directional-results/400.json"))["certified"])'; then
+            python -O -m NUMERIA_P93V42_DIRECTIONAL.extend --modes 600 --split 400 --bits 768 --out directional-results/600.json
+          else
+            echo "400 not certified; 600 not attempted"
+          fi
+      - name: Publish directional evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: directional-results
+          path: directional-results/
