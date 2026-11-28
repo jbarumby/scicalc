@@ -26,6 +26,26 @@ def _ball(value):
     return arb(value.numerator) / value.denominator
 
 
+def prime16_majorant(modes, parity):
+    """Dominate the border term on a finite, parity-preserving Legendre span."""
+    a = _ball(WIDTH)
+    delta = 2 * a - arb(16).log()
+    if not (delta > 0 and 2 * a < arb(17).log()):
+        raise ArithmeticError("the width must cross only the threshold at 16")
+    kappa = arb(2).log() / 4
+    orders = range(parity, 2 * modes, 2)
+    endpoints = [((2 * n + 1) / (2 * a)).sqrt() for n in orders]
+    derivative_square = sum((n**4 * (2 * n + 1) for n in orders), 0) / (2 * a**3)
+    rank_one = 4 * kappa * delta
+    diagonal = 4 * kappa * delta**3 * derivative_square
+    result = arb_mat(modes, modes)
+    for i, x in enumerate(endpoints):
+        for j in range(i + 1):
+            entry = rank_one * x * endpoints[j] + (diagonal if i == j else 0)
+            result[i, j] = result[j, i] = entry
+    return result
+
+
 def _bessels_at_point(x, degree):
     """Enclose j_0,...,j_degree with the recurrence centered at an exact point."""
     inv = 1 / x

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from flint import arb, arb_mat, ctx
 
-from .assembly import ARCHIVE, LOCALIZATION, WIDTH, assemble
+from .assembly import ARCHIVE, LOCALIZATION, WIDTH, assemble, prime16_majorant
 from .harmonic import THETAS, assemble_congruence, certify_hybrid
 from .interval_ldl import certify_prefixes, dyadic
 from .precondition import certify_by_congruence
@@ -26,7 +26,7 @@ def _head_digest(matrix):
     return digest.hexdigest()
 
 
-def run(modes=25, bits=384, margin=MARGIN):
+def run(modes=25, bits=384, margin=MARGIN, *, include_prime16=False):
     if type(modes) is not int or modes < 1 or type(bits) is not int or bits < 256:
         raise ValueError("require positive integral modes and at least 256 bits")
     if isinstance(margin, (float, bool)):
@@ -41,6 +41,10 @@ def run(modes=25, bits=384, margin=MARGIN):
     with ctx.workprec(bits):
         for parity, sector in enumerate(assemble(modes, bits)):
             head = sector["head"]
+            if include_prime16:
+                border = prime16_majorant(modes, parity)
+                head = head - border
+                sector["a0"] = sector["a0"] - border
             result = {key: value for key, value in sector.items() if not isinstance(value, arb_mat)}
             if modes > LOCALIZATION:
                 cap = Fraction(c)
@@ -96,6 +100,7 @@ def run(modes=25, bits=384, margin=MARGIN):
         "width_exact": str(WIDTH),
         "localization_modes": LOCALIZATION,
         "scope": "finite head; full crossing additionally requires the complement estimates and every needed gate",
+        **({"prime16_included_by_border_majorant": True} if include_prime16 else {}),
         "sectors": records,
     }
 
@@ -105,6 +110,7 @@ def main():
     parser.add_argument("--modes", type=int, default=25)
     parser.add_argument("--bits", type=int, default=384)
     parser.add_argument("--margin", type=Fraction, default=MARGIN)
+    parser.add_argument("--include-prime16", action="store_true")
     io = parser.add_mutually_exclusive_group(required=True)
     io.add_argument("--out", type=Path)
     io.add_argument("--verify", type=Path)
@@ -112,12 +118,13 @@ def main():
     if args.verify is not None:
         previous = json.loads(args.verify.read_text())
         result = run(previous["modes_assembled_per_parity"], previous["working_precision_bits"],
-                     previous["sectors"][0]["margin_exact"])
+                     previous["sectors"][0]["margin_exact"],
+                     include_prime16=previous.get("prime16_included_by_border_majorant", False))
         if json.dumps(result, sort_keys=True) != json.dumps(previous, sort_keys=True):
             raise ValueError("prefix certificate differs from rigorous replay")
         print(f"Verified {args.verify}")
     else:
-        result = run(args.modes, args.bits, args.margin)
+        result = run(args.modes, args.bits, args.margin, include_prime16=args.include_prime16)
         args.out.write_text(json.dumps(result, indent=2)+"\n")
         print([(r["parity"], r["verified_positive_prefixes"]) for r in result["sectors"]])
 

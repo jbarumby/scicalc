@@ -53,6 +53,8 @@ jobs:
           cmp NUMERIA_P93V40/transfer_chebyshev.json "$RUNNER_TEMP/transfer-chebyshev.json"
           python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_replay_100.json > "$RUNNER_TEMP/witness-spectral.json"
           cmp NUMERIA_P93V40/witness_spectral.json "$RUNNER_TEMP/witness-spectral.json"
+          python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_two_strip_floor_100.json > "$RUNNER_TEMP/witness-two-strip.json"
+          cmp NUMERIA_P93V40/witness_spectral_two_strip.json "$RUNNER_TEMP/witness-two-strip.json"
           python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
           python -O -m NUMERIA_P93V40.v38_audit --verify NUMERIA_P93V40/v38_audit.json
           python -O -m NUMERIA_P93V40.rubinstein_replay --verify NUMERIA_P93V40/rubinstein_replay.json
@@ -68,6 +70,7 @@ jobs:
           - prefix_strip_floor_100
           - prefix_two_strip_floor_100
           - prefix_unshifted_200
+          - prefix_prime16_100
     steps:
       - uses: actions/checkout@v5
         with:

@@ -57,6 +57,10 @@ class TransferTests(unittest.TestCase):
                            Fraction("1.65e-70"))
         self.assertLess(loss, original_loss / 4)
         self.assertGreater(retained, Fraction("5.54e-70"))
+        edge = sharper["edge_evaluation_alternative"]
+        self.assertGreater(_exact_dyadic(edge["edge_evaluation_weight_upper_dyadic"]), 0)
+        self.assertLess(_exact_dyadic(edge["edge_evaluation_scalar_remainder_upper_dyadic"]),
+                        Fraction("1e-207"))
         with self.assertRaisesRegex(ArithmeticError, "margin is exhausted"):
             certify_transfer("1e-70", separated_strips=True)
 

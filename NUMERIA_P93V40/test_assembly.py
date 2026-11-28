@@ -3,9 +3,9 @@
 from fractions import Fraction
 import unittest
 
-from flint import acb, arb, ctx
+from flint import acb, arb, arb_mat, ctx
 
-from .assembly import WIDTH, _bessels, band_gram, deficit_endpoints
+from .assembly import WIDTH, _bessels, band_gram, deficit_endpoints, prime16_majorant
 
 
 class BandTests(unittest.TestCase):
@@ -48,6 +48,30 @@ class BandTests(unittest.TestCase):
                 direct = acb.integral(integrand, acb(1) / 2, acb(5) / 4, rel_tol=arb("1e-65"))
                 self.assertTrue(direct.imag.contains(0))
                 self.assertTrue(result[n % 2][n // 2, m // 2].overlaps(direct.real))
+
+    def test_border_majorant_against_exact_degree_gauss_legendre(self):
+        with ctx.workprec(768):
+            width = arb(WIDTH.numerator) / WIDTH.denominator
+            shift = arb(16).log()
+            delta = 2 * width - shift
+            kappa = arb(2).log() / 4
+            nodes = [arb.legendre_p_root(4, j, weight=True) for j in range(4)]
+            for parity in (0, 1):
+                matrix = prime16_majorant(2, parity)
+                for coefficients in ((1, 0), (0, 1), (1, -1), (1, 2)):
+                    def polynomial(x):
+                        orders = (parity, parity + 2)
+                        return sum((c * ((2*n+1)/(2*width)).sqrt() * (x/width).legendre_p(n)
+                                    for n, c in zip(orders, coefficients)), arb(0))
+
+                    product = arb(0)
+                    for node, weight in nodes:
+                        x = width - delta * (1-node) / 2
+                        product += weight * polynomial(x) * polynomial(x-shift)
+                    exact_term = -kappa * delta * product
+                    vector = arb_mat(2, 1, list(coefficients))
+                    upper_form = (vector.transpose() * (matrix * vector))[0, 0]
+                    self.assertGreater(upper_form, abs(exact_term))
 
 
 if __name__ == "__main__":

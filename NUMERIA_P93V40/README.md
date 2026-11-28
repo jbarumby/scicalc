@@ -78,6 +78,16 @@ Com as duas faixas, margem condicional $h=8\cdot10^{-70}$, retenção $h/4$ no c
 
 Uma rodada adicional com $h=10^{-70}$ provou 96 modos pares e 100 ímpares e achou, no suporte par de 97 modos, um quociente rigoroso em $(8{,}61969,8{,}61970)\cdot10^{-71}$. Esse limite superior fica abaixo até da estimativa uniforme refinada das faixas para a largura do ZIP. Ele exclui os alvos de cabeça necessários por **essa estimativa**, que cobra a mesma perda em todas as direções. Na rodada **sem deslocamento**, a congruência certificou as duas matrizes de **200 modos**. Os resultados apontam para uma transferência que acompanhe o custo de borda nas direções quase nulas, ou para uma janela mais próxima de $\log16/2$ depois de obter coercividade para uma cabeça suficiente. [Replay de 100 modos](prefix_two_strip_floor_100.json) · [Replay de 200 modos](prefix_unshifted_200.json)
 
+### Custo de borda dentro da cabeça
+
+Para um polinômio de um setor, as duas bordas têm o mesmo supremo de $|f|$. Seja $u_n=\phi_n(a)$ e seja $M_N^2=\sum_{n\in \mathrm{setor}}(2n+1)n^4/(2a^3)$, com a soma restrita à cabeça. Pela desigualdade de Markov, $\|f'\|_\infty\le M_N\|f\|_2$. Para $x$ em uma das duas faixas de comprimento $\delta$, isso implica $|f(x)|\le|f(a)|+\delta M_N\|f\|_2$. O módulo da contribuição nova é no máximo $\kappa\|f\|_{\mathrm{bordas}}^2$. Aplicar $(x+y)^2\le 2x^2+2y^2$ dá a majorante matricial $4\kappa\delta\,uu^\top+4\kappa\delta^3M_N^2 I$. Sua parcela dominante tem posto um em cada paridade. Um teste independente integra diretamente a translação de polinômios de grau até três com Gauss–Legendre exato no grau do produto.
+
+Para a testemunha par de 97 modos, a avaliação direta com coeficientes exatos e raio de derivada dá custo absoluto de 16 menor que $4{,}366\cdot10^{-144}$ após normalizar $\|f\|_2=1$. A folga em uma direção isolada indica onde a transferência uniforme perde precisão. A passagem no espaço inteiro exige controlar também os termos cruzados com o complemento. [Diagnóstico de borda](witness_spectral_two_strip.json)
+
+Subtrair a majorante de posto um e seu resto escalar das cabeças da V.40 a 768 bits certificou **a forma de Weil com o termo de 16 em 100 modos de cada paridade**, na largura racional estritamente acima de $\log16/2$. A forma de Weil é positiva nesses subespaços porque a cabeça penalizada é um limite inferior da forma completa ali e a congruência verificou a positividade estrita. [Certificado com a contribuição de 16](prefix_prime16_100.json)
+
+Para estender o tratamento da borda ao espaço inteiro, tome $g=P_{[-\Omega,\Omega]} f$ na decomposição de Young. Por Cauchy–Schwarz em Fourier, $\|g'\|_\infty^2\le\Omega^3\|f\|_2^2/(3\pi)$. Integrar $2|g(\pm a)|^2+2x^2\|g'\|_\infty^2$ em cada faixa, com $0\le x\le\delta$, dá uma alternativa à perda escalar anterior. Ela cobra $2\kappa(1+\eta)\delta$ vezes a soma dos quadrados das duas avaliações de $g$ e um resto escalar menor que $2{,}804\cdot10^{-208}$ na largura do ZIP. Essas avaliações são funcionais limitados, representados pelo núcleo sinc centrado em $\pm a$. Falta incluir a correção de posto dois e seus termos cruzados no teste de Schur da cabeça completa. [Constantes dirigidas da alternativa](transfer_chebyshev.json)
+
 ## Material complementar
 
 O JSON A1/A4 da V.38 foi incorporado byte a byte. O auditor reconstruiu 25 perfis, 50 constantes de Schur, seis produtos de Perron com pesos positivos em aritmética inteira, 212 sinais e 120 entradas da grade de dimensões. Para A4 ($T=4500$, $k=20$, $\lambda=9/10$), ambas as condições de transferência fecham em $N=3350$ na grade testada. A aritmética dirigida também recupera os valores estritamente positivos que foram impressos como zero por subfluxo de `float64`: 20 ocorrências de $g$ e 16 de $b^2$. A faixa do déficit de 1600 a 4500 foi verificada em Arb e complementa a validação da V.40 de 4500 até $10^6$. A passagem de A4 continua condicionada à positividade das cabeças completas. [Entrada original](v38_inputs/P93V38_A1_A4_resultados.json) · [Replay V.38](v38_audit.json)
@@ -102,6 +112,7 @@ python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.jso
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_strip_floor_100.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_two_strip_floor_100.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_unshifted_200.json
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_prime16_100.json
 python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
 python -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
 python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips

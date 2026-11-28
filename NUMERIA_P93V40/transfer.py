@@ -86,6 +86,13 @@ def certify_transfer(head_margin=H, *, separated_strips=False, chebyshev_tail=Fa
             if not separation > 0:
                 raise ArithmeticError("positive separation of the strips is required")
             strip_bound = kappa * (1 + eta) * delta / arb.pi() * (omega + 1 / separation)
+            trace_weight = (2 * kappa * (1 + eta) * delta).upper()
+            trace_remainder = (4 * kappa * (1 + eta) * delta**3 * omega**3 /
+                               (9 * arb.pi())).upper()
+            trace_report = {
+                "edge_evaluation_weight_upper_dyadic": dyadic(trace_weight),
+                "edge_evaluation_scalar_remainder_upper_dyadic": dyadic(trace_remainder),
+            }
         else:
             if not bfloor - mass > BETA + 1:
                 raise ArithmeticError("far spectral reserve did not close")
@@ -160,7 +167,8 @@ def certify_transfer(head_margin=H, *, separated_strips=False, chebyshev_tail=Fa
             "theta_results": reports,
             **({"strip_method": "separate-diagonal-and-off-diagonal",
                 "strip_cutoff": omega, "strip_young_exact": "8/15",
-                "strip_bound_formula_lower_dyadic": dyadic(strip_bound.lower())}
+                "strip_bound_formula_lower_dyadic": dyadic(strip_bound.lower()),
+                "edge_evaluation_alternative": trace_report}
                if separated_strips else {}),
             **({"chebyshev_tail": True} if chebyshev_tail else {}),
             **({"retention_exact": str(retention)} if retention != Fraction(9, 10) else {}),

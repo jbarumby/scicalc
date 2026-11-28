@@ -7,8 +7,8 @@ from pathlib import Path
 
 from flint import acb, arb, arb_mat, ctx
 
-from NUMERIA_P93V40.assembly import T, WIDTH, _bessels, band_gram
-from NUMERIA_P93V40.interval_ldl import dyadic
+from .assembly import T, WIDTH, _bessels, band_gram
+from .interval_ldl import dyadic
 
 
 def bounds(ball):
@@ -39,11 +39,18 @@ def diagnostic(path, bits, zero_count):
     results = []
     with ctx.workprec(bits):
         a = arb(WIDTH.numerator) / WIDTH.denominator
+        delta = 2 * a - arb(16).log()
+        if not delta > 0:
+            raise ArithmeticError("the support must cross the prime-16 threshold")
+        kappa = arb(2).log() / 4
         zeros = acb.zeta_zeros(1, zero_count)
         if any(z.real != arb(1) / 2 or not z.imag > 0 for z in zeros):
             raise ArithmeticError("a reported zero could not be identified on the positive critical line")
         for row in data["sectors"]:
             parity = row["parity"]
+            detail = row["preconditioned_congruence"]
+            if not detail or "witness_dyadic" not in detail.get("rayleigh_check", {}):
+                continue
             values = load_witness(row)
             support = len(values)
             n = range(parity, 2 * support, 2)
@@ -61,6 +68,13 @@ def diagnostic(path, bits, zero_count):
             column = arb_mat(support, 1, values)
             tail_mass = 1 - (column.transpose() * (concentration * column))[0, 0]
             physical_samples = {str(t): bounds(abs(ft(arb(t)))) for t in (0, 4, 10, 30, 70, 100, 500)}
+            boundary_values = [c * ((2 * m + 1) / (2 * a)).sqrt() for m, c in zip(n, values)]
+            endpoint = abs(sum(boundary_values, arb(0)))
+            derivative_cap = sum((abs(c) * m**2 for m, c in zip(n, boundary_values)), arb(0)) / a
+            # Markov bounds each Legendre derivative. By parity, both
+            # strips have the same supremum and each has length delta.
+            edge = endpoint + delta * derivative_cap
+            strip_cost = (2 * kappa * delta * edge**2).upper()
             results.append({
                 "parity": parity,
                 "support_modes": support,
@@ -69,7 +83,11 @@ def diagnostic(path, bits, zero_count):
                 "maximum_sample_upper_dyadic": dyadic(max(b.upper() for b in samples)),
                 "two_sided_partial_zero_sum_dyadic": bounds(2 * sum((b**2 for b in samples), arb(0))),
                 "spectral_l2_mass_above_cutoff_dyadic": bounds(tail_mass),
+                "absolute_value_at_support_endpoint": bounds(endpoint),
+                "prime16_absolute_cost_upper_dyadic": dyadic(strip_cost),
             })
+    if not results:
+        raise ValueError("the prefix replay contains no exact witness")
     return {
         "schema": "NUMERIA.P93V40.WITNESS_SPECTRAL_DIAGNOSTIC.1",
         "input_sha256": sha256(raw).hexdigest(),
