@@ -88,7 +88,7 @@ Para a testemunha par de 97 modos, a avaliação direta com coeficientes exatos 
 
 Subtrair a majorante de posto um e seu resto escalar das cabeças da V.40 a 768 bits certificou **a forma de Weil com o termo de 16 em 100 modos de cada paridade**, na largura racional estritamente acima de $\log16/2$. A forma de Weil é positiva nesses subespaços porque a cabeça penalizada é um limite inferior da forma completa ali e a congruência verificou a positividade estrita. [Certificado com a contribuição de 16](prefix_prime16_100.json)
 
-Para estender o tratamento da borda ao espaço inteiro, tome $g=P_{[-\Omega,\Omega]} f$ na decomposição de Young. Por Cauchy–Schwarz em Fourier, $\|g'\|_\infty^2\le\Omega^3\|f\|_2^2/(3\pi)$. Integrar $2|g(\pm a)|^2+2x^2\|g'\|_\infty^2$ em cada faixa, com $0\le x\le\delta$, dá uma alternativa à perda escalar anterior. Ela cobra $2\kappa(1+\eta)\delta$ vezes a soma dos quadrados das duas avaliações de $g$ e um resto escalar menor que $2{,}804\cdot10^{-208}$ na largura do ZIP. Essas avaliações são funcionais limitados, representados pelo núcleo sinc centrado em $\pm a$. Falta incluir a correção de posto dois e seus termos cruzados no teste de Schur da cabeça completa. [Constantes dirigidas da alternativa](transfer_chebyshev.json)
+Para estender o tratamento da borda ao espaço inteiro, tome $g=P_{[-\Omega,\Omega]} f$ na decomposição de Young. Por Cauchy–Schwarz em Fourier, $\|g'\|_\infty^2\le\Omega^3\|f\|_2^2/(3\pi)$. Integrar $2|g(\pm a)|^2+2x^2\|g'\|_\infty^2$ em cada faixa, com $0\le x\le\delta$, dá uma alternativa à perda escalar anterior. Ela cobra $2\kappa(1+\eta)\delta$ vezes a soma dos quadrados das duas avaliações de $g$ e um resto escalar menor que $2{,}804\cdot10^{-208}$ na largura do ZIP. Essas avaliações são funcionais limitados, representados pelo núcleo sinc centrado em $\pm a$. A rodada de Schur reúne a correção de posto dois, o acoplamento de borda e a cota por bandas de frequência, com certificação em 200 modos por paridade na forma que já inclui 16. [Constantes dirigidas](transfer_chebyshev.json) · [Relatório do complemento de Schur](EDGE_SCHUR.md)
 
 ## Material complementar
 
@@ -123,6 +123,9 @@ python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips --chebyshev-
 python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_replay_100.json
 python -O -m NUMERIA_P93V40.v38_audit --verify NUMERIA_P93V40/v38_audit.json
 python -O -m NUMERIA_P93V40.rubinstein_replay --verify NUMERIA_P93V40/rubinstein_replay.json
+python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_complement.json
+python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_finite_200.json
+python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_directions.json
 ```
 
 A certificação é para a forma finita especificada. Ela deixa em aberto o cruzamento completo e a Hipótese de Riemann global.

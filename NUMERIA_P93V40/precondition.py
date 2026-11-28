@@ -104,7 +104,7 @@ def _point_factor(matrix, h, panel_width=32):
     return lower,scaling,None
 
 
-def certify_by_congruence(matrix, sizes, margin):
+def certify_by_congruence(matrix, sizes, margin, *, absolute_bound=False):
     """Use an Arb midpoint proposal, then recompute the congruence in Arb."""
     n = matrix.nrows()
     lower, scaling, obstruction = _point_factor(matrix, _margin(margin))
@@ -139,5 +139,13 @@ def certify_by_congruence(matrix, sizes, margin):
     r = arb_mat(n,n,[(inverse[i,j]*scaling[j]).mid() if i<=j else arb(0)
                      for i in range(n) for j in range(n)])
     results = verify_triangular_congruence(matrix,r,sizes,margin)
+    if absolute_bound and all(row["certified"] for row in results):
+        for row in results:
+            size = row["size"]
+            mantissa, exponent = row["row_margin_lower_dyadic"]
+            margin_bound = arb(int(mantissa)) * arb(2)**exponent
+            frobenius_square = sum((r[i,j]**2 for j in range(size)
+                                    for i in range(j+1)), arb(0))
+            row["absolute_margin_lower_dyadic"] = dyadic((margin_bound/frobenius_square).lower())
     return {"status": "certified" if all(row["certified"] for row in results)
             else "inconclusive_congruence", "prefixes": results}
