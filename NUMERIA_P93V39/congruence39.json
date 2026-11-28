@@ -1,0 +1,17 @@
+{
+  "test": "exact rational 3x3 algebraic example, not a NUMERIA head",
+  "results": [
+    {
+      "theta": "0",
+      "exact_identity": true
+    },
+    {
+      "theta": "1/2",
+      "exact_identity": true
+    },
+    {
+      "theta": "1",
+      "exact_identity": true
+    }
+  ]
+}

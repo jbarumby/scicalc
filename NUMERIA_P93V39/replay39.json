@@ -1,0 +1,14 @@
+{
+  "components": 1230,
+  "factors": {
+    "2": 1110,
+    "14": 120
+  },
+  "c_exact": "34164906632832863/18157142016000000",
+  "d_exact": "27093941/6500000",
+  "f1_exact": "925661964580482252983083/467659636784421025815000",
+  "weighted_row_checks": 1230,
+  "kernel_terms": 1512900,
+  "Binet_constant_verified": true,
+  "scope": "replay of inherited deficit table, not independent regeneration"
+}

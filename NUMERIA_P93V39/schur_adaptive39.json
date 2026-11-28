@@ -1,0 +1,32 @@
+[
+  {
+    "theta": "0",
+    "rho": "33/25",
+    "N": 3309,
+    "g_even": 1.7530503326969257e-66,
+    "slack_even": 3.072389950339367e-63,
+    "reserve_limit": 0.11837641613823995,
+    "both_parities": true,
+    "conditional_on_full_heads": true
+  },
+  {
+    "theta": "1/2",
+    "rho": "33/25",
+    "N": 3310,
+    "g_even": 5.774290919966309e-67,
+    "slack_even": 7.705598690951523e-64,
+    "reserve_limit": 0.06951335506572892,
+    "both_parities": true,
+    "conditional_on_full_heads": true
+  },
+  {
+    "theta": "1",
+    "rho": "33/25",
+    "N": 3312,
+    "g_even": 6.264800001259436e-68,
+    "slack_even": 9.027249085514672e-64,
+    "reserve_limit": 0.02065029399321791,
+    "both_parities": true,
+    "conditional_on_full_heads": true
+  }
+]

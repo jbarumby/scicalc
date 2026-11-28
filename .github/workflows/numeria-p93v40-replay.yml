@@ -1,0 +1,119 @@
+name: NUMERIA P93-V.40 directed replay
+
+on:
+  push:
+    branches: [numeria-p93v40-prime16-arb]
+    paths:
+      - "NUMERIA_P93V39/**"
+      - "NUMERIA_P93V40/**"
+      - ".github/workflows/numeria-p93v40-replay.yml"
+  pull_request:
+    paths:
+      - "NUMERIA_P93V39/**"
+      - "NUMERIA_P93V40/**"
+      - ".github/workflows/numeria-p93v40-replay.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Check manifests and test both Python modes
+        run: |
+          (cd NUMERIA_P93V39 && sha256sum -c SHA256SUMS.txt)
+          sha256sum -c NUMERIA_P93V40/SHA256SUMS
+          python -m unittest discover -s NUMERIA_P93V40 -t . -v
+          python -O -m unittest discover -s NUMERIA_P93V40 -t . -v
+      - name: Replay historical, spectral and transfer certificates
+        run: |
+          python -m NUMERIA_P93V40.historical_replay --verify NUMERIA_P93V40/historical_replay.json
+          python -O -m NUMERIA_P93V40.spectral_replay --verify NUMERIA_P93V40/spectral_replay.json
+          python -m NUMERIA_P93V40.digamma_binet --precision 256 --out "$RUNNER_TEMP/binet.json"
+          cmp NUMERIA_P93V40/binet_replay.json "$RUNNER_TEMP/binet.json"
+          python -m NUMERIA_P93V40.transfer > "$RUNNER_TEMP/transfer.json"
+          cmp NUMERIA_P93V40/transfer.json "$RUNNER_TEMP/transfer.json"
+          python -m NUMERIA_P93V40.transfer --margin 1e-64 > "$RUNNER_TEMP/transfer-relaxed.json"
+          cmp NUMERIA_P93V40/transfer_relaxed.json "$RUNNER_TEMP/transfer-relaxed.json"
+          python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips > "$RUNNER_TEMP/transfer-separated.json"
+          cmp NUMERIA_P93V40/transfer_separated_strips.json "$RUNNER_TEMP/transfer-separated.json"
+          python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips --chebyshev-tail --retain 1/4 > "$RUNNER_TEMP/transfer-chebyshev.json"
+          cmp NUMERIA_P93V40/transfer_chebyshev.json "$RUNNER_TEMP/transfer-chebyshev.json"
+          python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_replay_100.json > "$RUNNER_TEMP/witness-spectral.json"
+          cmp NUMERIA_P93V40/witness_spectral.json "$RUNNER_TEMP/witness-spectral.json"
+          python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_two_strip_floor_100.json > "$RUNNER_TEMP/witness-two-strip.json"
+          cmp NUMERIA_P93V40/witness_spectral_two_strip.json "$RUNNER_TEMP/witness-two-strip.json"
+          python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
+          python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_complement.json
+          python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_directions.json
+          python -O -m NUMERIA_P93V40.v38_audit --verify NUMERIA_P93V40/v38_audit.json
+          python -O -m NUMERIA_P93V40.rubinstein_replay --verify NUMERIA_P93V40/rubinstein_replay.json
+  head:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        certificate:
+          - prefix_replay_50
+          - prefix_replay_100
+          - prefix_strip_floor_100
+          - prefix_two_strip_floor_100
+          - prefix_unshifted_200
+          - prefix_unshifted_400
+          - prefix_prime16_100
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Reassemble the finite heads without using the archived entries
+        env:
+          CERTIFICATE: ${{ matrix.certificate }}
+        run: python -O -m NUMERIA_P93V40.prefix --verify "NUMERIA_P93V40/$CERTIFICATE.json"
+  penalty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Reconstruct the two full adaptive penalties
+        run: python -O -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
+  edge-schur:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Reconstruct both 200-mode edge Schur certificates
+        env:
+          OPENBLAS_NUM_THREADS: "1"
+        run: python -O -m NUMERIA_P93V40.edge_schur --verify NUMERIA_P93V40/edge_schur_finite_200.json
