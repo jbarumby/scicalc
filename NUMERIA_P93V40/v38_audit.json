@@ -1,0 +1,103 @@
+{
+  "schema": "NUMERIA.P93V40.V38_A1_A4_REPLAY.1",
+  "attachment_sha256": "7a2282afd44635232cff2249a22d0f5f3becaf70e203e95961d12cf0ef83d1d6",
+  "deficit_csv_sha256": "2c9111dfbe2c77d2d3775c9d4187e658a6c784b3e416c417b3c59dd907dfb8cc",
+  "archived_opt38_sha256": "a96514ec7e7b06eac39ca6c2d055b3979ad8416209d84ad994695e425d686d2b",
+  "perron_weights_sha256": "bb2e60c57940bfee556638219971c1728bf57f7289afdbd075ad9a51caeff04e",
+  "profiles_reproduced": 25,
+  "perron_reproduced": {
+    "4500": {
+      "4096": {
+        "c_exact": "1487658002818740271/1155911594803200000",
+        "maximum_weight": 1271097861
+      },
+      "65536": {
+        "c_exact": "7966090349596487401/6190281837772800000",
+        "maximum_weight": 20337565774
+      },
+      "1048576": {
+        "c_exact": "318247111970021018051/247304697151488000000",
+        "maximum_weight": 325401052383
+      }
+    },
+    "6400": {
+      "4096": {
+        "c_exact": "189118206826511677/155574117335040000",
+        "maximum_weight": 1337296455
+      },
+      "65536": {
+        "c_exact": "15040414937693305489/12373859500032000000",
+        "maximum_weight": 21396743281
+      },
+      "1048576": {
+        "c_exact": "4089048243710564483/3364107583488000000",
+        "maximum_weight": 342347892493
+      }
+    }
+  },
+  "earlier_spectral_interval": {
+    "start": 1600,
+    "stop": 4500,
+    "working_precision_bits": 128,
+    "omitted_accepted_leaves": 6511,
+    "listed_accepted_leaves": 2682,
+    "omitted_margin_lower_dyadic": [
+      "3072199389422787019076664975215429547",
+      -137
+    ],
+    "listed_margin_lower_dyadic": [
+      "191261253793320673244638485156238278893",
+      -136
+    ],
+    "ordered_leaf_partition_sha256": "cb7c9923386f08e586b06fed57ea351c4954ac9b70d39c7fc0fd50199ae5efd1"
+  },
+  "low_absolute_symbol_upper_dyadic": {
+    "4500": [
+      "1698343651577298335153246610457205542743406356031994323399",
+      -186
+    ],
+    "6400": [
+      "1698343651577298335153246610457205542743406356031994323399",
+      -186
+    ]
+  },
+  "directed_schur_checks": [
+    {
+      "tag": "T4500 lam=9/10 k=20 (archived weights)",
+      "cutoff": 4500,
+      "harmonic_first_dimension": 3350,
+      "localized_first_dimension": 3350
+    },
+    {
+      "tag": "T4500 archived",
+      "cutoff": 4500,
+      "harmonic_first_dimension": 3350,
+      "localized_first_dimension": 3350
+    },
+    {
+      "tag": "T4500 best(perron1048576)",
+      "cutoff": 4500,
+      "harmonic_first_dimension": 3350,
+      "localized_first_dimension": 3350
+    },
+    {
+      "tag": "T6400 archived",
+      "cutoff": 6400,
+      "harmonic_first_dimension": 4675,
+      "localized_first_dimension": 4675
+    },
+    {
+      "tag": "T6400 best(perron1048576)",
+      "cutoff": 6400,
+      "harmonic_first_dimension": 4675,
+      "localized_first_dimension": 4675
+    }
+  ],
+  "individual_sector_signs_reproduced": 212,
+  "rho_lambda_grid_dimensions_reproduced": 120,
+  "zero_float_displays_with_strictly_positive_mathematical_value": {
+    "g": 20,
+    "b2": 16
+  },
+  "scope": "Schur transfer conditions only. The complete matrix heads are not certified by these tables."
+}

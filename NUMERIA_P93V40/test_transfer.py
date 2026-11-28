@@ -47,6 +47,28 @@ class TransferTests(unittest.TestCase):
         self.assertGreater(retained, Fraction(89, 100) * h)
         self.assertLessEqual(retained + loss, Fraction(9, 10) * h)
 
+    def test_separated_strips_improve_the_uniform_budget(self):
+        original_loss = _exact_dyadic(self.report["new_prime_loss_upper_dyadic"])
+        sharper = certify_transfer("8e-70", separated_strips=True)
+        loss = _exact_dyadic(sharper["new_prime_loss_upper_dyadic"])
+        retained = _exact_dyadic(sharper["conditional_crossing_margin_lower_dyadic"])
+        self.assertEqual(sharper["strip_cutoff"], 1_600_000)
+        self.assertGreater(_exact_dyadic(sharper["strip_bound_formula_lower_dyadic"]),
+                           Fraction("1.65e-70"))
+        self.assertLess(loss, original_loss / 4)
+        self.assertGreater(retained, Fraction("5.54e-70"))
+        with self.assertRaisesRegex(ArithmeticError, "margin is exhausted"):
+            certify_transfer("1e-70", separated_strips=True)
+
+    def test_ellipse_l2_bound_brings_the_five_schur_gates_under_3310(self):
+        result = certify_transfer("8e-70", separated_strips=True, chebyshev_tail=True,
+                                  retention="1/4")
+        self.assertEqual(Fraction(result["retention_exact"]), Fraction(1, 4))
+        self.assertGreater(_exact_dyadic(result["conditional_crossing_margin_lower_dyadic"]),
+                           Fraction("3.47e-71"))
+        self.assertEqual([row["symbol_cap_18"]["first_sufficient_dimension"]
+                          for row in result["theta_results"]], list(range(3305, 3310)))
+
     def test_all_five_schur_dimensions_at_fixed_rho(self):
         self.assertEqual(Fraction(self.report["rho_exact"]), Fraction(33, 25))
         rows = self.report["theta_results"]

@@ -1,0 +1,92 @@
+{
+  "schema": "NUMERIA.P93V40.RUBINSTEIN_REPLAY.1",
+  "source": {
+    "url": "https://math.uwaterloo.ca/~mrubinst/alpoge_claude_grh/zeta-paper.pdf",
+    "version": 1,
+    "date": "2026-11-21",
+    "pdf_pages": 164,
+    "sha256": "667d88b3c375adf0466678094f452ca966aef0f4d368f6340d2bd5328b7fb706"
+  },
+  "scope": "Independent finite checks of the cited draft with rational and interval arithmetic.",
+  "top_radius_III_92_and_93_rational_cases": 6138,
+  "two_site_flow_III_97_rational_cases": 3267,
+  "five_adic_orbit_two_examples": {
+    "1000,10": {
+      "F_exact": "2405/12",
+      "sum_of_positive_parts_exact": "190"
+    },
+    "1000,250": {
+      "F_exact": "625/12",
+      "sum_of_positive_parts_exact": "0"
+    }
+  },
+  "radius_example_III_125_slack_by_radius": {
+    "1/3": "0",
+    "3/8": "-3/8"
+  },
+  "smoothed_von_mangoldt_sum_I_2": {
+    "precision_bits": 128,
+    "rows": [
+      {
+        "x": 10000,
+        "prime_powers_at_most_x": 1280,
+        "published_thousandths": 1749,
+        "g_interval_dyadic": [
+          [
+            "74407641491202673626833712985070158993",
+            -125
+          ],
+          [
+            "74407641491202673626833712985107753839",
+            -125
+          ]
+        ]
+      },
+      {
+        "x": 100000,
+        "prime_powers_at_most_x": 9700,
+        "published_thousandths": 3671,
+        "g_interval_dyadic": [
+          [
+            "312333433073370876191247525472839423591",
+            -126
+          ],
+          [
+            "312333433073370876191247525474783570329",
+            -126
+          ]
+        ]
+      },
+      {
+        "x": 1000000,
+        "prime_powers_at_most_x": 78734,
+        "published_thousandths": 11040,
+        "g_interval_dyadic": [
+          [
+            "14675256785685288513015463441234685065",
+            -120
+          ],
+          [
+            "14675256785685288513015463443072144247",
+            -120
+          ]
+        ]
+      },
+      {
+        "x": 2000000,
+        "prime_powers_at_most_x": 149235,
+        "published_thousandths": -12268,
+        "g_interval_dyadic": [
+          [
+            "-4076676044737910628544590282254077423",
+            -118
+          ],
+          [
+            "-4076676044737910628544590281168097809",
+            -118
+          ]
+        ]
+      }
+    ]
+  }
+}

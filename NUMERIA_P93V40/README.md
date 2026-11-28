@@ -17,6 +17,8 @@ Esses intervalos ficam inteiramente entre zero e $h$. Logo a desigualdade pedida
 
 Uma segunda avaliação por Wronskians recompõe $v^\top Bv$ para cada testemunha. Somando-a ao recorte anterior, os quocientes da cabeça sem penalidade $A_0$ são menores que $6{,}5610\cdot10^{-61}$ e $7{,}7571\cdot10^{-61}$, respectivamente. Assim, reduzir ou redistribuir apenas uma penalidade positiva não recupera $h=10^{-60}$. Com a margem tentativa $10^{-64}$, a transferência ainda teria saldo para a largura do ZIP, e a cota 18 exige 3316, 3317, 3318, 3318 e 3320 modos na ordem dos cinco $\theta$. A positividade dessas cabeças com margem menor continua como condição. [Origem da obstrução](obstruction_origin.json) · [Orçamento com margem menor](transfer_relaxed.json)
 
+As duas testemunhas normalizadas têm transformadas de ordem 1 em algumas frequências comuns, mas os módulos amostrados nos primeiros 30 zeros de zeta retornados pelo FLINT ficam abaixo de $5{,}05\cdot10^{-33}$ no setor par e de $2{,}92\cdot10^{-35}$ no ímpar. As massas espectrais além de 4500 ficam abaixo de $4{,}65\cdot10^{-63}$ e $3{,}95\cdot10^{-63}$. Esse diagnóstico identifica direções quase ortogonais às primeiras amostras e muito concentradas até o corte. A prova da obstrução usa os quocientes de Rayleigh verificados diretamente no integrando. [Diagnóstico espectral](witness_spectral.json)
+
 Os programas originais reproduziram os seis JSONs das matrizes e dos resultados dos dois perfis de 12 modos, com os SHA-256 do manifesto. Com Binet, as duas paridades fecharam os 12 pivôs históricos. O ensaio anterior, sem Binet, parou no décimo segundo pivô ímpar. O auditor usa uma cópia temporária e mantém os certificados originais. A montagem da V.40 calcula diretamente uma forma espectral de cabeça em base ortonormal. Ela é diferente da forma suficiente por momentos usada para o replay histórico. [Replay dos 12 modos](historical_replay.json)
 
 ## Déficit espectral e Binet
@@ -59,6 +61,29 @@ Para as cinco escolhas de $\theta$ na ordem acima, a condição de Schur com a c
 
 A largura racional do ZIP satisfaz $2a-\log16>0$, cerca de $1{,}22114\cdot10^{-75}$, e $2a<\log17$. O único termo novo é o de $16=2^4$, de peso $\kappa=\log2/4$. O produto das translações vive em duas faixas de borda de comprimento $\delta=2a-\log16$. Para $\Omega=4\cdot10^6$, a reserva espectral acima de $\Omega$ supera 1 sobre o auxiliar. Cauchy–Schwarz nas bordas dá perda no máximo $\kappa\|f\|^2_{\mathrm{bordas}}$. Aplicar Young com $1/4$ à decomposição de Fourier absorve a parte alta, pois $5\kappa<1$. A norma suprema da parte baixa é limitada em quadrado por $\Omega\|f\|^2/\pi$, o que dá perda restante $\Omega\delta/6$. Ela é menor que $8{,}141\cdot10^{-70}$. Assim, se as duas cabeças requeridas fecharem, a margem transferida será maior que $8{,}99999999\cdot10^{-61}$. O cruzamento efetivo ainda depende da cabeça completa.
 
+### Teste com margem menor e duas faixas
+
+Com $h=8\cdot10^{-70}$ a rodada a 768 bits certificou 91 modos pares e 100 ímpares. A primeira direção par abaixo do alvo tem suporte em 92 modos e quociente em $(5{,}05603,5{,}05604)\cdot10^{-70}$. Esse valor também está abaixo de $\Omega\delta/6$ para o orçamento anterior, mesmo se a condição de Schur retiver toda a margem disponível da cabeça. [Replay com margem reduzida](prefix_strip_floor_100.json)
+
+O operador de projeção na faixa $[-\Omega,\Omega]$ tem núcleo $\sin(\Omega(x-y))/(\pi(x-y))$. Restringindo a união das duas faixas de borda, cada bloco diagonal tem linhas com integral absoluta no máximo $\delta\Omega/\pi$. O outro bloco contribui no máximo $\delta/[\pi(\log16-\delta)]$, pela distância entre as faixas. O teste de Schur dá a soma dessas duas cotas como limite para a norma da compressão. Com $\Omega=1{,}6\cdot10^6$ e parâmetro de Young $8/15$, o custo da parte alta fica abaixo da reserva dirigida de Binet e a perda uniforme da parte baixa cai para menos de $1{,}652483\cdot10^{-70}$. As dimensões suficientes para a transferência com $h=8\cdot10^{-70}$ e a cota baixa 18 tornam-se 3326, 3327, 3328, 3329 e 3330, sob a condição matricial. [Orçamento dirigido das duas faixas](transfer_separated_strips.json)
+
+Um controle mais fino da concentração conserva $\rho=33/25$. Escreva $d_\rho=\rho-\rho^{-1}$, $Z=aTd_\rho$ e $n_0=2N+p$. A fórmula de Cauchy para os coeficientes de Chebyshev dá $|c_n|\le 2\rho^{-n}I_0(atd_\rho/2)$. Cosseno e seno preservam as respectivas paridades. Projetar ortogonalmente em Legendre tem erro em $L^2$ limitado pelo da série de Chebyshev truncada. O erro quadrático da série na norma ponderada de Chebyshev é $(\pi/2)\sum_{n\ge n_0}|c_n|^2$, e essa norma majora a norma sem peso. Na definição integral de $I_0$, $\cos u\le 1-2u^2/\pi^2$ para $0\le u\le\pi$. Isso dá $I_0(v)\le\min(e^v,e^v\sqrt{\pi}/(2\sqrt{2v}))$. Integrando em duas partes, com divisão em $T/2$, resulta a cota de traço
+
+$$
+g\le \frac{2\rho^{-2n_0}}{d_\rho(1-\rho^{-4})}
+\left[e^{Z/2}-1+\frac{\pi}{2Z}(e^Z-e^{Z/2})\right].
+$$
+
+Com as duas faixas, margem condicional $h=8\cdot10^{-70}$, retenção $h/4$ no complemento e a cota baixa 18, os cinco limiares caem para **3305, 3306, 3307, 3308 e 3309**. Se as hipóteses matriciais valessem, sobraria mais de $3{,}47\cdot10^{-71}$ após o termo de 16. [Recintos e teste de Schur refinados](transfer_chebyshev.json)
+
+Uma rodada adicional com $h=10^{-70}$ provou 96 modos pares e 100 ímpares e achou, no suporte par de 97 modos, um quociente rigoroso em $(8{,}61969,8{,}61970)\cdot10^{-71}$. Esse limite superior fica abaixo até da estimativa uniforme refinada das faixas para a largura do ZIP. Ele exclui os alvos de cabeça necessários por **essa estimativa**, que cobra a mesma perda em todas as direções. Na rodada **sem deslocamento**, a congruência certificou as duas matrizes de **200 modos**. Os resultados apontam para uma transferência que acompanhe o custo de borda nas direções quase nulas, ou para uma janela mais próxima de $\log16/2$ depois de obter coercividade para uma cabeça suficiente. [Replay de 100 modos](prefix_two_strip_floor_100.json) · [Replay de 200 modos](prefix_unshifted_200.json)
+
+## Material complementar
+
+O JSON A1/A4 da V.38 foi incorporado byte a byte. O auditor reconstruiu 25 perfis, 50 constantes de Schur, seis produtos de Perron com pesos positivos em aritmética inteira, 212 sinais e 120 entradas da grade de dimensões. Para A4 ($T=4500$, $k=20$, $\lambda=9/10$), ambas as condições de transferência fecham em $N=3350$ na grade testada. A aritmética dirigida também recupera os valores estritamente positivos que foram impressos como zero por subfluxo de `float64`: 20 ocorrências de $g$ e 16 de $b^2$. A faixa do déficit de 1600 a 4500 foi verificada em Arb e complementa a validação da V.40 de 4500 até $10^6$. A passagem de A4 continua condicionada à positividade das cabeças completas. [Entrada original](v38_inputs/P93V38_A1_A4_resultados.json) · [Replay V.38](v38_audit.json)
+
+O post indicado reproduz imagens da primeira versão do guia de Rubinstein. A auditoria relaciona a notação das imagens ao PDF integral, reproduz cálculos finitos da exposição e registra as hipóteses usadas no argumento de Alpöge. [Auditoria do guia](RUBINSTEIN.md)
+
 ## Reprodução
 
 Da raiz do repositório, em Python 3.12
@@ -74,8 +99,16 @@ python -m NUMERIA_P93V40.digamma_binet --precision 256
 python -m NUMERIA_P93V40.transfer
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_strip_floor_100.json
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_two_strip_floor_100.json
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_unshifted_200.json
 python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
 python -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
+python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips
+python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips --chebyshev-tail --retain 1/4
+python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_replay_100.json
+python -O -m NUMERIA_P93V40.v38_audit --verify NUMERIA_P93V40/v38_audit.json
+python -O -m NUMERIA_P93V40.rubinstein_replay --verify NUMERIA_P93V40/rubinstein_replay.json
 ```
 
 A certificação é para a forma finita especificada. Ela deixa em aberto o cruzamento completo e a Hipótese de Riemann global.

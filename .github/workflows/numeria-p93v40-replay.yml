@@ -47,11 +47,40 @@ jobs:
           cmp NUMERIA_P93V40/transfer.json "$RUNNER_TEMP/transfer.json"
           python -m NUMERIA_P93V40.transfer --margin 1e-64 > "$RUNNER_TEMP/transfer-relaxed.json"
           cmp NUMERIA_P93V40/transfer_relaxed.json "$RUNNER_TEMP/transfer-relaxed.json"
-      - name: Reassemble the finite heads without using the archived entries
-        run: |
-          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_50.json
-          python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.json
+          python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips > "$RUNNER_TEMP/transfer-separated.json"
+          cmp NUMERIA_P93V40/transfer_separated_strips.json "$RUNNER_TEMP/transfer-separated.json"
+          python -m NUMERIA_P93V40.transfer --margin 8e-70 --separated-strips --chebyshev-tail --retain 1/4 > "$RUNNER_TEMP/transfer-chebyshev.json"
+          cmp NUMERIA_P93V40/transfer_chebyshev.json "$RUNNER_TEMP/transfer-chebyshev.json"
+          python -m NUMERIA_P93V40.witness_spectral NUMERIA_P93V40/prefix_replay_100.json > "$RUNNER_TEMP/witness-spectral.json"
+          cmp NUMERIA_P93V40/witness_spectral.json "$RUNNER_TEMP/witness-spectral.json"
           python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
+          python -O -m NUMERIA_P93V40.v38_audit --verify NUMERIA_P93V40/v38_audit.json
+          python -O -m NUMERIA_P93V40.rubinstein_replay --verify NUMERIA_P93V40/rubinstein_replay.json
+  head:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        certificate:
+          - prefix_replay_50
+          - prefix_replay_100
+          - prefix_strip_floor_100
+          - prefix_two_strip_floor_100
+          - prefix_unshifted_200
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install pinned dependencies
+        run: python -m pip install -r NUMERIA_P93V40/requirements.txt
+      - name: Reassemble the finite heads without using the archived entries
+        env:
+          CERTIFICATE: ${{ matrix.certificate }}
+        run: python -O -m NUMERIA_P93V40.prefix --verify "NUMERIA_P93V40/$CERTIFICATE.json"
   penalty:
     runs-on: ubuntu-latest
     timeout-minutes: 18
