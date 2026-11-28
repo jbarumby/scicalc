@@ -70,6 +70,7 @@ jobs:
           - prefix_strip_floor_100
           - prefix_two_strip_floor_100
           - prefix_unshifted_200
+          - prefix_unshifted_400
           - prefix_prime16_100
     steps:
       - uses: actions/checkout@v5

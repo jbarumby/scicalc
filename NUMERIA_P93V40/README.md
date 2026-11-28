@@ -78,6 +78,8 @@ Com as duas faixas, margem condicional $h=8\cdot10^{-70}$, retenção $h/4$ no c
 
 Uma rodada adicional com $h=10^{-70}$ provou 96 modos pares e 100 ímpares e achou, no suporte par de 97 modos, um quociente rigoroso em $(8{,}61969,8{,}61970)\cdot10^{-71}$. Esse limite superior fica abaixo até da estimativa uniforme refinada das faixas para a largura do ZIP. Ele exclui os alvos de cabeça necessários por **essa estimativa**, que cobra a mesma perda em todas as direções. Na rodada **sem deslocamento**, a congruência certificou as duas matrizes de **200 modos**. Os resultados apontam para uma transferência que acompanhe o custo de borda nas direções quase nulas, ou para uma janela mais próxima de $\log16/2$ depois de obter coercividade para uma cabeça suficiente. [Replay de 100 modos](prefix_two_strip_floor_100.json) · [Replay de 200 modos](prefix_unshifted_200.json)
 
+Uma montagem posterior a 768 bits certificou **400 modos por paridade** para o minorante auxiliar com $h=0$. A LDL direta encerrou com 46 pivôs pares e 48 ímpares comprovados. A congruência verificada deu dominância estrita nos dois blocos completos, com margens de linha transformadas maiores que $9/10$. A montagem também verifica os prefixos de 100 e 200. [Certificado dos 400 modos](prefix_unshifted_400.json)
+
 ### Custo de borda dentro da cabeça
 
 Para um polinômio de um setor, as duas bordas têm o mesmo supremo de $|f|$. Seja $u_n=\phi_n(a)$ e seja $M_N^2=\sum_{n\in \mathrm{setor}}(2n+1)n^4/(2a^3)$, com a soma restrita à cabeça. Pela desigualdade de Markov, $\|f'\|_\infty\le M_N\|f\|_2$. Para $x$ em uma das duas faixas de comprimento $\delta$, isso implica $|f(x)|\le|f(a)|+\delta M_N\|f\|_2$. O módulo da contribuição nova é no máximo $\kappa\|f\|_{\mathrm{bordas}}^2$. Aplicar $(x+y)^2\le 2x^2+2y^2$ dá a majorante matricial $4\kappa\delta\,uu^\top+4\kappa\delta^3M_N^2 I$. Sua parcela dominante tem posto um em cada paridade. Um teste independente integra diretamente a translação de polinômios de grau até três com Gauss–Legendre exato no grau do produto.
@@ -112,6 +114,7 @@ python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_replay_100.jso
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_strip_floor_100.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_two_strip_floor_100.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_unshifted_200.json
+python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_unshifted_400.json
 python -O -m NUMERIA_P93V40.prefix --verify NUMERIA_P93V40/prefix_prime16_100.json
 python -m NUMERIA_P93V40.origin --verify NUMERIA_P93V40/obstruction_origin.json
 python -m NUMERIA_P93V40.penalty --verify NUMERIA_P93V40/penalty_replay_600.json
